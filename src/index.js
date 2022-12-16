@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
 import MWalletList from "./components/MWalletList";
+import MWalletMain from './components/MWalletMain';
 
 const script1 = `{
   "ScriptAll": {
@@ -22,60 +23,64 @@ const script1 = `{
   }
 }`
 
-const myWallet = new Wallet(script1);
+const myWallet = new Wallet(script1,"Leos Wallet");
 await myWallet.initialize();
 let tx 
 class App extends React.Component {
   state= {
-    wallets: [myWallet]
+    wallets: [myWallet ],
+    selectedWallet: 0
   }
 
 
-  async renderUtxos(){
-    
-    console.log( myWallet.getAddress())
-    myWallet.getUtxos()
-    
-  }
   
-  async createTx(){
-    myWallet.createTx(500000000000,"addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf")
+  async createTx(amount,address){
+    const wallets = this.state.wallets
+     await this.state.wallets[this.state.selectedWallet].createTx(amount,address)
+    this.setState({wallets})
   }
 
-  async addSignature(){
-    console.log(window.cardano)
-    const api = await window.cardano.lace.enable()
+  
+  async addSignature(tx){
+    console.log(tx)
+    const api = await window.cardano.nami.enable()
+    let signature = await api.signTx(tx.tx.toString(),true)
+    
     const wallets = this.state.wallets
-    let signature = await api.signTx(wallets[0].tx.toString(),true)
-    wallets[0].addSignature(signature)
+    wallets[this.state.selectedWallet].addSignature(signature)
     this.setState({wallets})
   }
 
   async addWallet(){
     const wallets = this.state.wallets
-    const myWallet = new Wallet(script1);
+    const myWallet = new Wallet(script1,"Leos 2");
     await myWallet.initialize();
     wallets.push(myWallet)
     this.setState(wallets)
   }
 
-  async submit(){
-    myWallet.submitTransaction()
+  selectWallet(key){
+    const selectedWallet = key
+    console.log("Click")
+    this.setState( { selectedWallet})
+  }
+
+  async submit(tx){
+    myWallet.submitTransaction(tx)
   }
 
   render() {
     return (
       <div className='App'>
-        <button onClick={this.renderUtxos}>render</button>
-        <button onClick={this.createTx}>Create Tx</button>
-        <button onClick={ () => this.addSignature()}>Add Signiture</button>
-        
-        <button onClick={ () => this.addWallet()}>Add Wallet</button>
-        
-        <button onClick={this.submit}>Submit</button>
-
         <h1>MWallet</h1>
-        <MWalletList wallets={this.state.wallets}></MWalletList>
+        <React.StrictMode>
+
+        <div className='WalletInner'>
+            <MWalletList root={this}  ></MWalletList>
+            <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain>
+        </div>
+        </React.StrictMode>
+
       </div>
     );
   }

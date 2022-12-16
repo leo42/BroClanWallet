@@ -7,7 +7,7 @@ const data1 = await Datasource.from_blockfrost("preprodLZ9dHVU61qVg6DSoYjxAUmIsI
 
 class Wallet {
     // Initialize the wallet with the provided script and address
-    constructor(wallet_json) {
+    constructor(wallet_json,name) {
     //   const address =  Address.from_bech32("addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf") // L
             
     //   const address2 =  Address.from_bech32("addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m") // Trash
@@ -20,8 +20,8 @@ class Wallet {
 
       this.wallet_script = NativeScript.from_json(wallet_json)
       this.wallet_address = "";
+      this.name=name
       this.pendingTxs = [];
-      this.signatures = [];
       
     }
 
@@ -49,6 +49,8 @@ class Wallet {
         ]
       } )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
+      await this.loadUtxos()
+
       console.log(this.lucidNativeScript)
     }
     // Getters
@@ -56,13 +58,15 @@ class Wallet {
       return this.wallet_script;
     }
 
-
+    getName(){
+      return this.name
+    }
     getSignatures(){
       return this.signatures;
     }
 
-    async getBalance(){
-      const utxos =  await this.lucid.provider.getUtxos(this.getAddress())
+    getBalance(){
+      const utxos = this.utxos
       console.log(utxos)
       let result = 0
       utxos.map( utxo => {
@@ -71,12 +75,8 @@ class Wallet {
       }
 
       )
-      
       return result
-
- 
-
-    }
+   }
     getAddress() {
         const stakeCred =  StakeCredential.from_scripthash(this.wallet_script.hash())
     //    console.log("lucid address:" + this.utils.validatorToAddress(this.lucidNativeScript))
@@ -87,32 +87,46 @@ class Wallet {
     }
  
     async getUtxos() {
-        return await this.lucid.provider.getUtxos(this.getAddress())
-       
+        return this.utxos
+    }
+   
+    async loadUtxos() {
+      this.utxos = await this.lucid.provider.getUtxos(this.getAddress())
     }
     
+    getPendingTxs(){
+        return this.pendingTxs
+    }
+
+    getPendingTxDetails(index){
+      Transaction.from_bytes(this.pendingTxs[index].tx.toString())
+      return this.pendingTxs[index]
+
+    }
+
     async createTx(amount, destination){ 
       console.log(`Creating transaction of ${amount} Lovelace, for address: ${destination}`)
       const tx =  await this.lucid.newTx()
         .addSigner("addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf")
-        .addSigner("addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m")
+        .addSigner("addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf")
         .attachSpendingValidator(this.lucidNativeScript)
-        .payToAddress(destination,{lovelace: 1_000_000})
+        .payToAddress(destination,{lovelace: amount*1000000})
         .complete()
-      
-        console.log(await tx.toString())
-      this.tx = tx
+        
+      this.pendingTxs.push({tx:tx, signatures:[]})
+      console.log(this.pendingTxs)
     }
 
     addSignature(signature){
-      this.signatures.push(signature)
-      console.log(this.signatures)
+
+      this.pendingTxs[0].signatures.indexOf(signature) === -1 ? this.pendingTxs[0].signatures.push(signature) : console.log("This signature already exists");
+
     }
 
-    async submitTransaction(){
-       const signedTx = await this.tx.assemble(this.signatures).complete();
+    async submitTransaction(tx){
+       const signedTx = await tx.tx.assemble(tx.signatures).complete();
        const txHash = await signedTx.submit();
-
+      this.pendingTxs=[]
       console.log(txHash);
 
     }

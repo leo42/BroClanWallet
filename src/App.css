@@ -25,6 +25,20 @@
   color: white;
 }
 
+.WalletInner{
+  display: flex;
+  height: 100%;
+  flex-direction: row;
+}
+
+.WalletMain{
+  margin: 20px;
+
+}
+.addWalletButton{
+  width: 100%;
+  bottom: 0;
+}
 .MWalletList{
   width: 20vw;
   border-style:groove;
@@ -32,6 +46,10 @@
 }
 .App-link {
   color: #61dafb;
+}
+.WalletMain{
+  align-items: center;
+  width:100%;
 }
 
 .MWalletThumb {

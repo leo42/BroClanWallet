@@ -6,9 +6,13 @@ function WWalletList (props) {
     
     return (
         <div className="MWalletList">
-        {wallets.map( (item, index) => (
-            <MWalletThumb wallet={item} key={index} > </MWalletThumb>
+        {props.root.state.wallets.map( (item, index) => (
+
+            <MWalletThumb wallet={item} key={index} index={index} root={props.root}></MWalletThumb>
         ))}
+
+        <button className='addWalletButton' onClick={ () => props.root.addWallet()}>+</button>
+
     </div>);
     
 }
