@@ -25,6 +25,11 @@
   color: white;
 }
 
+.Json_input_box{
+  height: 700px;
+  width: 550px;
+}
+
 .WalletInner{
   display: flex;
   height: 100%;
