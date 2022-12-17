@@ -98,9 +98,15 @@ class Wallet {
         return this.pendingTxs
     }
 
-    getPendingTxDetails(index){
-      Transaction.from_bytes(this.pendingTxs[index].tx.toString())
-      return this.pendingTxs[index]
+    decodeTransaction(tx){
+      const hexArray = tx.toString().match(/.{2}/g);
+
+      const byteArray = hexArray.map(byte => parseInt(byte, 16));
+
+      const uint8Array = new Uint8Array(byteArray);
+      const txBody =  Transaction.from_bytes(uint8Array).body().to_js_value()
+  
+      return txBody
 
     }
 

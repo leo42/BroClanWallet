@@ -25,7 +25,7 @@ const script1 = `{
 
 const myWallet = new Wallet(script1,"Leos Wallet");
 await myWallet.initialize();
-let tx 
+
 class App extends React.Component {
   state= {
     wallets: [myWallet ],
@@ -40,12 +40,10 @@ class App extends React.Component {
     this.setState({wallets})
   }
 
-  
-  async addSignature(tx){
-    console.log(tx)
-    const api = await window.cardano.nami.enable()
-    let signature = await api.signTx(tx.tx.toString(),true)
-    
+
+
+
+  addSignature(signature){ 
     const wallets = this.state.wallets
     wallets[this.state.selectedWallet].addSignature(signature)
     this.setState({wallets})

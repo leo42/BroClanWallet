@@ -16,7 +16,7 @@ class MWalletMain extends React.Component {
         <MWalletCreateTx root={this.props.root}></MWalletCreateTx>
         <div>pendingTxs: 
             {this.props.wallet.getPendingTxs().map( (pendingTx, index) => (
-             <MWalletPendingTxs root={this.props.root} tx={pendingTx} key={index}></MWalletPendingTxs>
+             <MWalletPendingTxs root={this.props.root} tx={pendingTx} index={index} key={index}></MWalletPendingTxs>
         ) )}
         </div>
         </div>
