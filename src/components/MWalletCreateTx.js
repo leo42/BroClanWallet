@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
 
 function MWalletCreateTx(props) {
+  const wallet = props.root.state.wallets[props.root.state.selectedWallet]
+  
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
 
+  const [signers, setCheckedState] = useState(
+    new Array(wallet.getSigners().length).fill(true)
+  );
+
+  const handleOnChangeSigners = (position) => {
+    const updatedCheckedState = signers.map((item, index) =>
+      index === position ? !item : item
+    );
+   setCheckedState(updatedCheckedState);
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
-    props.root.createTx(amount,address);
+    const signersMap = wallet.getSigners()
+    const txSigners = signers.map((item, index) =>
+        item ? signersMap[index].hash : ""
+    )
+
+    console.log(signers)
+    props.root.createTx(amount,address, txSigners.filter((element, index) => signers[index]));
     // submit form data to the server
   };
 
@@ -31,6 +50,21 @@ function MWalletCreateTx(props) {
           onChange={event => setAmount(event.target.value)}
         />
       </label>
+      {wallet.getSigners().map( (item, index) => (
+        <div key={index}>
+       <br />
+       <label>
+         {item.name}:
+         <input
+           type="checkbox"
+           name="value"
+           value={index}
+           checked={signers[index]} 
+           onChange={  () =>  handleOnChangeSigners(index)  }
+         />
+       </label>
+       </div>
+      ) ) }
       <br />
       <button type="submit">Create Transaction</button>
     </form>

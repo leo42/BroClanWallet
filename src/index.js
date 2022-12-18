@@ -35,9 +35,9 @@ class App extends React.Component {
 
 
   
-  async createTx(amount,address){
+  async createTx(amount,address,signers){
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createTx(amount,address)
+     await this.state.wallets[this.state.selectedWallet].createTx(amount,address,signers)
     this.setState({wallets})
   }
 
