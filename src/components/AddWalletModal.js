@@ -272,7 +272,7 @@ class AddWalletModal extends React.Component {
             current.keyHash=""
             delete current.scripts
             delete current.required
-          
+            delete current.slot
             break;
     }
     console.log(json)
