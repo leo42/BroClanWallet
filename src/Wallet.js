@@ -19,7 +19,6 @@ class Wallet {
     //   this.wallet_script = NativeScript.new_script_all( ScriptAll.new(mintingScripts))
       this.signersNames = []
        
-      this.extractSignerNames(wallet_json)
       this.wallet_script = wallet_json
       this.wallet_address = "";
       this.name=name
@@ -33,6 +32,10 @@ class Wallet {
           const element = json[key];
           if (element.type === "sig"){
             this.signersNames.push( { hash:element.keyHash , name:element.name})
+            if (element.keyHash.substring(0, 5)=== "addr_"){
+              
+                element.keyHash=this.utils.getAddressDetails(element.keyHash).paymentCredential.hash
+                }
           } else if (typeof element === 'object') {
             this.extractSignerNames(element);
           } 
@@ -46,14 +49,15 @@ class Wallet {
         "Preprod",
       );
       this.utils = new Utils(this.lucid)
-      
+      this.extractSignerNames(this.wallet_script)
+
       this.lucidNativeScript = this.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
 
       console.log(this.lucidNativeScript)
     }
-    // Getters
+
     getScript() {
       return this.wallet_script;
     }
@@ -103,29 +107,31 @@ class Wallet {
 
     }
 
+    checkSigners(signers){
+      return true
+
+      
+    }
     
     async createTx(amount, destination, signers){ 
       console.log(`Creating transaction of ${amount} Lovelace, for address: ${destination}`)
-      
-      // signers.map(value => (
-        //  tx.addSigner(value)
-        // )
-        // )
-        console.log(signers)
+
+      if ( !this.checkSigners(signers)){
+        return ("Not enough signers")
+      }
+
       const tx = this.lucid.newTx()
 
       signers.map( value => (
         tx.addSignerKey(value)
       ))
-
-      //.addSigner("addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf")
-      //.addSigner("addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m")
       
       const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
       .payToAddress(destination,{lovelace: amount*1000000})
       .complete()
       
       this.pendingTxs.push({tx:completedTx, signatures:[]})
+      return "Sucsess"
     }
 
     decodeSignature(signature){
