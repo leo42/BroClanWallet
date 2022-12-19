@@ -100,7 +100,7 @@ class AddWalletModal extends React.Component {
     for (const index of coordinates) {
       current = current.scripts[index];
     }
-    current.required=value
+    current.required=Number.parseInt(value)
 
     console.log(json)
     this.setState({json})

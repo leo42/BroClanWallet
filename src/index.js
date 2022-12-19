@@ -27,9 +27,59 @@ console.log(JSON.stringify(script1))
 const myWallet = new Wallet(script1,"Leos Wallet");
 await myWallet.initialize();
 
+const script2 = {
+  "type": "any",
+  "scripts":
+  [
+    {
+      "type": "sig",
+      "name" : "test",
+      "keyHash": "487b9485cf18d99e875e7aef9b80c4d3a89cccddefbc2641c87da293"
+    },
+    {
+      "type": "sig",
+      "name": "Leo",
+      "keyHash": "7190ae1c26a87ed572e8d72049454ddc874d360293c1eb43aef490e3"
+    },
+  ]
+} 
+
+
+
+console.log(JSON.stringify(script2))
+const myWallet2 = new Wallet(script2,"Leos2 Wallet");
+await myWallet2.initialize();
+
+
+const script3 ={
+  "type": "atLeast",
+  "scripts": [
+      {
+          "type": "sig",
+          "name": "Leo",
+          "keyHash": "487b9485cf18d99e875e7aef9b80c4d3a89cccddefbc2641c87da293"
+      },
+      {
+          "type": "sig",
+          "name": "tamiaki",
+          "keyHash": "1974f3669dae35113e20425d486ef3aa07ee19d40e3503e3aff5d0de"
+      },
+      {
+          "type": "sig",
+          "name": "trash",
+          "keyHash": "7190ae1c26a87ed572e8d72049454ddc874d360293c1eb43aef490e3"
+      }
+  ],
+  "required": 2
+}
+
+console.log(JSON.stringify(script3))
+const myWallet3 = new Wallet(script3,"Leos 2 out of 3");
+await myWallet3.initialize();
+
 class App extends React.Component {
   state= {
-    wallets: [myWallet ],
+    wallets: [myWallet,myWallet2 , myWallet3],
     selectedWallet: 0
   }
 

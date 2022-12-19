@@ -1,35 +1,52 @@
 import React, { useState } from 'react';
 
 function MWalletCreateTx(props) {
-  const wallet = props.root.state.wallets[props.root.state.selectedWallet]
-  
+  const wallet = props.wallet
+  const initialState = [] 
+  wallet.getSigners().map( () =>
+    initialState.push(true)
+  ) 
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
-
-  const [signers, setCheckedState] = useState(
-    new Array(wallet.getSigners().length).fill(true)
-  );
+  const [signers, setCheckedState] = useState(initialState);
 
   const handleOnChangeSigners = (position) => {
-    const updatedCheckedState = signers.map((item, index) =>
-      index === position ? !item : item
-    );
-   setCheckedState(updatedCheckedState);
+    const updatedCheckedState = [...signers]
+    updatedCheckedState[position] = !updatedCheckedState[position]
+    setCheckedState(updatedCheckedState);
   };
 
   const handleSubmit = event => {
     event.preventDefault();
-    const signersMap = wallet.getSigners()
+   
     const txSigners = signers.map((item, index) =>
-        item ? signersMap[index].hash : ""
+        item ? wallet.getSigners()[index].hash : ""
     )
+    console.log( "Leooo", signers)
 
-    console.log(signers)
     props.root.createTx(amount,address, txSigners.filter((element, index) => signers[index]));
-    // submit form data to the server
-  };
-
+  }
+ 
+   const SignersSelect =  wallet.getSigners().map( (item, index) => (
+    <div key={index}>
+   <br />
+   <label>
+     {wallet.getSigners()[index].name}:
+     <input
+       type="checkbox"
+       name="value"
+       value={index}
+       checked={signers[index]} 
+       onChange={  () =>  handleOnChangeSigners(index)  }
+      
+     />
+   </label>
+   </div>
+  ) ) 
+  
+   
   return (
+    
     <form onSubmit={handleSubmit}>
       <label>
         Address:
@@ -50,25 +67,11 @@ function MWalletCreateTx(props) {
           onChange={event => setAmount(event.target.value)}
         />
       </label>
-      {wallet.getSigners().map( (item, index) => (
-        <div key={index}>
-       <br />
-       <label>
-         {item.name}:
-         <input
-           type="checkbox"
-           name="value"
-           value={index}
-           checked={signers[index]} 
-           onChange={  () =>  handleOnChangeSigners(index)  }
-         />
-       </label>
-       </div>
-      ) ) }
+      { SignersSelect}
       <br />
       <button type="submit">Create Transaction</button>
     </form>
   );
-}
 
+}
 export default MWalletCreateTx;

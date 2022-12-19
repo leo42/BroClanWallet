@@ -108,16 +108,91 @@ class Wallet {
     }
 
     checkSigners(signers){
-      return true
+        const json=this.wallet_script
+        console.log(signers)
+        return checkRoot(json)
+
+
+        function checkAll(json){
+              for (var index = 0; index < json.length; index++){
+                console.log("Checking All:" , json)
+
+                if (!checkRoot(json[index]) ){
+                  return false;
+                }
+              }
+              return true
+          }
+
+        function checkAny(json){
+            for (var index = 0; index < json.length; index++){
+              console.log("Checking All:" , json)
+
+              if (checkRoot(json[index]) ){
+                return true;
+              }
+            }
+            return false
+        }
+
+        function checkAtLeast(json,required){
+          var sigs=0;
+          console.log("Checking At least:" , json)
+          for (var index = 0; index < json.length; index++){
+
+            if (checkRoot(json[index]) ){
+               sigs++
+               
+            }
+            console.log(sigs)
+            if(sigs >= required){
+              return true
+            }
+            
+          }
+          return false
+       }
+        
+
+        function checkSig(json){
+          console.log("Checking signature:" +json.name)
+          console.log("Checking signature:" +json.keyHash)
+            if( signers.includes( json.keyHash))
+              return true
+            else
+              return false
+        }
+
+        function checkRoot(json) {
+          console.log("Checking Root:" )
+
+            switch (json.type) {
+              case "all": 
+                    return checkAll(json.scripts)
+                    break;
+              case "any": 
+                    return checkAny(json.scripts)
+                    break;
+              case "atLeast":
+                    return  checkAtLeast(json.scripts,json.required)
+                    break;
+              case "sig":
+                    return checkSig(json)
+                    break;
+     
+   
+          }}
+      }
 
       
-    }
+    
     
     async createTx(amount, destination, signers){ 
       console.log(`Creating transaction of ${amount} Lovelace, for address: ${destination}`)
 
-      if ( !this.checkSigners(signers)){
-        return ("Not enough signers")
+      if (!this.checkSigners(signers)){
+        console.log("Not enough signers")
+        return "Not enough signers"
       }
 
       const tx = this.lucid.newTx()

@@ -13,7 +13,7 @@ class MWalletMain extends React.Component {
             {(this.props.wallet.getBalance()/1000000).toFixed(2)}tA
 
    
-        <MWalletCreateTx root={this.props.root}></MWalletCreateTx>
+        <MWalletCreateTx key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></MWalletCreateTx>
         <div>pendingTxs: 
             {this.props.wallet.getPendingTxs().map( (pendingTx, index) => (
               <MWalletPendingTxs root={this.props.root} tx={pendingTx} index={index} key={index}></MWalletPendingTxs>
