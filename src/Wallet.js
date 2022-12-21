@@ -34,8 +34,8 @@ class Wallet {
             this.signersNames.push( { hash:element.keyHash , name:element.name})
             if (element.keyHash.substring(0, 5)=== "addr_"){
               
-                element.keyHash=this.utils.getAddressDetails(element.keyHash).paymentCredential.hash
-                }
+              element.keyHash=this.utils.getAddressDetails(element.keyHash).paymentCredential.hash
+            }
           } else if (typeof element === 'object') {
             this.extractSignerNames(element);
           } 
@@ -80,8 +80,9 @@ class Wallet {
       return result
    }
     getAddress() {
-
-        return this.utils.validatorToAddress(this.lucidNativeScript)
+        const rewardAddress = this.utils.validatorToScriptHash(this.lucidNativeScript)
+      console.log(this.lucidNativeScript)
+        return this.utils.validatorToAddress(this.lucidNativeScript, {type:"Script", hash: rewardAddress} )
     }
  
     getSigners(){
