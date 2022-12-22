@@ -71,6 +71,7 @@ class Wallet {
 
     getBalance(){
       const utxos = this.utxos
+      console.log(utxos)
       let result = 0
       utxos.map( utxo => {
         result += Number( utxo.assets.lovelace)
@@ -79,6 +80,7 @@ class Wallet {
       )
       return result
    }
+
     getAddress() {
         const rewardAddress = this.utils.validatorToScriptHash(this.lucidNativeScript)
       console.log(this.lucidNativeScript)
@@ -204,6 +206,30 @@ class Wallet {
       
       const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
       .payToAddress(destination,{lovelace: amount*1000000})
+      .complete()
+      
+      this.pendingTxs.push({tx:completedTx, signatures:[]})
+      return "Sucsess"
+    }
+
+    async createDelegationTx(pool, signers){ 
+      console.log(`Creating delegation transaction for pool: ${pool}`)
+      const rewardAddress = this.utils.validatorToRewardAddress(this.lucidNativeScript)
+      if (!this.checkSigners(signers)){
+        console.log("Not enough signers")
+        return "Not enough signers"
+      }
+
+      const tx = this.lucid.newTx()
+
+      signers.map( value => (
+        tx.addSignerKey(value)
+      ))
+      
+      const completedTx = await tx.payToAddress(this.getAddress(),{lovelace: 5000000})
+      //  .delegateTo(rewardAddress,pool)
+      .attachSpendingValidator(this.lucidNativeScript)
+      .delegateTo(rewardAddress,pool)
       .complete()
       
       this.pendingTxs.push({tx:completedTx, signatures:[]})
