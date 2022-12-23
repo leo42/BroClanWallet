@@ -77,6 +77,8 @@ console.log(JSON.stringify(script3))
 const myWallet3 = new Wallet(script3,"Leos 2 out of 3");
 await myWallet3.initialize();
 
+//myWallet.addSignature("a1008182582024a97c7d033acb4292cacac9e6de546b9a02e1492d7f76226c8e5ed5be5aa13358408b2318f6834a057e383738614e37cfefb630d7fb7f56a97163bc54b39d26a4aa7a2934a55535fd40995cce1adce976f3d2e7deb06fbcb5abaff19a306bf39f00")
+
 class App extends React.Component {
   state= {
     wallets: [myWallet,myWallet2 , myWallet3],

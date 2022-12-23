@@ -237,13 +237,28 @@ class Wallet {
     }
 
     decodeSignature(signature){
-     // const uint8Array = new Uint8Array(signature.toString().match(/.{2}/g).map(byte => parseInt(byte, 16)));
-      //const Vkeywitness  =  Vkeywitness.from_bytes(uint8Array).to_js_value()
-      //return Vkeywitness
-      return "hey"
+      console.log(signature)
+
+      
+      const witness  =  C.TransactionWitnessSet.from_bytes(hexToBytes(signature))
+      const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex()
+      console.log( witness.to_json())
+      console.log(this.signersNames)
+      return {signer: signer }
+      
+      function hexToBytes(hex) {
+        for (var bytes = [], c = 0; c < hex.length; c += 2)
+          bytes.push(parseInt(hex.substr(c, 2), 16));
+        return bytes;
+      }
+
+
     }
     
-    addSignature(signature){
+    async addSignature(signature){
+      const signatureInfo = this.decodeSignature(signature)
+      this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
+      console.log(await this.pendingTxs[0].tx.assemble([signature]).complete())
       this.pendingTxs[0].signatures.indexOf(signature) === -1 ? this.pendingTxs[0].signatures.push(signature) : console.log("This signature already exists");
 
     }
@@ -259,6 +274,7 @@ class Wallet {
     setScript(wallet_script) {
       this.wallet_script = wallet_script;
     }
+    
     setAddress(wallet_address) {
       this.wallet_address = wallet_address;
     }
