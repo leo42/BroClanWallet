@@ -27,7 +27,7 @@ function MWalletPendingTxs(props) {
             
             <button onClick={() => setWalletPickerOpen(true)} >add signature</button>
         
-            <button onClick={() => props.root.submit(props.tx)} >Submit</button>
+            <button onClick={() => props.root.submit(props.index)} >Submit</button>
         </div>
     )
 }

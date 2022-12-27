@@ -277,11 +277,12 @@ class Wallet {
 
     }
 
-    async submitTransaction(tx){
+    async submitTransaction(index){
+       const tx = this.pendingTxs[index]
        const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
        const txHash = await signedTx.submit();
-      this.pendingTxs=[]
-      console.log(txHash);
+       this.pendingTxs = this.pendingTxs.filter( (item,i) => i!==index)
+       console.log(txHash);
 
     }
     // Setters

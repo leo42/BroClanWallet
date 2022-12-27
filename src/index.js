@@ -121,8 +121,10 @@ class App extends React.Component {
     this.setState( { selectedWallet})
   }
 
-  async submit(tx){
-    myWallet.submitTransaction(tx)
+  async submit(index){
+    const wallets = this.state.wallets
+    wallets[this.state.selectedWallet].submitTransaction(index)
+    this.setState({wallets})
   }
 
   render() {
