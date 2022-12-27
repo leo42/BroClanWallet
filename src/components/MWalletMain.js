@@ -1,16 +1,19 @@
 import React from 'react';
 import MWalletCreateTx from "./MWalletCreateTx"
 import MWalletPendingTxs from './MWalletPendingTxs';
-import MWalletDelegation
- from './MWalletDelegation';
+import MWalletDelegation from './MWalletDelegation';
+import MWalletOverview from './MWalletOverview'
+
 class MWalletMain extends React.Component {
     state = {
-        showing: "summary"
+        showing: "overview"
     }
 
 
     mainView() {
         switch ( this.state.showing){
+            case "overview":
+                return  <MWalletOverview key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></MWalletOverview>
             case "createTx":
                 return  <MWalletCreateTx key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></MWalletCreateTx>
             case "delegation":
@@ -33,10 +36,10 @@ class MWalletMain extends React.Component {
 
             {(this.props.wallet.getBalance()/1000000).toFixed(2)}tA
             <br/>
-
-            <button type="submit" value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Transaction</button>
-            <button type="submit" value="delegation" onClick={(event) => this.setState({showing: event.target.value })}> Delegation</button>
-            <button type="pendingTxs" value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>
+            <button value="overview" onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
+            <button value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Transaction</button>
+            <button value="delegation" onClick={(event) => this.setState({showing: event.target.value })}> Delegation</button>
+            <button  value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>
 
         
         <br/>

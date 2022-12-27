@@ -18,6 +18,9 @@ function MWalletPendingTxs(props) {
 
     return (
         <div className="pedningTx">
+             Fee:{txDetails.fee/1000000}<br/>
+
+
              {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}
             {txDetails.signatures.map( (item, index) => (
                 <div key={index} className={"pendingTx_signer"+ (item.haveSig ? " pendingTx_signer_signed" : "")} >Hey { item.name}</div>

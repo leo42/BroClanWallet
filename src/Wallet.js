@@ -90,6 +90,22 @@ class Wallet {
       return result
    }
 
+   getBalanceFull(){
+    const utxos = this.utxos
+    let result = {}
+    utxos.map( utxo => {
+      console.log(utxo)
+      for (var asset in  utxo.assets ) {
+        console.log(asset)
+        asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
+      } }
+      )
+    
+  
+    
+    return result
+ }
+
     getAddress() {
         const rewardAddress = this.utils.validatorToScriptHash(this.lucidNativeScript)
         return this.utils.validatorToAddress(this.lucidNativeScript, {type:"Script", hash: rewardAddress} )
