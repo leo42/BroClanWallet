@@ -43,6 +43,16 @@ class Wallet {
       }
     }
 
+    keyHashToSighnerName(keyHash){
+      for(var index=0; index< this.signersNames.length; index++){
+        if (this.signersNames[index].hash == keyHash){
+          let name=this.signersNames[index].name
+          return name
+        };
+      }
+    
+    }
+
     async initialize (){
       this.lucid = await Lucid.new(
         new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
@@ -106,6 +116,14 @@ class Wallet {
   
       return txBody
 
+    }
+
+    getPendingTxDetails(index){
+      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx)
+      txDetails.signatures = txDetails.required_signers.map( (keyHash) => (
+        {name: this.keyHashToSighnerName(keyHash) , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
+      ))
+      return txDetails
     }
 
     checkSigners(signers){
@@ -198,7 +216,7 @@ class Wallet {
       .payToAddress(destination,{lovelace: amount*1000000})
       .complete()
       
-      this.pendingTxs.push({tx:completedTx, signatures:[]})
+      this.pendingTxs.push({tx:completedTx, signatures:{}})
       return "Sucsess"
     }
 
@@ -236,10 +254,7 @@ class Wallet {
       console.log() 
 
       console.log(this.signersNames)
-      return {signer: signer , witness : witness}
-      
-      
-      
+      return {signer: signer , witness : witness}     
     }
     hexToBytes(hex) {
       for (var bytes = [], c = 0; c < hex.length; c += 2)
@@ -250,11 +265,12 @@ class Wallet {
     async addSignature(signature){
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
+
       for (var index = 0; index < this.pendingTxs.length; index++){
             this.pendingTxs[index] 
             if (signatureInfo.witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(this.pendingTxs[index].tx.toHash()), signatureInfo.witness.vkeys().get(0).signature()))
             {
-              this.pendingTxs[index].signatures.indexOf(signature) === -1 ? this.pendingTxs[index].signatures.push(signature) : console.log("This signature already exists");
+              !(signatureInfo.signer in this.pendingTxs[index].signatures) ? this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)  : console.log("This signature already exists");
             }
 
         }
@@ -262,7 +278,7 @@ class Wallet {
     }
 
     async submitTransaction(tx){
-       const signedTx = await tx.tx.assemble(tx.signatures).complete();
+       const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
        const txHash = await signedTx.submit();
       this.pendingTxs=[]
       console.log(txHash);

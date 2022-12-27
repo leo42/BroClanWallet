@@ -70,6 +70,17 @@
   cursor:pointer
 }
 
+
+
+.pendingTx_signer{
+  color:rgb(131, 60, 107);
+  margin: 20px;
+}
+
+.pendingTx_signer_signed{
+  color: rgb(15, 158, 15);
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
