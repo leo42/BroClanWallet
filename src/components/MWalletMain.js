@@ -17,7 +17,7 @@ class MWalletMain extends React.Component {
                 return  <MWalletDelegation key={this.props.root.state.selectedWallet+"delegation"} wallet={this.props.wallet} root={this.props.root}  ></MWalletDelegation>
             case "pendingTxs": 
                 return(  this.props.wallet.getPendingTxs().map( (pendingTx, index) => (
-                  <MWalletPendingTxs root={this.props.root} tx={pendingTx} index={index} key={index}></MWalletPendingTxs>
+                  <MWalletPendingTxs root={this.props.root} tx={pendingTx} index={index} key={this.props.root.state.selectedWallet + index}></MWalletPendingTxs>
             ) ))
           
 

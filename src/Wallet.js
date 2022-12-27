@@ -71,7 +71,6 @@ class Wallet {
 
     getBalance(){
       const utxos = this.utxos
-      console.log(utxos)
       let result = 0
       utxos.map( utxo => {
         result += Number( utxo.assets.lovelace)
@@ -83,7 +82,6 @@ class Wallet {
 
     getAddress() {
         const rewardAddress = this.utils.validatorToScriptHash(this.lucidNativeScript)
-      console.log(this.lucidNativeScript)
         return this.utils.validatorToAddress(this.lucidNativeScript, {type:"Script", hash: rewardAddress} )
     }
  
@@ -112,13 +110,11 @@ class Wallet {
 
     checkSigners(signers){
         const json=this.wallet_script
-        console.log(signers)
         return checkRoot(json)
 
 
         function checkAll(json){
               for (var index = 0; index < json.length; index++){
-                console.log("Checking All:" , json)
 
                 if (!checkRoot(json[index]) ){
                   return false;
@@ -129,7 +125,6 @@ class Wallet {
 
         function checkAny(json){
             for (var index = 0; index < json.length; index++){
-              console.log("Checking All:" , json)
 
               if (checkRoot(json[index]) ){
                 return true;
@@ -140,14 +135,12 @@ class Wallet {
 
         function checkAtLeast(json,required){
           var sigs=0;
-          console.log("Checking At least:" , json)
           for (var index = 0; index < json.length; index++){
 
             if (checkRoot(json[index]) ){
                sigs++
                
             }
-            console.log(sigs)
             if(sigs >= required){
               return true
             }
@@ -158,8 +151,7 @@ class Wallet {
         
 
         function checkSig(json){
-          console.log("Checking signature:" +json.name)
-          console.log("Checking signature:" +json.keyHash)
+
             if( signers.includes( json.keyHash))
               return true
             else
@@ -167,8 +159,6 @@ class Wallet {
         }
 
         function checkRoot(json) {
-          console.log("Checking Root:" )
-
             switch (json.type) {
               case "all": 
                     return checkAll(json.scripts)
@@ -240,26 +230,34 @@ class Wallet {
       console.log(signature)
 
       
-      const witness  =  C.TransactionWitnessSet.from_bytes(hexToBytes(signature))
+      const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex()
-      console.log( witness.to_json())
+      console.log(witness.to_js_value())
+      console.log() 
+
       console.log(this.signersNames)
-      return {signer: signer }
+      return {signer: signer , witness : witness}
       
-      function hexToBytes(hex) {
-        for (var bytes = [], c = 0; c < hex.length; c += 2)
-          bytes.push(parseInt(hex.substr(c, 2), 16));
-        return bytes;
-      }
-
-
+      
+      
+    }
+    hexToBytes(hex) {
+      for (var bytes = [], c = 0; c < hex.length; c += 2)
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+      return bytes;
     }
     
     async addSignature(signature){
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
-      console.log(await this.pendingTxs[0].tx.assemble([signature]).complete())
-      this.pendingTxs[0].signatures.indexOf(signature) === -1 ? this.pendingTxs[0].signatures.push(signature) : console.log("This signature already exists");
+      for (var index = 0; index < this.pendingTxs.length; index++){
+            this.pendingTxs[index] 
+            if (signatureInfo.witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(this.pendingTxs[index].tx.toHash()), signatureInfo.witness.vkeys().get(0).signature()))
+            {
+              this.pendingTxs[index].signatures.indexOf(signature) === -1 ? this.pendingTxs[index].signatures.push(signature) : console.log("This signature already exists");
+            }
+
+        }
 
     }
 
