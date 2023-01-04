@@ -13,7 +13,7 @@ function MWalletOverview(props) {
     <div>
       Overview:
       {Object.keys(ballances).map((asset, index) => (
-            <div key={index}>{asset}:{ballances[asset].toString()}</div>
+            <div key={index}>{asset}:{ballances[asset].toString()}Gue Hue</div>
       ))}
 
     </div>

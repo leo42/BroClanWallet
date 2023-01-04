@@ -5,6 +5,14 @@ module.exports = {
 			filename: 'bundle.js',
 			path: path.join(__dirname, 'build/public')
     },
+	devServer: {
+		static: {
+		  directory: path.join(__dirname, 'build/public'),
+		},
+		compress: true,
+		port: 8080,
+	  },
+	
     module: {
 			rules: [{
 				loader: 'babel-loader',
@@ -16,10 +24,11 @@ module.exports = {
 			  },
 		]
     },
-		mode: 'development',
-		experiments: {
-			asyncWebAssembly: true,
-			topLevelAwait: true,
-			layers: true // optional, with some bundlers/frameworks it doesn't work without
-		  }
+
+	mode: 'development',
+	experiments: {
+		asyncWebAssembly: true,
+		topLevelAwait: true,
+		layers: true // optional, with some bundlers/frameworks it doesn't work without
+		}
 };

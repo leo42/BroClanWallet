@@ -44,10 +44,6 @@ const io = new Server(server,{
 });
 
 
-app.get('/', function(req, res) {
-  console.log(__dirname + 'public')
-  res.sendfile('public/index.html');
-});
 
 
 io.on('connection', (socket) => {
@@ -59,7 +55,7 @@ io.on('connection', (socket) => {
   //  console.log(socket);
   
   
-
+  
   
   
   socket.on('disconnect', () => {
@@ -79,6 +75,12 @@ io.on('connection', (socket) => {
 });
 
 };
+
+app.get('/api', function(req, res) {
+  console.log(__dirname + 'public')
+  console.log("Hey")
+  res.sendfile('public/index.html');
+});
 
 app.use(express.static(__dirname + '\\public'))
 server.listen(3001, () => {
