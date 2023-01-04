@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "start": "webpack serve"
+    "start": "webpack serve",
+    "dev":  "concurrently --kill-others \"webpack --watch\" \"tsc -w src/Be/server.ts --outFile build/server.js\" \"cd build && node --watch server.js \"" 
   },
   "keywords": [],
   "author": "",
@@ -14,16 +15,19 @@
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
+    "axios": "^1.2.2",
     "babel-loader": "^8.2.2",
     "lucid-cardano": "^0.7.9",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "socket.io": "^4.5.4",
     "style-loader": "^3.3.1",
     "webpack": "^5.75.0",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.0.0"
   },
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "css-loader": "^6.7.3"
   }
 }

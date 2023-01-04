@@ -1,7 +1,6 @@
-//import { Core } from "lucid-cardano" 
-import {  Utils , C , Lucid, Blockfrost ,ExternalWallet  } from "lucid-cardano";
+import {  Utils , C , Lucid, Blockfrost ,ExternalWallet  } from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
-const { Address ,  NativeScript , StakeCredential,  BaseAddress , ScriptPubkey, Vkeywitness  , Transaction} = C;
+const { Transaction} = C;
 
 const data1 = await Datasource.from_blockfrost("preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp")
 
@@ -50,7 +49,6 @@ class Wallet {
           return name
         };
       }
-    
     }
 
     async initialize (){
