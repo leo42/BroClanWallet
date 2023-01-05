@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function MWalletDelegation(props) {
+function WalletDelegation(props) {
   const wallet = props.wallet
   const initialState = [] 
   wallet.getSigners().map( () =>
@@ -61,4 +61,4 @@ function MWalletDelegation(props) {
   );
 
 }
-export default MWalletDelegation;
+export default WalletDelegation;

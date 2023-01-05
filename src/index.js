@@ -3,8 +3,8 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
-import MWalletList from "./components/MWalletList";
-import MWalletMain from './components/MWalletMain';
+import MWalletList from "./components/WalletList";
+import MWalletMain from './components/WalletMain';
 
 const script1 = {
   "type": "all",

@@ -1,10 +1,13 @@
-import React from 'react';
-import MWalletThumb from "./MWalletThumb";
-import AddWalletModal from './AddWalletModal';
+import React from "react";
 
-function WWalletList (props) {
-    const [addWalletOpen, setAddWalletOpen] = React.useState(false);
+function WalletList (props) {
+    const [metadata, setMetadata] = React.useState({});
 
+    async function getMetadata(){
+       await fetch()
+    }   
+
+    getMetadata()
     return (
         <div className="MWalletList">
         {addWalletOpen && <AddWalletModal setOpenModal={setAddWalletOpen} root={props.root} />}
@@ -20,4 +23,4 @@ function WWalletList (props) {
     
 }
  
-export default WWalletList;
+export default WalletList;

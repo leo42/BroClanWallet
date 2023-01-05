@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function MWalletCreateTx(props) {
+function WalletCreateTx(props) {
   const wallet = props.wallet
   const initialState = [] 
   wallet.getSigners().map( () =>
@@ -74,4 +74,4 @@ function MWalletCreateTx(props) {
   );
 
 }
-export default MWalletCreateTx;
+export default WalletCreateTx;

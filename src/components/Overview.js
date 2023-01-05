@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function MWalletOverview(props) {
+function Overview(props) {
   const wallet = props.wallet
   const initialState = [] 
   const ballances = wallet.getBalanceFull()
@@ -20,4 +20,4 @@ function MWalletOverview(props) {
   );
 
 }
-export default MWalletOverview;
+export default Overview;

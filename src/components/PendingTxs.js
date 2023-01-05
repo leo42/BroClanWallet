@@ -2,7 +2,7 @@ import React from "react";
 import WalletPicker from "./WalletPicker"
 
 
-function MWalletPendingTxs(props) {
+function WalletPendingTxs(props) {
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
 
     async function signWithLocalWallet(wallet){
@@ -35,4 +35,4 @@ function MWalletPendingTxs(props) {
     )
 }
 
-export default MWalletPendingTxs
+export default WalletPendingTxs

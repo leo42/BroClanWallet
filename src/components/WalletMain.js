@@ -1,14 +1,16 @@
 import React from 'react';
-import MWalletCreateTx from "./MWalletCreateTx"
-import MWalletPendingTxs from './MWalletPendingTxs';
-import MWalletDelegation from './MWalletDelegation';
-import MWalletOverview from './MWalletOverview'
+import MWalletCreateTx from "./WalletCreateTx"
+import MWalletPendingTxs from './PendingTxs';
+import MWalletDelegation from './WalletDelegation';
+import MWalletOverview from './Overview'
 
-class MWalletMain extends React.Component {
+class WalletMain extends React.Component {
     state = {
         showing: "overview"
     }
-
+    async test(){
+        console.log(await this.props.wallet.getTransactionHistory())
+    }
 
     mainView() {
         switch ( this.state.showing){
@@ -22,13 +24,11 @@ class MWalletMain extends React.Component {
                 return(  this.props.wallet.getPendingTxs().map( (pendingTx, index) => (
                   <MWalletPendingTxs root={this.props.root} tx={pendingTx} index={index} key={this.props.root.state.selectedWallet + index}></MWalletPendingTxs>
             ) ))
-          
-
         }
-
     } 
 
      render() { 
+        this.test()
         return (<div className='WalletMain'>
             {this.props.wallet.getName()}
             <br />
@@ -54,4 +54,4 @@ class MWalletMain extends React.Component {
     }
 }
  
-export default MWalletMain;
+export default WalletMain;
