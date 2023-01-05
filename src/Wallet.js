@@ -98,10 +98,18 @@ class Wallet {
         asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
       } }
       )
-    
-  
-    
     return result
+ }
+
+ async getTransactionHistory(){
+   let txList= await this.lucid.provider.getTransactions(this.getAddress())
+   console.log(txList)
+   let result = []
+   for(let index =0 ; index < txList.length; index++){
+    console.log(txList[index])
+     result.push(await this.lucid.provider.getTransactionDetails(txList[index].tx_hash))
+   }
+   return result    
  }
 
     getAddress() {
