@@ -133,7 +133,7 @@ class Wallet {
     }
    
     async loadUtxos() {
-      this.utxos = await this.lucid.provider.getUtxos(this.getAddress())
+      this.utxos = await this.lucid.provider.getUtxos(this.utils.getAddressDetails(this.getAddress()).paymentCredential)
     }
     
     getPendingTxs(){

@@ -4,6 +4,7 @@ import WalletPendingTxs from './PendingTxs';
 import WalletDelegation from './WalletDelegation';
 import WalletOverview from './Overview'
 import TransactionHistory from './TransactionHistory';
+import Receive from './Receive';
 import { toHex } from 'lucid-cardano';
 class WalletMain extends React.Component {
     state = {
@@ -27,6 +28,8 @@ class WalletMain extends React.Component {
             ) ))
             case "transactions": 
                 return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.root.state.selectedWallet}>  </TransactionHistory> 
+            case "receive": 
+                return  <Receive root={this.props.root}  wallet={this.props.wallet}  key={this.props.root.state.selectedWallet}>  </Receive> 
         }
     } 
 
@@ -44,6 +47,7 @@ class WalletMain extends React.Component {
             <button value="delegation" onClick={(event) => this.setState({showing: event.target.value })}> Delegation</button>
             <button  value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>        
             <button  value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Transaction History</button>
+            <button  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>
 
 
         

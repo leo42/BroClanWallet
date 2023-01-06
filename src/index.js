@@ -126,7 +126,7 @@ class App extends React.Component {
 
   selectWallet(key){
     const selectedWallet = key
-    console.log("Click")
+    console.log(key)
     this.setState( { selectedWallet})
   }
 

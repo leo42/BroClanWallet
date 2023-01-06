@@ -38,38 +38,18 @@
 
 .WalletMain{
   margin: 20px;
-
-}
-.addWalletButton{
-  width: 100%;
-  bottom: 0;
-}
-.MWalletList{
-  width: 20vw;
-  border-style:groove;
-  height:inherit
-}
-.App-link {
-  color: #61dafb;
-}
-.WalletMain{
   align-items: center;
   width:100%;
 }
 
-.MWalletThumb {
-  color: rgb(0, 0, 0);
-  height: 50px;
-  width: 90%;
-  border-style: double;
-  overflow: hidden;
-  
-}
-.MWalletThumb:hover{
-  color: rgb(51, 38, 226);
-  cursor:pointer
-}
 
+
+.tooltip:hover::after{
+  content: attr(data-tooltip);
+  position:absolute;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.116);
+}
 
 
 .pendingTx_signer{

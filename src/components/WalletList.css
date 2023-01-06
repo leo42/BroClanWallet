@@ -1,0 +1,17 @@
+.WalletListContainer{
+    position: fixed;
+    top:0px;
+    left: 0px;
+    margin: 10px;
+}
+.addWalletButton{
+    
+    height: inherit;
+
+}
+    
+.MWalletList{
+    margin: 10px;
+    height: auto;
+}
+

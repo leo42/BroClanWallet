@@ -44,13 +44,12 @@ function TransactionHistory (props) {
     function TransactionListing(transaction){
         console.log(transaction)
         const date = new Date(transaction.block_time* 1000)
-        return (<div className="transactionHistoryItem"> 
+        return (<div className="transactionHistoryItem tooltip" data-tooltip="Hey Leo"> 
                      {transaction.hash}<br/>
                      <span className="transactionHistoryListTime">{date.toString()}</span>
                      <br/>
                      {transactionBalance(transaction)}
                 </div>  )
-
     }
     
 
