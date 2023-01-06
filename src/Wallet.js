@@ -117,7 +117,7 @@ class Wallet {
     } 
     result.push(this.txDetails[txList[index].tx_hash])
   }
-   return result    
+   return result.sort((a,b) => {return b.block_time - a.block_time})   
  }
 
     getAddress() {

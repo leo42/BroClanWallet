@@ -23,17 +23,19 @@ function TransactionHistory (props) {
              input.amount.map( (asset) => 
                  asset.unit in BalancesOut ? BalancesOut[asset.unit] += parseInt(asset.quantity) : BalancesOut[asset.unit] = parseInt(asset.quantity)
              )}})
+        const lovelace = BalancesOut.lovelace
+        delete BalancesOut["lovelace"]
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
             <div key={index} className="transactionHistoryTokenBalance">
-               <span className="transactionHistoryTokenName"> {key}</span>:{BalancesOut[key]} 
+               <span className="transactionHistoryTokenName"> {key}</span >:<span className={BalancesOut[key] >= 0 ? "transactionHistoryTokenBalancePositive" : "transactionHistoryTokenBalanceNegative"}>{BalancesOut[key]}</span> 
              </div>
             ) );
 
         return (
             <div className="transactionHistoryListBalance">
-                <div className="transactionHistoryAdaBalance">
-                     {BalancesOut.lovelace/1000000}tA
-                 </div>
+                <span className={ lovelace >= 0 ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
+                { lovelace >= 0 ?  "+" : ""} {lovelace/1000000}
+                 </span>tA 
                  {tokens}
              </div>
              )
@@ -41,8 +43,11 @@ function TransactionHistory (props) {
 
     function TransactionListing(transaction){
         console.log(transaction)
+        const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
                      {transaction.hash}<br/>
+                     <span className="transactionHistoryListTime">{date.toString()}</span>
+                     <br/>
                      {transactionBalance(transaction)}
                 </div>  )
 
