@@ -8,7 +8,7 @@ import Receive from './Receive';
 import { toHex } from 'lucid-cardano';
 class WalletMain extends React.Component {
     state = {
-        showing: "overview",
+        showing: "receive",
         transactionHistory: []
     }
 

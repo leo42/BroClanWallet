@@ -1,0 +1,12 @@
+.copyIcon{
+    height: 15px;
+    width: 15px;
+}
+
+.ReseiveAddress{
+    margin: 10px;
+}
+
+.ReseiveAddress:hover{
+    cursor: pointer;
+}
