@@ -108,6 +108,14 @@ class App extends React.Component {
     this.setState({wallets})
   }
 
+  getTransactionHistory(){
+
+    const wallets = this.state.wallets
+    const resault = wallets[this.state.selectedWallet].getTransactionHistory()
+    this.setState({wallets})
+    return resault
+  }
+
   async addWallet(script,name){
     const wallets = this.state.wallets
     const myWallet = new Wallet(script,name);
@@ -118,7 +126,7 @@ class App extends React.Component {
 
   selectWallet(key){
     const selectedWallet = key
-    console.log("Click")
+    console.log(key)
     this.setState( { selectedWallet})
   }
 

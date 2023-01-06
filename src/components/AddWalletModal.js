@@ -216,7 +216,22 @@ class AddWalletModal extends React.Component {
      )
    }
 
-  
+  deleteElement(value,coordinates){
+    const json=this.state.json;
+    console.log("In Delete Element")
+    console.log(coordinates)
+    console.log(value)
+    let current = json;
+    let previus
+    for (const index of coordinates) {
+      previus = current
+      current = current.scripts[index];
+    }
+    delete previus.scripts[coordinates[coordinates.length-1]]
+    console.log(coordinates[-1])
+    this.setState({json})
+  }
+
   handleTypeChange(value,coordinates){
     const json=this.state.json;
     console.log("In handle Type Change")
@@ -226,6 +241,7 @@ class AddWalletModal extends React.Component {
     for (const index of coordinates) {
       current = current.scripts[index];
     }
+    
 
     console.log("hey leo")
     current.type=value
@@ -308,7 +324,7 @@ class AddWalletModal extends React.Component {
   };
 
   
-  console.log(content)
+  console.log(coordinates)
   return (
   <div key={coordinates} >
     <select value={json.type } onChange={(event) => this.handleTypeChange(event.target.value,coordinates)}>
@@ -319,6 +335,7 @@ class AddWalletModal extends React.Component {
       ))}
     </select>
     {content}
+    {coordinates.length === 0 ? "" :  <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button>}
   </div>
   )
 }

@@ -1,22 +1,25 @@
 import React from 'react';
-import MWalletThumb from "./WalletThumb";
 import AddWalletModal from './AddWalletModal';
+import "./WalletList.css"
 
 function WalletList (props) {
     const [addWalletOpen, setAddWalletOpen] = React.useState(true);
 
     return (
-        <div className="MWalletList">
+            <div className='WalletListContainer'>
         {addWalletOpen && <AddWalletModal setOpenModal={setAddWalletOpen} root={props.root} />}
+        <select className="MWalletList" onChange={(event) => props.root.selectWallet(event.target.value)}>
 
         {props.root.state.wallets.map( (item, index) => (
-
-            <MWalletThumb wallet={item} key={index} index={index} root={props.root}></MWalletThumb>
+               <option value={index}> {item.getName()}-{String((item.getBalance()/1000000).toFixed(2))}tA</option>
         ))}
 
-        <button className='addWalletButton' onClick={ () => setAddWalletOpen(true)}>+</button>
+    </select>
 
-    </div>);
+<button className='addWalletButton' onClick={ () => setAddWalletOpen(true)}>+</button>
+
+    </div>
+    );
     
 }
  
