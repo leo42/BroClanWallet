@@ -1,5 +1,5 @@
 import React from "react";
-import "./WalletPicker.css";
+import "./AddWalletModal.css";
 
 class AddWalletModal extends React.Component {
   state = {  

@@ -1,18 +1,19 @@
-/* .modalBackground {
-    width: 100vw;
-    height: 100vmax;
+.modalBackground {
+    width: 100%;
+    height: 100%;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background-color: rgba(200, 200, 200);
-    position:absolute;
+    position:fixed;
+    overflow: auto;
     display: flex;
     justify-content: center;
     align-items: center;
     
   }
-  
+
   .modalContainer {
     width: 50vw;
     height: fit-content;
@@ -22,12 +23,15 @@
     display: flex;
     flex-direction: column;
     padding: 25px;
+    position: absolute;
+    top:5%;
+    margin-bottom: 10%;
   }
-  
+
   .modalContainer .title {
     display: inline-block;
     text-align: center;
-    margin-top: 10px;
+    margin-top: -12px;
   }
   
   .titleCloseBtn {
@@ -96,4 +100,5 @@
   
   #cancelBtn {
     background-color: crimson;
-  } */
+  }
+  

@@ -3,7 +3,7 @@ import MWalletThumb from "./WalletThumb";
 import AddWalletModal from './AddWalletModal';
 
 function WalletList (props) {
-    const [addWalletOpen, setAddWalletOpen] = React.useState(false);
+    const [addWalletOpen, setAddWalletOpen] = React.useState(true);
 
     return (
         <div className="MWalletList">
