@@ -21,6 +21,7 @@ class Wallet {
       this.wallet_script = wallet_json
       this.wallet_address = "";
       this.name=name
+      this.txDetails = {}
       this.pendingTxs = [];
       
     }
@@ -102,13 +103,20 @@ class Wallet {
  }
 
  async getTransactionHistory(){
+  console.log("Getting tx")
+  //return [{thHash:"adsaecf"},{thHash:"asda"}]
    let txList= await this.lucid.provider.getTransactions(this.getAddress())
    console.log(txList)
    let result = []
    for(let index =0 ; index < txList.length; index++){
-    console.log(txList[index])
-     result.push(await this.lucid.provider.getTransactionDetails(txList[index].tx_hash))
-   }
+     if (!(txList[index].tx_hash in this.txDetails)){
+       console.log(txList[index])
+       const txDetails = await this.lucid.provider.getTransactionDetails(txList[index].tx_hash)
+       txDetails.utxos =  await this.lucid.provider.getTransactionUtxos(txList[index].tx_hash)
+      this.txDetails[txList[index].tx_hash] = txDetails
+    } 
+    result.push(this.txDetails[txList[index].tx_hash])
+  }
    return result    
  }
 
@@ -266,8 +274,11 @@ class Wallet {
       return "Sucsess"
     }
 
+    isAddressMine(address){
+      return (this.utils.getAddressDetails(address).paymentCredential.hash === this.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
+    }
     decodeSignature(signature){
-      console.log(signature)
+     console.log(signature)
 
       
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
