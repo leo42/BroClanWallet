@@ -1,5 +1,5 @@
 import React from "react";
-import "./WalletPicker.css";
+import "./AddWalletModal.css";
 
 class AddWalletModal extends React.Component {
   state = {  
@@ -62,16 +62,15 @@ class AddWalletModal extends React.Component {
 
   atLeastComponent(json,coordinates){
     return (
-    <div>
-        <label>
-            At Least:
+    <div className="input_wrap">
             <input
+            required
               type="text"
               name="amount"
               value={json.required}
               onChange={event => this.handleRequiredChange(event.target.value, coordinates)}
             />
-          </label>
+          <label>At Least</label>
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
        <button onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
     </div>)
@@ -145,51 +144,50 @@ class AddWalletModal extends React.Component {
     //console.log(coordinates)
     return (
         <div>
-          <label>
-            Name:
+          <div className="input_wrap">
             <input
+              required
               type="text"
               name="amount"
               value={json.name}
               onChange={event => this.handleSignatoryNameChange(event.target.value, coordinates)}
             />
-          </label>
-          <br />
-          <label>
-            KeyHash:
+            <label>Owner's Name</label>
+          </div>
+         <div className="input_wrap">
             <input
+              required
               type="text"
               name="amount"
               value={json.keyHash}
               onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
             />
-          </label>
-          <br/>
+            <label>Address/ KeyHash</label>
+          </div>
           <br/>
         </div>
     )
   }
-
+ 
   beforeComponent(json,coordinates){
     // console.log("In Sig component")
     // console.log(json)
      //console.log(coordinates)
      return (
-         <div>
-  
-           <br />
-           <label>
-             Before Slot:
+      <React.Fragment>
+         <div className="input_wrap">
              <input
+             required
                type="text"
                name="amount"
                value={json.keyHash}
                onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
              />
-           </label>
-           <br/>
-           <br/>
+             <label>Before Slot</label>
          </div>
+        <br/>
+        </React.Fragment>
+         
      )
    }
 
@@ -198,21 +196,19 @@ class AddWalletModal extends React.Component {
     // console.log(json)
      //console.log(coordinates)
      return (
-         <div>
-  
-           <br />
-           <label>
-             After Slot:
+      <React.Fragment>
+         <div className="input_wrap">
              <input
+             required
                type="text"
                name="amount"
                value={json.keyHash}
                onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
              />
-           </label>
-           <br/>
-           <br/>
+             <label> After Slot</label>
          </div>
+         <br/>
+         </React.Fragment>
      )
    }
 
@@ -326,7 +322,8 @@ class AddWalletModal extends React.Component {
   
   console.log(coordinates)
   return (
-  <div key={coordinates} >
+  <div key={coordinates} className="rootElement">
+    {coordinates.length === 0 ? "" : <div className="deleteBtn"> <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button></div>}
     <select value={json.type } onChange={(event) => this.handleTypeChange(event.target.value,coordinates)}>
       {this.options.map(option => (
         <option key={option.name} value={option.value} > 
@@ -335,7 +332,6 @@ class AddWalletModal extends React.Component {
       ))}
     </select>
     {content}
-    {coordinates.length === 0 ? "" :  <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button>}
   </div>
   )
 }
@@ -363,15 +359,18 @@ class AddWalletModal extends React.Component {
           <h1>Create Wallet</h1>
         </div>
         <div className="body">
-      <label>
-        Name:
-        <input
+      
+        <div className="input_wrap">
+        <input 
+         required
           type="text"
           name="name"
           value={this.WName}
           onChange={event => this.setWName(event.target.value)}
         />
-      </label>
+      <label>Name your Wallet</label>
+      </div>
+      <br/>
 
           {this.rootComponenent(this.state.json)}
             
