@@ -46,7 +46,7 @@ function TransactionHistory (props) {
         console.log(transaction)
         const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
-                     {transaction.hash}<br/>
+                     {transaction.tx_hash}<br/>
                      <span className="transactionHistoryListTime">{date.toString()}</span>
                      <br/>
                      {transactionBalance(transaction)}

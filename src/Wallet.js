@@ -111,7 +111,7 @@ class Wallet {
    for(let index =0 ; index < txList.length; index++){
      if (!(txList[index].tx_hash in this.txDetails)){
        console.log(txList[index])
-       const txDetails = await this.lucid.provider.getTransactionDetails(txList[index].tx_hash)
+       const txDetails = txList[index]
        txDetails.utxos =  await this.lucid.provider.getTransactionUtxos(txList[index].tx_hash)
       this.txDetails[txList[index].tx_hash] = txDetails
     } 
