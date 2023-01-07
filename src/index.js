@@ -153,8 +153,16 @@ class App extends React.Component {
 
   async submit(index){
     const wallets = this.state.wallets
-    wallets[this.state.selectedWallet].submitTransaction(index)
+    const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
+    toast.promise(
+      promice,
+      {
+        pending: 'Submiting Transaction',
+        success: 'Transaction Submited',
+        error: 'Failed Submiting Transaction'
+      }
+  )
   }
 
   render() {
