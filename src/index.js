@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
 import MWalletList from "./components/WalletList";
 import MWalletMain from './components/WalletMain';
+import { ToastContainer, toast } from 'react-toastify';
+import './components/ReactToastify.css';
 
 const script1 = {
   "type": "all",
@@ -89,9 +91,14 @@ class App extends React.Component {
 
   
   async createTx(amount,address,signers){
+    try{
     const wallets = this.state.wallets
      await this.state.wallets[this.state.selectedWallet].createTx(amount,address,signers)
     this.setState({wallets})
+    toast.info('Transaction created');
+    }catch(e){
+      toast.error(e.message);
+    }
   }
 
 
@@ -103,9 +110,15 @@ class App extends React.Component {
 
 
   addSignature(signature){ 
+    try {
     const wallets = this.state.wallets
     wallets[this.state.selectedWallet].addSignature(signature)
     this.setState({wallets})
+    toast.info('Signature Added');
+    }
+    catch(e) {
+      toast.error(e.message);
+    }
   }
 
   getTransactionHistory(){
@@ -113,6 +126,14 @@ class App extends React.Component {
     const wallets = this.state.wallets
     const resault = wallets[this.state.selectedWallet].getTransactionHistory()
     this.setState({wallets})
+    toast.promise(
+      resault,
+      {
+        pending: 'Getting Transaction History',
+        success: 'Got Transaction History',
+        error: 'Failed Retriving Transaction History'
+      }
+  )
     return resault
   }
 
@@ -132,13 +153,32 @@ class App extends React.Component {
 
   async submit(index){
     const wallets = this.state.wallets
-    wallets[this.state.selectedWallet].submitTransaction(index)
+    const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
+    toast.promise(
+      promice,
+      {
+        pending: 'Submiting Transaction',
+        success: 'Transaction Submited',
+        error: 'Failed Submiting Transaction'
+      }
+  )
   }
 
   render() {
     return (
       <div className='App'>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          pauseOnHover
+          theme="dark"
+          />
         <h1>MWallet</h1>
         <React.StrictMode>
 
