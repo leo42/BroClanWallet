@@ -18,7 +18,10 @@
   margin: 20px;
 }
 
-
+.WalletMain{
+  align-items: center;
+  width:100%;
+}
 
 .tooltip:hover::after{
   content: attr(data-tooltip);
