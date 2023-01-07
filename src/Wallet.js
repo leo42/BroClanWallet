@@ -229,10 +229,8 @@ class Wallet {
     
     
     async createTx(amount, destination, signers){ 
-      console.log(`Creating transaction of ${amount} Lovelace, for address: ${destination}`)
-
       if (!this.checkSigners(signers)){
-        console.log("Not enough signers")
+        throw new Error('Not enough signers');
         return "Not enough signers"
       }
 
@@ -245,7 +243,13 @@ class Wallet {
       const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
       .payToAddress(destination,{lovelace: amount*1000000})
       .complete()
-      
+
+      this.pendingTxs.map( (tx) => {
+        if (tx.tx === completedTx) {
+          throw new Error('Transaction already registerd');
+        }
+      })
+
       this.pendingTxs.push({tx:completedTx, signatures:{}})
       return "Sucsess"
     }
@@ -303,7 +307,11 @@ class Wallet {
             this.pendingTxs[index] 
             if (signatureInfo.witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(this.pendingTxs[index].tx.toHash()), signatureInfo.witness.vkeys().get(0).signature()))
             {
-              !(signatureInfo.signer in this.pendingTxs[index].signatures) ? this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)  : console.log("This signature already exists");
+              if (!signatureInfo.signer in this.pendingTxs[index].signatures) {
+                   this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)
+                }else{
+                   throw new Error('Signature already registerd');
+                  }
             }
 
         }
