@@ -22,7 +22,6 @@ function WalletCreateTx(props) {
     const txSigners = signers.map((item, index) =>
         item ? wallet.getSigners()[index].hash : ""
     )
-    console.log( "Leooo", signers)
 
     props.root.createTx(amount,address, txSigners.filter((element, index) => signers[index]));
   }

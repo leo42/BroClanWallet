@@ -1,0 +1,14 @@
+.overviewTokensContainer{
+    margin: 10px;
+    padding: 10px;
+    display: flex;
+    flex-flow: row wrap;
+    flex-shrink: 100;
+    border: 15px;
+    border-style: ridge;
+    align-self: center;
+    justify-content: safe;
+
+
+}
+

@@ -255,7 +255,7 @@ class Wallet {
 
     async createDelegationTx(pool, signers){ 
       console.log(`Creating delegation transaction for pool: ${pool}`)
-      const rewardAddress = this.utils.validatorToRewardAddress(this.lucidNativeScript)
+      const rewardAddress =  this.utils.credentialToRewardAddress(this.utils.getAddressDetails(this.getAddress()).paymentCredential)
       if (!this.checkSigners(signers)){
         console.log("Not enough signers")
         return "Not enough signers"

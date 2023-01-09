@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import TokenElement from './TokenElement';
+import "./Overview.css"
 function Overview(props) {
   const wallet = props.wallet
   const initialState = [] 
@@ -12,10 +13,12 @@ function Overview(props) {
     
     <div>
       Overview:
+      <div className='overviewTokensContainer'>
       {Object.keys(ballances).map((asset, index) => (
-            <div key={index}>{asset}:{ballances[asset].toString()}</div>
-      ))}
+          <div key={index}>{TokenElement(asset,ballances[asset])}</div>
+        ))}
 
+    </div>
     </div>
   );
 

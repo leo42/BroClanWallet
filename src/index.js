@@ -130,7 +130,6 @@ class App extends React.Component {
       resault,
       {
         pending: 'Getting Transaction History',
-        success: 'Got Transaction History',
         error: 'Failed Retriving Transaction History'
       }
   )
