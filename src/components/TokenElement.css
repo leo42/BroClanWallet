@@ -1,17 +1,13 @@
 .TokenElement{
-    width: 180px;
-    height: 40px;
-    margin: 10px;
-    padding: 10px;
-    
-    border: 5px;
-    border-style:groove;
+    width: inherit;
+    height: inherit;
     overflow: hidden;
 
 }
 
 .TokenThumbnail{
-    height: 25px;
+    align-self: left;
+    height: 20px;
 }
 
 .tokenElementName{

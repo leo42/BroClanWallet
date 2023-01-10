@@ -52,8 +52,8 @@ function TokenElement(tokenId,amount){
    
     // getTokenInfo(tokenId)
     return (<div className="TokenElement"> 
-       <span className="tokenElementAmount">{((tokenInfo.metadata) ? Number(amount)  / (10**tokenInfo.metadata.decimals) : amount ).toString()} </span><br/>
        <img className="TokenThumbnail" src={image } />
+       <span className="tokenElementAmount">{((tokenInfo.metadata) ? Number(amount)  / (10**tokenInfo.metadata.decimals) : amount ).toString()} </span><br/>
        <span className="tokenElementName">{name }</span>
      </div>)
 }

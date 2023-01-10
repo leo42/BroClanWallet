@@ -228,19 +228,21 @@ class Wallet {
       
     
     
-    async createTx(amount, destination, signers){ 
+    async createTx(recipients, signers){ 
       if (!this.checkSigners(signers)){
         throw new Error('Not enough signers');
       }
 
       const tx = this.lucid.newTx()
+      recipients.map( recipient => (
+        tx.payToAddress(recipient.address,recipient.amount)
 
+      ))
       signers.map( value => (
         tx.addSignerKey(value)
       ))
       
       const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
-      .payToAddress(destination,{lovelace: amount*1000000})
       .complete()
 
       this.pendingTxs.map( (PendingTx) => {

@@ -15,7 +15,7 @@ function Overview(props) {
       Overview:
       <div className='overviewTokensContainer'>
       {Object.keys(ballances).map((asset, index) => (
-          <div key={index}>{TokenElement(asset,ballances[asset])}</div>
+          <div className='overviewTokenContainer' key={index}>{TokenElement(asset,ballances[asset])}</div>
         ))}
 
     </div>

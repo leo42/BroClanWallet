@@ -6,10 +6,10 @@ import WalletOverview from './Overview'
 import TransactionHistory from './TransactionHistory';
 import Receive from './Receive';
 import { toHex } from 'lucid-cardano';
+
 class WalletMain extends React.Component {
     state = {
-        showing: "overview",
-        transactionHistory: []
+        showing: "createTx"
     }
 
 
