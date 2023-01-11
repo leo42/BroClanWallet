@@ -14,7 +14,7 @@ class WalletCreateTx extends React.Component {
   ballances = this.props.wallet.getBalanceFull()
   async getTokenInfo(tokenId){
     let tokenData = {...this.state.tokenData}
-    tokenData[tokenId] = getTokenInfo(tokenId)
+    tokenData[tokenId] = await getTokenInfo(tokenId)
     this.setState({tokenData})
   }
 
@@ -28,7 +28,11 @@ class WalletCreateTx extends React.Component {
   setAmount = (value,token,index) => {
     const recipients =   [...this.state.recipients]
 
-    let valueNew= value < 0 ? 0 : value > this.ballances[token] ? Number(this.ballances[token]) : value
+    let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData) ? ("metadata" in this.state.tokenData[token] ) ? value * (10**this.state.tokenData[token].metadata.decimals)  : value : value
+     
+    
+     valueNew= valueNew < 0 ? 0 : valueNew > this.ballances[token] ? Number(this.ballances[token]) : valueNew
+
     console.log(value,valueNew)
     recipients[index].amount[token] = valueNew
     this.setState({recipients})
@@ -107,7 +111,7 @@ class WalletCreateTx extends React.Component {
     <input
       type="number"
       name="amount"
-      value={this.state.recipients[index].amount.lovelace}
+      value={this.state.recipients[index].amount.lovelace/1000000}
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     />
     
@@ -119,7 +123,7 @@ class WalletCreateTx extends React.Component {
         <input
           type="number"
           name="amount"
-          value={this.state.recipients[index].amount[item] }
+          value={(item in this.state.tokenData) ? ("metadata" in this.state.tokenData[item] ) ? this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].metadata.decimals)  : this.state.recipients[index].amount[item] :this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
         />
     <button type="submit" onClick={ () =>  this.deleteToken(item,index)}>Remove token</button>
