@@ -16,7 +16,6 @@ async function getTokenInfo(tokenId){
       }
 
         let tokenMap =  {...JSON.parse(localStorage.getItem('tokenInfo'))};
-        console.log(tokenMap[tokenId])
         if ( tokenId in tokenMap){
             return (tokenMap[tokenId])
         }else{

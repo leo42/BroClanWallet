@@ -8,7 +8,10 @@ function TokenDropdownMenu(props) {
     
     console.log(props.ballances)
 
-
+    function handleClick(token,index ){ 
+        props.f(token, index)
+        setIsOpen(!isOpen)
+    }
 
     return (
         <div>
@@ -16,7 +19,7 @@ function TokenDropdownMenu(props) {
             {isOpen && (
                 <ul>
                     {Object.keys(props.ballances).map( (token,index) => 
-                    <li key={index} ><div onClick={() => props.f(token, props.index)}><TokenElement tokenId={token} amount={props.ballances[token]}/></div> </li>
+                    <li key={index} ><div onClick={() =>handleClick(token, props.index)}><TokenElement tokenId={token} amount={props.ballances[token]}/></div> </li>
 
                     )}
                 </ul>

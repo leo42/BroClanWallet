@@ -12,7 +12,11 @@ class WalletCreateTx extends React.Component {
   }
 
   ballances = this.props.wallet.getBalanceFull()
-
+  async getTokenInfo(tokenId){
+    let tokenData = {...this.state.tokenData}
+    tokenData[tokenId] = getTokenInfo(tokenId)
+    this.setState({tokenData})
+  }
 
   setAddress = (value,index) => {
       const recipients =   [...this.state.recipients]
@@ -23,7 +27,10 @@ class WalletCreateTx extends React.Component {
 
   setAmount = (value,token,index) => {
     const recipients =   [...this.state.recipients]
-    recipients[index].amount[token] = value
+
+    let valueNew= value < 0 ? 0 : value > this.ballances[token] ? Number(this.ballances[token]) : value
+    console.log(value,valueNew)
+    recipients[index].amount[token] = valueNew
     this.setState({recipients})
   }
 
@@ -54,9 +61,18 @@ class WalletCreateTx extends React.Component {
   }
 
 
+  deleteToken = (tokenId,index) => {
+    if ((tokenId in this.state.recipients[index].amount)) {
+      const recipients = [...this.state.recipients]
+      delete recipients[index].amount[tokenId]
+      this.setState({recipients})
+    } 
+  
+  }
+
     
   addToken = (tokenId,index) => {
-    
+    this.getTokenInfo(tokenId)
     console.log(`Option selected:`, tokenId)
     if (!(tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]
@@ -97,16 +113,16 @@ class WalletCreateTx extends React.Component {
     
   </label>
     {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
-<div>        
-      <label key={i} >
+<div key={i}>        
+      <label >
       <TokenElement tokenId={item} amount={this.ballances[item]}/>:
         <input
           type="number"
           name="amount"
-          value={this.state.recipients[index].amount.item}
+          value={this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
         />
-
+    <button type="submit" onClick={ () =>  this.deleteToken(item,index)}>Remove token</button>
     </label>
     </div>
     ))}
@@ -127,6 +143,7 @@ class WalletCreateTx extends React.Component {
        type="checkbox"
        name="value"
        value={index}
+       
        checked={this.state.signers[index]} 
        onChange={  () =>  this.handleOnChangeSigners(index)  }
       
