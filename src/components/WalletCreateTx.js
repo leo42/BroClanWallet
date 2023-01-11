@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import TokenElement from './TokenElement';
-
+import React, { useEffect } from 'react';
+import getTokenInfo from "../helpers/tokenInfo.js"
+import TokenDropdownMenu from './TokenDropdownList.js';
+import ReactSelect from 'react-select';
 class WalletCreateTx extends React.Component {
+
   state = {
     recipients: [{address :"", amount: {lovelace:0}}],
-    signers: this.props.wallet.getSigners().map( () =>  true ) 
+    signers: this.props.wallet.getSigners().map( () =>  true ),
+    tokenData: {} 
   }
 
   ballances = this.props.wallet.getBalanceFull()
+
+
   setAddress = (value,index) => {
       const recipients =   [...this.state.recipients]
       recipients[index].address = value
@@ -45,26 +50,20 @@ class WalletCreateTx extends React.Component {
     this.setState({recipients})
   }
 
-  tokenList= () => {
-    <select className="CreateTxAddTokenList" onChange={(event) =>  this.addToken()}>
 
-            { Object.keys(this.ballances).map( (asset, index) => (
-               <option key={index} value={index}> {TokenElement(asset,this.ballances[asset])}</option>
-               //<option key={index} value={index}> {asset}</option>
-                 
-            ))}
     
-        </select>
+  addToken = (tokenId) => {
     
+    console.log(`Option selected:`, tokenId)
+  
   }
-   
 
   addRecipient = () =>{
     const recipients =   [...this.state.recipients]
     recipients.push({address :"", amount: {lovelace:0}})
     this.setState({recipients})
   }
-   
+
   RecipientJSX = () => this.state.recipients.map( (recipient, index) => (
     <div key={index}>
       <label>
@@ -87,13 +86,14 @@ class WalletCreateTx extends React.Component {
       value={this.state.recipients[index].amount.lovelace}
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     />
+    <TokenDropdownMenu ballances={this.ballances} f={this.addToken}></TokenDropdownMenu>
+
+
   </label>
-  {
-    //this.tokenList()
-  }
 
   </div>
   ))
+    
 
    SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
     <div key={index}>
@@ -113,6 +113,7 @@ class WalletCreateTx extends React.Component {
   ) ) 
   
   render(){
+
   return (
     <div>
       { this.RecipientJSX()}
