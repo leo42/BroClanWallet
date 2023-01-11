@@ -94,6 +94,7 @@ class App extends React.Component {
     try{
     const wallets = this.state.wallets
      await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers)
+    
     this.setState({wallets})
     toast.info('Transaction created');
     }catch(e){

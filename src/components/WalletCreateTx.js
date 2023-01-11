@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import getTokenInfo from "../helpers/tokenInfo.js"
 import TokenDropdownMenu from './TokenDropdownList.js';
-import ReactSelect from 'react-select';
+import TokenElement from "./TokenElement";
+
 class WalletCreateTx extends React.Component {
 
   state = {
@@ -40,6 +41,8 @@ class WalletCreateTx extends React.Component {
         item ? this.props.wallet.getSigners()[index].hash : ""
     )
 
+
+
       this.props.root.createTx(this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]));
   }
 
@@ -52,9 +55,14 @@ class WalletCreateTx extends React.Component {
 
 
     
-  addToken = (tokenId) => {
+  addToken = (tokenId,index) => {
     
     console.log(`Option selected:`, tokenId)
+    if (!(tokenId in this.state.recipients[index].amount)) {
+      const recipients = [...this.state.recipients]
+      recipients[index].amount[tokenId] = 0
+      this.setState({recipients})
+    } 
   
   }
 
@@ -77,7 +85,7 @@ class WalletCreateTx extends React.Component {
   { index > 0 ? <button type="submit" onClick={ () =>  this.deleteRecipient(index)}>Delete recipient</button> : ""}
 
   </label>
-  <br />
+
   <label>
     ADA:
     <input
@@ -86,10 +94,25 @@ class WalletCreateTx extends React.Component {
       value={this.state.recipients[index].amount.lovelace}
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     />
-    <TokenDropdownMenu ballances={this.ballances} f={this.addToken}></TokenDropdownMenu>
-
-
+    
   </label>
+    {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
+<div>        
+      <label key={i} >
+      <TokenElement tokenId={item} amount={this.ballances[item]}/>:
+        <input
+          type="number"
+          name="amount"
+          value={this.state.recipients[index].amount.item}
+          onChange={event => this.setAmount(event.target.value,item,index)}
+        />
+
+    </label>
+    </div>
+    ))}
+    <TokenDropdownMenu ballances={this.ballances} f={this.addToken} index={index}></TokenDropdownMenu>
+
+
 
   </div>
   ))

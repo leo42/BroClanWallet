@@ -16,8 +16,8 @@ function TokenElement(props){
 
     return (<div className="TokenElement"> 
        <img className="TokenThumbnail" src={image } />
-       <span className="tokenElementAmount">{((tokenInfo.metadata) ? Number(props.amount)  / (10**tokenInfo.metadata.decimals) : props.amount ).toString()} </span><br/>
-       <span className="tokenElementName">{name }</span>
+       <span className="tokenElementName">{name }</span>:
+       <span className="tokenElementAmount">{((tokenInfo.metadata) ? Number(props.amount)  / (10**tokenInfo.metadata.decimals) : props.amount ).toString()} </span>
      </div>)
 }
 
