@@ -46,9 +46,9 @@ class AddWalletModal extends React.Component {
 
   allComponent(json,coordinates){
     return (
-    <div>
+    <div >
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
-       <button onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
+       <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
     </div>)
   }
 
@@ -143,19 +143,22 @@ class AddWalletModal extends React.Component {
    // console.log(json)
     //console.log(coordinates)
     return (
-        <div>
+        <div className="sigWrap">
           <div className="input_wrap">
             <input
+              className="createWalletName"
               required
               type="text"
               name="amount"
               value={json.name}
               onChange={event => this.handleSignatoryNameChange(event.target.value, coordinates)}
             />
-            <label>Owner's Name</label>
+            <label>Nickname</label>
           </div>
+          
          <div className="input_wrap">
             <input
+            className="createWalletAddress"
               required
               type="text"
               name="amount"
@@ -164,7 +167,7 @@ class AddWalletModal extends React.Component {
             />
             <label>Address/ KeyHash</label>
           </div>
-          <br/>
+        
         </div>
     )
   }
@@ -175,7 +178,7 @@ class AddWalletModal extends React.Component {
      //console.log(coordinates)
      return (
       <React.Fragment>
-         <div className="input_wrap">
+         <div className="input_wrap beforeAndAfterSlot">
              <input
              required
                type="text"
@@ -185,7 +188,7 @@ class AddWalletModal extends React.Component {
              />
              <label>Before Slot</label>
          </div>
-        <br/>
+     
         </React.Fragment>
          
      )
@@ -197,7 +200,7 @@ class AddWalletModal extends React.Component {
      //console.log(coordinates)
      return (
       <React.Fragment>
-         <div className="input_wrap">
+         <div className="input_wrap beforeAndAfterSlot">
              <input
              required
                type="text"
@@ -207,7 +210,7 @@ class AddWalletModal extends React.Component {
              />
              <label> After Slot</label>
          </div>
-         <br/>
+        
          </React.Fragment>
      )
    }
@@ -323,7 +326,9 @@ class AddWalletModal extends React.Component {
   console.log(coordinates)
   return (
   <div key={coordinates} className="rootElement">
-    {coordinates.length === 0 ? "" : <div className="deleteBtn"> <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button></div>}
+    
+    {coordinates.length === 0 ? "" :  <div className="deleteBtn"> <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button></div>}
+    <div className="cardSelect">
     <select value={json.type } onChange={(event) => this.handleTypeChange(event.target.value,coordinates)}>
       {this.options.map(option => (
         <option key={option.name} value={option.value} > 
@@ -331,6 +336,7 @@ class AddWalletModal extends React.Component {
         </option>
       ))}
     </select>
+    </div>
     {content}
   </div>
   )
@@ -345,38 +351,36 @@ class AddWalletModal extends React.Component {
     return  (
     <div className="modalBackground">
       <div className="modalContainer"  >
+      <div className="title">
+          <h1>Create Wallet</h1>
+        </div>
         <div className="titleCloseBtn">
           <button
-            onClick={() => {
-              this.props.setOpenModal(false);
-            }}
-          >
+            onClick={() => {this.props.setOpenModal(false) }}>
             X
           </button>
         </div>
   
-        <div className="title">
-          <h1>Create Wallet</h1>
-        </div>
+        
         <div className="body">
       
-        <div className="input_wrap">
+        <div className="input_wrap walletName">
         <input 
-         required
+          required
           type="text"
           name="name"
           value={this.WName}
           onChange={event => this.setWName(event.target.value)}
         />
       <label>Name your Wallet</label>
-      </div>
-      <br/>
-
-          {this.rootComponenent(this.state.json)}
-            
+      </div >
+     
+          <div className="rootRoot">
+             {this.rootComponenent(this.state.json)}
+            </div>
         </div>
         <div className="footer">
-      <button onClick={(event) => this.handleSubmit(event)}>addWallet</button>
+      <button onClick={(event) => this.handleSubmit(event)}>Create</button>
           <button
             onClick={() => {
               this.props.setOpenModal(false);
