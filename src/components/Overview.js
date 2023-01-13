@@ -18,7 +18,7 @@ function Overview(props) {
       <br/>
       <label>
         <span>Name</span>
-        <input type="text" onChange={(event) => props.root.changeAddressName(address,event.target.value)}></input>
+        <input type="text"  value={wallet.getAddressName(address)} onChange={(event) => props.root.changeAddressName(address,event.target.value)}></input>
       </label>
     </div>
   
