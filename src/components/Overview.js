@@ -18,7 +18,6 @@ function Overview(props) {
   const addressSettings = (address) =>
     <div className="addressSettings">
       { wallet.getDefaultAddress() === address ? "" : <button onClick={() => props.root.setDefaultAddress(address)}> Make Default Send Address</button> }
-      { wallet.getChangeAddress() === address ? "" : <button onClick={ () => props.root.setChangeAddress(address)}> Make Default Change Address</button> }
       <br/>
       <label>
         <span>Name</span>

@@ -9,11 +9,10 @@ class WalletCreateTx extends React.Component {
     recipients: [{address :"", amount: {lovelace:0}}],
     signers: this.props.wallet.getSigners().map( () =>  true ),
     tokenData: {},
-    sendFrom : "",
-    changeAddress : "" 
-  }
+    sendFrom : this.props.wallet.getDefaultAddress()
+    }
 
-  ballances = this.props.wallet.getBalanceFull()
+ 
   async getTokenInfo(tokenId){
     let tokenData = {...this.state.tokenData}
     tokenData[tokenId] = await getTokenInfo(tokenId)
@@ -33,7 +32,7 @@ class WalletCreateTx extends React.Component {
     let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData) ? ("metadata" in this.state.tokenData[token] ) ? value * (10**this.state.tokenData[token].metadata.decimals)  : value : value
      
     
-     valueNew= valueNew < 0 ? 0 : valueNew > this.ballances[token] ? Number(this.ballances[token]) : valueNew
+     valueNew= valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
 
     console.log(value,valueNew)
     recipients[index].amount[token] = valueNew
@@ -49,11 +48,7 @@ class WalletCreateTx extends React.Component {
 
   handleChangeFrom = (event) => {
     console.log(event.target.value)
-  }
-
-  handleChangeChange = (event) =>{
-    console.log(event.target.value)
- 
+    this.setState({sendFrom : event.target.value})
   }
 
   handleSubmit = event => {
@@ -65,7 +60,7 @@ class WalletCreateTx extends React.Component {
 
 
 
-      this.props.root.createTx(this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]));
+      this.props.root.createTx(this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]),this.state.sendFrom);
   }
 
 
@@ -130,7 +125,7 @@ class WalletCreateTx extends React.Component {
     {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
 <div key={i}>        
       <label >
-      <TokenElement tokenId={item} amount={this.ballances[item]}/>:
+      <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/>:
         <input
           type="number"
           name="amount"
@@ -141,7 +136,7 @@ class WalletCreateTx extends React.Component {
     </label>
     </div>
     ))}
-    <TokenDropdownMenu ballances={this.ballances} f={this.addToken} index={index}></TokenDropdownMenu>
+    <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={this.addToken} index={index}></TokenDropdownMenu>
 
 
 
@@ -181,12 +176,6 @@ class WalletCreateTx extends React.Component {
       </select>
 
       <br />
-      <span>Change to:</span>
-      <select defaultValue={this.props.wallet.getChangeAddress()} onChange={this.handleChangeChange}>
-                 {this.props.wallet.getFundedAddress().map( (item, index) => (
-                  <option key={index} value={item} >{this.props.wallet.getAddressName(item)}</option>
-                ))}
-        </select>   
    </div>
   
   

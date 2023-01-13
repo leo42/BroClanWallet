@@ -21,6 +21,7 @@ class Wallet {
       this.wallet_script = wallet_json
       this.wallet_address = "";
       this.name=name
+      this.defaultAddress= ""
       this.txDetails = {}
       this.pendingTxs = [];
       this.addressNames = {}
@@ -245,31 +246,41 @@ class Wallet {
       
     
     
-    async createTx(recipients, signers){ 
-      if (!this.checkSigners(signers)){
-        throw new Error('Not enough signers');
-      }
-
-      const tx = this.lucid.newTx()
-      recipients.map( recipient => (
-        tx.payToAddress(recipient.address,recipient.amount)
-
-      ))
-      signers.map( value => (
-        tx.addSignerKey(value)
-      ))
-      
-      const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
-      .complete()
-
-      this.pendingTxs.map( (PendingTx) => {
-        if (PendingTx.tx.hash === completedTx.hash) {
-          throw new Error('Transaction already registerd');
+    async createTx(recipients, signers,sendFrom  ){ 
+        if (!this.checkSigners(signers)){
+          throw new Error('Not enough signers');
         }
-    })
+        console.log(sendFrom)
+        
+        if(sendFrom!==""){
+          let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
+          console.log()
+          this.lucid.selectWalletFrom(  { "address":sendFrom, "utxos": utxos})
+        }else{
+          this.lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": this.utxos})
+        }
 
-      this.pendingTxs.push({tx:completedTx, signatures:{}})
-      return "Sucsess"
+        const tx = this.lucid.newTx()
+        recipients.map( recipient => (
+          tx.payToAddress(recipient.address,recipient.amount)
+        ))
+
+        signers.map( value => (
+          tx.addSignerKey(value)
+        ))
+
+
+        tx.attachSpendingValidator(this.lucidNativeScript)
+        const completedTx = await tx.complete()
+//await tx.complete({ change :{address :changeAddress }}) :
+        this.pendingTxs.map( (PendingTx) => {
+          if (PendingTx.tx.hash === completedTx.hash) {
+            throw new Error('Transaction already registerd');
+          }
+      })
+
+        this.pendingTxs.push({tx:completedTx, signatures:{}})
+        return "Sucsess"
     }
 
     async createDelegationTx(pool, signers){ 
@@ -352,19 +363,15 @@ class Wallet {
       this.defaultAddress = address
     }
 
-    setChangeAddress(address){
-      this.changeAddress = address
-    }
+
     changeAddressName(address,name){
       this.addressNames[address] = name
     }
+
     getDefaultAddress(){
      return this.defaultAddress 
     }
 
-    getChangeAddress(){
-      return this.changeAddress 
-    }
     
     getAddressName(address){
       const resault = address in this.addressNames ? this.addressNames[address] : address

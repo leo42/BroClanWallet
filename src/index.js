@@ -90,10 +90,10 @@ class App extends React.Component {
 
 
   
-  async createTx(recipients,signers){
+  async createTx(recipients,signers,sendFrom){
     try{
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers)
+     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom)
     
     this.setState({wallets})
     toast.info('Transaction created');
@@ -134,17 +134,7 @@ class App extends React.Component {
       }
   }
 
-  setChangeAddress(address){
-    try {
-      const wallets = this.state.wallets
-      wallets[this.state.selectedWallet].setChangeAddress(address)
-      this.setState({wallets})
-      toast.info('Default Change Address Updated');
-      }
-      catch(e) {
-        toast.error(e.message);
-      }
-  }
+  
 
   changeAddressName(address,name){
     try {
