@@ -1,3 +1,10 @@
+:root {
+  --clrorange: rgba(255, 153, 0, 1);
+  --clrgreen: rgba(22, 217, 0, 1);
+  --clrred: #ff1867;
+  --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
 .modalBackground {
     width: 100%;
     height: 100%;
@@ -50,7 +57,7 @@
   }
 
   .rootElement {
-    border: white solid 1px;
+    border: var(--clrorange) solid 1px;
     border-radius: 1vw;
     padding: 7px;
     margin: 6px;
@@ -58,7 +65,7 @@
   }
 
   .cardSelect {
-    margin-top: -40px;
+    margin-top: -42px;
    }
 
   .rootRoot .rootElement {
@@ -138,9 +145,22 @@ input[type="text"]:focus {
  
 select{
   color: black;
-  border:none;
-  border-bottom: #000000 solid 1px;
+  border:var(--clrorange) solid 1px;
+  border-radius: 5px;
+  border-bottom: var(--clrorange) solid 1px;
+  /* background-color: var(--clrorange) ; */
+  /* background-image: linear-gradient(to top, #fff, #fff, var(--clrorange)); */
 }
+
+option:hover {
+  background-color: red !important;
+}
+
+
+option:hover{
+  background-color: #000000;
+}
+
   
 .createWalletAddress{
   width: 445px;
@@ -167,8 +187,12 @@ select{
 }
 .beforeAndAfterSlot label{
   top: 22px;
-  left: 178px;
+  left: 175px;
   font-size: 10px;
+}
+
+.beforeAndAfterSlot input:focus + label, .beforeAndAfterSlot input:valid + label{
+  left: 172px;
 }
 
 .walletName input{
@@ -182,17 +206,23 @@ select{
 }
 
  .btn {
-  border: rgba(255, 153, 0, 1) solid 1px;
+  border: var(--clrorange) solid 1px;
   background-color: transparent;
-  box-shadow: rgba(255, 153, 0, 1) 0px 0px 5px 0px;
+  box-shadow: var(--clrorange) 0px 0px 5px 0px;
   border-radius: 20px;
   width: fit-content;
-  color: rgba(255, 153, 0, 1);
+  color: var(--clrorange);
   padding:3px 9px;
   font-size: 12px;
+  transition: 0.5s;
+  position:relative;
 }
 
-/*  offset-x offset-y blur-radius spread-radius color; */
+.btn:hover{
+  letter-spacing: 0.25em;
+}
+
+
 
 .modalContainer .body {
   flex: fit-content;
@@ -217,7 +247,7 @@ select{
   padding: 5px 15px;
   margin: 26px 60px 2px;
   border: rgb(59, 59, 59) solid 1px;
-  /* border: rgba(22, 217, 0, 1) solid 1px; */
+  /* border: var(--clrgreen) solid 1px; */
   background-color: transparent;
   color: rgb(59, 59, 59);
   border-radius: 20px;
@@ -225,26 +255,27 @@ select{
   cursor: pointer;
   transition: 0.5s;
   position:relative;
+  /* animation: snake 2s linear infinite; */
 }
 
 .modalContainer .footer button:hover{
-  color: rgba(22, 217, 0, 1);
+  color: var(--clrgreen);
   letter-spacing: 0.25em;
-  box-shadow: 0 0 13px rgba(22, 217, 0, 1);
-  border: rgba(22, 217, 0, 1) solid 1px;
+  box-shadow: 0 0 13px var(--clrgreen);
+  border: var(--clrgreen) solid 1px;
 }
 
-/* .modalContainer .footer button:before{
-  content: '';
-  position:absolute;
-  inset:2px;
-  background:white;
-} */
+.modalContainer .footer button:active,
+#cancelBtn:active,
+.btn:active {
+  transition: none;
+  background-color: #ececec;
+}
 
 #cancelBtn:hover {
  
-  color:#ff1867;
-  box-shadow: 0 0 13px #ff1867;
-  border: #ff1867 solid 1px;
+  color:var(--clrred);
+  box-shadow: 0 0 13px var(--clrred);
+  border: var(--clrred) solid 1px;
 }
 
