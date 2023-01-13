@@ -118,9 +118,7 @@ class App extends React.Component {
         state.wallets.push(myWallet)
 
     }
-    
-    super.setState(state)
-    
+    super.setState(state)  
   }
 
 
