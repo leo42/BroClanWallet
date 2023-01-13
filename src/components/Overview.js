@@ -11,13 +11,12 @@ function Overview(props) {
     console.log(index)
     let settingsOpenNew = [...settingsOpen]
     settingsOpenNew[index] = !settingsOpenNew[index]
-    console.log(settingsOpenNew)
     setSettingsOpen(settingsOpenNew)
   }
   
   const addressSettings = (address) =>
     <div className="addressSettings">
-      { wallet.getDefaultAddress() === address ? "" : <button onClick={() => props.root.setDefaultAddress(address)}> Make Default Send Address</button> }
+      { wallet.getDefaultAddress() === address ? "" : <button onClick={() => props.root.setDefaultAddress(address)}> Make Default Address</button> }
       <br/>
       <label>
         <span>Name</span>

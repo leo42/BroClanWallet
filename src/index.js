@@ -7,7 +7,7 @@ import MWalletList from "./components/WalletList";
 import MWalletMain from './components/WalletMain';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
-
+import WalletConnector from './components/walletConnector';
 const script1 = {
   "type": "all",
   "scripts":
@@ -85,12 +85,13 @@ await myWallet3.initialize();
 class App extends React.Component {
   state= {
     wallets: [],
-    selectedWallet: 0
+    selectedWallet: 0,
+    connectedWallet: ""
   }
 
-  setState(state){
+  async setState(state){
     console.log(this.state)
-    super.setState(state)
+    await super.setState(state)
     this.storeState()
   }
 
@@ -98,11 +99,26 @@ class App extends React.Component {
     this.loadState()
   }
 
+  connectWallet(wallet){
+    let connectedWallet = wallet
+    this.setState({connectedWallet})
+
+  }
+
+  disconnectWallet(){
+    let connectedWallet = ""
+    console.log("Leooooooo")
+    this.setState({connectedWallet})
+
+  }
+
   storeState(){
     const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
                                                                 name :wallet.getName(),
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames()}) )
+   
+    localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet ))
     localStorage.setItem("wallets", JSON.stringify(dataPack))
   }
 
@@ -118,6 +134,7 @@ class App extends React.Component {
         state.wallets.push(myWallet)
 
     }
+    state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? "" : JSON.parse(localStorage.getItem('connectedWallet'));
     super.setState(state)  
   }
 
@@ -243,6 +260,7 @@ class App extends React.Component {
         <React.StrictMode>
 
         <div className='WalletInner'>
+            <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
             <MWalletList root={this}  ></MWalletList>
           { this.state.wallets.length ===0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
