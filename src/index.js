@@ -153,7 +153,11 @@ class App extends React.Component {
       if (e ==="InputsExhaustedError")
         toast.error("Insuficient Funds");
       else
-        toast.error(e.message);
+        {
+          toast.error(e.message);
+          toast.error(e);
+        }
+
     }
   }
 
