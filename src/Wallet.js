@@ -36,7 +36,7 @@ class Wallet {
             this.signersNames.push( { hash:element.keyHash , name:element.name})
             if (element.keyHash.substring(0, 5)=== "addr_"){
               
-              element.keyHash=this.utils.getAddressDetails(element.keyHash).paymentCredential.hash
+              element.keyHash=this.lucid.utils.getAddressDetails(element.keyHash).paymentCredential.hash
             }
           } else if (typeof element === 'object') {
             this.extractSignerNames(element);
@@ -59,17 +59,16 @@ class Wallet {
         new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
         "Preprod",
       );
-      this.utils = new Utils(this.lucid)
       this.extractSignerNames(this.wallet_script)
 
-      this.lucidNativeScript = this.utils.nativeScriptFromJson(this.wallet_script )
+      this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
 
       console.log(this.lucidNativeScript)
     }
 
-    getScript() {
+    getJson() {
       return this.wallet_script;
     }
 
@@ -124,9 +123,9 @@ class Wallet {
  }
 
     getAddress(stakingAddress="") {
-        const rewardAddress = stakingAddress === "" ? this.utils.validatorToScriptHash(this.lucidNativeScript) : this.utils.getAddressDetails(stakingAddress).stakeCredential.hash
+        const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         console.log(rewardAddress)
-        return this.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
+        return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
 
  
@@ -151,7 +150,7 @@ class Wallet {
     }
    
     async loadUtxos() {
-      this.utxos = await this.lucid.provider.getUtxos(this.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      this.utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
     }
     
     getPendingTxs(){
@@ -285,7 +284,7 @@ class Wallet {
 
     async createDelegationTx(pool, signers){ 
       console.log(`Creating delegation transaction for pool: ${pool}`)
-      const rewardAddress =  this.utils.credentialToRewardAddress(this.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      const rewardAddress =  this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
       if (!this.checkSigners(signers)){
         console.log("Not enough signers")
         return "Not enough signers"
@@ -308,7 +307,7 @@ class Wallet {
     }
 
     isAddressMine(address){
-      return (this.utils.getAddressDetails(address).paymentCredential.hash === this.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
+      return (this.lucid.utils.getAddressDetails(address).paymentCredential.hash === this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
     }
     decodeSignature(signature){
      console.log(signature)
@@ -362,6 +361,11 @@ class Wallet {
     setDefaultAddress(address){
       this.defaultAddress = address
     }
+    
+    setAddressNamess(names){
+      this.addressNames = names
+
+    }
 
 
     changeAddressName(address,name){
@@ -371,7 +375,9 @@ class Wallet {
     getDefaultAddress(){
      return this.defaultAddress 
     }
-
+    getAddressNames(){
+      return this.addressNames
+    }
     
     getAddressName(address){
       const resault = address in this.addressNames ? this.addressNames[address] : address

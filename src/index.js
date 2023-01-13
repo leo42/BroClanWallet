@@ -84,10 +84,47 @@ await myWallet3.initialize();
 
 class App extends React.Component {
   state= {
-    wallets: [myWallet,myWallet2 , myWallet3],
+    wallets: [],
     selectedWallet: 0
   }
 
+  setState(state){
+    console.log(this.state)
+    super.setState(state)
+   // this.storeState()
+  }
+
+  componentDidMount() {
+    this.loadState()
+  }
+
+  storeState(){
+    const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
+                                                                name :wallet.getName(),
+                                                               defaultAddress: wallet.getDefaultAddress(),
+                                                               addressNames: wallet.getAddressNames()}) )
+    localStorage.setItem("wallets", JSON.stringify(dataPack))
+  }
+
+  async loadState(){
+    const wallets = JSON.parse(localStorage.getItem('wallets'));
+    let state = this.state
+    for(let index = 0 ; index < wallets.length ; index++){
+      console.log
+      const myWallet = new Wallet(wallets[index].json,wallets[index].name);
+      await myWallet.initialize()
+      myWallet.setDefaultAddress(wallets[index].defaultAddress)
+      myWallet.setAddressNamess(wallets[index].addressNames)
+        state.wallets.push(myWallet)
+
+    }
+    
+    super.setState(state)
+    
+  }
+
+
+  
 
   
   async createTx(recipients,signers,sendFrom){
@@ -209,7 +246,7 @@ class App extends React.Component {
 
         <div className='WalletInner'>
             <MWalletList root={this}  ></MWalletList>
-            <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain>
+          { this.state.wallets.length ===0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
         </React.StrictMode>
 
