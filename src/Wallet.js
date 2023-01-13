@@ -23,6 +23,7 @@ class Wallet {
       this.name=name
       this.txDetails = {}
       this.pendingTxs = [];
+      this.addressNames = {}
       
     }
 
@@ -346,9 +347,28 @@ class Wallet {
     setScript(wallet_script) {
       this.wallet_script = wallet_script;
     }
+
+    setDefaultAddress(address){
+      this.defaultAddress = address
+    }
+
+    setChangeAddress(address){
+      this.changeAddress = address
+    }
+    changeAddressName(address,name){
+      this.addressNames[address] = name
+    }
+    getDefaultAddress(){
+     return this.defaultAddress 
+    }
+
+    getChangeAddress(){
+      return this.changeAddress 
+    }
     
-    setAddress(wallet_address) {
-      this.wallet_address = wallet_address;
+    getAddressName(address){
+      const resault = address in this.addressNames ? this.addressNames[address] : address
+      return resault
     }
 
   }

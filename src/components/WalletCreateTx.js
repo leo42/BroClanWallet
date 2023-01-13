@@ -8,7 +8,9 @@ class WalletCreateTx extends React.Component {
   state = {
     recipients: [{address :"", amount: {lovelace:0}}],
     signers: this.props.wallet.getSigners().map( () =>  true ),
-    tokenData: {} 
+    tokenData: {},
+    sendFrom : "",
+    changeAddress : "" 
   }
 
   ballances = this.props.wallet.getBalanceFull()
@@ -44,6 +46,15 @@ class WalletCreateTx extends React.Component {
     signers[position] = !signers[position]
     this.setState({signers});
   };
+
+  handleChangeFrom = (event) => {
+    console.log(event.target.value)
+  }
+
+  handleChangeChange = (event) =>{
+    console.log(event.target.value)
+ 
+  }
 
   handleSubmit = event => {
     event.preventDefault();
@@ -155,6 +166,29 @@ class WalletCreateTx extends React.Component {
    </label>
    </div>
   ) ) 
+
+  
+  AccountSelect = () => 
+    <div>
+   <br />
+      <span>Send From</span>
+      <select defaultValue={this.props.wallet.getDefaultAddress()} onChange={this.handleChangeFrom} >
+                <option value="" >All</option>
+
+                {this.props.wallet.getFundedAddress().map( (item, index) => (
+                  <option key={index} value={item} >{this.props.wallet.getAddressName(item)}</option>
+            ))}
+      </select>
+
+      <br />
+      <span>Change to:</span>
+      <select defaultValue={this.props.wallet.getChangeAddress()} onChange={this.handleChangeChange}>
+                 {this.props.wallet.getFundedAddress().map( (item, index) => (
+                  <option key={index} value={item} >{this.props.wallet.getAddressName(item)}</option>
+                ))}
+        </select>   
+   </div>
+  
   
   render(){
 
@@ -164,6 +198,9 @@ class WalletCreateTx extends React.Component {
       <button type="submit" onClick={this.addRecipient}>Add recipient</button>
       { this.SignersSelect()}
       <br />
+      {this.AccountSelect()}
+      <br/>
+
       <button type="submit" onClick={this.handleSubmit}>Create Transaction</button>
       </div>
   );

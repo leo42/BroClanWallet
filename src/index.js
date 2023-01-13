@@ -122,6 +122,41 @@ class App extends React.Component {
     }
   }
 
+  setDefaultAddress(address){
+    try {
+      const wallets = this.state.wallets
+      wallets[this.state.selectedWallet].setDefaultAddress(address)
+      this.setState({wallets})
+      toast.info('Default Send Address Updated');
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+  }
+
+  setChangeAddress(address){
+    try {
+      const wallets = this.state.wallets
+      wallets[this.state.selectedWallet].setChangeAddress(address)
+      this.setState({wallets})
+      toast.info('Default Change Address Updated');
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+  }
+
+  changeAddressName(address,name){
+    try {
+      const wallets = this.state.wallets
+      wallets[this.state.selectedWallet].changeAddressName(address,name)
+      this.setState({wallets})
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+  }
+
   getTransactionHistory(){
 
     const wallets = this.state.wallets
