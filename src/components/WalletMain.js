@@ -6,10 +6,10 @@ import WalletOverview from './Overview'
 import TransactionHistory from './TransactionHistory';
 import Receive from './Receive';
 import { toHex } from 'lucid-cardano';
+
 class WalletMain extends React.Component {
     state = {
-        showing: "receive",
-        transactionHistory: []
+        showing: "overview"
     }
 
 
@@ -20,8 +20,8 @@ class WalletMain extends React.Component {
                 return  <WalletOverview key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></WalletOverview>
             case "createTx":
                 return  <WalletCreateTx key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></WalletCreateTx>
-            case "delegation":
-                return  <WalletDelegation key={this.props.root.state.selectedWallet+"delegation"} wallet={this.props.wallet} root={this.props.root}  ></WalletDelegation>
+          //  case "delegation":
+           //     return  <WalletDelegation key={this.props.root.state.selectedWallet+"delegation"} wallet={this.props.wallet} root={this.props.root}  ></WalletDelegation>
             case "pendingTxs": 
                 return(  this.props.wallet.getPendingTxs().map( (pendingTx, index) => (
                   <WalletPendingTxs root={this.props.root} tx={pendingTx} index={index} key={this.props.root.state.selectedWallet + index}></WalletPendingTxs>
@@ -44,7 +44,6 @@ class WalletMain extends React.Component {
             <br/>
             <button value="overview" onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
             <button value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Transaction</button>
-            <button value="delegation" onClick={(event) => this.setState({showing: event.target.value })}> Delegation</button>
             <button  value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>        
             <button  value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Transaction History</button>
             <button  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>

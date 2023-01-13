@@ -21,8 +21,10 @@ class Wallet {
       this.wallet_script = wallet_json
       this.wallet_address = "";
       this.name=name
+      this.defaultAddress= ""
       this.txDetails = {}
       this.pendingTxs = [];
+      this.addressNames = {}
       
     }
 
@@ -34,7 +36,7 @@ class Wallet {
             this.signersNames.push( { hash:element.keyHash , name:element.name})
             if (element.keyHash.substring(0, 5)=== "addr_"){
               
-              element.keyHash=this.utils.getAddressDetails(element.keyHash).paymentCredential.hash
+              element.keyHash=this.lucid.utils.getAddressDetails(element.keyHash).paymentCredential.hash
             }
           } else if (typeof element === 'object') {
             this.extractSignerNames(element);
@@ -57,17 +59,15 @@ class Wallet {
         new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
         "Preprod",
       );
-      this.utils = new Utils(this.lucid)
       this.extractSignerNames(this.wallet_script)
 
-      this.lucidNativeScript = this.utils.nativeScriptFromJson(this.wallet_script )
+      this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
 
-      console.log(this.lucidNativeScript)
     }
 
-    getScript() {
+    getJson() {
       return this.wallet_script;
     }
 
@@ -89,29 +89,27 @@ class Wallet {
       return result
    }
 
-   getBalanceFull(){
+   getBalanceFull(address=""){
     const utxos = this.utxos
     let result = {}
     utxos.map( utxo => {
-      console.log(utxo)
-      for (var asset in  utxo.assets ) {
-        console.log(asset)
-        asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
-      } }
-      )
+      if (address==="" || utxo.address ===address){
+        for (var asset in  utxo.assets ) {
+          asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
+        } 
+      } 
+    }
+     )
     return result
  }
 
- async getTransactionHistory(){
-  console.log("Getting tx")
+ async getTransactionHistory(address){
   //return [{thHash:"adsaecf"},{thHash:"asda"}]
-   let txList= await this.lucid.provider.getTransactions(this.getAddress())
-   console.log(txList)
+   let txList= await this.lucid.provider.getTransactions(address)
    let result = []
    for(let index =0 ; index < txList.length; index++){
      if (!(txList[index].tx_hash in this.txDetails)){
-       console.log(txList[index])
-       const txDetails = await this.lucid.provider.getTransactionDetails(txList[index].tx_hash)
+       const txDetails = txList[index]
        txDetails.utxos =  await this.lucid.provider.getTransactionUtxos(txList[index].tx_hash)
       this.txDetails[txList[index].tx_hash] = txDetails
     } 
@@ -120,20 +118,34 @@ class Wallet {
    return result.sort((a,b) => {return b.block_time - a.block_time})   
  }
 
-    getAddress() {
-        const rewardAddress = this.utils.validatorToScriptHash(this.lucidNativeScript)
-        return this.utils.validatorToAddress(this.lucidNativeScript, {type:"Script", hash: rewardAddress} )
+    getAddress(stakingAddress="") {
+        const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
+        return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
+
  
     getSigners(){
       return this.signersNames
     }
-    async getUtxos() {
+
+    getFundedAddress(){
+      const utxos = this.utxos
+      let result = []
+      utxos.map( utxo => {
+        result.push(utxo.address);
+          
+         }
+        )
+        
+      return  [...new Set(result)]; 
+    }
+
+    getUtxos() {
         return this.utxos
     }
    
     async loadUtxos() {
-      this.utxos = await this.lucid.provider.getUtxos(this.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      this.utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
     }
     
     getPendingTxs(){
@@ -228,34 +240,45 @@ class Wallet {
       
     
     
-    async createTx(amount, destination, signers){ 
-      if (!this.checkSigners(signers)){
-        throw new Error('Not enough signers');
-      }
-
-      const tx = this.lucid.newTx()
-
-      signers.map( value => (
-        tx.addSignerKey(value)
-      ))
-      
-      const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
-      .payToAddress(destination,{lovelace: amount*1000000})
-      .complete()
-
-      this.pendingTxs.map( (PendingTx) => {
-        if (PendingTx.tx === completedTx) {
-          throw new Error('Transaction already registerd');
+    async createTx(recipients, signers,sendFrom  ){ 
+        if (!this.checkSigners(signers)){
+          throw new Error('Not enough signers');
         }
-    })
+        
+        if(sendFrom!==""){
+          let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
+          this.lucid.selectWalletFrom(  { "address":sendFrom, "utxos": utxos})
+        }else{
+          this.lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": this.utxos})
+        }
 
-      this.pendingTxs.push({tx:completedTx, signatures:{}})
-      return "Sucsess"
+        const tx = this.lucid.newTx()
+        recipients.map( recipient => (
+          tx.payToAddress(recipient.address,recipient.amount)
+        ))
+
+        signers.map( value => (
+          tx.addSignerKey(value)
+        ))
+
+
+        tx.attachSpendingValidator(this.lucidNativeScript)
+        const completedTx = await tx.complete()
+//await tx.complete({ change :{address :changeAddress }}) :
+        this.pendingTxs.map( (PendingTx) => {
+          console.log(PendingTx.tx.toHash(),completedTx.toHash())
+          if (PendingTx.tx.toHash() === completedTx.toHash()) {
+            throw new Error('Transaction already registerd');
+          }
+      })
+
+        this.pendingTxs.push({tx:completedTx, signatures:{}})
+        return "Sucsess"
     }
 
     async createDelegationTx(pool, signers){ 
-      console.log(`Creating delegation transaction for pool: ${pool}`)
-      const rewardAddress = this.utils.validatorToRewardAddress(this.lucidNativeScript)
+
+      const rewardAddress =  this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
       if (!this.checkSigners(signers)){
         console.log("Not enough signers")
         return "Not enough signers"
@@ -278,18 +301,14 @@ class Wallet {
     }
 
     isAddressMine(address){
-      return (this.utils.getAddressDetails(address).paymentCredential.hash === this.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
+      return (this.lucid.utils.getAddressDetails(address).paymentCredential.hash === this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
     }
     decodeSignature(signature){
-     console.log(signature)
 
       
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex()
-      console.log(witness.to_js_value())
-      console.log() 
 
-      console.log(this.signersNames)
       return {signer: signer , witness : witness}     
     }
     hexToBytes(hex) {
@@ -328,9 +347,31 @@ class Wallet {
     setScript(wallet_script) {
       this.wallet_script = wallet_script;
     }
+
+    setDefaultAddress(address){
+      this.defaultAddress = address
+    }
     
-    setAddress(wallet_address) {
-      this.wallet_address = wallet_address;
+    setAddressNamess(names){
+      this.addressNames = names
+
+    }
+
+
+    changeAddressName(address,name){
+      this.addressNames[address] = name
+    }
+
+    getDefaultAddress(){
+     return this.defaultAddress 
+    }
+    getAddressNames(){
+      return this.addressNames
+    }
+    
+    getAddressName(address){
+      const resault = address in this.addressNames ? this.addressNames[address] : address
+      return resault
     }
 
   }

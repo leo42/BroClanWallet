@@ -18,6 +18,7 @@
     "axios": "^1.2.2",
     "babel-loader": "^8.2.2",
     "lucid-cardano": "^0.7.9",
+    "qrcode": "^1.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-toastify": "^9.1.1",

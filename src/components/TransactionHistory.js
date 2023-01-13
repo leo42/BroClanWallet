@@ -4,12 +4,18 @@ import "./TransactionHistory.css"
 
 function TransactionHistory (props) {
     const [transactions, setTransactions] = useState([]);
+    const [address, setAddress] = useState(props.wallet.getDefaultAddress() === ""? props.wallet.getFundedAddress()[0] :props.wallet.getDefaultAddress() )
 
     useEffect(() => {
-         props.root.getTransactionHistory()
+         props.root.getTransactionHistory(address)
          .then(transactionHistory => setTransactions(transactionHistory))
-    }, []);
+    }, [address]);
 
+    function handleChangeFrom(event) {
+        console.log()
+        setAddress(event.target.value)
+
+    }
 
     function transactionBalance(transaction){
         const BalancesOut = {}
@@ -46,7 +52,7 @@ function TransactionHistory (props) {
         console.log(transaction)
         const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
-                     {transaction.hash}<br/>
+                     {transaction.tx_hash}<br/>
                      <span className="transactionHistoryListTime">{date.toString()}</span>
                      <br/>
                      {transactionBalance(transaction)}
@@ -57,11 +63,17 @@ function TransactionHistory (props) {
 
 
     return (
-        <div className="TransactionHistoryList">
+       <div>
+      <select defaultValue={props.wallet.getDefaultAddress()} onChange={handleChangeFrom} >
+                 {props.wallet.getFundedAddress().map( (item, index) => (
+                  <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
+            ))}
+      </select>
+         <div className="TransactionHistoryList">
 
             {transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))}
 
-
+            </div>
     </div>);
     
 }

@@ -12,8 +12,6 @@ function WalletPendingTxs(props) {
       }  
       
     const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
-    console.log(txDetails)
-    console.log(props.root.state.wallets[props.root.state.selectedWallet].keyHashToSighnerName(txDetails.required_signers[0]))
 
 
     return (

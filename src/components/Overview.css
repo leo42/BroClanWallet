@@ -1,0 +1,31 @@
+.overviewTokensContainer{
+    margin: 8px;
+    padding: 0px;
+    display: flex;
+    flex-flow: row wrap;
+    flex-shrink: 100;
+    border: 5px;
+    border-style: ridge;
+    justify-content: space-between;
+}
+
+.overviewTokenContainer{
+    width: 180px;
+    height: 60px;
+    margin: 10px;
+    border: 1px;
+    align-self:center;
+    border-style:inset;
+    overflow: hidden;
+    align-self: center;
+}
+
+.overviewTokenContainer img{
+    size: 15px;
+    
+}
+.st0{fill:#000000;}
+.settingsIcon{
+    height: 25px;
+    width: 25px;
+}

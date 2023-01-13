@@ -7,7 +7,7 @@ import MWalletList from "./components/WalletList";
 import MWalletMain from './components/WalletMain';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
-
+import WalletConnector from './components/walletConnector';
 const script1 = {
   "type": "all",
   "scripts":
@@ -25,9 +25,8 @@ const script1 = {
   ]
 } 
 
-console.log(JSON.stringify(script1))
-const myWallet = new Wallet(script1,"Leos Wallet");
-await myWallet.initialize();
+//const myWallet = new Wallet(script1,"Leos Wallet");
+//await myWallet.initialize();
 
 const script2 = {
   "type": "any",
@@ -48,9 +47,8 @@ const script2 = {
 
 
 
-console.log(JSON.stringify(script2))
-const myWallet2 = new Wallet(script2,"Leos2 Wallet");
-await myWallet2.initialize();
+//const myWallet2 = new Wallet(script2,"Leos2 Wallet");
+//await myWallet2.initialize();
 
 
 const script3 ={
@@ -75,29 +73,107 @@ const script3 ={
   "required": 2
 }
 
-console.log(JSON.stringify(script3))
-const myWallet3 = new Wallet(script3,"Leos 2 out of 3");
-await myWallet3.initialize();
+
+//const myWallet3 = new Wallet(script3,"Leos 2 out of 3");
+//await myWallet3.initialize();
 
 //myWallet.addSignature("a1008182582024a97c7d033acb4292cacac9e6de546b9a02e1492d7f76226c8e5ed5be5aa13358408b2318f6834a057e383738614e37cfefb630d7fb7f56a97163bc54b39d26a4aa7a2934a55535fd40995cce1adce976f3d2e7deb06fbcb5abaff19a306bf39f00")
 
 
 class App extends React.Component {
   state= {
-    wallets: [myWallet,myWallet2 , myWallet3],
-    selectedWallet: 0
+    wallets: [],
+    selectedWallet: 0,
+    connectedWallet: ""
+  }
+
+  async setState(state){
+    await super.setState(state)
+    this.storeState()
+  }
+
+  componentDidMount() {
+    this.loadState()
+    this.interval = setInterval(() => {
+        this.reloadBalance()
+    }, 15000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+  
+
+  connectWallet(wallet){
+    let connectedWallet = wallet
+    this.setState({connectedWallet})
+
+  }
+
+  disconnectWallet(){
+    let connectedWallet = ""
+    this.setState({connectedWallet})
+  }
+
+  async reloadBalance(){
+      try {
+      const wallets = this.state.wallets
+      await wallets[this.state.selectedWallet].loadUtxos()
+      this.setState({wallets})
+      console.log("Reloaded Utxos")
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+    
+  }
+
+  storeState(){
+    const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
+                                                                name :wallet.getName(),
+                                                               defaultAddress: wallet.getDefaultAddress(),
+                                                               addressNames: wallet.getAddressNames()}) )
+   
+    localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet ))
+    localStorage.setItem("wallets", JSON.stringify(dataPack))
+  }
+
+  async loadState(){
+    const wallets = JSON.parse(localStorage.getItem('wallets'));
+    let state = this.state
+    for(let index = 0 ; index < wallets.length ; index++){
+
+      const myWallet = new Wallet(wallets[index].json,wallets[index].name);
+      await myWallet.initialize()
+      myWallet.setDefaultAddress(wallets[index].defaultAddress)
+      myWallet.setAddressNamess(wallets[index].addressNames)
+        state.wallets.push(myWallet)
+
+    }
+    state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? "" : JSON.parse(localStorage.getItem('connectedWallet'));
+    super.setState(state)  
   }
 
 
   
-  async createTx(amount,address,signers){
+
+  
+  async createTx(recipients,signers,sendFrom){
     try{
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createTx(amount,address,signers)
+     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom)
+    
     this.setState({wallets})
     toast.info('Transaction created');
     }catch(e){
-      toast.error(e.message);
+      if (e ==="InputsExhaustedError")
+        toast.error("Insuficient Funds");
+      else
+        {
+          toast.error(e.message);
+          toast.error(e);
+        }
+
     }
   }
 
@@ -121,16 +197,41 @@ class App extends React.Component {
     }
   }
 
-  getTransactionHistory(){
+  setDefaultAddress(address){
+    try {
+      const wallets = this.state.wallets
+      wallets[this.state.selectedWallet].setDefaultAddress(address)
+      this.setState({wallets})
+      toast.info('Default Send Address Updated');
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+  }
+
+
+
+  changeAddressName(address,name){
+    try {
+      
+      const wallets = this.state.wallets
+      wallets[this.state.selectedWallet].changeAddressName(address,name)
+      this.setState({wallets})
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+  }
+
+  getTransactionHistory(address){
 
     const wallets = this.state.wallets
-    const resault = wallets[this.state.selectedWallet].getTransactionHistory()
+    const resault = wallets[this.state.selectedWallet].getTransactionHistory(address)
     this.setState({wallets})
     toast.promise(
       resault,
       {
         pending: 'Getting Transaction History',
-        success: 'Got Transaction History',
         error: 'Failed Retriving Transaction History'
       }
   )
@@ -147,14 +248,15 @@ class App extends React.Component {
 
   selectWallet(key){
     const selectedWallet = key
-    console.log(key)
     this.setState( { selectedWallet})
+    this.reloadBalance()
   }
 
   async submit(index){
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
+    promice.then(this.reloadBalance())
     toast.promise(
       promice,
       {
@@ -183,8 +285,9 @@ class App extends React.Component {
         <React.StrictMode>
 
         <div className='WalletInner'>
+            <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
             <MWalletList root={this}  ></MWalletList>
-            <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain>
+          { this.state.wallets.length ===0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
         </React.StrictMode>
 

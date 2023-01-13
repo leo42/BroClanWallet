@@ -1,0 +1,16 @@
+.TokenElement{
+    width: inherit;
+    height: inherit;
+    overflow: hidden;
+
+}
+
+.TokenThumbnail{
+    align-self: left;
+    height: 20px;
+}
+
+.tokenElementName{
+    width: inherit;
+    overflow: hidden;
+}
