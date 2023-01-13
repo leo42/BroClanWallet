@@ -48,6 +48,9 @@ function Receive(props){
     return <div>    
         <select onChange={handleStakingChange} defaultValue={null}>
             <option value="" >Unstaked</option>
+            {props.wallet.getFundedAddress().map( (item, index) => (
+                  <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
+         ))}
             <option value="new" >New Staked Address</option>
             <option value="addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m" >Donate rewards</option>
         </select>

@@ -134,7 +134,7 @@ class App extends React.Component {
       }
   }
 
-  
+
 
   changeAddressName(address,name){
     try {
@@ -147,10 +147,10 @@ class App extends React.Component {
       }
   }
 
-  getTransactionHistory(){
+  getTransactionHistory(address){
 
     const wallets = this.state.wallets
-    const resault = wallets[this.state.selectedWallet].getTransactionHistory()
+    const resault = wallets[this.state.selectedWallet].getTransactionHistory(address)
     this.setState({wallets})
     toast.promise(
       resault,

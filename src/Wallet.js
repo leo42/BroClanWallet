@@ -105,10 +105,10 @@ class Wallet {
     return result
  }
 
- async getTransactionHistory(){
-  console.log("Getting tx")
+ async getTransactionHistory(address){
+  console.log("Getting tx",address)
   //return [{thHash:"adsaecf"},{thHash:"asda"}]
-   let txList= await this.lucid.provider.getTransactions(this.getAddress())
+   let txList= await this.lucid.provider.getTransactions(address)
    console.log(txList)
    let result = []
    for(let index =0 ; index < txList.length; index++){
