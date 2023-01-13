@@ -89,16 +89,17 @@ class Wallet {
       return result
    }
 
-   getBalanceFull(){
+   getBalanceFull(address=""){
     const utxos = this.utxos
     let result = {}
     utxos.map( utxo => {
-      console.log(utxo)
-      for (var asset in  utxo.assets ) {
-        console.log(asset)
-        asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
-      } }
-      )
+      if (address==="" || utxo.address ===address){
+        for (var asset in  utxo.assets ) {
+          asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
+        } 
+      } 
+    }
+     )
     return result
  }
 
@@ -120,15 +121,30 @@ class Wallet {
    return result.sort((a,b) => {return b.block_time - a.block_time})   
  }
 
-    getAddress() {
-        const rewardAddress = this.utils.validatorToScriptHash(this.lucidNativeScript)
-        return this.utils.validatorToAddress(this.lucidNativeScript, {type:"Script", hash: rewardAddress} )
+    getAddress(stakingAddress="") {
+        const rewardAddress = stakingAddress === "" ? this.utils.validatorToScriptHash(this.lucidNativeScript) : this.utils.getAddressDetails(stakingAddress).stakeCredential.hash
+        console.log(rewardAddress)
+        return this.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
+
  
     getSigners(){
       return this.signersNames
     }
-    async getUtxos() {
+
+    getFundedAddress(){
+      const utxos = this.utxos
+      let result = []
+      utxos.map( utxo => {
+        result.push(utxo.address);
+          
+         }
+        )
+        
+      return  [...new Set(result)]; 
+    }
+
+    getUtxos() {
         return this.utxos
     }
    
@@ -246,7 +262,7 @@ class Wallet {
       .complete()
 
       this.pendingTxs.map( (PendingTx) => {
-        if (PendingTx.tx === completedTx) {
+        if (PendingTx.tx.hash === completedTx.hash) {
           throw new Error('Transaction already registerd');
         }
     })

@@ -3,10 +3,8 @@ import TokenElement from './TokenElement';
 import "./Overview.css"
 function Overview(props) {
   const wallet = props.wallet
-  const initialState = [] 
   const ballances = wallet.getBalanceFull()
   console.log(ballances)
-
   
    
   return (
@@ -19,6 +17,16 @@ function Overview(props) {
         ))}
 
     </div>
+     {wallet.getFundedAddress().map((address,index)  => (
+      <div key={index}> {address} 
+
+           <div  className='overviewTokensContainer'>
+           {Object.keys(wallet.getBalanceFull(address)).map((asset, index) => (
+               <div className='overviewTokenContainer' key={index}><TokenElement tokenId={asset} amount={wallet.getBalanceFull(address)[asset]}/></div>
+             ))}
+        </div>
+     </div>
+    ))}
     </div>
   );
 

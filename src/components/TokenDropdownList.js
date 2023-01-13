@@ -18,7 +18,7 @@ function TokenDropdownMenu(props) {
             <button onClick={() => setIsOpen(!isOpen)}>Add Token</button>
             {isOpen && (
                 <ul>
-                    {Object.keys(props.ballances).map( (token,index) => 
+                    {Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 
                     <li key={index} ><div onClick={() =>handleClick(token, props.index)}><TokenElement tokenId={token} amount={props.ballances[token]}/></div> </li>
 
                     )}

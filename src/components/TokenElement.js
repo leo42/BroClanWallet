@@ -6,7 +6,6 @@ function TokenElement(props){
     const [ tokenInfo, setTokenInfo] =  React.useState({})
     React.useEffect(() => {
         var tokenInfoFetch =  getTokenInfo(props.tokenId)
-        console.log(tokenInfoFetch)
         tokenInfoFetch.then( info => 
           setTokenInfo(info)
         )
