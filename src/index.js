@@ -91,7 +91,7 @@ class App extends React.Component {
   setState(state){
     console.log(this.state)
     super.setState(state)
-   // this.storeState()
+    this.storeState()
   }
 
   componentDidMount() {
