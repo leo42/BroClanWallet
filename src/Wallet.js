@@ -229,11 +229,8 @@ class Wallet {
     
     
     async createTx(amount, destination, signers){ 
-      console.log(`Creating transaction of ${amount} Lovelace, for address: ${destination}`)
-
       if (!this.checkSigners(signers)){
-        console.log("Not enough signers")
-        return "Not enough signers"
+        throw new Error('Not enough signers');
       }
 
       const tx = this.lucid.newTx()
@@ -245,7 +242,13 @@ class Wallet {
       const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
       .payToAddress(destination,{lovelace: amount*1000000})
       .complete()
-      
+
+      this.pendingTxs.map( (PendingTx) => {
+        if (PendingTx.tx === completedTx) {
+          throw new Error('Transaction already registerd');
+        }
+    })
+
       this.pendingTxs.push({tx:completedTx, signatures:{}})
       return "Sucsess"
     }
@@ -295,15 +298,18 @@ class Wallet {
       return bytes;
     }
     
-    async addSignature(signature){
+    addSignature(signature){
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
 
       for (var index = 0; index < this.pendingTxs.length; index++){
-            this.pendingTxs[index] 
             if (signatureInfo.witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(this.pendingTxs[index].tx.toHash()), signatureInfo.witness.vkeys().get(0).signature()))
             {
-              !(signatureInfo.signer in this.pendingTxs[index].signatures) ? this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)  : console.log("This signature already exists");
+              if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
+                   this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)
+                }else{
+                   throw new Error('Signature already registerd');
+                  }
             }
 
         }
@@ -315,7 +321,7 @@ class Wallet {
        const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
        const txHash = await signedTx.submit();
        this.pendingTxs = this.pendingTxs.filter( (item,i) => i!==index)
-       console.log(txHash);
+      return( this.lucid.awaitTx(txHash))
 
     }
     // Setters

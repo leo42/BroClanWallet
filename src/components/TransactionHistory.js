@@ -25,6 +25,7 @@ function TransactionHistory (props) {
              )}})
         const lovelace = BalancesOut.lovelace
         delete BalancesOut["lovelace"]
+        Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
             <div key={index} className="transactionHistoryTokenBalance">
                <span className="transactionHistoryTokenName"> {key}</span >:<span className={BalancesOut[key] >= 0 ? "transactionHistoryTokenBalancePositive" : "transactionHistoryTokenBalanceNegative"}>{BalancesOut[key]}</span> 
@@ -44,7 +45,7 @@ function TransactionHistory (props) {
     function TransactionListing(transaction){
         console.log(transaction)
         const date = new Date(transaction.block_time* 1000)
-        return (<div className="transactionHistoryItem tooltip" data-tooltip="Hey Leo"> 
+        return (<div className="transactionHistoryItem"> 
                      {transaction.hash}<br/>
                      <span className="transactionHistoryListTime">{date.toString()}</span>
                      <br/>
