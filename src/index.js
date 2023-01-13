@@ -150,7 +150,10 @@ class App extends React.Component {
     this.setState({wallets})
     toast.info('Transaction created');
     }catch(e){
-      toast.error(e.message);
+      if (e ==="InputsExhaustedError")
+        toast.error("Insuficient Funds");
+      else
+        toast.error(e.message);
     }
   }
 

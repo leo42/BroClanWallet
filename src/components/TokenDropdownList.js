@@ -6,7 +6,6 @@ function TokenDropdownMenu(props) {
     // State to keep track of whether the menu is open or closed
     const [isOpen, setIsOpen] = useState(false);
     
-    console.log(props.ballances)
 
     function handleClick(token,index ){ 
         props.f(token, index)

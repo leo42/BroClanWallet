@@ -65,7 +65,6 @@ class Wallet {
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
 
-      console.log(this.lucidNativeScript)
     }
 
     getJson() {
@@ -105,14 +104,11 @@ class Wallet {
  }
 
  async getTransactionHistory(address){
-  console.log("Getting tx",address)
   //return [{thHash:"adsaecf"},{thHash:"asda"}]
    let txList= await this.lucid.provider.getTransactions(address)
-   console.log(txList)
    let result = []
    for(let index =0 ; index < txList.length; index++){
      if (!(txList[index].tx_hash in this.txDetails)){
-       console.log(txList[index])
        const txDetails = txList[index]
        txDetails.utxos =  await this.lucid.provider.getTransactionUtxos(txList[index].tx_hash)
       this.txDetails[txList[index].tx_hash] = txDetails
@@ -124,7 +120,6 @@ class Wallet {
 
     getAddress(stakingAddress="") {
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
-        console.log(rewardAddress)
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
 
@@ -249,11 +244,9 @@ class Wallet {
         if (!this.checkSigners(signers)){
           throw new Error('Not enough signers');
         }
-        console.log(sendFrom)
         
         if(sendFrom!==""){
           let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-          console.log()
           this.lucid.selectWalletFrom(  { "address":sendFrom, "utxos": utxos})
         }else{
           this.lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": this.utxos})
@@ -273,7 +266,8 @@ class Wallet {
         const completedTx = await tx.complete()
 //await tx.complete({ change :{address :changeAddress }}) :
         this.pendingTxs.map( (PendingTx) => {
-          if (PendingTx.tx.hash === completedTx.hash) {
+          console.log(PendingTx.tx.toHash(),completedTx.toHash())
+          if (PendingTx.tx.toHash() === completedTx.toHash()) {
             throw new Error('Transaction already registerd');
           }
       })
@@ -283,7 +277,7 @@ class Wallet {
     }
 
     async createDelegationTx(pool, signers){ 
-      console.log(`Creating delegation transaction for pool: ${pool}`)
+
       const rewardAddress =  this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
       if (!this.checkSigners(signers)){
         console.log("Not enough signers")
@@ -310,15 +304,11 @@ class Wallet {
       return (this.lucid.utils.getAddressDetails(address).paymentCredential.hash === this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
     }
     decodeSignature(signature){
-     console.log(signature)
 
       
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex()
-      console.log(witness.to_js_value())
-      console.log() 
 
-      console.log(this.signersNames)
       return {signer: signer , witness : witness}     
     }
     hexToBytes(hex) {
