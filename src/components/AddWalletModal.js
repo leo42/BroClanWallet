@@ -121,10 +121,24 @@ class AddWalletModal extends React.Component {
     
   }
 
+  handleSlotChange(value,coordinates){
+    const json=this.state.json;
+    console.log("In handle Type Change")
+    console.log(coordinates)
+    console.log(value)
+    let current = json;
+    for (const index of coordinates) {
+      current = current.scripts[index];
+    }
+    current.slot= Number(value) ?  Number(value) : value==="" ? "" : current.slot
+
+    console.log(json)
+    this.setState({json})
+    
+  }
 
   handleKeyHashChange(value,coordinates){
     const json=this.state.json;
-    console.log("In handle Type Change")
     console.log(coordinates)
     console.log(value)
     let current = json;
@@ -180,8 +194,8 @@ class AddWalletModal extends React.Component {
              required
                type="text"
                name="amount"
-               value={json.keyHash}
-               onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
+               value={json.slot}
+               onChange={event => this.handleSlotChange(event.target.value, coordinates)}
              />
              <label>Before Slot</label>
          </div>
@@ -202,8 +216,8 @@ class AddWalletModal extends React.Component {
              required
                type="text"
                name="amount"
-               value={json.keyHash}
-               onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
+               value={json.slot}
+               onChange={event => this.handleSlotChange(event.target.value, coordinates)}
              />
              <label> After Slot</label>
          </div>
@@ -266,19 +280,19 @@ class AddWalletModal extends React.Component {
              delete current.keyHash
              break;     
       case "before":
-            current.slot=0
+            current.slot="0"
             delete current.name
             delete current.required
             delete current.keyHash
             delete current.scripts
-            
+            break;
       case "after":
-            current.slot=0
+            current.slot="0"
             delete current.name
             delete current.keyHash
             delete current.scripts  
             delete current.required
-          
+            break;
       case "sig":
             current.name=""
             current.keyHash=""
