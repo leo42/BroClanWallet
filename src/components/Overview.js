@@ -4,11 +4,9 @@ import "./Overview.css"
 function Overview(props) {
   const wallet = props.wallet
   const ballances = wallet.getBalanceFull()
-  console.log(ballances)
   const [settingsOpen, setSettingsOpen] = useState(wallet.getFundedAddress().map(() => (false)))
   
   const showSettings = (index) =>{
-    console.log(index)
     let settingsOpenNew = [...settingsOpen]
     settingsOpenNew[index] = !settingsOpenNew[index]
     setSettingsOpen(settingsOpenNew)

@@ -25,9 +25,8 @@ const script1 = {
   ]
 } 
 
-console.log(JSON.stringify(script1))
-const myWallet = new Wallet(script1,"Leos Wallet");
-await myWallet.initialize();
+//const myWallet = new Wallet(script1,"Leos Wallet");
+//await myWallet.initialize();
 
 const script2 = {
   "type": "any",
@@ -48,9 +47,8 @@ const script2 = {
 
 
 
-console.log(JSON.stringify(script2))
-const myWallet2 = new Wallet(script2,"Leos2 Wallet");
-await myWallet2.initialize();
+//const myWallet2 = new Wallet(script2,"Leos2 Wallet");
+//await myWallet2.initialize();
 
 
 const script3 ={
@@ -75,9 +73,9 @@ const script3 ={
   "required": 2
 }
 
-console.log(JSON.stringify(script3))
-const myWallet3 = new Wallet(script3,"Leos 2 out of 3");
-await myWallet3.initialize();
+
+//const myWallet3 = new Wallet(script3,"Leos 2 out of 3");
+//await myWallet3.initialize();
 
 //myWallet.addSignature("a1008182582024a97c7d033acb4292cacac9e6de546b9a02e1492d7f76226c8e5ed5be5aa13358408b2318f6834a057e383738614e37cfefb630d7fb7f56a97163bc54b39d26a4aa7a2934a55535fd40995cce1adce976f3d2e7deb06fbcb5abaff19a306bf39f00")
 
@@ -90,14 +88,21 @@ class App extends React.Component {
   }
 
   async setState(state){
-    console.log(this.state)
     await super.setState(state)
     this.storeState()
   }
 
   componentDidMount() {
     this.loadState()
+    this.interval = setInterval(() => {
+        this.reloadBalance()
+    }, 15000);
   }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+  
 
   connectWallet(wallet){
     let connectedWallet = wallet
@@ -107,9 +112,20 @@ class App extends React.Component {
 
   disconnectWallet(){
     let connectedWallet = ""
-    console.log("Leooooooo")
     this.setState({connectedWallet})
+  }
 
+  async reloadBalance(){
+      try {
+      const wallets = this.state.wallets
+      await wallets[this.state.selectedWallet].loadUtxos()
+      this.setState({wallets})
+      console.log("Reloaded Utxos")
+      }
+      catch(e) {
+        toast.error(e.message);
+      }
+    
   }
 
   storeState(){
@@ -126,7 +142,7 @@ class App extends React.Component {
     const wallets = JSON.parse(localStorage.getItem('wallets'));
     let state = this.state
     for(let index = 0 ; index < wallets.length ; index++){
-      console.log
+
       const myWallet = new Wallet(wallets[index].json,wallets[index].name);
       await myWallet.initialize()
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
@@ -197,6 +213,7 @@ class App extends React.Component {
 
   changeAddressName(address,name){
     try {
+      
       const wallets = this.state.wallets
       wallets[this.state.selectedWallet].changeAddressName(address,name)
       this.setState({wallets})
@@ -231,14 +248,15 @@ class App extends React.Component {
 
   selectWallet(key){
     const selectedWallet = key
-    console.log(key)
     this.setState( { selectedWallet})
+    this.reloadBalance()
   }
 
   async submit(index){
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
+    promice.then(this.reloadBalance())
     toast.promise(
       promice,
       {
