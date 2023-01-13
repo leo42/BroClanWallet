@@ -3,7 +3,7 @@ import "./Receive.css"
 import { ToastContainer, toast } from 'react-toastify';
 import QRCode from "qrcode";
 function Receive(props){
-    const [address, setAddress] = React.useState(props.wallet.getAddress())
+    const [address, setAddress] = React.useState(props.wallet.getDefaultAddress() === "" ? props.wallet.getAddress() : props.wallet.getDefaultAddress())
     const [newStake, setNewStake] = React.useState(false)
     const [invalidStake, setInvalidStake] = React.useState(false)
 
@@ -46,7 +46,7 @@ function Receive(props){
     }
 
     return <div>    
-        <select onChange={handleStakingChange} defaultValue={null}>
+        <select onChange={handleStakingChange} defaultValue={props.wallet.getDefaultAddress()}>
             <option value="" >Unstaked</option>
             {props.wallet.getFundedAddress().map( (item, index) => (
                   <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
