@@ -22,9 +22,9 @@
   }
 
   .modalContainer {
-    width: fit-content;
-    height: fit-content;
-    border-radius: 12px;
+    width: max-content;
+    height: max-content;
+    border-radius: 1vw;
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     display: flex;
@@ -32,21 +32,22 @@
     padding: 25px;
     position: absolute;
     top:10%;
-    margin-bottom: 10%;
-
   }
 
   .modalContainer .title {
     display: inline-block;
     text-align: center;
-    margin-top: -10px;
-    margin-bottom: -63px;
+    margin-top: 0%;
+    margin-bottom: -10%;
     font-size: 18px;
   }
   
   .titleCloseBtn {
     display: flex;
     justify-content: flex-end;
+    margin-top: 39px;
+    margin-right: 2px;
+    margin-bottom:40px;
   }
   
   .titleCloseBtn button {
@@ -58,14 +59,14 @@
 
   .rootElement {
     border: var(--clrorange) solid 1px;
-    border-radius: 1vw;
+    border-radius: 5px;
     padding: 7px;
     margin: 6px;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   }
 
   .cardSelect {
-    margin-top: -42px;
+    margin-top: -34px;
    }
 
   .rootRoot .rootElement {
@@ -73,11 +74,11 @@
    }
 
   .rootRoot > .rootElement > .cardSelect{
-    margin-top: -26px;
+    margin-top: -16px;
    }
 
   .rootRoot > div:first-child{
-    margin-top: 1px;
+    margin-top: 13px;
    }
 
   .rootRoot {
@@ -105,13 +106,15 @@ input[type="text"] {
   padding: 1px 3px;
   border: none;
   border-bottom: solid black 1px;
-  height: 16px;
+  height: 22px;
   padding-left: 5px;
-  margin-top: 18px;
+  margin-top: 25px;
+  font-size:17px;
+  position:relative;
 }
 
 input:focus + label, input:valid + label{
-  font-size: 9px;
+  font-size: 12px;
   color: #777777;
   top: 8px;
   left:1px;
@@ -127,11 +130,11 @@ input:focus + label, input:valid + label{
 
 .input_wrap label {
   font-family:arial;
-  font-size:16px;
+  font-size:20px;
   color: #777777;
   position: absolute;
-  top: 22px;
-  left: 3px;
+  top: 23px;
+  left: 6px;
   transition:0.2s ease all; 
   -moz-transition:0.2s ease all; 
   -webkit-transition:0.2s ease all;
@@ -152,24 +155,24 @@ select{
   /* background-image: linear-gradient(to top, #fff, #fff, var(--clrorange)); */
 }
 
-option:hover {
+/* option:hover {
   background-color: red !important;
 }
 
 
 option:hover{
   background-color: #000000;
-}
+} */
 
   
 .createWalletAddress{
-  width: 445px;
-  font-size: 8px;
+  width: 950px;
+  /* font-size: 8px; */
 }
 
 .createWalletName{
-  width: 50px;
-  font-size: 10px;
+  width: 150px;
+  /* font-size: 10px; */
   margin-right: 5px;
 }
 
@@ -177,35 +180,56 @@ option:hover{
   display: inline-block;
 }
 
-.sigWrap label{
-  font-size: 10px;
+/* .sigWrap .createWalletName label{
+  top:-2px;
+  left:-159px;
+  position:relative;
 }
 
+.sigWrap .createWalletAddress label{
+  top:-2px;
+  left:-159px;
+  position:relative;
+}
+
+.createWalletAddress input:focus + label, .createWalletAddress input:valid + label{
+  left: -215px;
+  top: -23px;
+  position: absolute;
+} */
+
 .walletName label{
-  top: 25px;
-  left: 22px;
+  top: 23px;
+  left: 27px;
 }
 .beforeAndAfterSlot label{
-  top: 22px;
-  left: 175px;
-  font-size: 10px;
+  top: -2px;
+  left: -210px;
+  position: relative;
 }
 
 .beforeAndAfterSlot input:focus + label, .beforeAndAfterSlot input:valid + label{
-  left: 172px;
+  left: -215px;
+  top: -23px;
+  position: relative;
 }
 
 .walletName input{
   text-align: center;
   margin-bottom: 15px;
-  margin-top: 26px;
 }
 
 .walletName input:focus + label, .walletName input:valid + label{
-  left: 47px;
+  left: 55px;
 }
 
- .btn {
+.atLeast > input:first-child{ 
+  /* text-align: center; */
+  margin-bottom: 4px;
+  margin-top: 16px;
+}
+
+.btn {
   border: var(--clrorange) solid 1px;
   background-color: transparent;
   box-shadow: var(--clrorange) 0px 0px 5px 0px;
@@ -230,7 +254,6 @@ option:hover{
   flex-direction: column;
   justify-content: center;
   align-items:center;
-  font-size: 2.5vw;
   text-align: center;
 }
 
