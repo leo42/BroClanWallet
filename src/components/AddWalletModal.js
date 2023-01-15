@@ -46,7 +46,7 @@ class AddWalletModal extends React.Component {
 
   allComponent(json,coordinates){
     return (
-    <div >
+    <div className="input_wrap">
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
        <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
     </div>)
@@ -54,25 +54,24 @@ class AddWalletModal extends React.Component {
 
   anyComponent(json,coordinates){
     return (
-    <div>
+    <div className="input_wrap">
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
-       <button onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
+       <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
     </div>)
   }
 
   atLeastComponent(json,coordinates){
     return (
-    <div className="input_wrap">
+    <div className="atLeast">
             <input
             required
-              type="text"
+              type="number"
               name="amount"
               value={json.required}
               onChange={event => this.handleRequiredChange(event.target.value, coordinates)}
             />
-          <label>At Least</label>
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
-       <button onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
+       <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
     </div>)
   }
   
@@ -192,15 +191,17 @@ class AddWalletModal extends React.Component {
      //console.log(coordinates)
      return (
       <React.Fragment>
-         <div className="input_wrap beforeAndAfterSlot">
-             <input
+         <div className="input_wrap ">
+             <div className="beforeAndAfterSlot">
+              <input
              required
                type="text"
                name="amount"
                value={json.slot}
                onChange={event => this.handleSlotChange(event.target.value, coordinates)}
              />
-             <label>Before Slot</label>
+             <label >Before Slot</label>
+             </div>
          </div>
      
         </React.Fragment>
