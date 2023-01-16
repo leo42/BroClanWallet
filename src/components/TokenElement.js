@@ -11,7 +11,7 @@ function TokenElement(props){
         )
     },[])
       const name = tokenInfo.metadata ? tokenInfo.metadata.name : tokenInfo.onchain_metadata ?  tokenInfo.onchain_metadata.name : props.tokenId
-      const image =  tokenInfo.metadata ?  "data:image/jpeg;base64," +tokenInfo.metadata.logo.replace(/\s/g, ';') : tokenInfo.onchain_metadata ?  tokenInfo.onchain_metadata.image.replace("ipfs://","https://ipfs.io/ipfs/") : ""
+      const image =  tokenInfo.metadata ?  "data:image/jpeg;base64," +tokenInfo.metadata.logo.replace(/\s/g, ';') : tokenInfo.onchain_metadata ?  tokenInfo.onchain_metadata.image.replace("ipfs://","https://gateway.pinata.cloud/ipfs/") : ""
 
     return (<div className="TokenElement"> 
        <img className="TokenThumbnail" src={image } />
