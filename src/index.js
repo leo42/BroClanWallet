@@ -117,10 +117,11 @@ class App extends React.Component {
 
   async reloadBalance(){
       try {
-      const wallets = this.state.wallets
-      await wallets[this.state.selectedWallet].loadUtxos()
-      this.setState({wallets})
-      console.log("Reloaded Utxos")
+        if (this.state.wallets.length > 0){
+          const wallets = this.state.wallets
+          await wallets[this.state.selectedWallet].loadUtxos()
+          this.setState({wallets})
+        }
       }
       catch(e) {
         toast.error(e.message);
@@ -153,11 +154,7 @@ class App extends React.Component {
     state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? "" : JSON.parse(localStorage.getItem('connectedWallet'));
     super.setState(state)  
   }
-
-
-  
-
-  
+ 
   async createTx(recipients,signers,sendFrom){
     try{
     const wallets = this.state.wallets
