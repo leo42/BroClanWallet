@@ -1,4 +1,4 @@
-import {  Utils , C , Lucid, Blockfrost ,ExternalWallet  } from "./lucid/dist/esm/mod.js";
+import {  Utils , C , Lucid, Blockfrost ,ExternalWallet , TxComplete } from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
 import { Kupmios } from "lucid-cardano";
 const { Transaction} = C;
@@ -357,6 +357,32 @@ class Wallet {
         return "Sucsess"
     }
 
+    async importTransaction(transaction)
+    { 
+      console.log(transaction)
+      const uint8Array = new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+
+      const tx =  new   TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+ //     tx.txBuilder = 
+      
+
+      try{
+        this.pendingTxs.map( (PendingTx) => {
+          console.log(PendingTx.tx.toHash(),completedTx.toHash())
+          if (PendingTx.tx.toHash() === transaction.toHash()) {
+            throw new Error('Transaction already registerd');
+          }
+         })
+
+      this.pendingTxs.push({tx:tx, signatures:{}})
+      
+      }catch(e){
+        throw new Error('Transaction already registerd');
+      }
+    }
+
+    
+
     async createDelegationTx(pool, signers){ 
 
       const rewardAddress =  this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
@@ -414,6 +440,10 @@ class Wallet {
 
         }
 
+    }
+
+    getSignature(index,keyHash){
+      return this.pendingTxs[index].signatures[keyHash]
     }
 
     async submitTransaction(index){

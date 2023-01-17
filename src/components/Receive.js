@@ -1,6 +1,6 @@
 import React from "react";
 import "./Receive.css"
-import { ToastContainer, toast } from 'react-toastify';
+import {  toast } from 'react-toastify';
 import QRCode from "qrcode";
 function Receive(props){
     const [address, setAddress] = React.useState(props.wallet.getDefaultAddress() === "" ? props.wallet.getAddress() : props.wallet.getDefaultAddress())

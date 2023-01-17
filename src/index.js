@@ -191,6 +191,12 @@ class App extends React.Component {
     }
   }
 
+  async importTransaction(transaction){
+    console.log(transaction)
+    const wallets = this.state.wallets
+    await this.state.wallets[this.state.selectedWallet].importTransaction(transaction)
+    this.setState({wallets})
+  }
 
   async createDelegationTx(pool,signers){
     const wallets = this.state.wallets
