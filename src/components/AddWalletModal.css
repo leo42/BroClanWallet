@@ -214,6 +214,15 @@ option:hover{
   position: relative;
 }
 
+.beforeSlot > p {
+  font-size: 10px;
+  margin-bottom: 0px;
+}
+
+.beforeSlot > p> span {
+  color:red;
+}
+
 .walletName input{
   text-align: center;
   margin-bottom: 15px;

@@ -191,7 +191,7 @@ class AddWalletModal extends React.Component {
      //console.log(coordinates)
      return (
       <React.Fragment>
-         <div className="input_wrap ">
+         <div className="input_wrap beforeSlot">
              <div className="beforeAndAfterSlot">
               <input
              required
@@ -202,6 +202,7 @@ class AddWalletModal extends React.Component {
              />
              <label >Before Slot</label>
              </div>
+             <p> <span>Warning:</span> Using the "Before" type could result in a permanently locked wallet! You need to withdraw your money <span>before</span> the above date!</p>
          </div>
      
         </React.Fragment>
