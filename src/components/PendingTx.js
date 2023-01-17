@@ -5,6 +5,8 @@ import {  toast } from 'react-toastify';
 
 function WalletPendingTx(props) {
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
+    const [importTransaction, setImportTransaction] = React.useState(false);
+    const [importedTx, setImportedTx] = React.useState("");
 
     async function signWithLocalWallet(wallet){
         const api = await window.cardano[wallet].enable()
@@ -24,6 +26,15 @@ function WalletPendingTx(props) {
     }
     const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
 
+    function importSigniture(){
+        try{
+            props.root.addSignature(importedTx);
+            toast.success("Transaction imported");
+            setImportTransaction(false);
+        }catch(error){
+            toast.error( error.message);
+        }
+    }
 
     return (
         <div className="pedningTx">
@@ -44,6 +55,13 @@ function WalletPendingTx(props) {
             <button onClick={() => setWalletPickerOpen(true)} >add signature</button>
         
             <button onClick={() => props.root.submit(props.index)} >Submit</button>
+            
+            <button onClick={()=> setImportTransaction(true)} >Import Signature</button>
+            {importTransaction ? 
+            <div>
+                <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Signature Data"></input>
+                  <button onClick={importSigniture}>Import</button> 
+            </div> : ""      }
         </div>
     )
 }
