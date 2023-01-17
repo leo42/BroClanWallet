@@ -170,9 +170,17 @@ class Wallet {
 
     checkSigners(signers){
         const json=this.wallet_script
-        return checkRoot(json)
-
-
+        console.log(json)
+        const that = this
+        let requires_before = false
+        let requires_after = false
+        let result = checkRoot(json)
+        if (result){
+          return ({requires_before:requires_before, requires_after:requires_after})
+        }
+        else{
+          return false
+        }
         function checkAll(json){
               for (var index = 0; index < json.length; index++){
 
@@ -218,6 +226,33 @@ class Wallet {
               return false
         }
 
+        function checkBefore(json){ 
+          const slot = json.slot          
+          const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
+          console.log(slot,currentSlot)
+          if (slot > currentSlot){
+              (requires_before === false || requires_before > json.slot) ? requires_before = json.slot : null
+              return true
+          }
+          else{
+              return false
+          }
+        }     
+      
+
+        function checkAfter(json){
+          const slot = json.slot          
+          const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
+          if (slot < currentSlot){
+              (requires_after === false || requires_after < json.slot) ? requires_after = json.slot : null
+      
+            return true
+          }
+          else{
+              return false
+          }
+        }
+
         function checkRoot(json) {
             switch (json.type) {
               case "all": 
@@ -231,9 +266,13 @@ class Wallet {
                     break;
               case "sig":
                     return checkSig(json)
+                    break;              
+              case "before":
+                    return checkBefore(json)
+                    break;              
+              case "after":
+                    return checkAfter(json)
                     break;
-     
-   
           }}
       }
 
@@ -241,9 +280,12 @@ class Wallet {
     
     
     async createTx(recipients, signers,sendFrom  ){ 
-        if (!this.checkSigners(signers)){
+        const sigCheck = this.checkSigners(signers)
+        if (!sigCheck){
           throw new Error('Not enough signers');
         }
+
+       
         
         if(sendFrom!==""){
           let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
@@ -256,6 +298,17 @@ class Wallet {
         recipients.map( recipient => (
           tx.payToAddress(recipient.address,recipient.amount)
         ))
+
+        
+        console.log(sigCheck)
+        if (sigCheck.requires_after !== false){
+          tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
+          
+        }
+
+        if (sigCheck.requires_before !== false){
+          tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
+        }
 
         signers.map( value => (
           tx.addSignerKey(value)
