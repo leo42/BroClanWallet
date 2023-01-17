@@ -1,36 +1,35 @@
 import React from "react";
-import WalletPicker from "./WalletPicker"
+import WalletPendingTx from "./PendingTx";
+import { useState, useEffect } from "react";    
+import { toast } from 'react-toastify';
 
+function PendingTxs(props){
 
-function WalletPendingTxs(props) {
-    const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
+    const [importTransaction, setImportTransaction] = useState(false);
+    const [importedTx, setImportedTx] = useState("");
 
-    async function signWithLocalWallet(wallet){
-        const api = await window.cardano[wallet].enable()
-        const signature = await api.signTx(props.tx.tx.toString() ,true)
-        props.root.addSignature(signature)
-      }  
-      
-    const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
+    const importTx = (importedTx) =>{
+        try{
+            props.root.importTransaction(importedTx);
+            toast.success("Transaction imported");
+            setImportTransaction(false);
+        }catch(error){
+            toast.error( error.message);
+        }
 
-
-    return (
-        <div className="pedningTx">
-             Fee:{txDetails.fee/1000000}<br/>
-
-
-             {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}
-            {txDetails.signatures.map( (item, index) => (
-                <div key={index} className={"pendingTx_signer"+ (item.haveSig ? " pendingTx_signer_signed" : "")} >Hey { item.name}</div>
-            )
-
-             )}
-            
-            <button onClick={() => setWalletPickerOpen(true)} >add signature</button>
-        
-            <button onClick={() => props.root.submit(props.index)} >Submit</button>
+    }
+    return(
+        <div className="pendingTxs">
+             <button onClick={() =>setImportTransaction(true)}>Import Transaction</button>
+             {importTransaction ? <div>
+                   <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Transaction Data"></input>
+                   <button  onClick={ () => importTx(importedTx)}>Import</button></div> : "" }
+            <h3>Pending Transactions</h3>
+            {props.wallet.getPendingTxs().map( (pendingTx, index) => (
+                  <WalletPendingTx root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={props.root.state.selectedWallet + index}></WalletPendingTx>
+            ) )}
         </div>
     )
 }
 
-export default WalletPendingTxs
+export default PendingTxs;

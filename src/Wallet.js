@@ -1,5 +1,6 @@
-import {  Utils , C , Lucid, Blockfrost ,ExternalWallet  } from "./lucid/dist/esm/mod.js";
+import {  Utils , C , Lucid, Blockfrost ,ExternalWallet , TxComplete } from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
+import { Kupmios } from "lucid-cardano";
 const { Transaction} = C;
 
 const data1 = await Datasource.from_blockfrost("preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp")
@@ -54,19 +55,46 @@ class Wallet {
       }
     }
 
-    async initialize (){
+    async initialize (settings){
+      if(settings.provider === "Blockfrost"){
       this.lucid = await Lucid.new(
-        new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
-        "Preprod",
+        new Blockfrost(settings.api.url, settings.api.projectId),
+        settings.network,
       );
+     }else if(settings.provider === "Kupmios"){
+        this.lucid = await Lucid.new(
+          new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
+          settings.network,
+        );
+      }else if(settings.provider === "MWallet"){
+        new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
+        settings.network
+      }
+      
       this.extractSignerNames(this.wallet_script)
 
       this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
 
+    } 
+
+    async changeSettings(settings){
+      try{
+      if (settings.provider === "Blockfrost"){
+        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
+      }else if (settings.provider === "Kupmios"){
+        await this.lucid.switchProvider(new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl), settings.network)
+      }
+      await this.loadUtxos()
+    }catch(e){
+      throw new Error('Invalid Connection Settings'+ e);
+    }
     }
 
+
+
+    
     getJson() {
       return this.wallet_script;
     }
@@ -170,9 +198,17 @@ class Wallet {
 
     checkSigners(signers){
         const json=this.wallet_script
-        return checkRoot(json)
-
-
+        console.log(json)
+        const that = this
+        let requires_before = false
+        let requires_after = false
+        let result = checkRoot(json)
+        if (result){
+          return ({requires_before:requires_before, requires_after:requires_after})
+        }
+        else{
+          return false
+        }
         function checkAll(json){
               for (var index = 0; index < json.length; index++){
 
@@ -218,6 +254,33 @@ class Wallet {
               return false
         }
 
+        function checkBefore(json){ 
+          const slot = json.slot          
+          const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
+          console.log(slot,currentSlot)
+          if (slot > currentSlot){
+              (requires_before === false || requires_before > json.slot) ? requires_before = json.slot : null
+              return true
+          }
+          else{
+              return false
+          }
+        }     
+      
+
+        function checkAfter(json){
+          const slot = json.slot          
+          const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
+          if (slot < currentSlot){
+              (requires_after === false || requires_after < json.slot) ? requires_after = json.slot : null
+      
+            return true
+          }
+          else{
+              return false
+          }
+        }
+
         function checkRoot(json) {
             switch (json.type) {
               case "all": 
@@ -231,9 +294,13 @@ class Wallet {
                     break;
               case "sig":
                     return checkSig(json)
+                    break;              
+              case "before":
+                    return checkBefore(json)
+                    break;              
+              case "after":
+                    return checkAfter(json)
                     break;
-     
-   
           }}
       }
 
@@ -241,9 +308,12 @@ class Wallet {
     
     
     async createTx(recipients, signers,sendFrom  ){ 
-        if (!this.checkSigners(signers)){
+        const sigCheck = this.checkSigners(signers)
+        if (!sigCheck){
           throw new Error('Not enough signers');
         }
+
+       
         
         if(sendFrom!==""){
           let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
@@ -256,6 +326,17 @@ class Wallet {
         recipients.map( recipient => (
           tx.payToAddress(recipient.address,recipient.amount)
         ))
+
+        
+        console.log(sigCheck)
+        if (sigCheck.requires_after !== false){
+          tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
+          
+        }
+
+        if (sigCheck.requires_before !== false){
+          tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
+        }
 
         signers.map( value => (
           tx.addSignerKey(value)
@@ -275,6 +356,32 @@ class Wallet {
         this.pendingTxs.push({tx:completedTx, signatures:{}})
         return "Sucsess"
     }
+
+    async importTransaction(transaction)
+    { 
+      console.log(transaction)
+      const uint8Array = new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+
+      const tx =  new   TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+ //     tx.txBuilder = 
+      
+
+      try{
+        this.pendingTxs.map( (PendingTx) => {
+          console.log(PendingTx.tx.toHash(),completedTx.toHash())
+          if (PendingTx.tx.toHash() === transaction.toHash()) {
+            throw new Error('Transaction already registerd');
+          }
+         })
+
+      this.pendingTxs.push({tx:tx, signatures:{}})
+      
+      }catch(e){
+        throw new Error('Transaction already registerd');
+      }
+    }
+
+    
 
     async createDelegationTx(pool, signers){ 
 
@@ -333,6 +440,10 @@ class Wallet {
 
         }
 
+    }
+
+    getSignature(index,keyHash){
+      return this.pendingTxs[index].signatures[keyHash]
     }
 
     async submitTransaction(index){
