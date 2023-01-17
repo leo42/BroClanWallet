@@ -84,13 +84,28 @@ class App extends React.Component {
   state= {
     wallets: [],
     selectedWallet: 0,
-    connectedWallet: ""
+    connectedWallet: "",
+    settings: { network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  { url: "https://cardano-preprod.blockfrost.io/api/v0", projectId: "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"} }
   }
 
+  
   async setState(state){
     await super.setState(state)
     this.storeState()
   }
+
+  async setSettings(settings){
+   
+    const wallets=[...this.state.wallets]
+    for(let index = 0 ; index < this.state.wallets.length ; index++){
+       await wallets[index].changeSettings(settings)
+    }
+     this.setState({settings})
+    this.setState({wallets})
+    
+  }
+
+
 
   componentDidMount() {
     this.loadState()
@@ -137,6 +152,7 @@ class App extends React.Component {
    
     localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet ))
     localStorage.setItem("wallets", JSON.stringify(dataPack))
+    localStorage.setItem("settings", JSON.stringify(this.state.settings))
   }
 
   async loadState(){
@@ -145,12 +161,13 @@ class App extends React.Component {
     for(let index = 0 ; index < wallets.length ; index++){
 
       const myWallet = new Wallet(wallets[index].json,wallets[index].name);
-      await myWallet.initialize()
+      await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings  );
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
       myWallet.setAddressNamess(wallets[index].addressNames)
         state.wallets.push(myWallet)
 
     }
+    state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? "" : JSON.parse(localStorage.getItem('connectedWallet'));
     super.setState(state)  
   }
@@ -238,7 +255,7 @@ class App extends React.Component {
   async addWallet(script,name){
     const wallets = this.state.wallets
     const myWallet = new Wallet(script,name);
-    await myWallet.initialize();
+    await myWallet.initialize(this.state.settings);
     wallets.push(myWallet)
     this.setState(wallets)
   }

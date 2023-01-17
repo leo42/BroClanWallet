@@ -1,5 +1,6 @@
 import {  Utils , C , Lucid, Blockfrost ,ExternalWallet  } from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
+import { Kupmios } from "lucid-cardano";
 const { Transaction} = C;
 
 const data1 = await Datasource.from_blockfrost("preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp")
@@ -54,19 +55,46 @@ class Wallet {
       }
     }
 
-    async initialize (){
+    async initialize (settings){
+      if(settings.provider === "Blockfrost"){
       this.lucid = await Lucid.new(
-        new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
-        "Preprod",
+        new Blockfrost(settings.api.url, settings.api.projectId),
+        settings.network,
       );
+     }else if(settings.provider === "Kupmios"){
+        this.lucid = await Lucid.new(
+          new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
+          settings.network,
+        );
+      }else if(settings.provider === "MWallet"){
+        new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
+        settings.network
+      }
+      
       this.extractSignerNames(this.wallet_script)
 
       this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
 
+    } 
+
+    async changeSettings(settings){
+      try{
+      if (settings.provider === "Blockfrost"){
+        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
+      }else if (settings.provider === "Kupmios"){
+        await this.lucid.switchProvider(new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl), settings.network)
+      }
+      await this.loadUtxos()
+    }catch(e){
+      throw new Error('Invalid Connection Settings'+ e);
+    }
     }
 
+
+
+    
     getJson() {
       return this.wallet_script;
     }

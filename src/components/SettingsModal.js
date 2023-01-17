@@ -1,0 +1,137 @@
+import React from "react";
+import "./SettingsModal.css";
+import { useState} from 'react';
+import {  toast } from 'react-toastify';
+
+function SettingsModal(props) {
+  const [network, setNetwork] = useState(props.root.state.settings.network);
+  const [provider, setProvider] = useState(props.root.state.settings.provider);
+  const [providerConnection, setProviderConnection] = useState(props.root.state.settings.api);
+
+  function changeProvider(provider){
+    setProvider(provider)
+    if(provider === "Blockfrost"){
+      setProviderConnection({
+        "projectId": ""
+      } )
+    }else if(provider === "MWallet"){
+      setProviderConnection({})
+    }else if(provider === "Kupmios"){
+      setProviderConnection({"kupoUrl": "" , "ogmiosUrl": ""})
+    }    
+  }
+  
+  function applySettings() {
+    let localproviderConnection = providerConnection
+    if (provider === "Blockfrost"){
+      if (providerConnection.url === "" || providerConnection.projectId === ""){
+        toast.error("Please fill all fields");
+        return
+      }
+      switch (network) {
+        case "Mainnet": 
+          localproviderConnection.url = "https://cardano-mainnet.blockfrost.io/api/v0"  
+          break;
+        case "Testnet":
+          localproviderConnection.url = "https://cardano-testnet.blockfrost.io/api/v0"
+          break;
+        case "Preprod":
+          localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
+          break;
+        default:
+          localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
+          break;
+      }
+
+    }
+    else if (provider === "Kupmios"){
+      if (providerConnection.kupoUrl === "" || providerConnection.ogmiosUrl === ""){
+        toast.error("Please fill all fields");
+        return
+      }
+    }
+
+      
+
+    const applySetting = props.root.setSettings({
+      "network": network,
+      "provider": provider,
+      "api": providerConnection
+    })
+    toast.promise(applySetting, { loading: "Applying settings", 
+                                  success: "Settings applied", 
+                                  error: "Connection Failure" });
+
+  }
+
+  function providerSettings(){
+    if(provider === "Blockfrost"){
+      return (
+        <div>
+
+          <input type="text" placeholder="projectId" value={providerConnection.projectId} onChange={(event) => setProviderConnection({...providerConnection, projectId: event.target.value})} />
+    </div>
+      )}else if(provider === "MWallet"){
+        return ("")}
+      else if(provider === "Kupmios"){
+        return ( <div>
+          <input type="text" placeholder="kupoUrl" value={providerConnection.kupoUrl} onChange={(event) => setProviderConnection({...providerConnection, kupoUrl: event.target.value})} />    
+          <br/>
+          <input type="text" placeholder="ogmiosUrl" value={providerConnection.ogmiosUrl} onChange={(event) => setProviderConnection({...providerConnection, ogmiosUrl: event.target.value})} />
+          </div>
+        )}
+  }  
+  return (
+    <div className="modalBackground" >
+      <div className="modalContainer"  >
+        <div className="titleCloseBtn">
+          <button
+            onClick={() => {
+              props.setOpenModal(false);
+            }}
+          >
+            X
+          </button>
+        </div>
+  
+        <div className="title">
+        </div>
+        <div className="body">
+          <h1>Network Settings</h1>
+        <select onChange={(event) => setNetwork(event.target.value)} defaultValue={network}>
+          <option value="Preprod">Preprod</option>
+          <option value="Preview">Preview</option>
+          <option value="Mainnet">Mainnet</option>
+          <option value="Custom">Custom</option>    
+        </select>
+
+        <select onChange={(event) => changeProvider(event.target.value)} defaultValue={provider}>
+          <option value="Blockfrost">Blockfrost</option>
+          <option value="MWallet">MWallet</option>
+          <option value="Kupmios">Kupmios</option>
+        </select>
+            
+            {providerSettings()}
+        <div className="footer">
+         <button
+            onClick={() => {
+              applySettings();
+            }}
+            id="applyButton">
+            Apply
+          </button>
+        </div>
+          <button
+            onClick={() => {
+              props.setOpenModal(false);
+            }}
+            id="cancelBtn">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default SettingsModal;
