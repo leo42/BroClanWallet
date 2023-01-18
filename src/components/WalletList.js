@@ -3,7 +3,7 @@ import AddWalletModal from './AddWalletModal';
 import "./WalletList.css"
 
 function WalletList (props) {
-    const [addWalletOpen, setAddWalletOpen] = React.useState(false);
+    const [addWalletOpen, setAddWalletOpen] = React.useState(true);
 
     return (
             <div className='WalletListContainer'>

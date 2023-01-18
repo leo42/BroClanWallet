@@ -1,5 +1,8 @@
 import React from "react";
 import "./AddWalletModal.css";
+import { Utils , Lucid , Blockfrost , Kupmios } from "lucid-cardano";
+
+
 
 class AddWalletModal extends React.Component {
   state = {  
@@ -27,6 +30,19 @@ class AddWalletModal extends React.Component {
               {name:"Before", value:"before"},
               {name:"After", value:"after"},
               {name:"Signatory", value:"sig"} ]
+
+
+  componentDidMount(){
+    const lucidLoad =  Lucid.new(
+      null,
+      this.props.root.state.settings.network
+    );
+
+    lucidLoad.then((lucid) => {
+      this.lucid = lucid;
+    });
+  }
+
 
   setJson(json){
     this.setState({json})
@@ -199,6 +215,13 @@ class AddWalletModal extends React.Component {
                name="amount"
                value={json.slot}
                onChange={event => this.handleSlotChange(event.target.value, coordinates)}
+             /> 
+             <input
+               type="datetime-local"
+               name="amount"
+               
+               value={ new Date(this.lucid.utils.slotToUnixTime(json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
+               onChange={event => this.handleSlotChange( this.lucid.utils.unixTimeToSlot(new Date( new Date(event.target.value) )), coordinates)}
              />
              <label >Before Slot</label>
              </div>
@@ -214,6 +237,7 @@ class AddWalletModal extends React.Component {
     // console.log("In Sig component")
     // console.log(json)
      //console.log(coordinates)
+     
      return (
       <React.Fragment>
          <div className="input_wrap beforeAndAfterSlot">
@@ -224,7 +248,13 @@ class AddWalletModal extends React.Component {
                value={json.slot}
                onChange={event => this.handleSlotChange(event.target.value, coordinates)}
              />
-             <label> After Slot</label>
+              <input
+                type="datetime-local"
+                name="amount"
+                value={ new Date(this.lucid.utils.slotToUnixTime(json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
+                onChange={event => this.handleSlotChange( this.lucid.utils.unixTimeToSlot(new Date( new Date(event.target.value) )), coordinates)}
+              />
+              <label> After Slot</label>
          </div>
         
          </React.Fragment>
