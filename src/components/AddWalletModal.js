@@ -191,7 +191,7 @@ class AddWalletModal extends React.Component {
      //console.log(coordinates)
      return (
       <React.Fragment>
-         <div className="input_wrap ">
+         <div className="input_wrap beforeSlot">
              <div className="beforeAndAfterSlot">
               <input
              required
@@ -202,6 +202,7 @@ class AddWalletModal extends React.Component {
              />
              <label >Before Slot</label>
              </div>
+             <p> <span>Warning:</span> Using the "Before" type could result in a permanently locked wallet! You need to withdraw your money <span>before</span> the above date!</p>
          </div>
      
         </React.Fragment>
@@ -311,6 +312,7 @@ class AddWalletModal extends React.Component {
   }
   
   rootComponenent(json, coordinates=[]){
+   const extraClasses = "WalletCreateColor"+(coordinates.length % 2)  + " WalletCreateType"+json.type
   //  console.log("In root component")
  //   console.log(json)
  //   console.log(coordinates)
@@ -340,7 +342,7 @@ class AddWalletModal extends React.Component {
   
   console.log(coordinates)
   return (
-  <div key={coordinates} className="rootElement">
+  <div key={coordinates} className={"rootElement "+  extraClasses}>
     
     {coordinates.length === 0 ? "" :  <div className="deleteBtn"> <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button></div>}
     <div className="cardSelect">
