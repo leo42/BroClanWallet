@@ -138,9 +138,10 @@ class AddWalletModal extends React.Component {
 
   handleSlotChange(value,coordinates){
     const json=this.state.json;
-    console.log("In handle Type Change")
-    console.log(coordinates)
-    console.log(value)
+    
+    if (value < 0 || value > 214748364700) {
+      return;
+    }
     let current = json;
     for (const index of coordinates) {
       current = current.scripts[index];
