@@ -20,7 +20,7 @@ function PendingTxs(props){
     }
     return(
         <div className="pendingTxs">
-             <button onClick={() =>setImportTransaction(true)}>Import Transaction</button>
+             <button onClick={() =>setImportTransaction(!importTransaction)}>Import Transaction</button>
              {importTransaction ? <div>
                    <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Transaction Data"></input>
                    <button  onClick={ () => importTx(importedTx)}>Import</button></div> : "" }
