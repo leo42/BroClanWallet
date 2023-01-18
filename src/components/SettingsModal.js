@@ -8,6 +8,7 @@ function SettingsModal(props) {
   const [provider, setProvider] = useState(props.root.state.settings.provider);
   const [providerConnection, setProviderConnection] = useState(props.root.state.settings.api);
 
+  
   function changeProvider(provider){
     setProvider(provider)
     if(provider === "Blockfrost"){
@@ -21,7 +22,7 @@ function SettingsModal(props) {
     }    
   }
   
-  function applySettings() {
+  function applyNetworkSettings() {
     let localproviderConnection = providerConnection
     if (provider === "Blockfrost"){
       if (providerConnection.url === "" || providerConnection.projectId === ""){
@@ -115,11 +116,18 @@ function SettingsModal(props) {
         <div className="footer">
          <button
             onClick={() => {
-              applySettings();
+              applyNetworkSettings();
             }}
             id="applyButton">
             Apply
           </button>
+          <br/>          
+          <br/>
+
+          </div> 
+        <div className="sendAll">
+          <label htmlFor="sendAll">Enable Send All</label>
+           <input type="checkbox" id="sendAll" name="sendAll" checked={props.root.state.settings.sendAll} value={props.root.state.settings.sendAll} onChange={ () => props.root.toggleSendAll()} />
         </div>
           <button
             onClick={() => {

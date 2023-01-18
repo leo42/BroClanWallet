@@ -130,6 +130,25 @@ class Wallet {
      )
     return result
  }
+ substructBalanceFull(assets, address=""){
+  const utxos = this.utxos
+  let result = {}
+  utxos.map( utxo => {
+    if (address==="" || utxo.address ===address){
+      for (var asset in  utxo.assets ) {
+        asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
+      }
+    }
+  }
+   )
+  for (var asset in  assets ) {
+    if (asset in result){
+      result[asset] -=  BigInt( assets[asset])
+    }
+  }
+  return result
+}
+
 
  async getTransactionHistory(address){
   //return [{thHash:"adsaecf"},{thHash:"asda"}]
@@ -307,13 +326,46 @@ class Wallet {
       
     
     
-    async createTx(recipients, signers,sendFrom  ){ 
+    async createTx(recipients, signers,sendFrom="" , sendAll=null ){ 
         const sigCheck = this.checkSigners(signers)
         if (!sigCheck){
           throw new Error('Not enough signers');
         }
 
-       
+        var sumOfRecipientsMinusSendAll = {}
+        recipients.map( (recipient,index) => {
+          if (index !== sendAll){
+          Object.keys(recipient.amount).map( (key,index) => {
+            console.log(recipient.amount[key])
+            console.log(recipient.amount[key].amount)
+
+          
+            if (key in sumOfRecipientsMinusSendAll){
+              sumOfRecipientsMinusSendAll[key] += recipient.amount[key]
+            }else{
+              sumOfRecipientsMinusSendAll[key] = recipient.amount[key]
+            }
+          } ) 
+    }})
+      
+          
+          
+
+        //check if there is enough funds in the wallet
+        const balance = this.getBalanceFull()
+        console.log(balance)
+        console.log(sumOfRecipientsMinusSendAll)
+
+          for (const [key, value] of Object.entries(sumOfRecipientsMinusSendAll)) {
+            if (key in balance){
+              if (balance[key] < value){
+                throw new Error('Not enough funds');
+              }
+            }else{
+              throw new Error('Not enough funds');
+            }
+          }
+    
         
         if(sendFrom!==""){
           let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
@@ -321,10 +373,12 @@ class Wallet {
         }else{
           this.lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": this.utxos})
         }
+        const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
+        sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
         const tx = this.lucid.newTx()
-        recipients.map( recipient => (
-          tx.payToAddress(recipient.address,recipient.amount)
+        recipients.map( (recipient,index) => (
+          sendAll === index ? tx.payToAddress(recipient.address,  sendAllAmount ) : tx.payToAddress(recipient.address,recipient.amount)
         ))
 
         
@@ -344,8 +398,10 @@ class Wallet {
 
 
         tx.attachSpendingValidator(this.lucidNativeScript)
-        const completedTx = await tx.complete()
-//await tx.complete({ change :{address :changeAddress }}) :
+        
+        const completedTx = sendAll === null ? await tx.complete() : await tx.complete({ change :{address :recipients[sendAll].address }}) 
+
+        
         this.pendingTxs.map( (PendingTx) => {
           console.log(PendingTx.tx.toHash(),completedTx.toHash())
           if (PendingTx.tx.toHash() === completedTx.toHash()) {
@@ -363,7 +419,6 @@ class Wallet {
       const uint8Array = new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16)));
 
       const tx =  new   TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
- //     tx.txBuilder = 
       
 
       try{

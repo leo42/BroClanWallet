@@ -85,7 +85,7 @@ class App extends React.Component {
     wallets: [],
     selectedWallet: 0,
     connectedWallet: "",
-    settings: { network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  { url: "https://cardano-preprod.blockfrost.io/api/v0", projectId: "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"} }
+    settings: { sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  { url: "https://cardano-preprod.blockfrost.io/api/v0", projectId: "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"} }
   }
 
   
@@ -172,10 +172,15 @@ class App extends React.Component {
     super.setState(state)  
   }
  
-  async createTx(recipients,signers,sendFrom){
+  async toggleSendAll(){
+    const settings = this.state.settings
+    settings.sendAll = !settings.sendAll
+    this.setState({settings})
+  }
+  async createTx(recipients,signers,sendFrom, sendAll=null){
     try{
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom)
+     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll)
     
     this.setState({wallets})
     toast.info('Transaction created');

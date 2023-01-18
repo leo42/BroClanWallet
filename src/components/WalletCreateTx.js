@@ -9,7 +9,8 @@ class WalletCreateTx extends React.Component {
     recipients: [{address :"", amount: {lovelace:0}}],
     signers: this.props.wallet.getSigners().map( () =>  true ),
     tokenData: {},
-    sendFrom : this.props.wallet.getDefaultAddress()
+    sendFrom : this.props.wallet.getDefaultAddress(),
+    sendAll: null
     }
 
  
@@ -58,7 +59,7 @@ class WalletCreateTx extends React.Component {
 
 
 
-      this.props.root.createTx(this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]),this.state.sendFrom);
+      this.props.root.createTx( this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]),this.state.sendFrom,this.state.sendAll);
   }
 
 
@@ -88,6 +89,13 @@ class WalletCreateTx extends React.Component {
       this.setState({recipients})
     } 
   
+  }
+  handleSendAlltoggle = (index) => {
+    if (this.state.sendAll === index) {
+      this.setState({sendAll: null})
+    } else {
+      this.setState({sendAll: index})
+    }
   }
 
   addRecipient = () =>{
@@ -120,7 +128,9 @@ class WalletCreateTx extends React.Component {
     />
     
   </label>
-    {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
+  <br/>
+  { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
+      {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
 <div key={i}>        
       <label >
       <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/>:
