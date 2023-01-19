@@ -195,7 +195,7 @@ class WalletCreateTx extends React.Component {
       <button type="submit" onClick={this.addRecipient}>Add recipient</button>
       { this.SignersSelect()}
       <br />
-      {this.AccountSelect()}
+      { this.props.wallet.getFundedAddress().length > 1 ? this.AccountSelect(): ""}
       <br/>
 
       <button type="submit" onClick={this.handleSubmit}>Create Transaction</button>

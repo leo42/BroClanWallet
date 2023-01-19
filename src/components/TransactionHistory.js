@@ -64,11 +64,14 @@ function TransactionHistory (props) {
 
     return (
        <div>
+        {props.wallet.getFundedAddress().length === 0 && <div className="TransactionHistoryNoFunds">No funds in this wallet</div>}
+        {props.wallet.getFundedAddress().length > 1 && <div className="TransactionHistorySelectAddress">
       <select defaultValue={props.wallet.getDefaultAddress()} onChange={handleChangeFrom} >
                  {props.wallet.getFundedAddress().map( (item, index) => (
                   <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
             ))}
       </select>
+      </div>}
          <div className="TransactionHistoryList">
 
             {transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))}
