@@ -67,9 +67,10 @@ class Wallet {
           settings.network,
         );
       }else if(settings.provider === "MWallet"){
+        this.lucid = await Lucid.new(
         new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
         settings.network
-      }
+      )}
       
       this.extractSignerNames(this.wallet_script)
 
@@ -151,6 +152,15 @@ class Wallet {
     }
   }
   return result
+}
+
+
+setPendingTxs(pendingTxs){
+
+  this.pendingTxs = pendingTxs.map( tx => { 
+    const uint8Array = new Uint8Array(tx.tx.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+    const txParced =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+     return({tx:txParced, signatures:tx.signatures})})
 }
 
 
@@ -420,23 +430,34 @@ class Wallet {
     async importTransaction(transaction)
     { 
       console.log(transaction)
-      const uint8Array = new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+      let uint8Array , tx
 
-      const tx =  new   TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+      try{
+        uint8Array = new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+        tx =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+      }catch(e){
+        console.log(e)
+         throw new Error('Invalid Transaction data');
+      }
+
+
+ 
+      
       
 
       try{
         this.pendingTxs.map( (PendingTx) => {
           console.log(PendingTx.tx.toHash(),completedTx.toHash())
           if (PendingTx.tx.toHash() === transaction.toHash()) {
-            throw new Error('Transaction already registerd');
+            throw new Error('Transaction already registered');
           }
          })
 
       this.pendingTxs.push({tx:tx, signatures:{}})
       
       }catch(e){
-        throw new Error('Transaction already registerd');
+        console.log(e)
+        throw new Error('Transaction already registered');
       }
     }
 

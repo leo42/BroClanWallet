@@ -148,7 +148,9 @@ class App extends React.Component {
     const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
                                                                 name :wallet.getName(),
                                                                defaultAddress: wallet.getDefaultAddress(),
-                                                               addressNames: wallet.getAddressNames()}) )
+                                                               addressNames: wallet.getAddressNames(),
+                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ) 
+                                                              }) )
    
     localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet ))
     localStorage.setItem("wallets", JSON.stringify(dataPack))
@@ -164,6 +166,7 @@ class App extends React.Component {
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings  );
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
       myWallet.setAddressNamess(wallets[index].addressNames)
+      myWallet.setPendingTxs(wallets[index].pendingTxs)
         state.wallets.push(myWallet)
 
     }
@@ -197,10 +200,15 @@ class App extends React.Component {
   }
 
   async importTransaction(transaction){
+    try{
     console.log(transaction)
     const wallets = this.state.wallets
     await this.state.wallets[this.state.selectedWallet].importTransaction(transaction)
     this.setState({wallets})
+    toast.success("Transaction imported");
+    }catch(e){
+      toast.error(e.message);
+    }
   }
 
   async createDelegationTx(pool,signers){

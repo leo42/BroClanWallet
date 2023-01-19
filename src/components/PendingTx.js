@@ -5,7 +5,7 @@ import {  toast } from 'react-toastify';
 
 function WalletPendingTx(props) {
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
-    const [importTransaction, setImportTransaction] = React.useState(false);
+    const [importSig, setImportSig] = React.useState(false);
     const [importedTx, setImportedTx] = React.useState("");
 
     async function signWithLocalWallet(wallet){
@@ -30,7 +30,7 @@ function WalletPendingTx(props) {
         try{
             props.root.addSignature(importedTx);
             toast.success("Transaction imported");
-            setImportTransaction(false);
+            setImportSig(false);
         }catch(error){
             toast.error( error.message);
         }
@@ -56,10 +56,10 @@ function WalletPendingTx(props) {
         
             <button onClick={() => props.root.submit(props.index)} >Submit</button>
             
-            <button onClick={()=> setImportTransaction(true)} >Import Signature</button>
+            <button onClick={()=> setImportSig(!importSig)} >Import Signature</button>
 
             <button onClick={()=> props.root.removePendingTx(props.index)} >Remove</button>
-            {importTransaction ? 
+            {importSig ? 
             <div>
                 <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Signature Data"></input>
                   <button onClick={importSigniture}>Import</button> 

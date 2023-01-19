@@ -8,10 +8,9 @@ function PendingTxs(props){
     const [importTransaction, setImportTransaction] = useState(false);
     const [importedTx, setImportedTx] = useState("");
 
-    const importTx = (importedTx) =>{
+    const  importTx = (importedTx) =>{
         try{
             props.root.importTransaction(importedTx);
-            toast.success("Transaction imported");
             setImportTransaction(false);
         }catch(error){
             toast.error( error.message);

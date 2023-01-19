@@ -17,7 +17,7 @@ function Overview(props) {
 
      const blob = new Blob([JSON.stringify(wallet.getJson())], { type: "application/json" });
     linkRef.current.href = URL.createObjectURL(blob);
-    linkRef.current.download = "data.json";
+    linkRef.current.download = "wallet.json";
     linkRef.current.click();
   }
 
