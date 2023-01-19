@@ -273,7 +273,7 @@ class AddWalletModal extends React.Component {
       previus = current
       current = current.scripts[index];
     }
-    delete previus.scripts[coordinates[coordinates.length-1]]
+    previus.scripts.splice(coordinates[coordinates.length-1], 1)
     console.log(coordinates[-1])
     this.setState({json})
   }
