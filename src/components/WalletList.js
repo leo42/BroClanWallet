@@ -1,5 +1,6 @@
 import React from 'react';
-import AddWalletModal from './AddWalletModal';
+import NewWalletModal   from './NewWalletModal';
+
 import "./WalletList.css"
 
 function WalletList (props) {
@@ -7,7 +8,7 @@ function WalletList (props) {
 
     return (
             <div className='WalletListContainer'>
-        {addWalletOpen && <AddWalletModal setOpenModal={setAddWalletOpen} root={props.root} />}
+        {addWalletOpen && <NewWalletModal setOpenModal={setAddWalletOpen} root={props.root} />}
         <select className="MWalletList" onChange={(event) => props.root.selectWallet(event.target.value)}>
 
         {props.root.state.wallets.map( (item, index) => (
