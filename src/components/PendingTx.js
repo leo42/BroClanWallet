@@ -57,6 +57,8 @@ function WalletPendingTx(props) {
             <button onClick={() => props.root.submit(props.index)} >Submit</button>
             
             <button onClick={()=> setImportTransaction(true)} >Import Signature</button>
+
+            <button onClick={()=> props.root.removePendingTx(props.index)} >Remove</button>
             {importTransaction ? 
             <div>
                 <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Signature Data"></input>

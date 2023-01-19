@@ -92,7 +92,9 @@ class Wallet {
     }
     }
 
-
+    removePendingTx(index){
+      this.pendingTxs.splice(index, 1);
+    }
 
     
     getJson() {
@@ -102,6 +104,8 @@ class Wallet {
     getName(){
       return this.name
     }
+
+
     getSignatures(){
       return this.signatures;
     }
@@ -521,6 +525,9 @@ class Wallet {
     setAddressNamess(names){
       this.addressNames = names
 
+    }
+    setName(name){
+      this.name = name
     }
 
 

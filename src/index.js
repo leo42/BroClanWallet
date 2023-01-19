@@ -209,6 +209,31 @@ class App extends React.Component {
     this.setState({wallets})
   }
 
+  async deleteWallet(index){
+    const wallets = this.state.wallets
+    const confirmation =  window.confirm("Are you sure you want to delete this wallet?");
+    if (confirmation === false){
+      return
+    }
+    if (index === this.state.selectedWallet){
+      this.setState({selectedWallet: 0})
+    }
+    wallets.splice(index,1)
+    this.setState({wallets})
+  }
+
+  removePendingTx(index){
+    const wallets = this.state.wallets
+    wallets[this.state.selectedWallet].removePendingTx(index)
+    this.setState({wallets})
+  }
+
+  changeWalletName(name){
+    const wallets = this.state.wallets
+    wallets[this.state.selectedWallet].setName(name)
+    this.setState({wallets})
+  }
+
 
   addSignature(signature){ 
     try {
