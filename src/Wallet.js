@@ -208,6 +208,10 @@ setPendingTxs(pendingTxs){
     getutxo(utxoHash)  {
       return this.utxos.find(utxo => utxo.txHash === utxoHash)
     }
+    async getUtxosByOutRef(OutputRef)  {
+
+      return await this.lucid.provider.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
+    }
   
     async loadUtxos() {
       this.utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
