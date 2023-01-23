@@ -205,6 +205,10 @@ setPendingTxs(pendingTxs){
         return this.utxos
     }
    
+    getutxo(utxoHash)  {
+      return this.utxos.find(utxo => utxo.txHash === utxoHash)
+    }
+  
     async loadUtxos() {
       this.utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
     }
@@ -492,12 +496,17 @@ setPendingTxs(pendingTxs){
     }
     decodeSignature(signature){
 
-      
+      try{
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex()
-
+      }catch(e){
+        console.log(e)
+        throw new Error('Invalid signature');
+      }
       return {signer: signer , witness : witness}     
     }
+
+
     hexToBytes(hex) {
       for (var bytes = [], c = 0; c < hex.length; c += 2)
         bytes.push(parseInt(hex.substr(c, 2), 16));
@@ -507,17 +516,22 @@ setPendingTxs(pendingTxs){
     addSignature(signature){
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
-
+      var valid = false
       for (var index = 0; index < this.pendingTxs.length; index++){
             if (signatureInfo.witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(this.pendingTxs[index].tx.toHash()), signatureInfo.witness.vkeys().get(0).signature()))
             {
+              valid = true
               if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
                    this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)
+                    
                 }else{
                    throw new Error('Signature already registerd');
                   }
             }
 
+        }
+        if (!valid){
+          throw new Error('Invalid Signature');
         }
 
     }

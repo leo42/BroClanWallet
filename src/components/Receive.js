@@ -50,7 +50,6 @@ function Receive(props){
     }
 
     useEffect(() => {
-        if (props.wallet.getDefaultAddress() === ""){
             const options =  props.wallet.getFundedAddress()
             const optionsNames = {}
             console.log(options,optionsNames)
@@ -78,7 +77,6 @@ function Receive(props){
             setOptions(options)
             setOptionsNames(optionsNames)
             console.log(options,optionsNames)
-        }
     }, [props.wallet])
 
     
