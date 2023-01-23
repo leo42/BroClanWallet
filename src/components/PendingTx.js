@@ -4,12 +4,13 @@ import TokenElement from "./TokenElement";
 import {  toast } from 'react-toastify';
 import { proposalSyntaxPlugins } from "@babel/preset-env/lib/shipped-proposals";
 
+import "./PendingTx.css"
 
 function WalletPendingTx(props) {
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [importSig, setImportSig] = React.useState(false);
     const [importedTx, setImportedTx] = React.useState("");
-    const [showDetails, setShowDetails] = React.useState(true);
+    const [showDetails, setShowDetails] = React.useState(false);
     const [inputUtxos, setInputUtxos] = React.useState([]);
     const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
     console.log(txDetails)
@@ -73,40 +74,41 @@ function WalletPendingTx(props) {
             <div>
                 <p>Transaction ID: {transaction.transaction_id}</p>
                 <p>Index: {transaction.index}</p>
-                <div className="txDetailsOutputs">
-                <h3>Outputs:</h3>
-                {transaction.outputs.map((output, index) =>{ 
-                   const amount = transformAmount(output.amount)
-                   return (
-                    <div key={index}>
-                        <p>Address: {output.address}</p>
-                        {Object.keys(amount).map((key, index) => (
-                            <div key={index}>
-                               <TokenElement tokenId={key} amount={amount[key]}/>
-                            </div>
-                        ))}
-                        <p>Amount: {output.amount.coin}</p>
-                        <p>Datum: {output.datum}</p>
-                        <p>Script Ref: {output.script_ref}</p>
-                    </div>
-              )})}
-              </div>
+                <div className="txDetailsInputsOutputs">
               <div className="txDetailsInputs">
                 <h3>Inputs: </h3>
                 {inputUtxos.map( (input, index) => (
                     <div key={index} className="txDetailsInput">
                         <p>Transaction ID: {input.txHash}</p>
                         <p>Index: {input.outputIndex}</p>
-                        <p>Address: {input.address ? input.address : "None" }</p>
-                        <p>datumHash: {input.datumHash ? input.datumHash : "None"}</p>
-                        <p>datum: { input.datum ? input.datum : "None" }</p>
-                        <p>Script Ref: {input.scriptRef === null ? "None" : input.scriptRef}</p>
+                        <p className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {input.address ? input.address : "None" }</p>
+                        {input.datumHash ?  <p>datumHash: {input.datumHash ? input.datumHash : "None"}</p> : ""}
+                         { input.datum ? <p>datum: { input.datum ? input.datum : "None" }</p> : ""}
+                        {input.scriptRef ?  <p>Script Ref: {input.scriptRef ? "None" : input.scriptRef}</p> : ""}
                         
                     {Object.keys( input.assets).map( (asset) => <div  key={asset}> <TokenElement key={index} tokenId={asset} amount={input.assets[asset]}/></div> )}
                     
                     </div>
                         ))}
                     
+                </div>
+                <div className="txDetailsOutputs">
+                <h3>Outputs:</h3>
+                {transaction.outputs.map((output, index) =>{ 
+                   const amount = transformAmount(output.amount)
+                   return (
+                    <div key={index}>
+                        <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {output.address}</p>
+                        {Object.keys(amount).map((key, index) => (
+                            <div key={index}>
+                               <TokenElement tokenId={key} amount={amount[key]}/>
+                            </div>
+                        ))}
+                       {output.datum ? <p>Datum: {output.datum}</p>: ""}
+                        {output.script_ref ? <p>Script Ref: {output.script_ref}</p>: ""}
+                    </div>
+              )})}
+              </div>
                 </div>
                 <p>Fee: {transaction.fee}</p>
                 <p>TTL: {transaction.ttl}</p>
