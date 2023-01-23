@@ -31,6 +31,13 @@ class AddWalletModal extends React.Component {
               {name:"After", value:"after"},
               {name:"Signatory", value:"sig"} ]
 
+  presetOptions = [{name:"Examples", value: "None"},
+                   {name:"Social Recovery", value: "Social Recovery"},
+                   {name:"2 of 3", value: "2 of 3"},
+                   {name:"Shared Bank Account", value: "Shared Bank Account"},
+                   {name:"Paranoid Vault", value:  "Paranoid Vault"},
+                                                                    
+                ]
 
   componentDidMount(){
     const lucidLoad =  Lucid.new(
@@ -60,7 +67,41 @@ class AddWalletModal extends React.Component {
     this.props.hostModal(false)
   }
 
+  handlePresetChange(value){
+    var json 
+    console.log(value)
+    switch(value){
+      case "Social Recovery":
+        json = {"type": "any", "scripts": [{"type": "sig", "name":"Me" , "keyHash": ""}, 
+                                           {"type": "all",   "scripts": [{"type": "sig", "name":"Trusted Family Member" , "keyHash": ""},
+                                                                         {"type": "sig", "name":"Trusted Friend" , "keyHash": ""},
+                                                                         {"type": "sig", "name":"Trusted College" , "keyHash": ""}]}]}
+        break;
+      case "2 of 3":
+        json =  {"type": "atLeast", "required": 2, "scripts": [{"type": "sig", "name":"Me" , "keyHash": ""},
+                                                               {"type": "sig", "name":"Trusted Friend" , "keyHash": ""},
+                                                               {"type": "sig", "name":"Trusted College" , "keyHash": ""}]}
+        break;
+      case "Shared Bank Account":
+        json =  {"type": "any",  "scripts": [{"type": "sig", "name":"Me" , "keyHash": ""},
+                                             {"type": "sig", "name":"My spouse" , "keyHash": ""}]}
+        break;
+      case "Paranoid Vault":
+        json = {"type": "atLeast", "required": 5, "scripts": [{"type": "sig", "name":"My Paper wallet" , "keyHash": ""}, 
+                                                              {"type": "sig", "name":"Paper wallet hidden In the deserd" , "keyHash": ""},
+                                                              {"type": "sig", "name":"Paper wallet hidden In the sea" , "keyHash": ""},
+                                                              {"type": "sig", "name":"Paper wallet hidden In the mountains" , "keyHash": ""},
+                                                              {"type": "sig", "name":"Paper wallet hidden In the swamp" , "keyHash": ""},
+                                                              {"type": "sig", "name":"Paper wallet hidden In the ice" , "keyHash": ""},
+                                                              {"type": "sig", "name":"Paper wallet hidden In the forest" , "keyHash": ""}]}
+        break;
+            default:
+              return
+      }
 
+      this.setState({json:json})
+    }
+    
   allComponent(json,coordinates){
     return (
     <div className="input_wrap">
@@ -412,7 +453,13 @@ class AddWalletModal extends React.Component {
   
         
         <div className="body">
-      
+        <select value={"Examples"} onChange={(event) => this.handlePresetChange(( event.target.value))}>
+      {this.presetOptions.map(option => (
+        <option key={option.name} value={option.value} > 
+          {option.name}
+        </option>
+      ))}
+    </select>
         <div className="input_wrap walletName">
         <input 
           required
