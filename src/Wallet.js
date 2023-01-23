@@ -451,7 +451,7 @@ setPendingTxs(pendingTxs){
 
       try{
         this.pendingTxs.map( (PendingTx) => {
-          console.log(PendingTx.tx.toHash(),completedTx.toHash())
+          console.log(PendingTx.tx.toHash(),transaction.toHash())
           if (PendingTx.tx.toHash() === transaction.toHash()) {
             throw new Error('Transaction already registered');
           }
