@@ -36,11 +36,11 @@ function WalletPendingTx(props) {
 
     function transactionBalance(transaction){
         const BalancesOut = {}
-        transaction.inputs.map( (input, index) => {
-           const utxo = props.wallet.getutxo(input.transaction_id)
-           Object.keys( utxo.assets).map( (asset) => 
-                asset in BalancesOut ? BalancesOut[asset] -= parseInt(utxo.assets[asset]) :  BalancesOut[asset] = -parseInt(utxo.assets[asset])
-            )})
+        inputUtxos.map( (input, index) => {
+           if ( props.wallet.isAddressMine(input.address)) {
+           Object.keys( input.assets).map( (asset) => 
+                asset in BalancesOut ? BalancesOut[asset] -= parseInt(input.assets[asset]) :  BalancesOut[asset] = -parseInt(input.assets[asset])
+            )}})
 
         transaction.outputs.map( (output, index) => {
             if ( props.wallet.isAddressMine(output.address)) {
@@ -49,7 +49,7 @@ function WalletPendingTx(props) {
                 asset in BalancesOut ? BalancesOut[asset] += parseInt(amount[asset]) : BalancesOut[asset] = parseInt(amount[asset])
              )}})
 
-        const lovelace = BalancesOut.lovelace
+        const lovelace = BalancesOut.lovelace ? BalancesOut.lovelace : 0
         delete BalancesOut["lovelace"]
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
@@ -60,7 +60,7 @@ function WalletPendingTx(props) {
 
         return (
             <div className="transactionHistoryListBalance">
-                <span className={ lovelace >= 0 ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
+               <span className={ lovelace >= 0 ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
                 { lovelace >= 0 ?  "+" : ""} {lovelace/1000000}
                  </span>tA 
                  {tokens}
@@ -104,7 +104,7 @@ function WalletPendingTx(props) {
                                <TokenElement tokenId={key} amount={amount[key]}/>
                             </div>
                         ))}
-                       {output.datum ? <p>Datum: {output.datum}</p>: ""}
+                       {output.datum ? <p>Datum Hash: {output.datum.Hash}</p>: ""}
                         {output.script_ref ? <p>Script Ref: {output.script_ref}</p>: ""}
                     </div>
               )})}

@@ -209,8 +209,9 @@ setPendingTxs(pendingTxs){
       return this.utxos.find(utxo => utxo.txHash === utxoHash)
     }
     async getUtxosByOutRef(OutputRef)  {
-
-      return await this.lucid.provider.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
+      const resault= await this.lucid.provider.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
+      console.log(resault)
+      return resault
     }
   
     async loadUtxos() {
@@ -231,9 +232,9 @@ setPendingTxs(pendingTxs){
 
     getPendingTxDetails(index){
       const txDetails = this.decodeTransaction(this.pendingTxs[index].tx)
-      txDetails.signatures = txDetails.required_signers.map( (keyHash) => (
+      txDetails.signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash) => (
         {name: this.keyHashToSighnerName(keyHash) , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
-      ))
+      )) : []
       return txDetails
     }
 
@@ -455,8 +456,8 @@ setPendingTxs(pendingTxs){
 
       try{
         this.pendingTxs.map( (PendingTx) => {
-          console.log(PendingTx.tx.toHash(),transaction.toHash())
-          if (PendingTx.tx.toHash() === transaction.toHash()) {
+          console.log(PendingTx.tx.toHash(),tx.toHash())
+          if (PendingTx.tx.toHash() === tx.toHash()) {
             throw new Error('Transaction already registered');
           }
          })
