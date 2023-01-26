@@ -112,7 +112,24 @@ function WalletPendingTx(props) {
                 </div>
                 <p>Fee: {transaction.fee}</p>
                 <p>TTL: {transaction.ttl}</p>
-                <p>Certs: {transaction.certs}</p>
+             {transaction.certs  ?   <p>Certs: {transaction.certs.length}{transaction.certs.map(cert => {
+                if (cert.StakeDelegation) {
+                    return( <div key={cert}>Delegation to:{cert.StakeDelegation.pool_keyhash}</div> )
+                }if (cert.StakeRegistration) {
+                    return( <div key={cert}>Stake Registration</div> )
+                }if (cert.StakeDeregistration) {
+                    return( <div key={cert}>Stake Deregistration</div> )
+                }if (cert.PoolRegistration) {
+                    return( <div key={cert}>Pool Registration</div> )
+                }if (cert.PoolRetirement) {
+                    return( <div key={cert}>Pool Retirement</div> )
+                }if (cert.GenesisKeyDelegation) {
+                    return( <div key={cert}>Genesis Key Delegation</div> )
+                }if (cert.MoveInstantaneousRewardsCert) {
+                    return( <div key={cert}>Move Instantaneous Rewards Cert</div> )
+                }   
+
+             })}</p> : ""}
                 <p>Withdrawals: {transaction.withdrawals}</p>
                 <p>Update: {transaction.update}</p>
                 <p>Auxiliary Data Hash: {transaction.auxiliary_data_hash}</p>
@@ -147,6 +164,7 @@ function WalletPendingTx(props) {
         navigator.clipboard.writeText(props.tx.tx.toString())
         toast.info("Transaction copied to clipboard")
     }
+
     function importSigniture(){
         try{
             props.root.addSignature(importedTx);
@@ -159,7 +177,9 @@ function WalletPendingTx(props) {
     return (
         <div className="pedningTx">
             <svg onClick={copyTransaction} className="copyIcon" id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg>
-             Fee:{txDetails.fee/1000000}<br/>
+            {txDetails.certs ? "Delegation Transaction" : "Regular Transaxtion"} 
+             
+             <br/>
             {transactionBalance(txDetails)}
             {showDetails && TransactionDetails(txDetails)}
              {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}

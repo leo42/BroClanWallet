@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function WalletDelegation(props) {
   const wallet = props.wallet
@@ -8,12 +8,24 @@ function WalletDelegation(props) {
   ) 
   const [pool, setPool] = useState('');
   const [signers, setCheckedState] = useState(initialState);
+  const [delegation, setDelegation] = useState({});
 
+
+  useEffect(() => {
+    wallet.getDelegation().then( (delegation) => {;
+    setDelegation(delegation);
+    })
+  }, [wallet])
+
+
+
+  
   const handleOnChangeSigners = (position) => {
     const updatedCheckedState = [...signers]
     updatedCheckedState[position] = !updatedCheckedState[position]
     setCheckedState(updatedCheckedState);
   };
+
 
   const handleSubmit = event => {
     event.preventDefault();
@@ -24,6 +36,17 @@ function WalletDelegation(props) {
 
     props.root.createDelegationTx(pool, txSigners.filter((element, index) => signers[index]));
   }
+
+  const delegationInfo = () => {
+    if (delegation.poolId === null) {
+      return <div> No Delegation </div>
+    } else {
+      return <div> Delegated to {delegation.poolId} 
+      <p>Rewards : {Number(delegation.rewards)}tA </p>
+      </div>
+    }
+  }
+
  
    const SignersSelect =  wallet.getSigners().map( (item, index) => (
     <div key={index}>
@@ -41,8 +64,10 @@ function WalletDelegation(props) {
    </label>
    </div>
   ) ) 
-  
+
   return (
+    <div className="DelegationCenter">
+      {delegationInfo()}
     <form onSubmit={handleSubmit}>
 
       <label>
@@ -58,6 +83,7 @@ function WalletDelegation(props) {
       <br />
       <button type="submit">Delegate</button>
     </form>
+    </div>
   );
 
 }

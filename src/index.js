@@ -212,9 +212,15 @@ class App extends React.Component {
   }
 
   async createDelegationTx(pool,signers){
+    try{
     const wallets = this.state.wallets
      await this.state.wallets[this.state.selectedWallet].createDelegationTx(pool,signers)
     this.setState({wallets})
+    toast.info('Delegation Transaction created');
+    }catch(e){
+      toast.error(e.message);
+    }
+    
   }
 
   async deleteWallet(index){

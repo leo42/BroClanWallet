@@ -111,6 +111,10 @@ class Wallet {
       return this.signatures;
     }
 
+    getDelegation() { 
+      return this.lucid.provider.getDelegation(this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript));
+    }
+
     getBalance(){
       const utxos = this.utxos
       let result = 0
@@ -473,8 +477,8 @@ setPendingTxs(pendingTxs){
     
 
     async createDelegationTx(pool, signers){ 
-
-      const rewardAddress =  this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      const curentDelegation = await this.getDelegation()
+      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
       if (!this.checkSigners(signers)){
         console.log("Not enough signers")
         return "Not enough signers"
@@ -485,11 +489,17 @@ setPendingTxs(pendingTxs){
       signers.map( value => (
         tx.addSignerKey(value)
       ))
+        console.log(curentDelegation,pool)
+      if (curentDelegation.poolId === pool){
+        throw new Error('Already delegated to this pool');
+      } else if (curentDelegation.poolId === null){
+        tx.registerStake(rewardAddress) 
+      }
       
+
       const completedTx = await tx.payToAddress(this.getAddress(),{lovelace: 5000000})
-      //  .delegateTo(rewardAddress,pool)
-      .attachSpendingValidator(this.lucidNativeScript)
       .delegateTo(rewardAddress,pool)
+      .attachSpendingValidator(this.lucidNativeScript)
       .complete()
       
       this.pendingTxs.push({tx:completedTx, signatures:[]})
@@ -503,12 +513,12 @@ setPendingTxs(pendingTxs){
 
       try{
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
-      const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex()
+      const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
+      return {signer: signer , witness : witness}     
       }catch(e){
         console.log(e)
         throw new Error('Invalid signature');
       }
-      return {signer: signer , witness : witness}     
     }
 
 
@@ -519,6 +529,7 @@ setPendingTxs(pendingTxs){
     }
     
     addSignature(signature){
+      console.log(signature)
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
       var valid = false
