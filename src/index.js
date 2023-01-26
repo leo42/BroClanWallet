@@ -223,6 +223,17 @@ class App extends React.Component {
     
   }
 
+  async createStakeUnregistrationTx(signers){
+    try{
+    const wallets = this.state.wallets
+      await this.state.wallets[this.state.selectedWallet].createStakeUnregistrationTx(signers)
+    this.setState({wallets})
+    toast.info('Stake Unregistration Transaction created');
+    }catch(e){
+      toast.error(e.message);
+    }
+  }
+
   async deleteWallet(index){
     const wallets = this.state.wallets
     const confirmation =  window.confirm("Are you sure you want to delete this wallet?");

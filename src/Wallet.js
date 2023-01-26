@@ -474,7 +474,41 @@ setPendingTxs(pendingTxs){
       }
     }
 
-    
+    async createStakeUnregistrationTx(signers){
+      const curentDelegation = await this.getDelegation()
+      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
+
+      if (!this.checkSigners(signers)){
+        console.log("Not enough signers")
+        return "Not enough signers"
+      }
+
+      const tx = this.lucid.newTx()
+
+      signers.map( value => (
+        tx.addSignerKey(value)
+      ))
+        
+      if (curentDelegation.poolId === null){
+        throw new Error('Not delegated');
+      } else {
+        tx.deregisterStake(rewardAddress)
+      }
+
+      const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
+      .complete()
+      
+      this.pendingTxs.map( (PendingTx) => {
+        console.log(PendingTx.tx.toHash(),completedTx.toHash())
+        if (PendingTx.tx.toHash() === completedTx.toHash()) {
+          throw new Error('Transaction already registerd');
+        }
+    })
+
+      this.pendingTxs.push({tx:completedTx, signatures:{}})
+      return "Sucsess"
+    }
+
 
     async createDelegationTx(pool, signers){ 
       const curentDelegation = await this.getDelegation()

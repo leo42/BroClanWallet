@@ -37,12 +37,24 @@ function WalletDelegation(props) {
     props.root.createDelegationTx(pool, txSigners.filter((element, index) => signers[index]));
   }
 
+  const Undelegate = event => {
+    event.preventDefault();
+
+    const txSigners = signers.map((item, index) =>
+        item ? wallet.getSigners()[index].hash : ""
+    )
+
+    props.root.createStakeUnregistrationTx(txSigners.filter((element, index) => signers[index]));
+  }
+
+
   const delegationInfo = () => {
     if (delegation.poolId === null) {
       return <div> No Delegation </div>
     } else {
       return <div> Delegated to {delegation.poolId} 
       <p>Rewards : {Number(delegation.rewards)}tA </p>
+      <input type="button" value="Undelegate" onClick={Undelegate} />
       </div>
     }
   }
