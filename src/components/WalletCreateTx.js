@@ -14,11 +14,7 @@ class WalletCreateTx extends React.Component {
     }
 
  
-  async getTokenInfo(tokenId){
-    let tokenData = {...this.state.tokenData}
-    tokenData[tokenId] = await getTokenInfo(tokenId)
-    this.setState({tokenData})
-  }
+
 
   setAddress = (value,index) => {
       const recipients =   [...this.state.recipients]
@@ -81,7 +77,6 @@ class WalletCreateTx extends React.Component {
 
     
   addToken = (tokenId,index) => {
-    this.getTokenInfo(tokenId)
     console.log(`Option selected:`, tokenId)
     if (!(tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]

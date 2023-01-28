@@ -68,7 +68,7 @@ class Wallet {
         );
       }else if(settings.provider === "MWallet"){
         this.lucid = await Lucid.new(
-        new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
+        new Blockfrost(settings.api.url, settings.api.projectId),
         settings.network
       )}
       
@@ -86,6 +86,8 @@ class Wallet {
         await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
       }else if (settings.provider === "Kupmios"){
         await this.lucid.switchProvider(new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl), settings.network)
+      }else if (settings.provider === "MWallet"){
+        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
       }
       await this.loadUtxos()
     }catch(e){
@@ -184,6 +186,7 @@ setPendingTxs(pendingTxs){
  }
 
     getAddress(stakingAddress="") {
+    //  return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
@@ -407,6 +410,7 @@ setPendingTxs(pendingTxs){
         recipients.map( (recipient,index) => (
           sendAll === index ? tx.payToAddress(recipient.address,  sendAllAmount ) : tx.payToAddress(recipient.address,recipient.amount)
         ))
+
 
         
         console.log(sigCheck)

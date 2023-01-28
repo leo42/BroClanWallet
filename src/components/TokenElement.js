@@ -10,13 +10,11 @@ function TokenElement(props){
           setTokenInfo(info)
         )
     },[])
-      const name = tokenInfo.metadata ? tokenInfo.metadata.name : tokenInfo.onchain_metadata ?  tokenInfo.onchain_metadata.name : props.tokenId
-      const image =  tokenInfo.metadata ?  "data:image/jpeg;base64," +tokenInfo.metadata.logo.replace(/\s/g, ';') : tokenInfo.onchain_metadata ?  tokenInfo.onchain_metadata.image.replace("ipfs://","https://gateway.pinata.cloud/ipfs/") : ""
-
+    console.log(tokenInfo,props.tokenId)
     return (<div className="TokenElement"> 
-       <img className="TokenThumbnail" src={image } />
-       <span className="tokenElementName">{name }</span>:
-       <span className="tokenElementAmount">{((tokenInfo.metadata) ? Number(props.amount)  / (10**tokenInfo.metadata.decimals) : props.amount ).toString()} </span>
+       <img className="TokenThumbnail" src={tokenInfo.image } />
+       <span className="tokenElementName">{tokenInfo.name }</span>:
+       <span className="tokenElementAmount">{((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span>
      </div>)
 }
 

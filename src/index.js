@@ -102,6 +102,7 @@ class App extends React.Component {
     }
      this.setState({settings})
     this.setState({wallets})
+    this.reloadBalance()
     
   }
 
@@ -180,6 +181,7 @@ class App extends React.Component {
     settings.sendAll = !settings.sendAll
     this.setState({settings})
   }
+
   async createTx(recipients,signers,sendFrom, sendAll=null){
     try{
     const wallets = this.state.wallets
@@ -247,9 +249,9 @@ class App extends React.Component {
     this.setState({wallets})
   }
 
-  removePendingTx(index){
+  async removePendingTx(index){
     const wallets = this.state.wallets
-    wallets[this.state.selectedWallet].removePendingTx(index)
+    await wallets[this.state.selectedWallet].removePendingTx(index)
     this.setState({wallets})
   }
 

@@ -42,7 +42,7 @@ function WalletPendingTx(props) {
         if(amount.multiasset) { 
             Object.keys(amount.multiasset).map( (policy) => {
                 Object.keys(amount.multiasset[policy]).map( (asset) => {
-                    amountOut[policy+asset] = parseInt(amount.multiasset[policy][asset])
+                    amountOut[policy+asset] = BigInt(amount.multiasset[policy][asset])
                 })
         })}
         return amountOut
@@ -53,38 +53,38 @@ function WalletPendingTx(props) {
         inputUtxos.map( (input, index) => {
            if ( props.wallet.isAddressMine(input.address)) {
            Object.keys( input.assets).map( (asset) => 
-                asset in BalancesOut ? BalancesOut[asset] -= parseInt(input.assets[asset]) :  BalancesOut[asset] = -parseInt(input.assets[asset])
+                asset in BalancesOut ? BalancesOut[asset] -= input.assets[asset]:  BalancesOut[asset] =- input.assets[asset]
             )}})
 
         transaction.outputs.map( (output, index) => {
             if ( props.wallet.isAddressMine(output.address)) {
                 const amount = transformAmount(output.amount)
                 Object.keys(amount).map( (asset) => 
-                asset in BalancesOut ? BalancesOut[asset] += parseInt(amount[asset]) : BalancesOut[asset] = parseInt(amount[asset])
+                asset in BalancesOut ? BalancesOut[asset] += BigInt(amount[asset]) : BalancesOut[asset] = BigInt(amount[asset])
              )}})
 
-        const lovelace = BalancesOut.lovelace ? BalancesOut.lovelace : 0
+        const lovelace =BalancesOut.lovelace ?  BigInt( BalancesOut.lovelace)  : 0n
         delete BalancesOut["lovelace"]
-        Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
+        Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0n) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
             <div key={index} className="transactionHistoryTokenBalance">
-                <TokenElement tokenId={key} amount={BalancesOut[key]}/>
+                <TokenElement key={index} tokenId={key} amount={BalancesOut[key]}/>
              </div>
             ) );
-
-        return (
+        
+        return inputUtxos.length !== 0 ? (
             <div className="transactionHistoryListBalance">
-               <span className={ lovelace >= 0 ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
-                { lovelace >= 0 ?  "+" : ""} {lovelace/1000000}
+               <span className={ lovelace >= 0n ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
+                { lovelace >= 0n ?  "+" : ""} {Number(lovelace)/1000000}
                  </span>tA 
                  {tokens}
              </div>
-             )
+             ) : <div className="transactionHistoryListBalance"> </div>
     }
 
     function TransactionInput(input){
         return (
-<div key={input} className="txDetailsInput">
+<div key={input.txHash} className="txDetailsInput">
                         <p>Transaction ID: {input.txHash}</p>
                         <p>Index: {input.outputIndex}</p>
                         <p className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {input.address ? input.address : "None" }</p>
@@ -92,7 +92,7 @@ function WalletPendingTx(props) {
                          { input.datum ? <p>datum: {JSON.stringify(input.datum) }</p> : ""}
                         {input.scriptRef ?  <p>Script Ref: {input.scriptRef ? "None" : input.scriptRef}</p> : ""}
                         
-                    {Object.keys( input.assets).map( (asset) => <div  key={asset}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
+                    {Object.keys( input.assets).map( (asset,index) => <div  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
                     
                     </div>
         )
@@ -180,8 +180,8 @@ function WalletPendingTx(props) {
                 <p>Update: {transaction.update}</p>
                {transaction.auxiliary_data_hash &&  <p>Auxiliary Data Hash: {transaction.auxiliary_data_hash}</p>}
                {transaction.validity_start_interval &&  <p>Validity Start Interval: {transaction.validity_start_interval}</p>}
-               {transaction.mint && <p>Mint/Burn:               
-                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) }</p>}
+               {transaction.mint && <div>Mint/Burn:               
+                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) }</div>}
               {transaction.script_data_hash &&  <p>Script Data Hash: {transaction.script_data_hash}</p>}
               {transaction.collateral &&  <p>Collateral: {collateralUtXos.map((collateral) =>{TransactionInput(collateral)})}</p>}
                {transaction.collateral_return && <p>Collateral Return: {TransactionOutput(transaction.collateral_return)}</p> }
@@ -189,7 +189,7 @@ function WalletPendingTx(props) {
               { transaction.referenceInputs &&  <p>Reference Inputs: {referenceInputsUtxos.map((referenceInput) =>
                        TransactionInput(referenceInput)  
                     )}</p>}
-            {transaction.required_signers &&  <p>Required Signers: {transaction.required_signers.map((signer => <span><br/>{signer} </span>))}</p>}
+            {transaction.required_signers &&  <div>Required Signers: {transaction.required_signers.map((signer => <span key={signer}><br/>{signer} </span>))}</div>}
 
                     
        
@@ -230,7 +230,7 @@ function WalletPendingTx(props) {
             {txDetails.certs && txDetails.certs.some(obj => "StakeDelegation" in obj)  ? "Delegation Transaction" : "Regular Transaxtion"} 
              
              <br/>
-            {transactionBalance(txDetails)}
+            {inputUtxos.length !== 0 ? transactionBalance(txDetails) : ""}
             {showDetails && TransactionDetails(txDetails)}
              {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}
             {txDetails.signatures.map( (item, index) => (

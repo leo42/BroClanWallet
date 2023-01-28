@@ -61,7 +61,7 @@ function Receive(props){
             
             console.log(props.wallet.getAddress())
             options.includes( props.wallet.getAddress())?   "" :  options.push(props.wallet.getAddress())
-            props.wallet.getAddress() in optionsNames ? "" :  optionsNames[props.wallet.getAddress()] = "Unstaked" 
+            props.wallet.getAddress() in optionsNames && optionsNames[props.wallet.getAddress()] !== props.wallet.getAddress() ?  "" :  optionsNames[props.wallet.getAddress()] = "Regular Address" 
         
             console.log(options,optionsNames)
 

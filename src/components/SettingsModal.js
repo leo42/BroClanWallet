@@ -7,7 +7,7 @@ function SettingsModal(props) {
   const [network, setNetwork] = useState(props.root.state.settings.network);
   const [provider, setProvider] = useState(props.root.state.settings.provider);
   const [providerConnection, setProviderConnection] = useState(props.root.state.settings.api);
-
+  const [metadataProvider, setMetadataProvider] = useState(props.root.state.settings.metadataProvider);
   
   function changeProvider(provider){
     setProvider(provider)
@@ -16,6 +16,7 @@ function SettingsModal(props) {
         "projectId": ""
       } )
     }else if(provider === "MWallet"){
+      
       setProviderConnection({})
     }else if(provider === "Kupmios"){
       setProviderConnection({"kupoUrl": "" , "ogmiosUrl": ""})
@@ -50,6 +51,25 @@ function SettingsModal(props) {
         toast.error("Please fill all fields");
         return
       }
+    }else if (provider === "MWallet"){
+      switch (network) {
+      case "Mainnet": 
+      localproviderConnection.url = "https://cardano-mainnet.blockfrost.io/api/v0"  
+      localproviderConnection.projectId = "mainnetpHvIYtcVH3eRVTJLwln9cd6aUCC9zAh6"
+      break;
+    case "Testnet":
+      localproviderConnection.url = "https://cardano-testnet.blockfrost.io/api/v0"
+      break;
+    case "Preprod":
+      localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
+      localproviderConnection.projectId = "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"
+      break;
+    default:
+      localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
+      break;
+
+
+  }
     }
 
       
@@ -57,7 +77,8 @@ function SettingsModal(props) {
     const applySetting = props.root.setSettings({
       "network": network,
       "provider": provider,
-      "api": providerConnection
+      "api": providerConnection,
+      "metadataProvider": metadataProvider
     })
     toast.promise(applySetting, { loading: "Applying settings", 
                                   success: "Settings applied", 
@@ -82,6 +103,9 @@ function SettingsModal(props) {
           </div>
         )}
   }  
+
+
+
   return (
     <div className="modalBackground" >
       <div className="modalContainer"  >
@@ -113,6 +137,13 @@ function SettingsModal(props) {
         </select>
             
             {providerSettings()}
+
+            <h1>Metadata Provider</h1>
+            <select onChange={(event) => setMetadataProvider(event.target.value)} defaultValue={metadataProvider}>
+              <option value="None">None</option>
+              <option value="Koios">Koios</option>
+             { provider && <option value="Blockfrost">Blockfrost</option> }
+            </select>
         <div className="footer">
          <button
             onClick={() => {
