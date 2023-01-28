@@ -478,9 +478,9 @@ setPendingTxs(pendingTxs){
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
 
-      if (!this.checkSigners(signers)){
-        console.log("Not enough signers")
-        return "Not enough signers"
+      const sigCheck = this.checkSigners(signers)
+      if (!sigCheck){
+        throw new Error('Not enough signers');
       }
 
       const tx = this.lucid.newTx()
@@ -494,6 +494,16 @@ setPendingTxs(pendingTxs){
       } else {
         tx.deregisterStake(rewardAddress)
       }
+
+      if (sigCheck.requires_after !== false){
+        tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
+        
+      }
+
+      if (sigCheck.requires_before !== false){
+        tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
+      }
+
 
       const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
       .complete()
@@ -513,9 +523,9 @@ setPendingTxs(pendingTxs){
     async createDelegationTx(pool, signers){ 
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
-      if (!this.checkSigners(signers)){
-        console.log("Not enough signers")
-        return "Not enough signers"
+      const sigCheck = this.checkSigners(signers)
+      if (!sigCheck){
+        throw new Error('Not enough signers');
       }
 
       const tx = this.lucid.newTx()
@@ -530,7 +540,14 @@ setPendingTxs(pendingTxs){
         tx.registerStake(rewardAddress) 
       }
       
+      if (sigCheck.requires_after !== false){
+        tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
+        
+      }
 
+      if (sigCheck.requires_before !== false){
+        tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
+      }
       const completedTx = await tx.payToAddress(this.getAddress(),{lovelace: 5000000})
       .delegateTo(rewardAddress,pool)
       .attachSpendingValidator(this.lucidNativeScript)
