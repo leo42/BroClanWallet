@@ -16,7 +16,7 @@ async function getTokenInfo(tokenId){
         
     }if ( tokenId in tokenMap){
       //refresh token info every 4 hours 14400000
-      if(Date.now() - tokenMap[tokenId].fetch_time > 100){
+      if(Date.now() - tokenMap[tokenId].fetch_time > 14400000){
         console.log("fetching from api", tokenId)
         return fetchTokenData(tokenId)
       }else{

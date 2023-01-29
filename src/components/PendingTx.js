@@ -84,7 +84,7 @@ function WalletPendingTx(props) {
 
     function TransactionInput(input){
         return (
-<div key={input.txHash} className="txDetailsInput">
+<div key={input.txHash+input.outputIndex} className="txDetailsInput">
                         <p>Transaction ID: {input.txHash}</p>
                         <p>Index: {input.outputIndex}</p>
                         <p className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {input.address ? input.address : "None" }</p>
@@ -151,7 +151,7 @@ function WalletPendingTx(props) {
                 <p>Fee: {transaction.fee}</p>
                 { transaction.ttl && <p>TTL: {transaction.ttl}</p>}
                 {transaction.network_id &&  <p>Network: {transaction.network_id}</p> }
-             {transaction.certs  ?   <p>Certs: {transaction.certs.length}{transaction.certs.map(cert => {
+             {transaction.certs  ?   <div>Certs: {transaction.certs.length}{transaction.certs.map(cert => {
                 if (cert.StakeDelegation) {
                     return( <div key={cert}>Delegation to:{JSON.stringify(cert.StakeDelegation)}</div> )
                 }if (cert.StakeRegistration) {
@@ -168,27 +168,27 @@ function WalletPendingTx(props) {
                     return( <div key={cert}>Move Instantaneous Rewards Cert {JSON.stringify(cert.MoveInstantaneousRewardsCert)}</div> )
                                 }   
 
-             })}</p> : ""}
-               {transaction.withdrawals && <p>Withdrawals: {transaction.withdrawals.map(
+             })}</div> : ""}
+               {transaction.withdrawals && <div>Withdrawals: {transaction.withdrawals.map(
                     (withdrawal, index) => (
                         <div key={index}>
                             <p>Address: {withdrawal.address}</p>
                             <p>Amount: {withdrawal.amount}</p>
                         </div>
                     )
-                )}</p>}
+                )}</div>}
                 <p>Update: {transaction.update}</p>
                {transaction.auxiliary_data_hash &&  <p>Auxiliary Data Hash: {transaction.auxiliary_data_hash}</p>}
                {transaction.validity_start_interval &&  <p>Validity Start Interval: {transaction.validity_start_interval}</p>}
                {transaction.mint && <div>Mint/Burn:               
                     {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) }</div>}
               {transaction.script_data_hash &&  <p>Script Data Hash: {transaction.script_data_hash}</p>}
-              {transaction.collateral &&  <p>Collateral: {collateralUtXos.map((collateral) =>{TransactionInput(collateral)})}</p>}
-               {transaction.collateral_return && <p>Collateral Return: {TransactionOutput(transaction.collateral_return)}</p> }
+              {transaction.collateral &&  <div>Collateral: {collateralUtXos.map((collateral) =>{TransactionInput(collateral)})}</div>}
+               {transaction.collateral_return && <div>Collateral Return: {TransactionOutput(transaction.collateral_return)}</div> }
               { transaction.total_collateral &&   <p>Total Collateral: {transaction.total_collateral}</p> } 
-              { transaction.referenceInputs &&  <p>Reference Inputs: {referenceInputsUtxos.map((referenceInput) =>
+              { transaction.referenceInputs &&  <div>Reference Inputs: {referenceInputsUtxos.map((referenceInput) =>
                        TransactionInput(referenceInput)  
-                    )}</p>}
+                    )}</div>}
             {transaction.required_signers &&  <div>Required Signers: {transaction.required_signers.map((signer => <span key={signer}><br/>{signer} </span>))}</div>}
 
                     
