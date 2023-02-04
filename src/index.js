@@ -84,7 +84,7 @@ class App extends React.Component {
   state= {
     wallets: [],
     selectedWallet: 0,
-    connectedWallet: "",
+    connectedWallet: {name: "", socket: null},
     settings: { sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  { url: "https://cardano-preprod.blockfrost.io/api/v0", projectId: "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"} }
   }
 
@@ -127,7 +127,10 @@ class App extends React.Component {
   }
 
   disconnectWallet(){
-    let connectedWallet = ""
+    this.state.connectedWallet.socket.close()
+
+    let connectedWallet = {name: "", socket: null}
+
     this.setState({connectedWallet})
   }
 
@@ -153,7 +156,7 @@ class App extends React.Component {
                                                                pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ) 
                                                               }) )
    
-    localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet ))
+    localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet.name ))
     localStorage.setItem("wallets", JSON.stringify(dataPack))
     localStorage.setItem("settings", JSON.stringify(this.state.settings))
   }
@@ -172,7 +175,7 @@ class App extends React.Component {
 
     }
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
-    state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? "" : JSON.parse(localStorage.getItem('connectedWallet'));
+    state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? {name:"" , socket: null} : { name: JSON.parse(localStorage.getItem('connectedWallet')) , socket: null};
     super.setState(state)  
   }
  
