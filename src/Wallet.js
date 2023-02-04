@@ -113,7 +113,7 @@ class Wallet {
     }
 
     getDelegation() { 
-      return this.lucid.provider.getDelegation(this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript));
+      return this.lucid.provider.getDelegation(this.lucid.utils.credentialToRewardAddress( this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential)) ;
     }
 
     getBalance(){
@@ -185,7 +185,7 @@ setPendingTxs(pendingTxs){
  }
 
     getAddress(stakingAddress="") {
-    //  return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
+        //return "addr_test1qrd7qg7eqm4m47vgxwlsmtq5grkhklc55wzl963e6qgysxre063058a2v257ee60a5dm7k4z4an9dzdjaxqrlf72lrrsrx4q8y"
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
