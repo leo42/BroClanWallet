@@ -3,7 +3,7 @@ import "./walletConnector.css"
 import WalletPicker from "./WalletPicker"
 import SettingsModal from "./SettingsModal"
 import io from 'socket.io-client'
-import {  Lucid } from "../lucid/src/mod.ts";
+import {  Lucid } from "../lucid/dist/esm/mod.js";
 
 function stringToHex(str) {
     var hex = '';

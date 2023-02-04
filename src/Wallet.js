@@ -1,6 +1,5 @@
-import {  Utils , C , Lucid, Blockfrost ,ExternalWallet , TxComplete } from "./lucid/dist/esm/mod.js";
+import {  Utils , C , Lucid, Blockfrost ,ExternalWallet , TxComplete ,Kupmios} from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
-import { Kupmios } from "lucid-cardano";
 const { Transaction} = C;
 
 const data1 = await Datasource.from_blockfrost("preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp")
