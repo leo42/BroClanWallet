@@ -170,7 +170,6 @@ setPendingTxs(pendingTxs){
 
 
  async getTransactionHistory(address){
-  //return [{thHash:"adsaecf"},{thHash:"asda"}]
    let txList= await this.lucid.provider.getTransactions(address)
    let result = []
    for(let index =0 ; index < txList.length; index++){
@@ -185,7 +184,7 @@ setPendingTxs(pendingTxs){
  }
 
     getAddress(stakingAddress="") {
-        //return "addr_test1qrd7qg7eqm4m47vgxwlsmtq5grkhklc55wzl963e6qgysxre063058a2v257ee60a5dm7k4z4an9dzdjaxqrlf72lrrsrx4q8y"
+        //return "addr_test1qz8vsx3rmc2fxwz6y4e2qgxp380jv83cd7e4mh5vzfk2f5c3zreucpdlsmrpm2jcn7zq3a6dltax0ljum9ss7dqwhums29ffst"
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }

@@ -6,10 +6,14 @@ function TransactionHistory (props) {
     const [transactions, setTransactions] = useState([]);
     const [address, setAddress] = useState(props.wallet.getDefaultAddress() === ""? props.wallet.getFundedAddress()[0] :props.wallet.getDefaultAddress() )
 
+
     useEffect(() => {
+        if (props.root.state.settings.provider === "Kupmios"){
+            
+        }else{
          props.root.getTransactionHistory(address)
          .then(transactionHistory => setTransactions(transactionHistory))
-    }, [address]);
+    }}, [address]);
 
     function handleChangeFrom(event) {
         console.log()
@@ -73,8 +77,8 @@ function TransactionHistory (props) {
       </select>
       </div>}
          <div className="TransactionHistoryList">
-
-            {transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))}
+            {props.root.state.settings.provider === "Kupmios" ? <div> Transaction History not availbale when using kupmios</div> : 
+            transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))}
 
             </div>
     </div>);
