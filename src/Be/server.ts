@@ -7,8 +7,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const axios = require('axios');
 const { MongoClient } = require("mongodb");
-
-
+const  CardanoWasm  = require("@dcspark/cardano-multiplatform-lib-nodejs");
 
 const uri = "mongodb://0.0.0.0:27017/?directConnection=true";
 const client = new MongoClient(uri);
@@ -26,6 +25,7 @@ connection.then(() => {
 });
 
 
+
 const server = http.createServer(app);
 
 
@@ -40,6 +40,7 @@ let verification = new Map();
 main()
   
   async function main() {
+
 const io = new Server(server,{
 
 });
@@ -72,7 +73,12 @@ io.on('connection', (socket ) => {
   })
 
   socket.on('authentication_response', (data) => {
-    console.log(data)}
+    console.log("authentication responsea", data)
+    const { address, signature } = data;
+    const { challenge_string } = verification[socket.id];
+    const  pubkeyHash = CardanoWasm.Address.from_bech32(address).payment_cred().to_scripthash().to_hex();
+    console.log(pubkeyHash)
+  }
     )
 
   socket.on('authentication', (data) => {

@@ -20,29 +20,32 @@ function WalletConnector(props){
 
     async function  connectWallet(wallet){
         const api = await window.cardano[wallet].enable()
-        console.log(api)
         const lucid = await Lucid.new(
-          );
-          lucid.selectWallet(api);
-
+            );
+            lucid.selectWallet(api);
+            const address = await lucid.wallet.address();
+            console.log(address)
         const socket = io(window.location.origin);
+        
 
         socket.on('disconnect', () => {
             console.log("disconnected")
             props.root.connectWallet( {socket: null, name: ""})
         });
+        //a function to decode CBOR address to base 68
 
         socket.on("authentication_challenge", (data) => {
             console.log("authentication_challenge")
             console.log()
-            const signed = lucid.wallet.signMessage( "addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m",stringToHex(data.challenge) );
+            
+            const signed = lucid.wallet.signMessage( address,stringToHex(data.challenge) );
             signed.then((signature) => {
-                socket.emit("authentication_response", {signature: signature})   
+                socket.emit("authentication_response", {address : address  ,signature: signature})   
             }).catch((error) => {
                 console.log(error)
             })
 
-    });
+              });
 
         socket.emit("authentication_start", {token: "RandomToken"});
         
