@@ -21,6 +21,14 @@ function Overview(props) {
     linkRef.current.click();
   }
 
+  const handleCBORExport = () => {
+
+    const blob = new Blob([wallet.getCBOR()], { type: "application/octet-stream" });
+    linkRef.current.href = URL.createObjectURL(blob);
+    linkRef.current.download = "wallet.cbor";
+    linkRef.current.click();
+  }
+
   const addressSettings = (address) =>
     <div className="addressSettings">
       { wallet.getDefaultAddress() === address ? "" : <button onClick={() => props.root.setDefaultAddress(address)}> Make Default Address</button> }
@@ -43,8 +51,9 @@ function Overview(props) {
 
           < br/>
           <>
-            <a ref={linkRef}  style={{ display: "none" }}>Download JSON</a>
+            <a ref={linkRef}  style={{ display: "none" }}>Download</a>
             <button onClick={handleExport}>Download</button>
+            <button onClick={handleCBORExport}>Download CBOR</button>
           </>
       </label>
     </div>

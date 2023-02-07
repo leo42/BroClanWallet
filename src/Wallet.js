@@ -16,9 +16,13 @@ class Wallet {
     //   mintingScripts.add( NativeScript.new_script_pubkey( ScriptPubkey.new( BaseAddress.from_address(address2).payment_cred().to_keyhash())))
     //   console.log(NativeScript.new_script_all( ScriptAll.new(mintingScripts)).to_json())
     //   this.wallet_script = NativeScript.new_script_all( ScriptAll.new(mintingScripts))
+      
       this.signersNames = []
-       
-      this.wallet_script = wallet_json
+      if (wallet_json.type === "Native") { 
+
+      }else{
+        this.wallet_script = wallet_json
+      }
       this.wallet_address = "";
       this.name=name
       this.defaultAddress= ""
@@ -101,6 +105,10 @@ class Wallet {
     
     getJson() {
       return this.wallet_script;
+    }
+
+    getCBOR() {
+      return  JSON.stringify(this.lucidNativeScript);
     }
 
     getName(){

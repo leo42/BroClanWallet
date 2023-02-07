@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack & tsc src/Be/server.ts --outFile build/server.js",
+    "build": "webpack & tsc -module amd src/Be/server.ts --outFile build/server.js",
     "start": "webpack serve",
-    "dev": "concurrently --kill-others \"webpack --watch\" \"tsc -w src/Be/server.ts --outFile build/server.js\" \"cd build && node --watch server.js \""
+    "dev": "concurrently --kill-others \"webpack --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --watch server.js \""
   },
   "keywords": [],
   "author": "",

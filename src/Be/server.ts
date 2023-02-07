@@ -1,12 +1,13 @@
 
 const express = require('express');
 const fs = require('fs');
-
+var crypt = require("crypto");
 const app = express();
 const http = require('http');
 const { Server } = require("socket.io");
 const axios = require('axios');
 const { MongoClient } = require("mongodb");
+
 
 
 const uri = "mongodb://0.0.0.0:27017/?directConnection=true";
@@ -24,7 +25,7 @@ connection.then(() => {
   console.log(err.stack);
 });
 
-const startTime = "2022-05-29T20:55:00.000000Z"
+
 const server = http.createServer(app);
 
 
@@ -32,15 +33,13 @@ const server = http.createServer(app);
 
 
 
-let tsBuildersByClient = new Map();
-var botProtectionThreshold = 0.85
+let verification = new Map();
 //console.log(config.Ed25519KeyHash)
 
 
 main()
   
   async function main() {
-
 const io = new Server(server,{
 
 });
@@ -50,11 +49,11 @@ const io = new Server(server,{
 
 io.on('connection', (socket ) => {
   console.info(`Client connected [id=${socket.id}]`);
-  tsBuildersByClient.set(socket.id, "Void");
+  verification.set(socket.id, "Void");
  
   
   socket.on('disconnect', () => {
-    tsBuildersByClient.delete(socket.id);
+    verification.delete(socket.id);
     console.info(`Client gone [id=${socket.id}]`);
     
   });
@@ -62,7 +61,14 @@ io.on('connection', (socket ) => {
  
   socket.on('authentication_start', (data) => {
     console.log("authentication Start", data)
-    socket.emit('authentication_challenge', {challenge: "challenge"})
+    //set the challenge for the user to sign with a random String
+
+
+    verification[socket.id] = { state: "Challenge" , challenge_string: "challenge_" + (crypt.randomBytes(36).toString('hex'))}
+    //set the challenge for the user to sign with a random String
+
+    socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
+
   })
 
   socket.on('authentication_response', (data) => {
