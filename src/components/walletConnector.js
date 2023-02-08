@@ -5,13 +5,7 @@ import SettingsModal from "./SettingsModal"
 import io from 'socket.io-client'
 import {  Lucid } from "../lucid/dist/esm/mod.js";
 
-function stringToHex(str) {
-    var hex = '';
-    for (var i = 0; i < str.length; i++) {
-      hex += '' + str.charCodeAt(i).toString(16);
-    }
-    return hex;
-  }
+
 
 function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
@@ -38,7 +32,7 @@ function WalletConnector(props){
             console.log("authentication_challenge")
             console.log()
             
-            const signed = lucid.wallet.signMessage( address,stringToHex(data.challenge) );
+            const signed = lucid.wallet.signMessage( address,data.challenge );
             signed.then((signature) => {
                 socket.emit("authentication_response", {address : address  ,signature: signature})   
             }).catch((error) => {

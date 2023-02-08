@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack & tsc -module amd src/Be/server.ts --outFile build/server.js",
     "start": "webpack serve",
-    "dev": "concurrently --kill-others \"webpack --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --watch server.js \""
+    "dev": "concurrently --kill-others \"webpack --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --trace-uncaught --watch server.js \""
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
     "@dcspark/cardano-multiplatform-lib-nodejs": "^3.1.2",
+    "@emurgo/cardano-message-signing-nodejs": "^1.0.1",
     "axios": "^1.2.2",
     "babel-loader": "^8.2.2",
     "lucid-cardano": "^0.7.9",
