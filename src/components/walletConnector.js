@@ -25,6 +25,7 @@ function WalletConnector(props){
         socket.on('disconnect', () => {
             console.log("disconnected")
             props.root.connectWallet( {socket: null, name: ""})
+            socket.close()
         });
         //a function to decode CBOR address to base 68
 
@@ -40,6 +41,11 @@ function WalletConnector(props){
             })
 
               });
+        socket.on("authentication_success", (data) => {
+            console.log("authentication_success")
+            localStorage.setItem("token", data.authenticationToken)
+            console.log(data)
+            });
 
         socket.emit("authentication_start", {token: "RandomToken"});
         
