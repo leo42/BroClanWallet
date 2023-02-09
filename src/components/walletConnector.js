@@ -4,6 +4,7 @@ import WalletPicker from "./WalletPicker"
 import SettingsModal from "./SettingsModal"
 import io from 'socket.io-client'
 import {  Lucid } from "../lucid/dist/esm/mod.js";
+import { useEffect } from "react/cjs/react.production.min";
 
 
 
@@ -11,6 +12,7 @@ function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
     const [settingsModalOpen, setSettingsModalOpen] = React.useState(false);
+
 
     async function  connectWallet(wallet){
         const api = await window.cardano[wallet].enable()
@@ -41,13 +43,14 @@ function WalletConnector(props){
             })
 
               });
-        socket.on("authentication_success", (data) => {
+     socket.on("authentication_success", (data) => {
             console.log("authentication_success")
-            localStorage.setItem("token", data.authenticationToken)
+            localStorage.setItem("token_"+address, data.authenticationToken)
             console.log(data)
             });
 
-        socket.emit("authentication_start", {token: "RandomToken"});
+        const token = localStorage.getItem("token_"+address) ? localStorage.getItem("settings") : null;
+        socket.emit("authentication_start", {token: token});
         
         if(api.status !== false){
                 props.root.connectWallet({name: wallet, socket: socket})
