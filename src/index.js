@@ -8,6 +8,7 @@ import MWalletMain from './components/WalletMain';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
+import connectSocket from  './helpers/SyncService';
 const script1 = {
   "type": "all",
   "scripts":
@@ -120,10 +121,16 @@ class App extends React.Component {
   }
   
 
-  connectWallet(wallet){
-    let connectedWallet = wallet
-    this.setState({connectedWallet})
-
+  async connectWallet(wallet){
+    try{
+      const socket =  await connectSocket(wallet, this) 
+      let connectedWallet = {  name :wallet , socket: socket}
+      this.setState({connectedWallet})
+    }
+    catch(e){
+      console.log(e.message)
+      toast.error("Could not connect to sync service");
+    }
   }
 
   disconnectWallet(){
@@ -175,7 +182,9 @@ class App extends React.Component {
 
     }
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
-    state.connectedWallet = JSON.parse(localStorage.getItem('connectedWallet')) === null ? {name:"" , socket: null} : { name: JSON.parse(localStorage.getItem('connectedWallet')) , socket: null};
+    if (JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
+      this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
+    }
     super.setState(state)  
   }
  

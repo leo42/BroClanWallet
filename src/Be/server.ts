@@ -57,11 +57,19 @@ io.on('connection', (socket ) => {
   socket.on('authentication_start', (data) => {
     console.log("authentication Start", data)
     
-
-    
-    verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
-    socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
-
+     users.findOne({authenticationToken: data.token}).then((user) => {
+   console.log(user)
+    if (user){
+      verification[socket.id] = { state: "Authenticated" , user: user.PubkeyHash}
+    }else{
+      verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
+      socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
+    }
+    }).catch((err) => {
+      console.log(err)
+      socket.emit('error', {error: "Authentication token not found"})
+      socket.disconnect() 
+    })
   })
 
   socket.on('authentication_response', (data) => {
@@ -75,7 +83,7 @@ io.on('connection', (socket ) => {
 
       users.updateOne( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now() }}, {upsert: true})
       socket.emit('authentication_success', {authenticationToken: authenticationToken})
-
+      verification[socket.id] = { state: "Authenticated" , user: PubkeyHash}
 
     }catch(err){
       console.log(err)
@@ -87,20 +95,7 @@ io.on('connection', (socket ) => {
     
   })
 
-  socket.on('authentication', (data) => {
-    console.log(data)
 
-
-     socket.on('initilize_multisig', (data) => {
-      console.log(data)
-      });
-      
-      
-      socket.on('witness', (signature) => { 
-        
-      });
-
-  });
   
 });
 
