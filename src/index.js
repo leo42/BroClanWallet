@@ -133,7 +133,10 @@ class App extends React.Component {
     }
   }
 
-  disconnectWallet(){
+  disconnectWallet(error=""){
+    if (error !== ""){
+      toast.error(error);
+    }
     this.state.connectedWallet.socket.close()
 
     let connectedWallet = {name: "", socket: null}

@@ -7,22 +7,27 @@ async function  connectSocket(wallet , root){
         lucid.selectWallet(api);
         const address = await lucid.wallet.address();
         console.log(address)
-    const socket = io(window.location.origin);
-    
-
-    socket.on('disconnect', () => {
-        console.log("disconnected")
-        root.disconnectWallet()
-        socket.close()
-    });
-
-    socket.on("error", (error) => {
-        toast.error(error.error)
-        socket.disconnect()
+        const socket = io(window.location.origin);
         
-    });
-    //a function to decode CBOR address to base 68
+        
+        socket.on('disconnect', () => {
+            console.log("disconnected")
+            root.disconnectWallet()
+            socket.close()
+        });
+        
+        socket.on("error", (error) => {
+            toast.error(error.error)
+            socket.disconnect()
+            
+        });
 
+        socket.on('connect_error', (error) => {
+            root.disconnectWallet("Backend is not available")
+            socket.close()
+          });
+        //a function to decode CBOR address to base 68
+        
     socket.on("authentication_challenge", (data) => {
         console.log("authentication_challenge")
         console.log()
@@ -33,20 +38,21 @@ async function  connectSocket(wallet , root){
         }).catch((error) => {
             console.log(error)
         })
-
-          });
+        
+    });
     socket.on("authentication_success", (data) => {
-            console.log("authentication_success")
-            localStorage.setItem("token_"+address, data.authenticationToken)
-            console.log(data)
-            });
-
+        console.log("authentication_success")
+        localStorage.setItem("token_"+address, data.authenticationToken)
+        console.log(data)
+    });
+    
     const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
-
+    
     socket.emit("authentication_start", {token: token});
     
-
-
+    
+    console.log(`Socket connected: ${socket.connected}`);
+    
     return socket
 }  
 
