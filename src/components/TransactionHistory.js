@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./TransactionHistory.css"
-
+import  getTransactionHistory  from "../helpers/TransactionHistory.js";
+import { toast } from "react-toastify";
 
 function TransactionHistory (props) {
     const [transactions, setTransactions] = useState([]);
@@ -8,12 +9,15 @@ function TransactionHistory (props) {
 
 
     useEffect(() => {
-        if (props.root.state.settings.provider === "Kupmios"){
-            
-        }else{
-         props.root.getTransactionHistory(address)
-         .then(transactionHistory => setTransactions(transactionHistory))
-    }}, [address]);
+    
+                      let TxH = getTransactionHistory(address, props.root.state.settings)
+          TxH.then(transactionHistory => setTransactions(transactionHistory))
+          toast.promise(TxH, {
+            pending: "Loading Transaction History",
+            error: "Error Loading Transaction History"
+            })  }
+        
+    , [address, props.root.state.settings]);
 
     function handleChangeFrom(event) {
         console.log()
@@ -77,8 +81,9 @@ function TransactionHistory (props) {
       </select>
       </div>}
          <div className="TransactionHistoryList">
-            {props.root.state.settings.provider === "Kupmios" ? <div> Transaction History not availbale when using kupmios</div> : 
-            transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))}
+            { props.root.state.settings.metadataProvider === "None" ? <div className="TransactionHistoryNoMetadata">No Metadata Provider Selected</div> :
+             transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))
+        }
 
             </div>
     </div>);
