@@ -11,7 +11,10 @@ function TokenElement(props){
         )
     },[])
     console.log(tokenInfo,props.tokenId)
-    return (<div className="TokenElement"> 
+    if (tokenInfo === undefined) return (<div className="TokenElement">{props.tokenId} </div>)
+
+    return (
+    <div className="TokenElement"> 
        <img className="TokenThumbnail" src={tokenInfo.image } />
        <span className="tokenElementName">{tokenInfo.name }</span>:
        <span className="tokenElementAmount">{((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span>

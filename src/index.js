@@ -86,7 +86,7 @@ class App extends React.Component {
     wallets: [],
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
-    settings: { sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  { url: "https://cardano-preprod.blockfrost.io/api/v0", projectId: "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"} }
+    settings: { metadataProvider :"Koios", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  { url: "https://cardano-preprod.blockfrost.io/api/v0", projectId: "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"} }
   }
 
   

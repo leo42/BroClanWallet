@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./TransactionHistory.css"
 import  getTransactionHistory  from "../helpers/TransactionHistory.js";
 import { toast } from "react-toastify";
+import TokenElement from "./TokenElement";
 
 function TransactionHistory (props) {
     const [transactions, setTransactions] = useState([]);
@@ -42,7 +43,7 @@ function TransactionHistory (props) {
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
             <div key={index} className="transactionHistoryTokenBalance">
-               <span className="transactionHistoryTokenName"> {key}</span >:<span className={BalancesOut[key] >= 0 ? "transactionHistoryTokenBalancePositive" : "transactionHistoryTokenBalanceNegative"}>{BalancesOut[key]}</span> 
+                <TokenElement tokenId={key} amount={BalancesOut[key]}/>
              </div>
             ) );
 
