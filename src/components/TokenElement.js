@@ -11,7 +11,7 @@ function TokenElement(props){
         )
     },[])
     console.log(tokenInfo,props.tokenId)
-    if (tokenInfo === undefined) return (<div className="TokenElement">{props.tokenId} </div>)
+    if (tokenInfo === undefined) return (<div className="TokenElement">{props.tokenId}:{Number(props.amount)}  </div>)
 
     return (
     <div className="TokenElement"> 
