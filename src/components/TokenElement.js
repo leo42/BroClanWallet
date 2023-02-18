@@ -10,7 +10,6 @@ function TokenElement(props){
           setTokenInfo(info)
         )
     },[])
-    console.log(tokenInfo,props.tokenId)
     if (tokenInfo === undefined) return (<div className="TokenElement">{props.tokenId}:{Number(props.amount)}  </div>)
 
     return (

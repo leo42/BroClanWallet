@@ -210,7 +210,6 @@ setPendingTxs(pendingTxs){
     }
     async getUtxosByOutRef(OutputRef)  {
       const resault= await this.lucid.provider.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
-      console.log(resault)
       return resault
     }
   
@@ -359,8 +358,6 @@ setPendingTxs(pendingTxs){
         recipients.map( (recipient,index) => {
           if (index !== sendAll){
           Object.keys(recipient.amount).map( (key,index) => {
-            console.log(recipient.amount[key])
-            console.log(recipient.amount[key].amount)
 
           
             if (key in sumOfRecipientsMinusSendAll){
@@ -376,8 +373,7 @@ setPendingTxs(pendingTxs){
 
         //check if there is enough funds in the wallet
         const balance = this.getBalanceFull()
-        console.log(balance)
-        console.log(sumOfRecipientsMinusSendAll)
+
 
           for (const [key, value] of Object.entries(sumOfRecipientsMinusSendAll)) {
             if (key in balance){
@@ -406,7 +402,7 @@ setPendingTxs(pendingTxs){
 
 
         
-        console.log(sigCheck)
+
         if (sigCheck.requires_after !== false){
           tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
           
@@ -427,7 +423,6 @@ setPendingTxs(pendingTxs){
 
         
         this.pendingTxs.map( (PendingTx) => {
-          console.log(PendingTx.tx.toHash(),completedTx.toHash())
           if (PendingTx.tx.toHash() === completedTx.toHash()) {
             throw new Error('Transaction already registerd');
           }
@@ -457,7 +452,6 @@ setPendingTxs(pendingTxs){
 
       try{
         this.pendingTxs.map( (PendingTx) => {
-          console.log(PendingTx.tx.toHash(),tx.toHash())
           if (PendingTx.tx.toHash() === tx.toHash()) {
             throw new Error('Transaction already registered');
           }
@@ -530,7 +524,6 @@ setPendingTxs(pendingTxs){
       signers.map( value => (
         tx.addSignerKey(value)
       ))
-        console.log(curentDelegation,pool)
       if (curentDelegation.poolId === pool){
         throw new Error('Already delegated to this pool');
       } else if (curentDelegation.poolId === null){
@@ -577,7 +570,6 @@ setPendingTxs(pendingTxs){
     }
     
     addSignature(signature){
-      console.log(signature)
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
       var valid = false

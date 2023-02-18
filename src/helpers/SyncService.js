@@ -26,6 +26,12 @@ async function  connectSocket(wallet , root){
             root.disconnectWallet("Backend is not available")
             socket.close()
           });
+
+        socket.on('wallets_found', (data) => {
+            console.log("wallets_found")
+            console.log(data)
+            
+        });
         //a function to decode CBOR address to base 68
         
     socket.on("authentication_challenge", (data) => {

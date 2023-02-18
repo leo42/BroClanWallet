@@ -15,12 +15,10 @@ const script1 = {
   [
     {
       "type": "sig",
-      "name" : "test",
       "keyHash": "487b9485cf18d99e875e7aef9b80c4d3a89cccddefbc2641c87da293"
     },
     {
       "type": "sig",
-      "name": "Leo",
       "keyHash": "7190ae1c26a87ed572e8d72049454ddc874d360293c1eb43aef490e3"
     },
   ]
@@ -334,8 +332,21 @@ class App extends React.Component {
     const wallets = this.state.wallets
     const myWallet = new Wallet(script,name);
     await myWallet.initialize(this.state.settings);
+    this.transmitWallet(script)
     wallets.push(myWallet)
     this.setState(wallets)
+  }
+
+  transmitWallet(script) {
+    console.log("transmitting wallet")
+    
+    fetch('/api/wallet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(script),
+      })
   }
 
   selectWallet(key){

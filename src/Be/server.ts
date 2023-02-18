@@ -10,15 +10,51 @@ const { MongoClient } = require("mongodb");
 const CardanoWasm  = require("@dcspark/cardano-multiplatform-lib-nodejs");
 const MS = require('@emurgo/cardano-message-signing-nodejs');
 
+
 const uri = "mongodb://0.0.0.0:27017/?directConnection=true";
 const client = new MongoClient(uri);
 const connection = client.connect();
 var transactions ;
 var wallets ;
+var users;
+
+
+async function watchTransactions() {
+
+
+  const changeStream = transactions.watch();
+  changeStream.on('change', async (change) => {
+    console.log(change)
+    if (change.operationType === 'update') {
+      const updatedFields = change.updateDescription.updatedFields;
+      if (!updatedFields || !updatedFields.signatures) {
+        return;
+      }
+
+      const transaction = await transactions.findOne({ _id: change.documentKey._id });
+      const signers = transaction.signers;
+      const authenticatedSockets = Object.values(io.sockets.connected)
+        .filter((socket ) => socket.verification && socket.verification.state === 'Authenticated')
+        .filter((socket) => signers.includes(socket.verification.user));
+
+      if (authenticatedSockets.length > 0) {
+        authenticatedSockets.forEach((socket) => {
+          socket.emit('newSignatures', updatedFields.signatures);
+        });
+      }
+    }
+  });
+}
+
+
+
+
 connection.then(() => {
   console.log("Connected correctly to server");
   transactions= client.db('MWallet').collection("transactions");
+  users = client.db('MWallet').collection("Users");
   wallets = client.db('MWallet').collection("wallets");
+  watchTransactions().catch(console.error);
 }).catch(err => {
   console.log(err.stack);
 });
@@ -41,14 +77,14 @@ const io = new Server(server,{
 
 
 
+
 io.on('connection', (socket ) => {
   console.info(`Client connected [id=${socket.id}]`);
   verification.set(socket.id, "Void");
-  const   users = client.db('MWallet').collection("Users");
+  
   socket.on('disconnect', () => {
     verification.delete(socket.id);
-    console.info(`Client gone [id=${socket.id}]`);
-    
+    console.info(`Client gone [id=${socket.id}]`); 
   });
   
  
@@ -69,6 +105,25 @@ io.on('connection', (socket ) => {
       socket.disconnect() 
     })
   })
+  socket.on('find_wallet', (data) => {
+    console.log("find wallet", data)
+    if(verification[socket.id].state === "Authenticated"){
+      wallets.find({members: verification[socket.id].user}).then((wallets) => {
+        console.log(wallets)
+        if (wallets){
+          socket.emit('wallets_found', {wallets})
+        }else{
+          socket.emit('wallets_found', [])
+        }
+      }).catch((err) => {
+        console.log(err)
+        socket.emit('error', {error: err})
+      })
+    }else{
+      socket.emit('error', {error: "Not authenticated"})
+    }
+    
+  })
 
   socket.on('authentication_response', (data) => {
     console.log("authentication responsea", data)
@@ -88,10 +143,7 @@ io.on('connection', (socket ) => {
       socket.emit('error', {error: "Signature verification failed"})
       socket.disconnect()
     } 
-
-
-    
-  })
+ })
 
 
   
@@ -104,6 +156,37 @@ app.get('/api', function(req, res) {
   console.log(__dirname + 'public')
   console.log("Hey")
   res.sendfile('public/index.html');
+});
+
+//use express to submit a new wallet into the database 
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+let getMemebers = function (json){
+  let members = []
+  if(json.type == "sig"){
+    return [json.keyHash]
+  }else if(json.type === "any" || json.type === "all" || json.type === "at_least"){
+    for(let i = 0; i < json.scripts.length; i++){
+      members = members.concat( getMemebers(json.scripts[i]))
+    }
+  }else if(json.type === "after" || json.type === "before"){
+    return []
+  }
+  return members
+}
+
+
+
+app.post('/api/wallet', function(req, res) {
+  console.log(req.body)
+  const hash = crypt.createHash('sha256').update(JSON.stringify(req.body)).digest('hex');
+  wallets.updateOne( {hash: hash}, { $set : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
+  console.log(hash);
+  
+
 });
 
 app.use(express.static(__dirname + '\\public'))

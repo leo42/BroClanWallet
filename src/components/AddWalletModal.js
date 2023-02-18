@@ -88,7 +88,7 @@ class AddWalletModal extends React.Component {
         break;
       case "Paranoid Vault":
         json = {"type": "atLeast", "required": 5, "scripts": [{"type": "sig", "name":"My Paper wallet" , "keyHash": ""}, 
-                                                              {"type": "sig", "name":"Paper wallet hidden In the deserd" , "keyHash": ""},
+                                                              {"type": "sig", "name":"Paper wallet hidden In the dessert" , "keyHash": ""},
                                                               {"type": "sig", "name":"Paper wallet hidden In the sea" , "keyHash": ""},
                                                               {"type": "sig", "name":"Paper wallet hidden In the mountains" , "keyHash": ""},
                                                               {"type": "sig", "name":"Paper wallet hidden In the swamp" , "keyHash": ""},
