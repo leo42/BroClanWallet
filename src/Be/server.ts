@@ -18,11 +18,13 @@ var transactions ;
 var wallets ;
 var users;
 
+const server = http.createServer(app);
+const io = new Server(server,{});
 
 async function watchTransactions() {
   const changeStream = transactions.watch();
   changeStream.on('change', async (change) => {
-    console.log(change)
+    console.log(io.sockets)
     if (change.operationType === 'update' || 'insert') {
       const updatedFields = change.updateDescription.updatedFields;
       if (!updatedFields || !updatedFields.signatures) {
@@ -44,30 +46,7 @@ async function watchTransactions() {
   });
 }
 
-async function watchWallets()  {
-  const changeStream = wallets.watch();
-  changeStream.on('change', async (change) => {
-    console.log(change)
-    if (change.operationType === 'update' || 'insert') {
-      const updatedFields = change.updateDescription.updatedFields;
-      if (!updatedFields || !updatedFields.signatures) {
-        return;
-      }
 
-      const wallet = await wallets.findOne({ _id: change.documentKey._id });
-      const signers = wallet.members;
-      const authenticatedSockets = Object.values(io.sockets.connected)
-        .filter((socket ) => socket.verification && socket.verification.state === 'Authenticated')
-        .filter((socket) => signers.includes(socket.verification.user));
-
-      if (authenticatedSockets.length > 0) {
-        authenticatedSockets.forEach((socket) => {
-          socket.emit('walletImport', updatedFields.signatures);
-        });
-      }
-    }
-  });
-}
 
 
 
@@ -83,8 +62,6 @@ connection.then(() => {
   console.log(err.stack);
 });
 
-const server = http.createServer(app);
-
 
 let verification = new Map();
 //console.log(config.Ed25519KeyHash)
@@ -94,9 +71,7 @@ main()
   
   async function main() {
 
-const io = new Server(server,{
 
-});
 
 
 
@@ -163,6 +138,7 @@ io.on('connection', (socket ) => {
 
       users.updateOne( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now() }}, {upsert: true})
       socket.emit('authentication_success', {authenticationToken: authenticationToken})
+      socket.verification= { state: "Authenticated" , user: PubkeyHash}
       verification[socket.id] = { state: "Authenticated" , user: PubkeyHash}
 
     }catch(err){
@@ -299,3 +275,34 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
   } catch (e) {}
   return false;
 };
+
+async function watchWallets()  {
+  const changeStream = wallets.watch();
+  changeStream.on('change', async (change) => {
+    if (change.operationType === 'update' || 'insert') {
+      const updatedFields = change.updateDescription.updatedFields;
+      
+      
+      const wallet = await wallets.findOne({ _id: change.documentKey._id });
+      const signers = wallet.members;
+      console.log(io.sockets.sockets)
+
+      console.log(verification)
+      console.log(signers)
+      const RelevantSockets : String[] = []
+      Object.keys(verification).map( (key) => {
+        if( signers.includes(verification[key].user) ){RelevantSockets.push(key)}}
+      )
+      console.log(RelevantSockets)
+      if (RelevantSockets.length > 0) {
+        RelevantSockets.forEach((socket) => {
+          const sock = io.sockets.sockets.get(socket)
+          console.log(sock)
+          if (sock && sock.connected) {
+            sock.emit('wallets_found', { wallets: [wallet] });
+          }
+        });
+      }
+    }
+  });
+}

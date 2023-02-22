@@ -121,6 +121,9 @@ class App extends React.Component {
 
   async connectWallet(wallet){
     try{
+      if (this.state.connectedWallet.socket !== null){
+        this.state.connectedWallet.socket.close()
+      }
       const socket =  await connectSocket(wallet, this) 
       let connectedWallet = {  name :wallet , socket: socket}
       this.setState({connectedWallet})
