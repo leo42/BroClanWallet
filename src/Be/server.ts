@@ -20,12 +20,10 @@ var users;
 
 
 async function watchTransactions() {
-
-
   const changeStream = transactions.watch();
   changeStream.on('change', async (change) => {
     console.log(change)
-    if (change.operationType === 'update') {
+    if (change.operationType === 'update' || 'insert') {
       const updatedFields = change.updateDescription.updatedFields;
       if (!updatedFields || !updatedFields.signatures) {
         return;
@@ -46,6 +44,31 @@ async function watchTransactions() {
   });
 }
 
+async function watchWallets()  {
+  const changeStream = wallets.watch();
+  changeStream.on('change', async (change) => {
+    console.log(change)
+    if (change.operationType === 'update' || 'insert') {
+      const updatedFields = change.updateDescription.updatedFields;
+      if (!updatedFields || !updatedFields.signatures) {
+        return;
+      }
+
+      const wallet = await wallets.findOne({ _id: change.documentKey._id });
+      const signers = wallet.members;
+      const authenticatedSockets = Object.values(io.sockets.connected)
+        .filter((socket ) => socket.verification && socket.verification.state === 'Authenticated')
+        .filter((socket) => signers.includes(socket.verification.user));
+
+      if (authenticatedSockets.length > 0) {
+        authenticatedSockets.forEach((socket) => {
+          socket.emit('walletImport', updatedFields.signatures);
+        });
+      }
+    }
+  });
+}
+
 
 
 
@@ -55,6 +78,7 @@ connection.then(() => {
   users = client.db('MWallet').collection("Users");
   wallets = client.db('MWallet').collection("wallets");
   watchTransactions().catch(console.error);
+  watchWallets().catch(console.error);
 }).catch(err => {
   console.log(err.stack);
 });
@@ -105,24 +129,27 @@ io.on('connection', (socket ) => {
       socket.disconnect() 
     })
   })
-  socket.on('find_wallet', (data) => {
-    console.log("find wallet", data)
+
+  socket.on('loadWallets', (data) => {
     if(verification[socket.id].state === "Authenticated"){
-      wallets.find({members: verification[socket.id].user}).then((wallets) => {
-        console.log(wallets)
-        if (wallets){
-          socket.emit('wallets_found', {wallets})
-        }else{
-          socket.emit('wallets_found', [])
-        }
-      }).catch((err) => {
-        console.log(err)
-        socket.emit('error', {error: err})
-      })
-    }else{
-      socket.emit('error', {error: "Not authenticated"})
+      console.log(verification[socket.id].user)
+      let walletsFound = wallets.find({members: verification[socket.id].user})
+      walletsFound.toArray().then((walletsFound) => {
+        console.log(walletsFound)
+      if (walletsFound.length > 0) {
+        socket.emit('wallets_found', { wallets: walletsFound })
+      } else {
+        socket.emit('wallets_found', { wallets: [] })
+      }
+    }).catch((err) => {
+      console.log(err)
+      socket.emit('error', {error: "Wallets not found"})
+      socket.disconnect() 
+    })
+  
+  }else {
+      socket.emit('error', { error: "Not authenticated" })
     }
-    
   })
 
   socket.on('authentication_response', (data) => {

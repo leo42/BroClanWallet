@@ -58,7 +58,7 @@ function TransactionHistory (props) {
     }
 
     function TransactionListing(transaction){
-        console.log(transaction)
+
         const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
                      {transaction.tx_hash}<br/>

@@ -11,12 +11,19 @@ function WalletConnector(props){
 
     function connectWallet(walletName){
         props.root.connectWallet(walletName)
+        
+    }
+
+    function loadWallets(){
+        props.root.loadWallets()
     }
     
     
     const connectorSettings = () =>
         <div className="connectorSettings">
         { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> }
+        <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button>
+        <button onClick={() => loadWallets()}>Load Wallets</button>
         <br/>
 
         </div>

@@ -1,5 +1,6 @@
 import {  Lucid } from "../lucid/dist/esm/mod.js";
 import io from 'socket.io-client'
+import { toast } from 'react-toastify';
 async function  connectSocket(wallet , root){
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new(

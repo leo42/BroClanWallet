@@ -337,6 +337,14 @@ class App extends React.Component {
     this.setState(wallets)
   }
 
+  loadWallets(){
+    if(this.state.connectedWallet.socket) {
+    this.state.connectedWallet.socket.emit('loadWallets')
+    }else{
+      toast.error("Not Connected to a SyncService")
+    }
+  }
+
   transmitWallet(script) {
     console.log("transmitting wallet")
     
