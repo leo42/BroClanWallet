@@ -29,12 +29,12 @@ function TransactionHistory (props) {
     function transactionBalance(transaction){
         const BalancesOut = {}
         transaction.utxos.inputs.map( (input, index) => {
-           if ( props.wallet.isAddressMine(input.address)) {
+           if ( input.address === address) {
             input.amount.map( (asset) => 
                 asset.unit in BalancesOut ? BalancesOut[asset.unit] -= parseInt(asset.quantity) :  BalancesOut[asset.unit] = -parseInt(asset.quantity)
             )}})
         transaction.utxos.outputs.map( (input, index) => {
-            if ( props.wallet.isAddressMine(input.address)) {
+            if ( input.address === address) {
              input.amount.map( (asset) => 
                  asset.unit in BalancesOut ? BalancesOut[asset.unit] += parseInt(asset.quantity) : BalancesOut[asset.unit] = parseInt(asset.quantity)
              )}})

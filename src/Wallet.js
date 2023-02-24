@@ -634,7 +634,8 @@ setPendingTxs(pendingTxs){
     }
     
     getAddressName(address){
-      const resault = address in this.addressNames ? this.addressNames[address] : address
+
+      const resault = address in this.addressNames ? this.addressNames[address] : address === this.getAddress() ? "Regular Address"  : address
       return resault
     }
 
