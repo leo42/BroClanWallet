@@ -1,14 +1,7 @@
 import React from "react";
 import "./SettingsModal.css";
 
-function SettingsModal(props) {
-
-
-
-
-
-
-
+function WalletImportModal(props) {
   return (
     <div className="modalBackground" >
       <div className="modalContainer"  >
@@ -55,4 +48,4 @@ function SettingsModal(props) {
   );
 }
 
-export default SettingsModal;
+export default WalletImportModal;

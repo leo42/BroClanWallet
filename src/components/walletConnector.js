@@ -2,11 +2,12 @@ import React from "react";
 import "./walletConnector.css"
 import WalletPicker from "./WalletPicker"
 import SettingsModal from "./SettingsModal"
-
+import WalletImportModal from "./WalletImportModal"
 function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
     const [settingsModalOpen, setSettingsModalOpen] = React.useState(false);
+    const [walletImportModalOpen, setWalletImportModalOpen] = React.useState(false);
 
 
     function connectWallet(walletName){
@@ -30,6 +31,7 @@ function WalletConnector(props){
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
+                { walletImportModalOpen ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
                 <button onClick={() => setSettingsModalOpen(true)}>Settings </button>  
         </div>
     if(props.root.state.connectedWallet.socket === null) {

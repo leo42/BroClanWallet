@@ -1,6 +1,7 @@
 import {  Lucid } from "../lucid/dist/esm/mod.js";
 import io from 'socket.io-client'
 import { toast } from 'react-toastify';
+
 async function  connectSocket(wallet , root){
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new(
@@ -29,8 +30,14 @@ async function  connectSocket(wallet , root){
           });
 
         socket.on('wallets_found', (data) => {
-            console.log("wallets_found")
-            console.log(data)
+            const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
+            data.wallets.forEach((wallet) => {
+                if(!Object.keys(pendingWallets).includes(wallet.hash)){
+                    pendingWallets[wallet.hash] = wallet
+                }
+            })
+            console.log("wallets_found", data)
+            root.setState({pendingWallets: pendingWallets})
             
         });
         //a function to decode CBOR address to base 68

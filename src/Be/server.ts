@@ -90,10 +90,12 @@ io.on('connection', (socket ) => {
   socket.on('authentication_start', (data) => {
     console.log("authentication Start", data)
     
-     users.findOne({authenticationToken: data.token}).then((user) => {
+     users.findOneAndUpdate({authenticationToken: data.token}, { $set : { lastLogin: Date.now()}}).then((user) => {
    console.log(user)
     if (user){
-      verification[socket.id] = { state: "Authenticated" , user: user.PubkeyHash}
+      verification[socket.id] = { state: "Authenticated" , user: user.value.PubkeyHash}
+      console.log(verification)
+      findNew(user.value.PubkeyHash, user.value.lastLogin, socket )
     }else{
       verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
       socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
@@ -105,27 +107,7 @@ io.on('connection', (socket ) => {
     })
   })
 
-  socket.on('loadWallets', (data) => {
-    if(verification[socket.id].state === "Authenticated"){
-      console.log(verification[socket.id].user)
-      let walletsFound = wallets.find({members: verification[socket.id].user})
-      walletsFound.toArray().then((walletsFound) => {
-        console.log(walletsFound)
-      if (walletsFound.length > 0) {
-        socket.emit('wallets_found', { wallets: walletsFound })
-      } else {
-        socket.emit('wallets_found', { wallets: [] })
-      }
-    }).catch((err) => {
-      console.log(err)
-      socket.emit('error', {error: "Wallets not found"})
-      socket.disconnect() 
-    })
-  
-  }else {
-      socket.emit('error', { error: "Not authenticated" })
-    }
-  })
+
 
   socket.on('authentication_response', (data) => {
     console.log("authentication responsea", data)
@@ -136,7 +118,14 @@ io.on('connection', (socket ) => {
       const PubkeyHash =  verify( address, challenge_string, signature)
       const authenticationToken = crypt.randomBytes(36).toString('hex')
 
-      users.updateOne( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now() }}, {upsert: true})
+      users.findOneAndUpdate( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now(), lastLogin: Date.now() }}, {upsert: true}).then((user) => {
+        if (user){
+          console.log(user)
+            findNew(PubkeyHash, user.value.lastLogin, socket)
+        }else{
+            findNew(PubkeyHash, 0, socket)
+        }
+      })
       socket.emit('authentication_success', {authenticationToken: authenticationToken})
       socket.verification= { state: "Authenticated" , user: PubkeyHash}
       verification[socket.id] = { state: "Authenticated" , user: PubkeyHash}
@@ -148,6 +137,27 @@ io.on('connection', (socket ) => {
     } 
  })
 
+ socket.on('loadWallets', (data) => {
+  if(verification[socket.id].state === "Authenticated"){
+    console.log(verification[socket.id].user)
+    let walletsFound = wallets.find({members: verification[socket.id].user})
+    walletsFound.toArray().then((walletsFound) => {
+      console.log(walletsFound)
+    if (walletsFound.length > 0) {
+      socket.emit('wallets_found', { wallets: walletsFound })
+    } else {
+      socket.emit('wallets_found', { wallets: [] })
+    }
+  }).catch((err) => {
+    console.log(err)
+    socket.emit('error', {error: "Wallets not found"})
+    socket.disconnect() 
+  })
+
+}else {
+    socket.emit('error', { error: "Not authenticated" })
+  }
+})
 
   
 });
@@ -188,11 +198,12 @@ app.post('/api/wallet', function(req, res) {
   const hash = crypt.createHash('sha256').update(JSON.stringify(req.body)).digest('hex');
   wallets.updateOne( {hash: hash}, { $set : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
   console.log(hash);
-  
+  res.send(200);
 
 });
 
 app.use(express.static(__dirname + '\\public'))
+
 server.listen(3001, () => {
   console.log('listening on *:3001');
 });
@@ -276,11 +287,26 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
   return false;
 };
 
+function findNew(PubKeyHash, lastLogin, socket){
+  console.log("lastLogin:" + lastLogin)
+  let walletsFound = wallets.find({members: PubKeyHash, creationTime: {$gt: lastLogin}})
+  walletsFound.toArray().then((walletsFound) => {
+    console.log(walletsFound)
+  if (walletsFound.length > 0) {
+    socket.emit('wallets_found', { wallets: walletsFound })
+  } 
+}).catch((err) => {
+  console.log(err)
+  socket.emit('error', {error: "Wallets not found"})
+  socket.disconnect() 
+})
+}
+
+
 async function watchWallets()  {
   const changeStream = wallets.watch();
   changeStream.on('change', async (change) => {
-    if (change.operationType === 'update' || 'insert') {
-      const updatedFields = change.updateDescription.updatedFields;
+    if (change.operationType === 'update' || change.operationType ===  'insert') {
       
       
       const wallet = await wallets.findOne({ _id: change.documentKey._id });
