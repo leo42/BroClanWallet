@@ -79,7 +79,6 @@ main()
 
 io.on('connection', (socket ) => {
   console.info(`Client connected [id=${socket.id}]`);
-  verification.set(socket.id, "Void");
   
   socket.on('disconnect', () => {
     verification.delete(socket.id);
@@ -202,14 +201,31 @@ app.post('/api/wallet', function(req, res) {
 
 });
 
+app.post('/api/transaction', function(req, res) {
+  console.log(req.body)
+  
+  res.send(200);
+});
+
 app.use(express.static(__dirname + '\\public'))
 
 server.listen(3001, () => {
   console.log('listening on *:3001');
 });
 
-
-
+const verifyTx = (tx, signature) => {
+  try{
+    const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
+    const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
+    return (witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(tx.toHash()), witness.vkeys().get(0).signature()))
+    
+  
+  }catch(e){
+      console.log(e)
+      throw new Error('Invalid signature');
+    }
+  
+};
 const verify = (address, payload, walletSig) => {
   const coseSign1 = MS.COSESign1.from_bytes(Buffer.from(walletSig.signature, 'hex'));
   const coseKey = MS.COSEKey.from_bytes(Buffer.from(walletSig.key, 'hex'));

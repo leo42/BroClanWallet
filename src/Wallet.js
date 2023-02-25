@@ -550,6 +550,7 @@ setPendingTxs(pendingTxs){
     isAddressMine(address){
       return (this.lucid.utils.getAddressDetails(address).paymentCredential.hash === this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
     }
+    
     decodeSignature(signature){
 
       try{
@@ -579,7 +580,7 @@ setPendingTxs(pendingTxs){
               valid = true
               if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
                    this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)
-                    
+                   return  this.pendingTxs[index]
                 }else{
                    throw new Error('Signature already registerd');
                   }

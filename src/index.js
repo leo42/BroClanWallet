@@ -281,7 +281,8 @@ class App extends React.Component {
   addSignature(signature){ 
     try {
     const wallets = this.state.wallets
-    wallets[this.state.selectedWallet].addSignature(signature)
+    const transaction = wallets[this.state.selectedWallet].addSignature(signature)
+    this.transmitTransaction(transaction)
     this.setState({wallets})
     toast.info('Signature Added');
     }
@@ -347,6 +348,18 @@ class App extends React.Component {
       toast.error("Not Connected to a SyncService")
     }
   }
+
+  transmitTransaction(transaction) {
+    console.log("transmitting transaction", transaction)
+    fetch('/api/transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({tx: transaction.tx.toString() , signatures: transaction.signatures}),
+      })
+  }
+
 
   transmitWallet(script) {
     console.log("transmitting wallet")
