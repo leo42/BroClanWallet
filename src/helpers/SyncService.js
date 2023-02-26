@@ -40,6 +40,11 @@ async function  connectSocket(wallet , root){
             root.setState({pendingWallets: pendingWallets})
             
         });
+
+        socket.on('transaction', (data) => {
+            console.log("transaction", data)
+        });
+        
         //a function to decode CBOR address to base 68
         
     socket.on("authentication_challenge", (data) => {
@@ -51,6 +56,7 @@ async function  connectSocket(wallet , root){
             socket.emit("authentication_response", {address : address  ,signature: signature})   
         }).catch((error) => {
             console.log(error)
+            socket.close()
         })
         
     });

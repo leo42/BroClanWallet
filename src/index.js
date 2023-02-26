@@ -356,7 +356,7 @@ class App extends React.Component {
       headers: {
         'Content-Type': 'application/json',
         },
-        body: JSON.stringify({tx: transaction.tx.toString() , signatures: transaction.signatures}),
+        body: JSON.stringify({tx: transaction.tx.toString() , signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
       })
   }
 

@@ -18,34 +18,71 @@ var transactions ;
 var wallets ;
 var users;
 
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+app.post('/api/wallet', function(req, res) {
+  console.log(req.body)
+  const hash = crypt.createHash('sha256').update(JSON.stringify(req.body)).digest('hex');
+  wallets.updateOne( {hash: hash}, { $set : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
+  console.log(hash);
+  res.sendStatus(200);
+});
+
+
+app.post('/api/transaction', function(req, res) {
+  verifyTx(req.body)
+  res.sendStatus(200);
+});
+
+
+app.use(express.static(__dirname + '\\public'))
+
+
+
+const verifyTx = (data) => {
+  console.log(data)
+  const tx = CardanoWasm.Transaction.from_bytes( Buffer.from(data.tx, 'hex') )
+  const txWallet =  crypt.createHash('sha256').update(JSON.stringify(data.wallet)).digest('hex')
+  try{
+  const verifiedSighners =  Object.values(data.signatures).map((signature ) => {
+    const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes( Buffer.from(signature, 'hex') )
+    const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
+    if(!witness.vkeys().get(0).vkey().public_key().verify(  CardanoWasm.hash_transaction(tx.body()).to_bytes(), witness.vkeys().get(0).signature())){
+      throw new Error('Invalid signature');
+    }
+    return signer
+  })
+  
+  wallets.findOne({hash: txWallet}).then((wallet) => {
+    if(!wallet){
+      throw new Error('Invalid wallet');
+    }
+    //find overlap of verifiedSighners and wallet members
+    const members = wallet.members
+    const analizedSigs = wallet.members.filter((member) => verifiedSighners.includes(member))
+    const missingSignatures = members.filter((member) => !verifiedSighners.includes(member))
+    console.log(missingSignatures, analizedSigs, members)
+    const required_signers = tx.body().required_signers()
+    
+    transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , signatures: data.signatures , signers: analizedSigs , requiredSigners : tx.body().to_js_value().required_signers , creationTime : Date.now() }}, {upsert: true})
+  })
+  
+  }catch(e){
+      console.log(e)
+      throw new Error('Invalid signature');
+    }
+  
+};
+
+
+
+
 const server = http.createServer(app);
 const io = new Server(server,{});
-
-async function watchTransactions() {
-  const changeStream = transactions.watch();
-  changeStream.on('change', async (change) => {
-    console.log(io.sockets)
-    if (change.operationType === 'update' || 'insert') {
-      const updatedFields = change.updateDescription.updatedFields;
-      if (!updatedFields || !updatedFields.signatures) {
-        return;
-      }
-
-      const transaction = await transactions.findOne({ _id: change.documentKey._id });
-      const signers = transaction.signers;
-      const authenticatedSockets = Object.values(io.sockets.connected)
-        .filter((socket ) => socket.verification && socket.verification.state === 'Authenticated')
-        .filter((socket) => signers.includes(socket.verification.user));
-
-      if (authenticatedSockets.length > 0) {
-        authenticatedSockets.forEach((socket) => {
-          socket.emit('newSignatures', updatedFields.signatures);
-        });
-      }
-    }
-  });
-}
-
 
 
 
@@ -91,7 +128,7 @@ io.on('connection', (socket ) => {
     
      users.findOneAndUpdate({authenticationToken: data.token}, { $set : { lastLogin: Date.now()}}).then((user) => {
    console.log(user)
-    if (user){
+    if (user.value){
       verification[socket.id] = { state: "Authenticated" , user: user.value.PubkeyHash}
       console.log(verification)
       findNew(user.value.PubkeyHash, user.value.lastLogin, socket )
@@ -172,9 +209,6 @@ app.get('/api', function(req, res) {
 
 //use express to submit a new wallet into the database 
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 
 let getMemebers = function (json){
   let members = []
@@ -192,40 +226,7 @@ let getMemebers = function (json){
 
 
 
-app.post('/api/wallet', function(req, res) {
-  console.log(req.body)
-  const hash = crypt.createHash('sha256').update(JSON.stringify(req.body)).digest('hex');
-  wallets.updateOne( {hash: hash}, { $set : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
-  console.log(hash);
-  res.send(200);
 
-});
-
-app.post('/api/transaction', function(req, res) {
-  console.log(req.body)
-  
-  res.send(200);
-});
-
-app.use(express.static(__dirname + '\\public'))
-
-server.listen(3001, () => {
-  console.log('listening on *:3001');
-});
-
-const verifyTx = (tx, signature) => {
-  try{
-    const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
-    const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
-    return (witness.vkeys().get(0).vkey().public_key().verify( this.hexToBytes(tx.toHash()), witness.vkeys().get(0).signature()))
-    
-  
-  }catch(e){
-      console.log(e)
-      throw new Error('Invalid signature');
-    }
-  
-};
 const verify = (address, payload, walletSig) => {
   const coseSign1 = MS.COSESign1.from_bytes(Buffer.from(walletSig.signature, 'hex'));
   const coseKey = MS.COSEKey.from_bytes(Buffer.from(walletSig.key, 'hex'));
@@ -348,3 +349,48 @@ async function watchWallets()  {
     }
   });
 }
+
+
+async function watchTransactions() {
+  const changeStream = transactions.watch();
+  changeStream.on('change', async (change) => {
+    console.log(io.sockets)
+    console.log(change)
+    if (change.operationType === 'update' ||  change.operationType === 'insert') {
+
+
+      const transaction = await transactions.findOne({ _id: change.documentKey._id });
+      const signers = transaction.signers;
+
+      const pendingSignatures = transaction.requiredSigners.filter(
+        (signer) => signers.includes(signer)
+      );
+
+
+      const RelevantSockets : String[] = []
+      Object.keys(verification).map( (key) => {
+        if( pendingSignatures.includes(verification[key].user) ){RelevantSockets.push(key)}}
+      )
+      console.log(RelevantSockets)
+      console.log(verification)
+      console.log(pendingSignatures)
+      if (RelevantSockets.length > 0) {
+        RelevantSockets.forEach((socket) => {
+          const sock = io.sockets.sockets.get(socket)
+          console.log(sock)
+          if (sock && sock.connected) {
+            sock.emit('transaction', { transaction: transaction });
+          }
+        });
+      }
+    }
+  });
+}
+
+
+
+
+
+server.listen(3001, () => {
+  console.log('listening on *:3001');
+});
