@@ -68,7 +68,7 @@ const verifyTx = (data) => {
     console.log(missingSignatures, analizedSigs, members)
     const required_signers = tx.body().required_signers()
     
-    transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , signatures: data.signatures , signers: analizedSigs , requiredSigners : tx.body().to_js_value().required_signers , creationTime : Date.now() }}, {upsert: true})
+    transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , signatures: data.signatures , signers: analizedSigs , requiredSigners : tx.body().to_js_value().required_signers , lastUpdate : Date.now() }}, {upsert: true})
   })
   
   }catch(e){
@@ -312,6 +312,14 @@ function findNew(PubKeyHash, lastLogin, socket){
   if (walletsFound.length > 0) {
     socket.emit('wallets_found', { wallets: walletsFound })
   } 
+
+  let TransactionsFound = transactions.find({members: PubKeyHash, lastUpdate: {$gt: lastLogin}})
+  TransactionsFound.toArray().then((TransactionsFound) => {
+    console.log(TransactionsFound)
+  if (TransactionsFound.length > 0) {
+    socket.emit('transactions_found', { transactions: TransactionsFound })
+  }
+})
 }).catch((err) => {
   console.log(err)
   socket.emit('error', {error: "Wallets not found"})
