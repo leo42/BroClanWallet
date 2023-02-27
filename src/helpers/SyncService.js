@@ -4,8 +4,7 @@ import { toast } from 'react-toastify';
 
 async function  connectSocket(wallet , root){
     const api = await window.cardano[wallet].enable()
-    const lucid = await Lucid.new(
-        );
+    const lucid = await Lucid.new();
         lucid.selectWallet(api);
         const address = await lucid.wallet.address();
         console.log(address)
@@ -60,10 +59,10 @@ async function  connectSocket(wallet , root){
         })
         
     });
+
     socket.on("authentication_success", (data) => {
         console.log("authentication_success")
         localStorage.setItem("token_"+address, data.authenticationToken)
-        console.log(data)
     });
     
     const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
@@ -71,7 +70,6 @@ async function  connectSocket(wallet , root){
     socket.emit("authentication_start", {token: token});
     
     
-    console.log(`Socket connected: ${socket.connected}`);
     
     return socket
 }  
