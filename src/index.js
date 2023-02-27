@@ -339,6 +339,7 @@ class App extends React.Component {
     // resole promices in walletHashes
     const res = await Promise.all(walletsHashes)
     const walletHash = await this.walletHash(script)
+    this.state.connectedWallet.socket.emit('subscribe' , script)
     console.log(res, walletHash,walletsHashes )
     if (! res.includes(walletHash)) {
       const myWallet = new Wallet(script,name);

@@ -163,7 +163,7 @@ io.on('connection', (socket ) => {
  socket.on("subscribe", (data) => {
   console.log("subscribe", data)
   if(verification[socket.id].state === "Authenticated"){
-    subscribeToWallets( socket,  [data.wallet] , data.lastUpdate ? data.lastUpdate : 0) 
+    subscribeToWallets( socket,  [data] , data.lastUpdate ? data.lastUpdate : 0) 
   }else {
     socket.emit('error', { error: "Not authenticated" })
     socket.disconnect()
