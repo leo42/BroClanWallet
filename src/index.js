@@ -335,11 +335,20 @@ class App extends React.Component {
 
   async addWallet(script,name){
     const wallets = this.state.wallets
-    const myWallet = new Wallet(script,name);
-    await myWallet.initialize(this.state.settings);
-    this.transmitWallet(script)
-    wallets.push(myWallet)
-    this.setState(wallets)
+    const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
+    // resole promices in walletHashes
+    const res = await Promise.all(walletsHashes)
+    const walletHash = await this.walletHash(script)
+    console.log(res, walletHash,walletsHashes )
+    if (! res.includes(walletHash)) {
+      const myWallet = new Wallet(script,name);
+      await myWallet.initialize(this.state.settings);
+      this.transmitWallet(script)
+      wallets.push(myWallet)
+      this.setState(wallets)
+    }else{
+      toast.error("Wallet already exists")
+    }
   }
 
   loadWallets(){
