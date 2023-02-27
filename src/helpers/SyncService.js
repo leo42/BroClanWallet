@@ -52,7 +52,7 @@ async function  connectSocket(wallet , root){
         
         const signed = lucid.wallet.signMessage( address,data.challenge );
         signed.then((signature) => {
-            socket.emit("authentication_response", {address : address  ,signature: signature})   
+            socket.emit("authentication_response", {address : address  ,signature: signature , wallets:  root.state.wallets.map((wallet) => wallet.getJson() )})   
         }).catch((error) => {
             console.log(error)
             socket.close()
@@ -67,7 +67,7 @@ async function  connectSocket(wallet , root){
     
     const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
     
-    socket.emit("authentication_start", {token: token});
+    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet) => wallet.getJson() ) });
     
     
     

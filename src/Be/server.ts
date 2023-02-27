@@ -39,7 +39,7 @@ app.post('/api/transaction', function(req, res) {
     const txWallet = walletHash(data.wallet)
 
     const verifiedSighners =  Object.values(data.signatures).map((signature  ) => {
-      const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes( Buffer.from(signature, 'hex') )
+      const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes( Buffer.from(String( signature), 'hex') )
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
       if(!witness.vkeys().get(0).vkey().public_key().verify(  CardanoWasm.hash_transaction(tx.body()).to_bytes(), witness.vkeys().get(0).signature())){
         console.log('Invalid signature');
@@ -102,11 +102,6 @@ main()
   async function main() {
 
 
-
-
-
-
-
 io.on('connection', (socket ) => {
   console.info(`Client connected [id=${socket.id}]`);
   
@@ -121,13 +116,11 @@ io.on('connection', (socket ) => {
     console.log("authentication Start", data)
     
      users.findOne({authenticationToken: data.token} ).then((user) => {
-        console.log(user)
-          if (user.value){
+          if (user){
             users.findOneAndUpdate({authenticationToken: data.token}, { $set : { lastLogin: Date.now()}})
-            verification[socket.id] = { state: "Authenticated" , user: user.value.PubkeyHash}
-            
-            console.log(verification)
-            findNewWallets(user.value.PubkeyHash, user.value.lastLogin, socket )
+            verification[socket.id] = { state: "Authenticated" , user: user.PubkeyHash}
+            subscribeToWallets( socket,  data.wallets , user.lastLogin)            
+            findNewWallets(user.PubkeyHash, user.lastLogin, socket )
           }else{
             verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
             socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
@@ -145,17 +138,17 @@ io.on('connection', (socket ) => {
     console.log("authentication responsea", data)
     const { address, signature } = data;
     const { challenge_string } = verification[socket.id];
-    console.log(address, challenge_string, signature)
     try{
       const PubkeyHash =  verify( address, challenge_string, signature)
       const authenticationToken = crypt.randomBytes(36).toString('hex')
 
       users.findOneAndUpdate( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now(), lastLogin: Date.now() }}, {upsert: true}).then((user) => {
         if (user){
-          console.log(user)
             findNewWallets(PubkeyHash, user.value.lastLogin, socket)
+            subscribeToWallets( socket,  data.wallets , user.lastLogin) 
         }else{
             findNewWallets(PubkeyHash, 0, socket)
+            subscribeToWallets( socket,  data.wallets , user.lastLogin) 
         }
       })
       socket.emit('authentication_success', {authenticationToken: authenticationToken})
@@ -171,15 +164,18 @@ io.on('connection', (socket ) => {
 
  socket.on("subscribe", (data) => {
   console.log("subscribe", data)
-
+  if(verification[socket.id].state === "Authenticated"){
+    subscribeToWallets( socket,  [data.wallet] , data.lastUpdate ? data.lastUpdate : 0) 
+  }else {
+    socket.emit('error', { error: "Not authenticated" })
+    socket.disconnect()
+  }
  })
 
  socket.on('loadWallets', (data) => {
   if(verification[socket.id].state === "Authenticated"){
-    console.log(verification[socket.id].user)
     let walletsFound = wallets.find({members: verification[socket.id].user})
     walletsFound.toArray().then((walletsFound) => {
-      console.log(walletsFound)
     if (walletsFound.length > 0) {
       socket.emit('wallets_found', { wallets: walletsFound })
     } else {
@@ -202,21 +198,21 @@ io.on('connection', (socket ) => {
 };
 
 function subscribeToWallets(socket, wallets , lastLogin){
-  console.log("Subscribing to wallets")
+  console.log("Subscribing to wallets", wallets)
    wallets.map((wallet) => {
     console.log(wallet)
 
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
     if(subscriptions[socket.id]){
-      subscriptions[socket.id].push()
+      subscriptions[socket.id].push( walletHash(wallet) )
+      findNewTransactions(walletHash(wallet), lastLogin, socket)
     }else{
-      subscriptions[socket.id] = [wallet]
+      subscriptions[socket.id] = [walletHash(wallet)]
+      findNewTransactions(walletHash(wallet), lastLogin, socket)
     }
   }
   })
-  for(let i = 0; i < subscriptions[socket.id].length; i++){
-    findNewTransactions(subscriptions[socket.id][i], lastLogin, socket)
-  }
+
   
 
 
@@ -238,6 +234,8 @@ let getMemebers = function (json){
     return [json.keyHash]
   }else if(json.type === "any" || json.type === "all" || json.type === "at_least"){
     for(let i = 0; i < json.scripts.length; i++){
+      //how do I fix this error? 
+
       members = members.concat( getMemebers(json.scripts[i]))
     }
   }else if(json.type === "after" || json.type === "before"){
@@ -345,11 +343,11 @@ function findNewWallets(PubKeyHash, lastLogin, socket){
 
 function findNewTransactions(wallet, lastLogin, socket, ){
   console.log("lastLogin:" + lastLogin)
-  let TransactionsFound = transactions.find({requiredSigners: wallet, lastUpdate: {$gt: lastLogin}})
+  let TransactionsFound = transactions.find({wallet: wallet, lastUpdate: {$gt: lastLogin}})
   TransactionsFound.toArray().then((TransactionsFound) => {
     console.log(TransactionsFound)
   if (TransactionsFound.length > 0) {
-    socket.emit('transactions_found', { transactions: TransactionsFound })
+    socket.emit('transaction', { transactions: TransactionsFound })
   } 
 }).catch((err) => {
   console.log(err)
@@ -401,10 +399,11 @@ async function watchTransactions() {
 
       const RelevantSockets : String[] = []
       Object.keys(verification).map( (key) => {
-        if( transaction.requiredSigners.includes(verification[key].user) ){RelevantSockets.push(key)}}
+        if( transaction.requiredSigners.includes(verification[key].user) && subscriptions[key]?.includes(transaction.wallet)  ){RelevantSockets.push(key)}}
       )
       console.log("RelevantSockets:" + RelevantSockets)
-      console.log("verification :" + verification)
+      console.log("verification :" + JSON.stringify( verification))
+      console.log("subscriptions :" +JSON.stringify( subscriptions))
       if (RelevantSockets.length > 0) {
         RelevantSockets.forEach((socket) => {
           const sock = io.sockets.sockets.get(socket)

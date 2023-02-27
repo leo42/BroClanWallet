@@ -242,7 +242,7 @@ function WalletPendingTx(props) {
 
              )}
             
-            <button onClick={ props.root.state.connectedWallet.name === "" ?  () => setWalletPickerOpen(true) : () => signWithLocalWallet(props.root.state.connectedWallet) } >add signature</button>
+            <button onClick={ props.root.state.connectedWallet.name === "" ?  () => setWalletPickerOpen(true) : () => signWithLocalWallet(props.root.state.connectedWallet.name) } >sign </button>
         
             <button onClick={() => props.root.submit(props.index)} >Submit</button>
             
