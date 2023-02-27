@@ -3,8 +3,9 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
+
 import MWalletList from "./components/WalletList";
-import MWalletMain from './components/WalletMain';
+import MWalletMain from './components/WalletMain'; 
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
@@ -373,10 +374,53 @@ class App extends React.Component {
       })
   }
 
+  loadTransaction(transaction, walletIndex){
+    const wallets = this.state.wallets
+    wallets[walletIndex].loadTransaction(transaction)
+    this.setState({wallets})
+  }
+
   selectWallet(key){
     const selectedWallet = key
     this.setState( { selectedWallet})
     this.reloadBalance()
+  }
+
+  walletHash(wallet) {
+    //remove the name field from the wallet object recursively
+    function removeName(obj) {
+      if (typeof obj === 'object') {
+        if (Array.isArray(obj)) {
+          obj.forEach((item) => {
+            removeName(item);
+          });
+        } else {
+          delete obj.name;
+          Object.keys(obj).forEach((key) => {
+            removeName(obj[key]);
+          });
+        }
+      }
+    }
+    ;
+    // create a deep copy of the wallet object
+  
+    const cleanWallet = JSON.parse(JSON.stringify(wallet));
+    removeName(cleanWallet)
+    console.log(wallet)
+    
+  //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
+    return getSHA256Hash(cleanWallet)
+    async function getSHA256Hash(jsonObj) {
+      const jsonString = JSON.stringify(jsonObj);
+      const encodedString = new TextEncoder().encode(jsonString);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encodedString);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
+    }
+    
+    
   }
 
   async submit(index){

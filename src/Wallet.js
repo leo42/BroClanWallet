@@ -438,18 +438,16 @@ setPendingTxs(pendingTxs){
       let uint8Array , tx
 
       try{
-        uint8Array = new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+        //if transaction type is string
+
+
+        uint8Array = typeof transaction === 'string' ?  new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16))) : transaction;
+        console.log(uint8Array)
         tx =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
       }catch(e){
         console.log(e)
          throw new Error('Invalid Transaction data');
       }
-
-
- 
-      
-      
-
       try{
         this.pendingTxs.map( (PendingTx) => {
           if (PendingTx.tx.toHash() === tx.toHash()) {
@@ -464,6 +462,18 @@ setPendingTxs(pendingTxs){
         throw new Error('Transaction already registered');
       }
     }
+
+    async loadTransaction(transaction){
+        this.importTransaction(transaction.transaction)
+        Object.keys(transaction.signatures).map( (key) => {
+          try{
+            this.addSignature(transaction.signatures[key])
+          }catch(e){
+          }
+            
+      })
+    }
+      
 
     async createStakeUnregistrationTx(signers){
       const curentDelegation = await this.getDelegation()

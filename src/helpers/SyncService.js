@@ -42,7 +42,23 @@ async function  connectSocket(wallet , root){
 
         socket.on('transaction', (data) => {
             console.log("transaction", data)
+            data.transactions.map((transaction) => {
+                for(let i = 0; i < root.state.wallets.length; i++){
+                    root.walletHash(root.state.wallets[i].getJson()).then(walletHash => {
+                        if ( walletHash === transaction.wallet){
+                        root.loadTransaction(transaction, i)
+                    }}
+            )
+
+                }
+            })
+
         });
+
+
+            
+              
+  
         
         //a function to decode CBOR address to base 68
         

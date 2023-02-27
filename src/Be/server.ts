@@ -53,9 +53,7 @@ app.post('/api/transaction', function(req, res) {
         console.log('Signer not member of wallet');
         return
       }
-
-      transactions.updateOne( {transaction: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { transaction:  CardanoWasm.hash_transaction(tx.body()).to_hex() , signatures: data.signatures ,  requiredSigners : tx.body().to_js_value().required_signers , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
-    
+      transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: data.signatures ,  requiredSigners : tx.body().to_js_value().required_signers , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
     }catch(e){
         console.log(e) 
       }
@@ -244,9 +242,6 @@ let getMemebers = function (json){
   return members
 }
 
-
-
-
 const verify = (address, payload, walletSig) => {
   const coseSign1 = MS.COSESign1.from_bytes(Buffer.from(walletSig.signature, 'hex'));
   const coseKey = MS.COSEKey.from_bytes(Buffer.from(walletSig.key, 'hex'));
@@ -409,7 +404,7 @@ async function watchTransactions() {
           const sock = io.sockets.sockets.get(socket)
           console.log("sock:  " + sock)
           if (sock && sock.connected) {
-            sock.emit('transaction', { transaction: transaction });
+            sock.emit('transaction', { transactions: [transaction] });
           }
         });
       }
