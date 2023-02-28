@@ -183,7 +183,8 @@ class App extends React.Component {
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
       myWallet.setAddressNamess(wallets[index].addressNames)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
-        state.wallets.push(myWallet)
+      await myWallet.checkTransactions()
+      state.wallets.push(myWallet)
 
     }
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
@@ -339,7 +340,8 @@ class App extends React.Component {
     // resole promices in walletHashes
     const res = await Promise.all(walletsHashes)
     const walletHash = await this.walletHash(script)
-    this.state.connectedWallet.socket.emit('subscribe' , script)
+    if (this.state.connectedWallet.socket) {
+       this.state.connectedWallet.socket.emit('subscribe' , script)}
     console.log(res, walletHash,walletsHashes )
     if (! res.includes(walletHash)) {
       const myWallet = new Wallet(script,name);
@@ -437,7 +439,6 @@ class App extends React.Component {
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
-    promice.then(this.reloadBalance())
     toast.promise(
       promice,
       {
@@ -445,7 +446,11 @@ class App extends React.Component {
         success: 'Transaction Submited',
         error: 'Failed Submiting Transaction'
       }
-  )
+      )
+      promice.then( 
+        //add a small delay to allow the transaction to be broadcasted
+        () => setTimeout(() => this.reloadBalance(), 5000)
+      )
   }
 
   render() {

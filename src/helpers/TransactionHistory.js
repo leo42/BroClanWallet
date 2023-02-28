@@ -33,7 +33,7 @@ async function getTransactionHistory(address, settings){
             }
         );
         const json = await response.json();
-        console.log(json)
+
         return  await getTransactionDetails(json, settings)
     }
 
@@ -44,13 +44,11 @@ async function getTransactionDetails(transactionIds, settings){
     
     let transactionInfo =  {...JSON.parse(localStorage.getItem('transactionInfo'))};
      
-    console.log(transactionIds)
+
     let fullTransactionsInfo = transactionIds.map( async (transactionId) => {
         if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].fetch_time > Date.now() - 1000 * 60 * 60 * 24 && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider ){
-            console.log("fetching from local storage",transactionInfo[transactionId.tx_hash])
             return (transactionInfo[transactionId.tx_hash])
         }else{
-            console.log("fetching from api", transactionId.tx_hash)
              
             if ( settings.metadataProvider === "Koios"){
                 const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/tx_utxos" : `https://${settings.network}.koios.rest/api/v0/tx_utxos`
@@ -72,7 +70,6 @@ async function getTransactionDetails(transactionIds, settings){
                 );
                 let fullTransactionInfo =  {...transactionId};
                 fullTransactionInfo.utxos = (await response.json())[0]
-                console.log(fullTransactionInfo.utxos)
                 fullTransactionInfo.utxos.inputs = fullTransactionInfo.utxos.inputs.map(input => {
                     return {
                         address: input.payment_addr.bech32,
@@ -122,7 +119,7 @@ async function getTransactionDetails(transactionIds, settings){
 
     fullTransactionsInfo = await Promise.all(fullTransactionsInfo)
 
-    console.log(fullTransactionsInfo)
+
     return fullTransactionsInfo
 }
 

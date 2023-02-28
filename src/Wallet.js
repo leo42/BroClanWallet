@@ -214,9 +214,73 @@ setPendingTxs(pendingTxs){
     }
   
     async loadUtxos() {
-      this.utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      const utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      console.log("Load Utxos")
+      console.log(utxos,this.utxos)
+      if (this.utxos !== undefined){
+        if (this.compareUtxos( utxos, this.utxos)){
+          return
+      }}
+      
+        this.utxos = utxos
+        await this.checkTransactions()
+        
+    }
+
+    compareUtxos(a,b){ 
+      console.log( "compare Utxos", a,b)
+      if (a.length !== b.length) {
+        return false
+      }
+      for (let i = 0; i < a.length; i++) {
+        if (a[i].txHash !== b[i].txHash || a[i].outputIndex !== b[i].outputIndex) {
+          console.log("Utxos are not equal")
+          return false
+
+        }
+      }
+      console.log("Utxos are equal")
+      return true
     }
     
+    async checkTransactions(){
+      const utxos = this.utxos
+      console.log("Check Transactions")
+      console.log(this.getPendingTxs())
+      for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
+        const isValid = await this.checkTransaction(this.pendingTxs[i].tx)
+        console.log("isValid", isValid)
+        if (!isValid){
+          console.log("Remove Pending Tx")
+          this.removePendingTx(i)
+        }
+      }
+    }
+    
+    async checkTransaction(tx){
+      const utxos = this.utxos
+      console.log("Check Transaction")
+      const transactionDetails = this.decodeTransaction(tx)
+      
+        const inputsUtxos =  await this.getUtxosByOutRef(transactionDetails.inputs)
+
+
+        for (let i = 0; i < inputsUtxos.length; i++) {  
+        if (this.isAddressMine(inputsUtxos[i].address)){
+
+
+          // if the utxo is not in my this.utxos return false
+          if (utxos.find(WalletUtxo => WalletUtxo.txHash === inputsUtxos[i].txHash && WalletUtxo.outputIndex === inputsUtxos[i].outputIndex)){
+           
+          }else{
+            console.log("utxo not available")
+            return false
+          }
+        }
+      }
+      return true
+       }
+
     getPendingTxs(){
         return this.pendingTxs
     }
@@ -434,6 +498,9 @@ setPendingTxs(pendingTxs){
 
     async importTransaction(transaction)
     { 
+      if (!await this.checkTransaction(transaction)){
+        throw new Error("Transaction invalid")
+      }
       console.log(transaction)
       let uint8Array , tx
 
@@ -464,6 +531,7 @@ setPendingTxs(pendingTxs){
     }
 
     async loadTransaction(transaction){
+        
         this.importTransaction(transaction.transaction)
         Object.keys(transaction.signatures).map( (key) => {
           try{
