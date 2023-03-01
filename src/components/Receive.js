@@ -66,10 +66,11 @@ function Receive(props){
             console.log(options,optionsNames)
 
 
-            if(!props.wallet.getAddress(donationAddress) in optionsNames) { options.push(props.wallet.getAddress(donationAddress))}
-            if (!props.wallet.getAddress(donationAddress) in optionsNames || optionsNames[props.wallet.getAddress(donationAddress)]  === props.wallet.getAddress(donationAddress)  )  { optionsNames[props.wallet.getAddress(donationAddress)] = "Donate rewards" }
+            options.includes(props.wallet.getAddress(donationAddress))  ? "" : options.push(props.wallet.getAddress(donationAddress))
+            props.wallet.getAddress(donationAddress) in optionsNames && optionsNames[props.wallet.getAddress(donationAddress)] !== props.wallet.getAddress(donationAddress) ?  "" :  optionsNames[props.wallet.getAddress(donationAddress)] = "Donate rewards" 
+
         
-            
+            console.log(options,optionsNames)
         
         
             options.push("new")
