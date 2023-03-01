@@ -1,0 +1,9 @@
+.mainTab{
+    border: 0;
+    background-color: transparent;
+    border-bottom: 3px solid rgb(171, 171, 171, 0.5) ;
+}
+
+.mainTab:active, .mainTab:focus{
+    border-bottom: 3px solid var(--clrorange);
+}
