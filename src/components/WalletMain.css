@@ -7,3 +7,7 @@
 .mainTab:active, .mainTab:focus{
     border-bottom: 3px solid var(--clrorange);
 }
+
+.mainTabselected{
+    border-bottom: 3px solid var(--clrorange);
+}

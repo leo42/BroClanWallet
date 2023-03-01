@@ -38,17 +38,16 @@ class WalletMain extends React.Component {
         return (<div className='WalletMain'>
             {this.props.wallet.getName()}
             <br />
-
+            
 
             {(this.props.wallet.getBalance()/1000000).toFixed(2)}tA
             <br/>
-            <button className='mainTab' value="overview" onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
-            <button className='mainTab' value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Tx</button>
-            <button className='mainTab' value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>        
-            <button className='mainTab' value="delegation" onClick={(event) => this.setState({showing: event.target.value })}>Staking Center</button>
-
-            <button className='mainTab' value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Tx History</button>
-            <button className='mainTab' value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>
+            <button className={`mainTab` + ( this.state.showing === "overview" ? " mainTabselected" : " " )} value="overview"  onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
+            <button className={`mainTab` + ( this.state.showing === "createTx" ? " mainTabselected" : " " )}  value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Tx</button>
+            <button className={`mainTab` + ( this.state.showing === "pendingTxs" ? " mainTabselected" : " " )}  value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>        
+            <button className={`mainTab` + ( this.state.showing === "delegation" ? " mainTabselected" : " " )}  value="delegation" onClick={(event) => this.setState({showing: event.target.value })}>Staking Center</button>
+            <button className={`mainTab` + ( this.state.showing === "transactions" ? " mainTabselected" : " " )}  value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Tx History</button>
+            <button className={`mainTab` + ( this.state.showing === "receive" ? " mainTabselected" : " " )}  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>
 
 
         
