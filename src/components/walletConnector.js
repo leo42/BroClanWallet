@@ -35,7 +35,7 @@ function WalletConnector(props){
                 <button onClick={() => setSettingsModalOpen(true)}>Settings </button>  
         </div>
     if(props.root.state.connectedWallet.socket === null) {
-        return (<div className="WalletConnector"><button onClick={() => setWalletPickerOpen(true)}>Connect Wallet </button>
+        return (<div className="WalletConnector"><button data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)}>Connect Wallet </button>
                 {content}
             </div>)
     }else{   

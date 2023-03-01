@@ -16,7 +16,7 @@ function PoolElement(props){
     const networkPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."
     return (
       //on click, open pool page in new tab
-      <div className="PoolElementWrapper" onClick={() => window.open(`https://${networkPrefix}cexplorer.io/pool/${props.poolId}`)} >  
+      <div className="PoolElementWrapper"   onClick={() => window.open(`https://${networkPrefix}cexplorer.io/pool/${props.poolId}`)} >  
           <span className="PoolElementName"> {PoolInfo["name"]} </span>
         <span className="PoolElementTicker"> {PoolInfo["ticker"]} </span>
     <div className="PoolElement"> 

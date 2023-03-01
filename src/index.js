@@ -3,6 +3,9 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
+import 'react-tooltip/dist/react-tooltip.css'
+
+import { Tooltip } from 'react-tooltip'
 
 import MWalletList from "./components/WalletList";
 import MWalletMain from './components/WalletMain'; 
@@ -456,6 +459,7 @@ class App extends React.Component {
   render() {
     return (
       <div className='App'>
+
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -467,7 +471,9 @@ class App extends React.Component {
           pauseOnHover
           theme="dark"
           />
-        <h1>MWallet</h1>
+         <Tooltip id="my-tooltip" />
+
+        <h1  >MWallet</h1>
         <React.StrictMode>
 
         <div className='WalletInner'>
