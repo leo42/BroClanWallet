@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
 import MWalletList from "./components/WalletList";
-import MWalletMain from './components/WalletMain';
+import MWalletMain from './components/WalletMain'; 
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
@@ -122,6 +122,9 @@ class App extends React.Component {
 
   async connectWallet(wallet){
     try{
+      if (this.state.connectedWallet.socket !== null){
+        this.state.connectedWallet.socket.close()
+      }
       const socket =  await connectSocket(wallet, this) 
       let connectedWallet = {  name :wallet , socket: socket}
       this.setState({connectedWallet})
@@ -180,7 +183,8 @@ class App extends React.Component {
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
       myWallet.setAddressNamess(wallets[index].addressNames)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
-        state.wallets.push(myWallet)
+      await myWallet.checkTransactions()
+      state.wallets.push(myWallet)
 
     }
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
@@ -279,7 +283,8 @@ class App extends React.Component {
   addSignature(signature){ 
     try {
     const wallets = this.state.wallets
-    wallets[this.state.selectedWallet].addSignature(signature)
+    const transaction = wallets[this.state.selectedWallet].addSignature(signature)
+    this.transmitTransaction(transaction)
     this.setState({wallets})
     toast.info('Signature Added');
     }
@@ -331,12 +336,43 @@ class App extends React.Component {
 
   async addWallet(script,name){
     const wallets = this.state.wallets
-    const myWallet = new Wallet(script,name);
-    await myWallet.initialize(this.state.settings);
-    this.transmitWallet(script)
-    wallets.push(myWallet)
-    this.setState(wallets)
+    const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
+    // resole promices in walletHashes
+    const res = await Promise.all(walletsHashes)
+    const walletHash = await this.walletHash(script)
+    if (this.state.connectedWallet.socket) {
+       this.state.connectedWallet.socket.emit('subscribe' , script)}
+    console.log(res, walletHash,walletsHashes )
+    if (! res.includes(walletHash)) {
+      const myWallet = new Wallet(script,name);
+      await myWallet.initialize(this.state.settings);
+      this.transmitWallet(script)
+      wallets.push(myWallet)
+      this.setState(wallets)
+    }else{
+      toast.error("Wallet already exists")
+    }
   }
+
+  loadWallets(){
+    if(this.state.connectedWallet.socket) {
+    this.state.connectedWallet.socket.emit('loadWallets')
+    }else{
+      toast.error("Not Connected to a SyncService")
+    }
+  }
+
+  transmitTransaction(transaction) {
+    console.log("transmitting transaction", transaction)
+    fetch('/api/transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({tx: transaction.tx.toString() , signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
+      })
+  }
+
 
   transmitWallet(script) {
     console.log("transmitting wallet")
@@ -350,17 +386,59 @@ class App extends React.Component {
       })
   }
 
+  loadTransaction(transaction, walletIndex){
+    const wallets = this.state.wallets
+    wallets[walletIndex].loadTransaction(transaction)
+    this.setState({wallets})
+  }
+
   selectWallet(key){
     const selectedWallet = key
     this.setState( { selectedWallet})
     this.reloadBalance()
   }
 
+  walletHash(wallet) {
+    //remove the name field from the wallet object recursively
+    function removeName(obj) {
+      if (typeof obj === 'object') {
+        if (Array.isArray(obj)) {
+          obj.forEach((item) => {
+            removeName(item);
+          });
+        } else {
+          delete obj.name;
+          Object.keys(obj).forEach((key) => {
+            removeName(obj[key]);
+          });
+        }
+      }
+    }
+    ;
+    // create a deep copy of the wallet object
+  
+    const cleanWallet = JSON.parse(JSON.stringify(wallet));
+    removeName(cleanWallet)
+    console.log(wallet)
+    
+  //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
+    return getSHA256Hash(cleanWallet)
+    async function getSHA256Hash(jsonObj) {
+      const jsonString = JSON.stringify(jsonObj);
+      const encodedString = new TextEncoder().encode(jsonString);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encodedString);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashHex;
+    }
+    
+    
+  }
+
   async submit(index){
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
-    promice.then(this.reloadBalance())
     toast.promise(
       promice,
       {
@@ -368,12 +446,17 @@ class App extends React.Component {
         success: 'Transaction Submited',
         error: 'Failed Submiting Transaction'
       }
-  )
+      )
+      promice.then( 
+        //add a small delay to allow the transaction to be broadcasted
+        () => setTimeout(() => this.reloadBalance(), 5000)
+      )
   }
 
   render() {
     return (
       <div className='App'>
+
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -385,7 +468,8 @@ class App extends React.Component {
           pauseOnHover
           theme="dark"
           />
-        <h1>MWallet</h1>
+
+        <h1  >MWallet</h1>
         <React.StrictMode>
 
         <div className='WalletInner'>

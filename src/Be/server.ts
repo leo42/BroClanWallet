@@ -10,7 +10,6 @@ const { MongoClient } = require("mongodb");
 const CardanoWasm  = require("@dcspark/cardano-multiplatform-lib-nodejs");
 const MS = require('@emurgo/cardano-message-signing-nodejs');
 
-
 const uri = "mongodb://0.0.0.0:27017/?directConnection=true";
 const client = new MongoClient(uri);
 const connection = client.connect();
@@ -19,32 +18,62 @@ var wallets ;
 var users;
 
 
-async function watchTransactions() {
+
+app.use(express.json());
 
 
-  const changeStream = transactions.watch();
-  changeStream.on('change', async (change) => {
-    console.log(change)
-    if (change.operationType === 'update') {
-      const updatedFields = change.updateDescription.updatedFields;
-      if (!updatedFields || !updatedFields.signatures) {
-        return;
+app.post('/api/wallet', function(req, res) {
+  console.log(req.body)
+  const hash = walletHash(req.body)
+  wallets.updateOne( {hash: hash}, {  $setOnInsert : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
+  console.log(hash);
+  res.sendStatus(200);
+});
+
+
+
+app.post('/api/transaction', function(req, res) {
+  try{
+    const data = req.body
+    const tx = CardanoWasm.Transaction.from_bytes( Buffer.from(data.tx, 'hex') )
+    const txWallet = walletHash(data.wallet)
+
+    const verifiedSighners =  Object.values(data.signatures).map((signature  ) => {
+      const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes( Buffer.from(String( signature), 'hex') )
+      const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
+      if(!witness.vkeys().get(0).vkey().public_key().verify(  CardanoWasm.hash_transaction(tx.body()).to_bytes(), witness.vkeys().get(0).signature())){
+        console.log('Invalid signature');
+        return
+      }else {
+        return signer
       }
-
-      const transaction = await transactions.findOne({ _id: change.documentKey._id });
-      const signers = transaction.signers;
-      const authenticatedSockets = Object.values(io.sockets.connected)
-        .filter((socket ) => socket.verification && socket.verification.state === 'Authenticated')
-        .filter((socket) => signers.includes(socket.verification.user));
-
-      if (authenticatedSockets.length > 0) {
-        authenticatedSockets.forEach((socket) => {
-          socket.emit('newSignatures', updatedFields.signatures);
-        });
+    })
+    
+      if(getMemebers(data.wallet).filter((member) => verifiedSighners.includes(member)).length === 0){
+        console.log('Signer not member of wallet');
+        return
       }
-    }
-  });
-}
+      transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: data.signatures ,  requiredSigners : tx.body().to_js_value().required_signers , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
+    }catch(e){
+        console.log(e) 
+      }
+   
+  res.sendStatus(200);
+});
+
+
+app.use(express.static(__dirname + '\\public'))
+
+
+
+
+
+
+
+
+const server = http.createServer(app);
+const io = new Server(server,{});
+
 
 
 
@@ -55,14 +84,14 @@ connection.then(() => {
   users = client.db('MWallet').collection("Users");
   wallets = client.db('MWallet').collection("wallets");
   watchTransactions().catch(console.error);
+  watchWallets().catch(console.error);
 }).catch(err => {
   console.log(err.stack);
 });
 
-const server = http.createServer(app);
-
 
 let verification = new Map();
+let subscriptions = new Map();
 //console.log(config.Ed25519KeyHash)
 
 
@@ -70,20 +99,13 @@ main()
   
   async function main() {
 
-const io = new Server(server,{
-
-});
-
-
-
-
 
 io.on('connection', (socket ) => {
   console.info(`Client connected [id=${socket.id}]`);
-  verification.set(socket.id, "Void");
   
   socket.on('disconnect', () => {
     verification.delete(socket.id);
+    subscriptions.delete(socket.id);
     console.info(`Client gone [id=${socket.id}]`); 
   });
   
@@ -91,51 +113,44 @@ io.on('connection', (socket ) => {
   socket.on('authentication_start', (data) => {
     console.log("authentication Start", data)
     
-     users.findOne({authenticationToken: data.token}).then((user) => {
-   console.log(user)
-    if (user){
-      verification[socket.id] = { state: "Authenticated" , user: user.PubkeyHash}
-    }else{
-      verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
-      socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
-    }
+     users.findOne({authenticationToken: data.token} ).then((user) => {
+          if (user){
+            users.findOneAndUpdate({authenticationToken: data.token}, { $set : { lastLogin: Date.now()}})
+            verification[socket.id] = { state: "Authenticated" , user: user.PubkeyHash}
+            subscribeToWallets( socket,  data.wallets , user.lastLogin)            
+            findNewWallets(user.PubkeyHash, user.lastLogin, socket )
+          }else{
+            verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
+            socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
+          }
     }).catch((err) => {
       console.log(err)
       socket.emit('error', {error: "Authentication token not found"})
       socket.disconnect() 
     })
   })
-  socket.on('find_wallet', (data) => {
-    console.log("find wallet", data)
-    if(verification[socket.id].state === "Authenticated"){
-      wallets.find({members: verification[socket.id].user}).then((wallets) => {
-        console.log(wallets)
-        if (wallets){
-          socket.emit('wallets_found', {wallets})
-        }else{
-          socket.emit('wallets_found', [])
-        }
-      }).catch((err) => {
-        console.log(err)
-        socket.emit('error', {error: err})
-      })
-    }else{
-      socket.emit('error', {error: "Not authenticated"})
-    }
-    
-  })
+
+
 
   socket.on('authentication_response', (data) => {
     console.log("authentication responsea", data)
     const { address, signature } = data;
     const { challenge_string } = verification[socket.id];
-    console.log(address, challenge_string, signature)
     try{
       const PubkeyHash =  verify( address, challenge_string, signature)
       const authenticationToken = crypt.randomBytes(36).toString('hex')
 
-      users.updateOne( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now() }}, {upsert: true})
+      users.findOneAndUpdate( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now(), lastLogin: Date.now() }}, {upsert: true}).then((user) => {
+        if (user){
+            findNewWallets(PubkeyHash, user.value.lastLogin, socket)
+            subscribeToWallets( socket,  data.wallets , user.lastLogin) 
+        }else{
+            findNewWallets(PubkeyHash, 0, socket)
+            subscribeToWallets( socket,  data.wallets , user.lastLogin) 
+        }
+      })
       socket.emit('authentication_success', {authenticationToken: authenticationToken})
+      socket.verification= { state: "Authenticated" , user: PubkeyHash}
       verification[socket.id] = { state: "Authenticated" , user: PubkeyHash}
 
     }catch(err){
@@ -145,11 +160,63 @@ io.on('connection', (socket ) => {
     } 
  })
 
+ socket.on("subscribe", (data) => {
+  console.log("subscribe", data)
+  if(verification[socket.id].state === "Authenticated"){
+    //Date.now() minus 4 hours to get all transactions since last login
+    
+    subscribeToWallets( socket,  [data] , data.lastUpdate ? data.lastUpdate : Date.now() - 14400000)  
+  }else {
+    socket.emit('error', { error: "Not authenticated" })
+    socket.disconnect()
+  }
+ })
+
+ socket.on('loadWallets', (data) => {
+  if(verification[socket.id].state === "Authenticated"){
+    let walletsFound = wallets.find({members: verification[socket.id].user})
+    walletsFound.toArray().then((walletsFound) => {
+    if (walletsFound.length > 0) {
+      socket.emit('wallets_found', { wallets: walletsFound })
+    } else {
+      socket.emit('wallets_found', { wallets: [] })
+    }
+  }).catch((err) => {
+    console.log(err)
+    socket.emit('error', {error: "Wallets not found"})
+    socket.disconnect() 
+  })
+
+}else {
+    socket.emit('error', { error: "Not authenticated" })
+  }
+})
 
   
 });
 
 };
+
+function subscribeToWallets(socket, wallets , lastLogin){
+  console.log("Subscribing to wallets", wallets)
+   wallets.map((wallet) => {
+    console.log(wallet)
+
+    if (getMemebers(wallet).includes(verification[socket.id].user)){  
+    if(subscriptions[socket.id]){
+      subscriptions[socket.id].push( walletHash(wallet) )
+      findNewTransactions(walletHash(wallet), lastLogin, socket)
+    }else{
+      subscriptions[socket.id] = [walletHash(wallet)]
+      findNewTransactions(walletHash(wallet), lastLogin, socket)
+    }
+  }
+  })
+
+  
+
+
+}
 
 
 app.get('/api', function(req, res) {
@@ -160,9 +227,6 @@ app.get('/api', function(req, res) {
 
 //use express to submit a new wallet into the database 
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 
 let getMemebers = function (json){
   let members = []
@@ -170,6 +234,8 @@ let getMemebers = function (json){
     return [json.keyHash]
   }else if(json.type === "any" || json.type === "all" || json.type === "at_least"){
     for(let i = 0; i < json.scripts.length; i++){
+      //how do I fix this error? 
+
       members = members.concat( getMemebers(json.scripts[i]))
     }
   }else if(json.type === "after" || json.type === "before"){
@@ -177,24 +243,6 @@ let getMemebers = function (json){
   }
   return members
 }
-
-
-
-app.post('/api/wallet', function(req, res) {
-  console.log(req.body)
-  const hash = crypt.createHash('sha256').update(JSON.stringify(req.body)).digest('hex');
-  wallets.updateOne( {hash: hash}, { $set : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
-  console.log(hash);
-  
-
-});
-
-app.use(express.static(__dirname + '\\public'))
-server.listen(3001, () => {
-  console.log('listening on *:3001');
-});
-
-
 
 const verify = (address, payload, walletSig) => {
   const coseSign1 = MS.COSESign1.from_bytes(Buffer.from(walletSig.signature, 'hex'));
@@ -272,3 +320,129 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
   } catch (e) {}
   return false;
 };
+
+
+function findNewWallets(PubKeyHash, lastLogin, socket){
+  console.log("lastLogin:" + lastLogin)
+  let walletsFound = wallets.find({members: PubKeyHash, creationTime: {$gt: lastLogin}})
+  walletsFound.toArray().then((walletsFound) => {
+    console.log(walletsFound)
+  if (walletsFound.length > 0) {
+    socket.emit('wallets_found', { wallets: walletsFound })
+  } 
+
+}).catch((err) => {
+  console.log(err)
+  socket.emit('error', {error: "Wallets not found"})
+  socket.disconnect() 
+})
+}
+
+function findNewTransactions(wallet, lastLogin, socket, ){
+  console.log("lastLogin:" + lastLogin)
+  let TransactionsFound = transactions.find({wallet: wallet, lastUpdate: {$gt: lastLogin}})
+  TransactionsFound.toArray().then((TransactionsFound) => {
+    console.log(TransactionsFound)
+  if (TransactionsFound.length > 0) {
+    socket.emit('transaction', { transactions: TransactionsFound })
+  } 
+}).catch((err) => {
+  console.log(err)
+  socket.emit('error', {error: "Wallets not found"})
+  socket.disconnect()
+})
+}
+
+async function watchWallets()  {
+  const changeStream = wallets.watch();
+  changeStream.on('change', async (change) => {
+    if (change.operationType === 'update' || change.operationType ===  'insert') {
+      
+      
+      const wallet = await wallets.findOne({ _id: change.documentKey._id });
+      const signers = wallet.members;
+      console.log(io.sockets.sockets)
+
+      console.log(verification)
+      console.log(signers)
+      const RelevantSockets : String[] = []
+      Object.keys(verification).map( (key) => {
+        if( signers.includes(verification[key].user) ){RelevantSockets.push(key)}}
+      )
+      console.log(RelevantSockets)
+      if (RelevantSockets.length > 0) {
+        RelevantSockets.forEach((socket) => {
+          const sock = io.sockets.sockets.get(socket)
+          console.log(sock)
+          if (sock && sock.connected) {
+            sock.emit('wallets_found', { wallets: [wallet] });
+          }
+        });
+      }
+    }
+  });
+}
+
+
+async function watchTransactions() {
+  const changeStream = transactions.watch();
+  changeStream.on('change', async (change) => {
+    console.log(io.sockets)
+    console.log(change)
+    if (change.operationType === 'update' ||  change.operationType === 'insert') {
+
+
+      const transaction = await transactions.findOne({ _id: change.documentKey._id });
+
+      const RelevantSockets : String[] = []
+      Object.keys(verification).map( (key) => {
+        if( transaction.requiredSigners.includes(verification[key].user) && subscriptions[key]?.includes(transaction.wallet)  ){RelevantSockets.push(key)}}
+      )
+      console.log("RelevantSockets:" + RelevantSockets)
+      console.log("verification :" + JSON.stringify( verification))
+      console.log("subscriptions :" +JSON.stringify( subscriptions))
+      if (RelevantSockets.length > 0) {
+        RelevantSockets.forEach((socket) => {
+          const sock = io.sockets.sockets.get(socket)
+          console.log("sock:  " + sock)
+          if (sock && sock.connected) {
+            sock.emit('transaction', { transactions: [transaction] });
+          }
+        });
+      }
+    }
+  });
+}
+
+
+function walletHash(wallet) {
+  //remove the name field from the wallet object recursively
+  function removeName(obj) {
+    if (typeof obj === 'object') {
+      if (Array.isArray(obj)) {
+        obj.forEach((item) => {
+          removeName(item);
+        });
+      } else {
+        delete obj.name;
+        Object.keys(obj).forEach((key) => {
+          removeName(obj[key]);
+        });
+      }
+    }
+  }
+  ;
+  // create a deep copy of the wallet object
+
+  const cleanWallet = JSON.parse(JSON.stringify(wallet));
+  removeName(cleanWallet)
+  console.log(wallet)
+  
+
+ return crypt.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex');
+}
+
+
+server.listen(3001, () => {
+  console.log('listening on *:3001');
+});

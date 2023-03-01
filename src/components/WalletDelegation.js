@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import PoolElement from './PoolElement';
+
 
 function WalletDelegation(props) {
   const wallet = props.wallet
@@ -10,10 +12,9 @@ function WalletDelegation(props) {
   const [signers, setCheckedState] = useState(initialState);
   const [delegation, setDelegation] = useState({});
 
-
   useEffect(() => {
     wallet.getDelegation().then( (delegation) => {;
-    setDelegation(delegation);
+      setDelegation(delegation);
     })
   }, [wallet])
 
@@ -52,9 +53,12 @@ function WalletDelegation(props) {
     if (delegation.poolId === null) {
       return <div> No Delegation </div>
     } else {
-      return <div> Delegated to {delegation.poolId} 
-      <p>Rewards : {Number(delegation.rewards)}tA </p>
-      <input type="button" value="Undelegate" onClick={Undelegate} />
+      return <div> 
+        Delegated to  <br />
+        {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
+
+        <p>Rewards : {Number(delegation.rewards)}tA </p>
+        <input type="button" value="Undelegate" onClick={Undelegate} />
       </div>
     }
   }
@@ -91,6 +95,7 @@ function WalletDelegation(props) {
           onChange={event => setPool(event.target.value)}
         />
       </label>
+      <PoolElement key={pool} root={props.root} poolId={pool} />
       { SignersSelect}
       <br />
       <button type="submit">Delegate</button>
