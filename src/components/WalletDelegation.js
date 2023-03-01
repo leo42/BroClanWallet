@@ -54,8 +54,8 @@ function WalletDelegation(props) {
       return <div> No Delegation </div>
     } else {
       return <div> 
-        Delegated to {delegation.poolId} <br />
-        {delegation && delegation.poolId && <PoolElement key={delegation} poolId={String(delegation.poolId)} />}
+        Delegated to  <br />
+        {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
 
         <p>Rewards : {Number(delegation.rewards)}tA </p>
         <input type="button" value="Undelegate" onClick={Undelegate} />
@@ -95,6 +95,7 @@ function WalletDelegation(props) {
           onChange={event => setPool(event.target.value)}
         />
       </label>
+      <PoolElement key={pool} root={props.root} poolId={pool} />
       { SignersSelect}
       <br />
       <button type="submit">Delegate</button>
