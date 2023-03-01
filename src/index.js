@@ -9,6 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
 import connectSocket from  './helpers/SyncService';
+
 const script1 = {
   "type": "all",
   "scripts":

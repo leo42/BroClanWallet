@@ -1,0 +1,25 @@
+.addWalletButton{
+    
+    height: inherit;
+
+    /* border: var(--clrorange) solid 1px;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--clrorange) 0px 0px 5px 0px; */
+    /* border-radius: 20px; */
+    width: fit-content;
+    padding:3px 9px;
+    font-size: 12px;
+    /* transition: 0.5s; */
+    position:relative;
+
+}
+
+
+.addWalletButton:hover{
+    /* letter-spacing: 0.25em; */
+    background-color: rgba(255, 255, 255, 1);
+
+    border: var(--clrorange) solid 1px;
+    box-shadow: var(--clrorange) 0px 0px 5px 0px;
+    color: var(--clrorange);
+  }

@@ -2,6 +2,7 @@ import React from "react";
 import { useState} from 'react';
 import AddWalletModal from "./AddWalletModal";
 import { ToastContainer, toast } from 'react-toastify';
+// import "./NewWalletModal.css"
 
 function NewWalletModal(props) {
   const [addWalletOpen, setAddWalletOpen] = useState(false);

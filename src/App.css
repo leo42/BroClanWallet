@@ -1,7 +1,7 @@
 :root {
   --clrorange: rgba(255, 153, 0, 1);
   --clrgreen: rgba(22, 217, 0, 1);
-  --clrred: #ff1867;
+  --clrred: #ff0000;
   --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
@@ -35,13 +35,69 @@
   background: rgba(0, 0, 0, 0.116);
 }
 
+.deleteBtn{
+  display: flex;
+  justify-content: flex-end;
 
-.pendingTx_signer{
+  }
+
+.deleteBtn button {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color:rgb(92, 92, 92);
+  z-index:1;
+  }
+
+select{
+  color: black;
+  border:var(--clrorange) solid 1px;
+  border-radius: 5px;
+  border-bottom: var(--clrorange) solid 1px;
+}
+
+
+.modalContainer .footer button {
+  padding: 5px 15px;
+  margin: 26px 60px 2px;
+  border: rgb(59, 59, 59) solid 1px;
+  background-color: transparent;
+  color: rgb(59, 59, 59);
+  border-radius: 20px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.5s;
+  position:relative;
+}
+
+.modalContainer .footer button:hover{
+  color: var(--clrgreen);
+  letter-spacing: 0.25em;
+  box-shadow: 0 0 13px var(--clrgreen);
+  border: var(--clrgreen) solid 1px;
+}
+
+.modalContainer .footer button:active,
+#cancelBtn:active,
+.btn:active {
+  transition: none;
+  background-color: #ececec;
+}
+
+#cancelBtn:hover {
+  color:var(--clrred);
+  box-shadow: 0 0 13px var(--clrred);
+  border: var(--clrred) solid 1px;
+}
+
+
+
+/* .pendingTx_signer{
   color:rgb(131, 60, 107);
   margin: 20px;
 }
 
 .pendingTx_signer_signed{
   color: rgb(15, 158, 15);
-}
+} */
 

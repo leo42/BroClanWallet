@@ -79,20 +79,6 @@
     position: relative;
    }
 
-.deleteBtn{
-  display: flex;
-  justify-content: flex-end;
-
-  }
-
-.deleteBtn button {
-  cursor: pointer;
-  border: none;
-  background-color: transparent;
-  color:rgb(92, 92, 92);
-  z-index:1;
-  }
-
 input[type="text"] {
   padding: 1px 3px;
   border: none;
@@ -135,13 +121,6 @@ input:focus + label, input:valid + label{
 
 input[type="text"]:focus {
   outline: none;
-}
- 
-select{
-  color: black;
-  border:var(--clrorange) solid 1px;
-  border-radius: 5px;
-  border-bottom: var(--clrorange) solid 1px;
 }
  
 .createWalletAddress{
@@ -230,38 +209,6 @@ select{
   align-items: center;
 }
 
-.modalContainer .footer button {
-  padding: 5px 15px;
-  margin: 26px 60px 2px;
-  border: rgb(59, 59, 59) solid 1px;
-  background-color: transparent;
-  color: rgb(59, 59, 59);
-  border-radius: 20px;
-  font-size: 17px;
-  cursor: pointer;
-  transition: 0.5s;
-  position:relative;
-}
-
-.modalContainer .footer button:hover{
-  color: var(--clrgreen);
-  letter-spacing: 0.25em;
-  box-shadow: 0 0 13px var(--clrgreen);
-  border: var(--clrgreen) solid 1px;
-}
-
-.modalContainer .footer button:active,
-#cancelBtn:active,
-.btn:active {
-  transition: none;
-  background-color: #ececec;
-}
-
-#cancelBtn:hover {
-  color:var(--clrred);
-  box-shadow: 0 0 13px var(--clrred);
-  border: var(--clrred) solid 1px;
-}
 
 .WalletCreateColor1{
   background-color: rgb(236, 236, 236);

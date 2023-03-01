@@ -7,6 +7,7 @@ import TransactionHistory from './TransactionHistory';
 import Receive from './Receive';
 import { toHex } from 'lucid-cardano';
 import PendingTxs from './PendingTxs';
+import './WalletMain.css';
 
 class WalletMain extends React.Component {
     state = {
@@ -41,13 +42,13 @@ class WalletMain extends React.Component {
 
             {(this.props.wallet.getBalance()/1000000).toFixed(2)}tA
             <br/>
-            <button value="overview" onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
-            <button value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Transaction</button>
-            <button  value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>        
-            <button  value="delegation" onClick={(event) => this.setState({showing: event.target.value })}>Staking Center</button>
+            <button className='mainTab' value="overview" onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
+            <button className='mainTab' value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Tx</button>
+            <button className='mainTab' value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}>Pending Txs</button>        
+            <button className='mainTab' value="delegation" onClick={(event) => this.setState({showing: event.target.value })}>Staking Center</button>
 
-            <button  value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Transaction History</button>
-            <button  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>
+            <button className='mainTab' value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Tx History</button>
+            <button className='mainTab' value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>
 
 
         
