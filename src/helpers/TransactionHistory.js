@@ -46,7 +46,7 @@ async function getTransactionDetails(transactionIds, settings){
      
 
     let fullTransactionsInfo = transactionIds.map( async (transactionId) => {
-        if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].fetch_time > Date.now() - 1000 * 60 * 60 * 24 && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider ){
+        if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider ){
             return (transactionInfo[transactionId.tx_hash])
         }else{
              

@@ -2,6 +2,8 @@
     border: 0;
     background-color: transparent;
     border-bottom: 3px solid rgb(171, 171, 171, 0.5) ;
+    cursor: pointer;
+    margin: 3px;
 }
 
 .mainTab:active, .mainTab:focus{

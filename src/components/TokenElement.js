@@ -13,7 +13,7 @@ function TokenElement(props){
           setTokenInfo(info)
         )
     },[])
-    const tooltipinfo =<a  target="_blank" href={`https://preprod.cexplorer.io/asset/${props.tokenId}`  } >Explore</a>
+    const tooltipinfo =<a  target="_blank" href={`https://preprod.cexplorer.io/asset/${props.tokenId}`  } >{props.tokenId}</a>
 
 
     if (tokenInfo === undefined) return (<div className="TokenElement">{props.tokenId}:{Number(props.amount)}  </div>)

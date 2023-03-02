@@ -6,7 +6,7 @@ import WalletImportModal from "./WalletImportModal"
 function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
-    const [settingsModalOpen, setSettingsModalOpen] = React.useState(false);
+    const [settingsModalOpen, setSettingsModalOpen] = React.useState(true);
     const [walletImportModalOpen, setWalletImportModalOpen] = React.useState(false);
 
 
