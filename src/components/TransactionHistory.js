@@ -7,12 +7,15 @@ import TokenElement from "./TokenElement";
 function TransactionHistory (props) {
     const [transactions, setTransactions] = useState([]);
     const [address, setAddress] = useState(props.wallet.getDefaultAddress() === ""? props.wallet.getFundedAddress()[0] :props.wallet.getDefaultAddress() )
-
+    const [page, setPage] = useState(0);
+    const [loadMore , setLoadMore] = useState(true);
 
     useEffect(() => {
     
                       let TxH = getTransactionHistory(address, props.root.state.settings)
-          TxH.then(transactionHistory => setTransactions(transactionHistory))
+          TxH.then(transactionHistory => {setTransactions(transactionHistory)
+            if (transactionHistory.length < 10) setLoadMore(false)}
+            )
           toast.promise(TxH, {
             pending: "Loading Transaction History",
             error: "Error Loading Transaction History"
@@ -67,6 +70,19 @@ function TransactionHistory (props) {
                      {transactionBalance(transaction)}
                 </div>  )
     }
+
+    function loadMoreTransactions(){
+        setPage(page + 1)
+        let TxH = getTransactionHistory(address, props.root.state.settings, page )
+        TxH.then(transactionHistory => {setTransactions(transactions.concat(transactionHistory))
+            if (transactionHistory.length < 10) setLoadMore(false)}
+            )
+        toast.promise(TxH, {
+            pending: "Loading Transaction History",
+            error: "Error Loading Transaction History"
+            })
+    }
+
     
 
 
@@ -85,6 +101,7 @@ function TransactionHistory (props) {
             { props.root.state.settings.metadataProvider === "None" ? <div className="TransactionHistoryNoMetadata">No Metadata Provider Selected</div> :
              transactions.map((transaction, index) => (<div className="TransactionHistoryListItem" key={index}> {TransactionListing(transaction)}</div>))
         }
+        {loadMore && <div className="TransactionHistoryLoadMore" onClick={loadMoreTransactions}>Load More</div> }
 
             </div>
     </div>);

@@ -1,4 +1,4 @@
-async function getTransactionHistory(address, settings){
+async function getTransactionHistory(address, settings, page=0 , limit = 10){
     if( settings.metadataProvider === "None"){
         return []
     }
@@ -20,7 +20,7 @@ async function getTransactionHistory(address, settings){
             }
         );
         const json = await response.json();
-        return  await getTransactionDetails(json, settings)
+        return  await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
     }else if ( settings.metadataProvider === "Blockfrost"){
         const api = settings.network === "Mainnet" ? "https://cardano-mainnet.blockfrost.io/api/v0" : `https://cardano-${settings.network.toLowerCase()}.blockfrost.io/api/v0`
         const response = await fetch(
@@ -33,8 +33,9 @@ async function getTransactionHistory(address, settings){
             }
         );
         const json = await response.json();
-
-        return  await getTransactionDetails(json, settings)
+        // return the first 10 transactions if page is not specified 
+    
+        return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
     }
 
 
