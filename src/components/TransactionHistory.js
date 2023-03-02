@@ -14,7 +14,11 @@ function TransactionHistory (props) {
     
                       let TxH = getTransactionHistory(address, props.root.state.settings)
           TxH.then(transactionHistory => {setTransactions(transactionHistory)
-            if (transactionHistory.length < 10) setLoadMore(false)}
+            if (transactionHistory.length < 10) {
+                setLoadMore(false)
+            }else{
+                setLoadMore(true)
+            }}
             )
           toast.promise(TxH, {
             pending: "Loading Transaction History",

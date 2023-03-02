@@ -150,6 +150,7 @@ class Wallet {
     if (result["lovelace"]) result["lovelace"] = Number(result["lovelace"]) + (this.delegation.rewards ?  Number(this.delegation.rewards) : 0)
     return result
  }
+ 
  substructBalanceFull(assets, address=""){
   const utxos = this.utxos
   let result = {}
