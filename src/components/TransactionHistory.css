@@ -1,17 +1,21 @@
 .transactionHistoryAdaBalance{
-    color: green;
+    color: rgb(0, 175, 0);
+    font-weight: bold;
 }
 
 .transactionHistoryAdaBalanceNegative{
     color: red;
+    font-weight: bold;
 }
 
 .transactionHistoryTokenBalancePositive{
-    color: green;
+    color: rgb(0, 175, 0);
+    font-weight: bold;
 }
 
 .transactionHistoryTokenBalanceNegative{
     color: red;
+    
 }
 .transactionHistoryItem{
     margin: 10px;

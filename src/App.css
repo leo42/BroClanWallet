@@ -18,14 +18,17 @@
 .WalletInner{
   display: flex;
   height: 100%;
+  width: 100%;
   flex-direction: row;
   justify-content: center;
+  font-size: 21px;
 }
 
 .WalletMain{
   align-items: center;
-  width:80%;
+  width: 1536px;
   margin: 20px;
+
 }
 
 .tooltip:hover::after{
