@@ -121,19 +121,20 @@ class Wallet {
     }
 
     getDelegation() { 
-      console.log(this.lucid.utils.getAddressDetails(this.lucid.utils.credentialToRewardAddress( this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential)))
-      return this.lucid.provider.getDelegation(this.lucid.utils.credentialToRewardAddress( this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential)) ;
+      this.delegation = this.lucid.provider.getDelegation(this.lucid.utils.credentialToRewardAddress( this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential)) ;
+      return this.delegation 
     }
 
-    getBalance(){
+    getBalance(address=""){
       const utxos = this.utxos
+      console.log(this.delegation.rewards)
       let result = 0
       utxos.map( utxo => {
+        if (address==="" || utxo.address ===address){
         result += Number( utxo.assets.lovelace)
       }
-
-      )
-      return result
+      })
+      return result + (this.delegation.rewards ?  Number(this.delegation.rewards) : 0)
    }
 
    getBalanceFull(address=""){
@@ -147,6 +148,7 @@ class Wallet {
       } 
     }
      )
+    if (result["lovelace"]) result["lovelace"] = Number(result["lovelace"]) + (this.delegation.rewards ?  Number(this.delegation.rewards) : 0)
     return result
  }
  substructBalanceFull(assets, address=""){
@@ -185,6 +187,10 @@ setPendingTxs(pendingTxs){
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
 
+    getStakingAddress() {
+      return this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
+    }
+      
  
     getSigners(){
       return this.signersNames
@@ -218,11 +224,14 @@ setPendingTxs(pendingTxs){
       const utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
       console.log("Load Utxos")
       console.log(utxos,this.utxos)
+      if(this.delegation === undefined){
+        this.getDelegation()
+      }
       if (this.utxos !== undefined){
         if (this.compareUtxos( utxos, this.utxos)){
           return
       }}
-      
+        this.getDelegation()
         this.utxos = utxos
         await this.checkTransactions()
         
@@ -413,11 +422,12 @@ setPendingTxs(pendingTxs){
       
     
     
-    async createTx(recipients, signers,sendFrom="" , sendAll=null ){ 
+    async createTx(recipients, signers,sendFrom="" , sendAll=null , withdraw=true) { 
         const sigCheck = this.checkSigners(signers)
         if (!sigCheck){
           throw new Error('Not enough signers');
         }
+
 
         var sumOfRecipientsMinusSendAll = {}
         recipients.map( (recipient,index) => {
@@ -466,7 +476,9 @@ setPendingTxs(pendingTxs){
         ))
 
 
-        
+        if(withdraw && Number(this.delegation.rewards) > 0 ){
+          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript), this.delegation.rewards)
+        }
 
         if (sigCheck.requires_after !== false){
           tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))

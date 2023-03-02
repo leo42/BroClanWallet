@@ -62,6 +62,12 @@ function WalletPendingTx(props) {
                 Object.keys(amount).map( (asset) => 
                 asset in BalancesOut ? BalancesOut[asset] += BigInt(amount[asset]) : BalancesOut[asset] = BigInt(amount[asset])
              )}})
+        if(transaction.withdrawals) {
+             if(transaction.withdrawals[props.wallet.getStakingAddress()]  !== undefined) {
+                console.log("In withdrawals")
+                BalancesOut["lovelace"] -= BigInt(transaction.withdrawals[props.wallet.getStakingAddress()])
+            }
+        }
 
         const lovelace =BalancesOut.lovelace ?  BigInt( BalancesOut.lovelace)  : 0n
         delete BalancesOut["lovelace"]
@@ -71,6 +77,8 @@ function WalletPendingTx(props) {
                 <TokenElement key={index} tokenId={key} amount={BalancesOut[key]}/>
              </div>
             ) );
+
+        
         
         return inputUtxos.length !== 0 ? (
             <div className="transactionHistoryListBalance">
@@ -169,14 +177,7 @@ function WalletPendingTx(props) {
                                 }   
 
              })}</div> : ""}
-               {transaction.withdrawals && <div>Withdrawals: {transaction.withdrawals.map(
-                    (withdrawal, index) => (
-                        <div key={index}>
-                            <p>Address: {withdrawal.address}</p>
-                            <p>Amount: {withdrawal.amount}</p>
-                        </div>
-                    )
-                )}</div>}
+               {transaction.withdrawals && <div>Withdrawals: {JSON.stringify( transaction.withdrawals)} </div>}
                 <p>Update: {transaction.update}</p>
                {transaction.auxiliary_data_hash &&  <p>Auxiliary Data Hash: {transaction.auxiliary_data_hash}</p>}
                {transaction.validity_start_interval &&  <p>Validity Start Interval: {transaction.validity_start_interval}</p>}

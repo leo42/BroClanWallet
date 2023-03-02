@@ -11,10 +11,7 @@ class WalletCreateTx extends React.Component {
     tokenData: {},
     sendFrom : this.props.wallet.getDefaultAddress(),
     sendAll: null
-    }
-
- 
-
+  }
 
   setAddress = (value,index) => {
       const recipients =   [...this.state.recipients]
@@ -186,6 +183,7 @@ class WalletCreateTx extends React.Component {
 
   return (
     <div>
+      <div> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} tA </div>
       { this.RecipientJSX()}
       <button type="submit" onClick={this.addRecipient}>Add recipient</button>
       { this.SignersSelect()}
