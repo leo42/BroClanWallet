@@ -120,21 +120,20 @@ class Wallet {
       return this.signatures;
     }
 
-    getDelegation() { 
-      this.delegation = this.lucid.provider.getDelegation(this.lucid.utils.credentialToRewardAddress( this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential)) ;
+    async getDelegation() { 
+      this.delegation = await this.lucid.provider.getDelegation(this.lucid.utils.credentialToRewardAddress( this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential)) ;
       return this.delegation 
     }
 
     getBalance(address=""){
       const utxos = this.utxos
-      console.log(this.delegation.rewards)
       let result = 0
       utxos.map( utxo => {
         if (address==="" || utxo.address ===address){
         result += Number( utxo.assets.lovelace)
       }
       })
-      return result + (this.delegation.rewards ?  Number(this.delegation.rewards) : 0)
+      return result + ( this.delegation && this.delegation.rewards ?  Number(this.delegation.rewards) : 0)
    }
 
    getBalanceFull(address=""){
