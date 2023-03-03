@@ -1,16 +1,36 @@
+.overviewTokenContainer img{
+    width: 66px;
+    height: auto;
+    
+}
+
 .TokenElement{
-    width: inherit;
+    /* width: inherit;
     height: inherit;
-    overflow: hidden;
+    overflow: hidden; */
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
 
 }
 
 .TokenThumbnail{
-    align-self: left;
-    height: 20px;
+    /* align-self: left;
+    height: 20px; */
+    /* align-self: center; */
 }
 
 .tokenElementName{
     width: inherit;
     overflow: hidden;
+    font-weight: bold;
+}
+
+/* .tokenElementAmountContainer{
+    display: flex;
+    justify-content: flex-end;
+} */
+
+.tokenElementAmount{
+    font-weight: bold;
 }

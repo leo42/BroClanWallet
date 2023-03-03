@@ -1,29 +1,41 @@
 .overviewTokensContainer{
     margin: 8px;
-    padding: 0px;
-    display: flex;
-    flex-flow: row wrap;
-    flex-shrink: 100;
+    padding: 21px 10px;
     border: 5px;
     border-style: ridge;
-    justify-content: space-between;
+    
+    display:grid;
+    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    place-items: center;
+    /* align-items: center; */
+    /* justify-content: space-between;
+    align-content: space-between; */
+
+    /* display: flex;
+    flex-flow: row wrap;
+    flex-shrink: 100;
+    justify-content: flex-start; */
+    gap: 30px 10px;
 }
 
 .overviewTokenContainer{
-    width: 180px;
-    height: 60px;
+    width: 403px;
+    height: 87px;
     margin: 10px;
     border: 1px;
-    align-self:center;
     border-style:inset;
     overflow: hidden;
-    align-self: center;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
 }
 
-.overviewTokenContainer img{
-    size: 15px;
+/* .overviewTokenContainer img{
+    width: 66px;
+    height: auto;
     
-}
+} */
 .st0{fill:#000000;}
 .settingsIcon{
     height: 25px;
