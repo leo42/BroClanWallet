@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import PoolElement from './PoolElement';
-
+import SearchPools from '../helpers/SearchPools';
 
 function WalletDelegation(props) {
   const wallet = props.wallet
   const initialState = [] 
+
   wallet.getSigners().map( () =>
     initialState.push(true)
   ) 
   const [pool, setPool] = useState('');
   const [signers, setCheckedState] = useState(initialState);
   const [delegation, setDelegation] = useState({});
+  const [pools, setPools] = useState([]);
 
   useEffect(() => {
     wallet.getDelegation().then( (delegation) => {;
@@ -18,6 +20,16 @@ function WalletDelegation(props) {
     })
   }, [wallet])
 
+  useEffect(() => {
+    if (pool === '') {
+      setPools([]);
+      return;
+    }
+    SearchPools(pool).then( (pools) => {
+      
+      setPools(pools);
+    })
+  }, [pool, wallet])
 
 
   
@@ -35,7 +47,7 @@ function WalletDelegation(props) {
         item ? wallet.getSigners()[index].hash : ""
     )
 
-    props.root.createDelegationTx(pool, txSigners.filter((element, index) => signers[index]));
+    props.root.createDelegationTx(pools[0].pool_id_bech32, txSigners.filter((element, index) => signers[index]));
   }
 
   const Undelegate = event => {
@@ -87,7 +99,7 @@ function WalletDelegation(props) {
     <form onSubmit={handleSubmit}>
 
       <label>
-        poolId:
+        Search:
         <input
           type="text"
           name="amount"
@@ -95,10 +107,18 @@ function WalletDelegation(props) {
           onChange={event => setPool(event.target.value)}
         />
       </label>
-      <PoolElement key={pool} root={props.root} poolId={pool} />
+      {pools.map( (pool) => (
+          <div key={pool}>
+            <PoolElement key={pool.pool_id_bech32} root={props.root} poolId={pool.pool_id_bech32} />
+            <br/>
+            {pools.length !== 1 && <button type="button" onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
+          </div>
+        )
+      )}
+
       { SignersSelect}
       <br />
-      <button type="submit">Delegate</button>
+     {pools.length === 1 && <button type="submit">Delegate</button> }
     </form>
     </div>
   );
