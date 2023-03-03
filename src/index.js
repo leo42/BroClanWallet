@@ -92,9 +92,8 @@ class App extends React.Component {
   walletLock = false
   async setState(state){
     await super.setState(state)
-    if (  state.wallets !== undefined){
       this.storeWallets()
-    }
+    
     console.log(state,state.wallets)
     this.storeState()
   }
