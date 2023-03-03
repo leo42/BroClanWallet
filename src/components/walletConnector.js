@@ -27,11 +27,11 @@ function WalletConnector(props){
         <button onClick={() => loadWallets()}>Load Wallets</button>
         <br/>
 
-        </div>
+        </div>  
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
-                { walletImportModalOpen ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
+                { walletImportModalOpen  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
                 <button onClick={() => setSettingsModalOpen(true)}>Settings </button>  
         </div>
     if(props.root.state.connectedWallet.socket === null) {
@@ -41,7 +41,7 @@ function WalletConnector(props){
     }else{   
         return (<div className="WalletConnector">
             <button onClick={() => openConfigMenu(!configMenu)}>{props.root.state.connectedWallet.name}</button>
-
+            {props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0  ? <button onClick={() => setWalletImportModalOpen(true)}>{Object.keys(props.root.state.pendingWallets).length} Wallets found</button> : ""}
             {configMenu ? connectorSettings() : ""}
 
             {content}

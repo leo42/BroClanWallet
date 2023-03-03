@@ -10,13 +10,21 @@ function PoolElement(props){
           setPoolInfo(info)
         )
     },[])
+
+function handleClick(e) {
+    e.preventDefault();
+    console.log('The link was clicked.');
+    window.open(`https://cexplorer.io/pool/${props.poolId}`, '_blank');
+  }
+
     console.log("PoolElement", PoolInfo)
     if (PoolInfo === undefined  ) return (<div className="PoolElementNotFound">Pool Not found </div>)
 
     const networkPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."
     return (
       //on click, open pool page in new tab
-      <div className="PoolElementWrapper"   onClick={() => window.open(`https://${networkPrefix}cexplorer.io/pool/${props.poolId}`)} >  
+      
+      <div className="PoolElementWrapper"   >  
           <span className="PoolElementName"> {PoolInfo["name"]} </span>
         <span className="PoolElementTicker"> {PoolInfo["ticker"]} </span>
     <div className="PoolElement"> 
@@ -27,9 +35,15 @@ function PoolElement(props){
           <span className="PoolElementMargin">Margin:{PoolInfo["tax_ratio"]}% </span>
           <span className="PoolElementCost">Cost:{PoolInfo["tax_fix"] / 1_000_000} </span>
           <span className="PoolElementROI">Lifetime ROI:{PoolInfo["roa_lifetime"]} </span>
+          <span className="Saturation">Saturation:{PoolInfo["saturation"]} </span>
         </div>
 
       </div>
+      <div className="PoolElementAtribution"  onClick={handleClick}>
+        <span className="PoolElementAtributionText">Pool data provided by 
+        <img className="PoolElementAtributionImg" src="cexplorer.svg" ></img> 
+        </span>
+         </div>
      </div>)
 }
 

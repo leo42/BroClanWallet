@@ -29,15 +29,8 @@ async function  connectSocket(wallet , root){
           });
 
         socket.on('wallets_found', (data) => {
-            const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
-            data.wallets.forEach((wallet) => {
-                if(!Object.keys(pendingWallets).includes(wallet.hash)){
-                    pendingWallets[wallet.hash] = wallet
-                }
-            })
-            console.log("wallets_found", data)
-            root.setState({pendingWallets: pendingWallets})
-            
+            handleWalletsFound(data)
+
         });
 
         socket.on('transaction', (data) => {
@@ -48,9 +41,7 @@ async function  connectSocket(wallet , root){
                         if ( walletHash === transaction.wallet){
                         root.loadTransaction(transaction, i)
                     }}
-            )
-
-                }
+                )}
             })
 
         });
@@ -85,6 +76,19 @@ async function  connectSocket(wallet , root){
     
     socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet) => wallet.getJson() ) });
     
+    async function  handleWalletsFound (data){
+        const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
+        const walletsHashes = root.state.wallets.map((wallet) => root.walletHash(wallet.getJson()))
+        const res = await Promise.all(walletsHashes)
+        
+        data.wallets.forEach((wallet) => {
+            if(!Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
+                pendingWallets[wallet.hash] = wallet
+            }
+        })
+        console.log("wallets_found", data)
+        root.setState({pendingWallets: pendingWallets})
+    }
     
     
     return socket

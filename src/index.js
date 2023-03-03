@@ -83,14 +83,19 @@ const script3 ={
 class App extends React.Component {
   state= {
     wallets: [],
+    pendingWallets: {},
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
-    settings: { metadataProvider :"Koios", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Koios" ,  api :  {"kupoUrl": "https://kupo-mainnet-wmalletmainnet-c8be04.us1.demeter.run" , "ogmiosUrl": "wss://ogmios-wmalletmainnet-c8be04.us1.demeter.run"} }
+    settings: { metadataProvider :"Koios", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Kupmios" ,  api :  {"kupoUrl": "https://kupo-mainnet-wmalletmainnet-c8be04.us1.demeter.run" , "ogmiosUrl": "wss://ogmios-wmalletmainnet-c8be04.us1.demeter.run"} }
   }
 
-  
+  walletLock = false
   async setState(state){
     await super.setState(state)
+    if (  state.wallets !== undefined){
+      this.storeWallets()
+    }
+    console.log(state,state.wallets)
     this.storeState()
   }
 
@@ -161,21 +166,31 @@ class App extends React.Component {
   }
 
   storeState(){
+
+    localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet.name ))
+    localStorage.setItem("settings", JSON.stringify(this.state.settings))
+    localStorage.setItem("pendingWallets", JSON.stringify(this.state.pendingWallets))
+
+  }
+
+  storeWallets()  {
+    if (this.walletLock) return
+    this.walletLock = true
     const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
                                                                 name :wallet.getName(),
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames(),
                                                                pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ) 
                                                               }) )
-   
-    localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet.name ))
     localStorage.setItem("wallets", JSON.stringify(dataPack))
-    localStorage.setItem("settings", JSON.stringify(this.state.settings))
+    this.walletLock = false
   }
 
   async loadState(){
+    this.walletLock = true
     const wallets = JSON.parse(localStorage.getItem('wallets'));
     let state = this.state
+
     for(let index = 0 ; index < wallets.length ; index++){
 
       const myWallet = new Wallet(wallets[index].json,wallets[index].name);
@@ -187,11 +202,13 @@ class App extends React.Component {
       state.wallets.push(myWallet)
 
     }
+    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     if (JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
-    super.setState(state)  
+    super.setState(state) 
+    this.walletLock = false 
   }
  
   async toggleSendAll(){
@@ -333,6 +350,40 @@ class App extends React.Component {
   )
     return resault
   }
+
+  deleteImportedWallet(key){
+    const pendingWallets = this.state.pendingWallets
+    delete pendingWallets[key]
+    this.setState({pendingWallets})
+  }
+
+  async importPendingWallet(key){
+    try{
+      const pendingWallets = this.state.pendingWallets
+      const wallets = this.state.wallets
+      const pendingWallet = pendingWallets[key]
+      const walletHash = await this.walletHash(pendingWallet.json)
+      const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
+      // resole promices in walletHashes
+      const res = await Promise.all(walletsHashes)
+      if (! res.includes(walletHash)) {
+        const myWallet = new Wallet(pendingWallet.json,"Imported Wallet");
+        await myWallet.initialize(this.state.settings);
+        wallets.push(myWallet)
+        this.setState({wallets})
+        //remove pending wallet
+        delete pendingWallets[key]
+        
+        this.setState({pendingWallets})
+        toast.success("Wallet Imported");
+      }else{
+        toast.error("Wallet already exists")
+      }
+      }catch(e){
+        toast.error(e.message);
+      }
+  }
+
 
   async addWallet(script,name){
     const wallets = this.state.wallets
