@@ -217,6 +217,12 @@ class App extends React.Component {
     this.setState({settings})
   }
 
+  async toggleDisableSync(){
+    const settings = this.state.settings
+    settings.disableSync = !settings.disableSync
+    this.setState({settings})
+  }
+
   async createTx(recipients,signers,sendFrom, sendAll=null){
     try{
     const wallets = this.state.wallets
@@ -301,6 +307,7 @@ class App extends React.Component {
     try {
     const wallets = this.state.wallets
     const transaction = wallets[this.state.selectedWallet].addSignature(signature)
+
     this.transmitTransaction(transaction)
     this.setState({wallets})
     toast.info('Signature Added');
@@ -414,6 +421,8 @@ class App extends React.Component {
   }
 
   transmitTransaction(transaction) {
+    if(this.state.settings.disableSync) return
+
     console.log("transmitting transaction", transaction)
     fetch('/api/transaction', {
       method: 'POST',
@@ -426,8 +435,8 @@ class App extends React.Component {
 
 
   transmitWallet(script) {
+    if(this.state.settings.disableSync) return
     console.log("transmitting wallet")
-    
     fetch('/api/wallet', {
       method: 'POST',
       headers: {

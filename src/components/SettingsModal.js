@@ -210,6 +210,10 @@ function SettingsModal(props) {
           <label htmlFor="sendAll">Enable Send All</label>
            <input type="checkbox" id="sendAll" name="sendAll" checked={props.root.state.settings.sendAll} value={props.root.state.settings.sendAll} onChange={ () => props.root.toggleSendAll()} />
         </div>
+        <div className="DisableSync">
+          <label htmlFor="DisableSync">Disable All Sync</label>
+           <input type="checkbox"  name="EnableSync" checked={props.root.state.settings.disableSync} value={props.root.state.settings.disableSync} onChange={ () => props.root.toggleDisableSync()} />
+        </div>
           <button
             onClick={() => {
               props.setOpenModal(false);
