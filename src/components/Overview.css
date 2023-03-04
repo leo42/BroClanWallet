@@ -16,10 +16,10 @@
     flex-flow: row wrap;
     flex-shrink: 100;
     justify-content: flex-start; */
-    gap: 30px 10px;
+    gap: 30px 0px;
 }
 
-.overviewTokenContainer{
+/* .overviewTokenContainer{
     width: 403px;
     height: 87px;
     margin: 10px;
@@ -29,7 +29,7 @@
     display: flex;
     flex-flow: row wrap;
     align-items: center;
-}
+} */
 
 /* .overviewTokenContainer img{
     width: 66px;

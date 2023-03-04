@@ -4,26 +4,49 @@
     
 }
 
+.overviewTokenContainer{
+    width: 20vw;
+    height: 107px;
+    margin: 10px;
+    padding: 2% 1%;
+    border: 1px;
+    border-style:inset;
+    overflow: hidden;
+    display: flex;
+    flex-flow: row wrap;
+    
+}
+
 .TokenElement{
     /* width: inherit;
     height: inherit;
     overflow: hidden; */
-    display: flex;
-    flex-flow: row wrap;
+    /* flex-flow: row wrap; */
+    /* align-items: center;
+    justify-content: space-between; */
+    display: grid;
+    grid-template-columns: 4vw 11vw 4vw;
+    gap: 5px;
     align-items: center;
+    justify-content: stretch;
 
 }
 
+/* .TokenElement .tokenElementAmount{
+    align-self: flex-end;
+} */
+
 .TokenThumbnail{
-    /* align-self: left;
-    height: 20px; */
-    /* align-self: center; */
+    align-self: center;
+    border-radius: 50%;
+    justify-self: center;
 }
 
 .tokenElementName{
     width: inherit;
     overflow: hidden;
     font-weight: bold;
+    justify-self: start;
 }
 
 /* .tokenElementAmountContainer{
@@ -33,4 +56,6 @@
 
 .tokenElementAmount{
     font-weight: bold;
+    justify-self: end;
+    /* justify-content: flex-end; */
 }
