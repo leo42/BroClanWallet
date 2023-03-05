@@ -4,19 +4,21 @@
     border: 5px;
     border-style: ridge;
     
-    display:grid;
-    grid-auto-rows: 1fr;
-    grid-template-columns: repeat(3, 1fr);
-    place-items: center;
-    /* align-items: center; */
-    /* justify-content: space-between;
-    align-content: space-between; */
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* grid-auto-rows: 1fr;
+    grid-template-columns: repeat(3, 1fr); */
+    /* place-items: center; */
+    align-items: center; 
+    justify-content: space-between;
+    /*align-content: space-between; */
 
     /* display: flex;
     flex-flow: row wrap;
     flex-shrink: 100;
     justify-content: flex-start; */
-    gap: 30px 0px;
+    /* gap: 30px 0px; */
 }
 
 /* .overviewTokenContainer{

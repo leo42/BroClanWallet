@@ -5,7 +5,7 @@
 }
 
 .overviewTokenContainer{
-    width: 20vw;
+    width: 286px;
     height: 107px;
     margin: 10px;
     padding: 2% 1%;
@@ -14,6 +14,7 @@
     overflow: hidden;
     display: flex;
     flex-flow: row wrap;
+    /* flex: 1 0 25%;  they will grow to fill available space, but will not shrink and will start at a size of 25% of the container width */
     
 }
 
@@ -24,13 +25,28 @@
     /* flex-flow: row wrap; */
     /* align-items: center;
     justify-content: space-between; */
+    flex-wrap: nowrap;
     display: grid;
     grid-template-columns: 4vw 11vw 4vw;
     gap: 5px;
     align-items: center;
     justify-content: stretch;
+    /* flex: 1 0 25%; */
 
 }
+
+@media (max-width: 768px) {
+    .overviewTokenContainer{
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    }
+    
+    .TokenElement{
+        flex-wrap: nowrap;
+    }
+    
+  }
 
 /* .TokenElement .tokenElementAmount{
     align-self: flex-end;
