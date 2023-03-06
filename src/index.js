@@ -321,7 +321,7 @@ class App extends React.Component {
       const wallets = this.state.wallets
       wallets[this.state.selectedWallet].setDefaultAddress(address)
       this.setState({wallets})
-      toast.info('Default Send Address Updated');
+      toast.info('Default Account Changed');
       }
       catch(e) {
         toast.error(e.message);

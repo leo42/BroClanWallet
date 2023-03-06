@@ -1,4 +1,4 @@
-.overviewTokensContainer{
+.overviewTokensContainer {
     margin: 8px;
     padding: 0px;
     display: flex;
@@ -9,7 +9,7 @@
     justify-content: space-between;
 }
 
-.overviewTokenContainer{
+.overviewTokenContainer .TokenElement{
     width: 180px;
     height: 60px;
     margin: 10px;
@@ -20,7 +20,7 @@
     align-self: center;
 }
 
-.overviewTokenContainer img{
+.overviewTokenContainer .TokenElement img{
     size: 15px;
     
 }
@@ -28,4 +28,18 @@
 .settingsIcon{
     height: 25px;
     width: 25px;
+}
+
+.overviewTab{
+    border: 0;
+    background-color: transparent;
+    border-bottom: 3px solid rgb(171, 171, 171, 0.5) ;
+    cursor: pointer;
+    margin: 5px 0px;
+    padding: 2px 15px;
+    font-size: 18px;
+}
+
+.overviewTabSelected{
+    border-bottom: 3px solid var(--clrorange);
 }
