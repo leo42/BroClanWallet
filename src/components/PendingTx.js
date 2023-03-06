@@ -2,8 +2,7 @@ import React, { useEffect }     from "react";
 import WalletPicker from "./WalletPicker"
 import TokenElement from "./TokenElement";
 import {  toast } from 'react-toastify';
-import { proposalSyntaxPlugins } from "@babel/preset-env/lib/shipped-proposals";
-
+import copyTextToClipboard from "../helpers/copyTextToClipboard";
 import "./PendingTx.css"
 
 function WalletPendingTx(props) {
@@ -117,7 +116,7 @@ function WalletPendingTx(props) {
                                <TokenElement tokenId={key} amount={amount[key]}/>
                             </div>
                         ))}
-                       {output.datum && <div> <p>Datum: {JSON.stringify(output.datum.Data.datum)} <br/>Original Bytes: {JSON.stringify(output.datum.Data.original_bytes)}</p></div>  }
+                       {output.datum && <div> <p>Datum: {JSON.stringify(output.datum)}</p></div>  }
                         {output.script_ref ? <p>Script Ref: {JSON.stringify( output.script_ref)}</p>: ""}
                     </div>
                     )
@@ -207,12 +206,12 @@ function WalletPendingTx(props) {
       }  
       
     function copySignature(signature){
-        navigator.clipboard.writeText(signature)
+        copyTextToClipboard(signature)
         toast.info("Signature copied to clipboard")
     }
 
     function copyTransaction(){
-        navigator.clipboard.writeText(props.tx.tx.toString())
+        copyTextToClipboard(props.tx.tx.toString())
         toast.info("Transaction copied to clipboard")
     }
 

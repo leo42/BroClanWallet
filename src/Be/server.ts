@@ -62,7 +62,7 @@ app.post('/api/transaction', function(req, res) {
 });
 
 
-app.use(express.static(__dirname + '\\public'))
+app.use(express.static(__dirname + '/public'))
 
 
 
