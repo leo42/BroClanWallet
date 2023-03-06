@@ -192,7 +192,7 @@ class App extends React.Component {
     const wallets = JSON.parse(localStorage.getItem('wallets'));
     let state = this.state
 
-    for(let index = 0 ; index < wallets.length ; index++){
+    if (wallets) for(let index = 0 ; index < wallets.length ; index++){
 
       const myWallet = new Wallet(wallets[index].json,wallets[index].name);
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings  );
@@ -205,7 +205,7 @@ class App extends React.Component {
     }
     state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
-    if (JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
+    if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
     super.setState(state) 
