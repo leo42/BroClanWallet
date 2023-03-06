@@ -1,4 +1,4 @@
-import {  Utils , C , Lucid, Blockfrost ,ExternalWallet , TxComplete ,Kupmios} from "./lucid/dist/esm/mod.js";
+import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
 const { Transaction} = C;
 
