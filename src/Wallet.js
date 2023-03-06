@@ -25,6 +25,7 @@ class Wallet {
       }
       this.wallet_address = "";
       this.name=name
+      this.delegation = {poolId: null, rewards: null}
       this.defaultAddress= ""
       this.txDetails = {}
       this.pendingTxs = [];

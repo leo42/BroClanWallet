@@ -19,6 +19,7 @@
     "@emurgo/cardano-message-signing-nodejs": "^1.0.1",
     "axios": "^1.2.2",
     "babel-loader": "^8.2.2",
+    "crypto-js": "^4.1.1",
     "lucid-cardano": "^0.7.9",
     "mongodb": "^5.0.0",
     "qrcode": "^1.5.1",
