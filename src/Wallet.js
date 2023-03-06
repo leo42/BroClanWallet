@@ -181,7 +181,7 @@ setPendingTxs(pendingTxs){
 
 
     getAddress(stakingAddress="") {
-        return "addr1q8hw3vv3d53zyvcwt0yrullrly70xchqdkd50eqagjez63jultuh7uxdfhnlvgrcs5ne9nca9eyquqk55f3ncawqz8lspnvdda"
+       // return "addr1q8hw3vv3d53zyvcwt0yrullrly70xchqdkd50eqagjez63jultuh7uxdfhnlvgrcs5ne9nca9eyquqk55f3ncawqz8lspnvdda"
         if (stakingAddress !== "") console.log(this.lucid.utils.getAddressDetails(stakingAddress))
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
