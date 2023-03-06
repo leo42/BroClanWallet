@@ -22,7 +22,7 @@ function TokenElement(props){
 
     return (
     <div onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)} className="TokenElement" > 
-        <img className="TokenThumbnail" src={tokenInfo.image } />
+        <div className="tokenImage"><img className="TokenThumbnail" src={tokenInfo.image } /></div>
         <span className="tokenElementName">{tokenInfo.name }</span>
         <span className="tokenElementAmount">{((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span>
         {showTooltip && <div className="tooltip">{tooltipinfo}</div>}
