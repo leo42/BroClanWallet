@@ -1,4 +1,4 @@
-.overviewTokensContainer{
+.overviewTokensContainer {
     margin: 8px;
     padding: 21px 10px;
     border: 5px;
@@ -21,9 +21,9 @@
     /* gap: 30px 0px; */
 }
 
-/* .overviewTokenContainer{
-    width: 403px;
-    height: 87px;
+.overviewTokenContainer .TokenElement{
+    width: 180px;
+    height: 60px;
     margin: 10px;
     border: 1px;
     border-style:inset;
@@ -33,13 +33,26 @@
     align-items: center;
 } */
 
-/* .overviewTokenContainer img{
-    width: 66px;
-    height: auto;
+.overviewTokenContainer .TokenElement img{
+    size: 15px;
     
 } */
 .st0{fill:#000000;}
 .settingsIcon{
     height: 25px;
     width: 25px;
+}
+
+.overviewTab{
+    border: 0;
+    background-color: transparent;
+    border-bottom: 3px solid rgb(171, 171, 171, 0.5) ;
+    cursor: pointer;
+    margin: 5px 0px;
+    padding: 2px 15px;
+    font-size: 18px;
+}
+
+.overviewTabSelected{
+    border-bottom: 3px solid var(--clrorange);
 }

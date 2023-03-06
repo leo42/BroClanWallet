@@ -5,7 +5,7 @@ import { useState} from 'react';
 function WalletPicker({ setOpenModal, operation }) {
 
 let Wallets = []
-    for (const [key, value] of Object.entries(window.cardano)) {
+   if (window.cardano) for (const [key, value] of Object.entries(window.cardano)) {
         if (value.icon && key !== "ccvault" && key !== "typhoncip30" ){
             console.log(key)
             Wallets.push(key)

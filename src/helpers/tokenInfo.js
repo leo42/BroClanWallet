@@ -1,6 +1,10 @@
 
+const ipfsGateWay = "https://ipfs.blockfrost.dev/ipfs/"
+
 async function getTokenInfo(tokenId){
     let tokenMap =  {...JSON.parse(localStorage.getItem('tokenInfo'))};
+    const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
+
     if(tokenId == 'lovelace'){
       console.log("tokenId",tokenId)
         return   {
@@ -15,11 +19,10 @@ async function getTokenInfo(tokenId){
 
         
     }if ( tokenId in tokenMap){
-      //refresh token info every 4 hours 14400000
-      if(Date.now() - tokenMap[tokenId].fetch_time > 14400000){
+      //refresh token data if it is older than 10 min and fingerprint is empty
+      if(tokenMap[tokenId].provider !== settings.metadataProvider || (tokenMap[tokenId].fingerprint === "" && tokenMap[tokenId].fetch_time < Date.now() - 600000 ) ){
         return fetchTokenData(tokenId)
       }else{
-
         return (tokenMap[tokenId])
       }
     }else{
@@ -61,9 +64,9 @@ async function getTokenInfo(tokenId){
                 return splitTokenId
               }
 
-              const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
               const tokenInfo = {}
-      
+              const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
+              try{
               if ( settings.metadataProvider === "Koios"){
                 const splitTokenName =  splitTokenId(tokenId)
                 const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/asset_info" : `https://${settings.network}.koios.rest/api/v0/asset_info`
@@ -81,15 +84,18 @@ async function getTokenInfo(tokenId){
                 else if (koiosTokenInfo[0].minting_tx_metadata){
                   const mintingTxMetadata = koiosTokenInfo[0].minting_tx_metadata["721"] ? koiosTokenInfo[0].minting_tx_metadata["721"] : koiosTokenInfo[0].minting_tx_metadata["20"]
                   console.log("mintingTxMetadata",mintingTxMetadata)
+                  console.log("hex2a(splitTokenName[1])",splitTokenName,hex2a(splitTokenName[1]))
+
                   if(mintingTxMetadata[splitTokenName[0]][splitTokenName[1]]){
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].name ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].name : mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].ticker
-                    tokenInfo["image"] = (mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image  :mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].icon ).replace("ipfs/","https://gateway.pinata.cloud/ipfs/").replace("ipfs://","https://gateway.pinata.cloud/ipfs/")
+                    tokenInfo["image"] = (mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image  :mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].icon ).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                   }else if(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])]){
+                    console.log(typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image))
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].name ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].name : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].ticker
-                    tokenInfo["image"] = (mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image  :mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].icon ).replace("ipfs/","https://gateway.pinata.cloud/ipfs/").replace("ipfs://","https://gateway.pinata.cloud/ipfs/")
+                    tokenInfo["image"] = (typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "string" ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image : typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "object" ?  mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image.join("") : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].icon ).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                   }else{
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]].name
-                    tokenInfo["image"] =(  mintingTxMetadata[splitTokenName[0]].image ? mintingTxMetadata[splitTokenName[0]].image : mintingTxMetadata[splitTokenName[0]].icon).replace("ipfs/","https://gateway.pinata.cloud/ipfs/").replace("ipfs://","https://gateway.pinata.cloud/ipfs/")
+                    tokenInfo["image"] =(  mintingTxMetadata[splitTokenName[0]].image ? mintingTxMetadata[splitTokenName[0]].image : mintingTxMetadata[splitTokenName[0]].icon).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                   }
                 }else if(koiosTokenInfo[0].asset_name_ascii){
                   tokenInfo["name"] = koiosTokenInfo[0].asset_name_ascii
@@ -99,13 +105,17 @@ async function getTokenInfo(tokenId){
                 }
       
       
-             //   tokenInfo["image"] =  koiosTokenInfo[0].token_registry_metadata ?  "data:image/jpeg;base64," +koiosTokenInfo[0].token_registry_metadata.logo.replace(/\s/g, ';') : koiosTokenInfo[0].minting_tx_metadata ?  koiosTokenInfo[0].minting_tx_metadata["721"].image.replace("ipfs://","https://gateway.pinata.cloud/ipfs/") : ""
+             //   tokenInfo["image"] =  koiosTokenInfo[0].token_registry_metadata ?  "data:image/jpeg;base64," +koiosTokenInfo[0].token_registry_metadata.logo.replace(/\s/g, ';') : koiosTokenInfo[0].minting_tx_metadata ?  koiosTokenInfo[0].minting_tx_metadata["721"].image.replace("ipfs://",ipfsGateWay) : ""
                 tokenInfo["decimals"] = koiosTokenInfo[0].token_registry_metadata ?   koiosTokenInfo[0].token_registry_metadata.decimals : null
+                tokenInfo["isNft"] =  (koiosTokenInfo[0].total_supply) === "1" 
+
+                tokenInfo["provider"] = "Koios"
+                tokenInfo["fingerprint"] = koiosTokenInfo[0].fingerprint
                 console.log("tokenInfo",tokenId,tokenInfo)
       
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
-              
+
               }else if ( settings.metadataProvider === "Blockfrost"){
                 console.log("fetching from blockfrost")
               const BlockfrostTokenInfo = await fetch(
@@ -121,18 +131,24 @@ async function getTokenInfo(tokenId){
                     tokenInfo["decimals"] = BlockfrostTokenInfo.metadata.decimals
                   }else if (BlockfrostTokenInfo.onchain_metadata){
                     tokenInfo["name"] = BlockfrostTokenInfo.onchain_metadata.name
-                    tokenInfo["image"] = BlockfrostTokenInfo.onchain_metadata.image.replace("ipfs/","https://gateway.pinata.cloud/ipfs/").replace("ipfs://","https://gateway.pinata.cloud/ipfs/")
+                    tokenInfo["image"] = BlockfrostTokenInfo.onchain_metadata.image.replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                   }else{
                     tokenInfo["name"] = hex2a(BlockfrostTokenInfo.asset_name)
                     
                   }
                   
                     tokenInfo["decimals"] = BlockfrostTokenInfo.metadata ?   BlockfrostTokenInfo.metadata.decimals : null
-      
+                    tokenInfo["provider"] = "Blockfrost"
+                    tokenInfo["fingerprint"] = BlockfrostTokenInfo.fingerprint
+                    tokenInfo["isNft"] =  (BlockfrostTokenInfo.quantity) === "1"
                 console.log("tokenInfo",tokenId,tokenInfo)
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
               }
+            }catch (error) {
+              console.log("error",error)
+              return {name: hex2a(splitTokenId(tokenId)[1]), image:"", decimals:0, isNft:false, provider: settings.metadataProvider, fingerprint:"", fetch_time:Date.now()}
+            }
       
             }
       

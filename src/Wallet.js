@@ -1,4 +1,4 @@
-import {  Utils , C , Lucid, Blockfrost ,ExternalWallet , TxComplete ,Kupmios} from "./lucid/dist/esm/mod.js";
+import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "./lucid/dist/esm/mod.js";
 import Datasource  from "./Datasource";
 const { Transaction} = C;
 
@@ -25,6 +25,7 @@ class Wallet {
       }
       this.wallet_address = "";
       this.name=name
+      this.delegation = {poolId: null, rewards: null}
       this.defaultAddress= ""
       this.txDetails = {}
       this.pendingTxs = [];
@@ -181,7 +182,7 @@ setPendingTxs(pendingTxs){
 
 
     getAddress(stakingAddress="") {
-        return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
+       // return "addr1q8hw3vv3d53zyvcwt0yrullrly70xchqdkd50eqagjez63jultuh7uxdfhnlvgrcs5ne9nca9eyquqk55f3ncawqz8lspnvdda"
         if (stakingAddress !== "") console.log(this.lucid.utils.getAddressDetails(stakingAddress))
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )

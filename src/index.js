@@ -9,6 +9,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
 import connectSocket from  './helpers/SyncService';
+import sha256 from 'crypto-js/sha256';
+
 
 const script1 = {
   "type": "all",
@@ -190,7 +192,7 @@ class App extends React.Component {
     const wallets = JSON.parse(localStorage.getItem('wallets'));
     let state = this.state
 
-    for(let index = 0 ; index < wallets.length ; index++){
+    if (wallets) for(let index = 0 ; index < wallets.length ; index++){
 
       const myWallet = new Wallet(wallets[index].json,wallets[index].name);
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings  );
@@ -203,7 +205,7 @@ class App extends React.Component {
     }
     state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
-    if (JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
+    if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
     super.setState(state) 
@@ -321,7 +323,7 @@ class App extends React.Component {
       const wallets = this.state.wallets
       wallets[this.state.selectedWallet].setDefaultAddress(address)
       this.setState({wallets})
-      toast.info('Default Send Address Updated');
+      toast.info('Default Account Changed');
       }
       catch(e) {
         toast.error(e.message);
@@ -482,12 +484,10 @@ class App extends React.Component {
     
   //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
     return getSHA256Hash(cleanWallet)
+
     async function getSHA256Hash(jsonObj) {
       const jsonString = JSON.stringify(jsonObj);
-      const encodedString = new TextEncoder().encode(jsonString);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', encodedString);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const hashHex = sha256(jsonString).toString();
       return hashHex;
     }
     

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import "./Receive.css"
 import {  toast } from 'react-toastify';
 import QRCode from "qrcode";
+import copyTextToClipboard from "../helpers/copyTextToClipboard";
 function Receive(props){
     const [address, setAddress] = React.useState(props.wallet.getDefaultAddress() === "" ? props.wallet.getAddress() : props.wallet.getDefaultAddress())
     const [newStake, setNewStake] = React.useState(false)
@@ -11,7 +12,7 @@ function Receive(props){
     const donationAddress = "addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf"
 
     function handleClick(value){
-        navigator.clipboard.writeText(value)
+        copyTextToClipboard(value)
         toast.info("Address copied to clipboard!")
     }
     const canvasRef = React.useRef();

@@ -10,7 +10,7 @@ const { MongoClient } = require("mongodb");
 const CardanoWasm  = require("@dcspark/cardano-multiplatform-lib-nodejs");
 const MS = require('@emurgo/cardano-message-signing-nodejs');
 
-const uri = "mongodb://0.0.0.0:27017/?directConnection=true";
+const uri = "mongodb+srv://cluster0.9drtorw.mongodb.net/test?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=mongo.pem";
 const client = new MongoClient(uri);
 const connection = client.connect();
 var transactions ;
@@ -62,7 +62,7 @@ app.post('/api/transaction', function(req, res) {
 });
 
 
-app.use(express.static(__dirname + '\\public'))
+app.use(express.static(__dirname + '/public'))
 
 
 

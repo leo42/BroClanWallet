@@ -133,3 +133,13 @@
         text-align: right;
     }
   }
+.tokenElementName{
+    width: inherit;
+    overflow: hidden;
+}
+
+.tokenElementNameText{
+    
+    overflow: hidden;
+    white-space: nowrap;
+}
