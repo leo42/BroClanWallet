@@ -7,31 +7,18 @@
     display:flex;
     flex-direction: row;
     flex-wrap: wrap;
-    /* grid-auto-rows: 1fr;
-    grid-template-columns: repeat(3, 1fr); */
-    /* place-items: center; */
-    align-items: center; 
-    justify-content: space-between;
-    /*align-content: space-between; */
-
-    /* display: flex;
-    flex-flow: row wrap;
-    flex-shrink: 100;
-    justify-content: flex-start; */
-    /* gap: 30px 0px; */
 }
 
-.overviewTokenContainer .TokenElement{
-    width: 180px;
-    height: 60px;
+.overviewTokenContainer .TokenElement {
+    min-width: 250px;
+    max-width: 250px;
+    height: 80px;
     margin: 10px;
     border: 1px;
     border-style:inset;
     overflow: hidden;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-} */
+    display: grid;
+} 
 
 .overviewTokenContainer .TokenElement img{
     size: 15px;
@@ -55,4 +42,129 @@
 
 .overviewTabSelected{
     border-bottom: 3px solid var(--clrorange);
+}
+
+.overviewTokenContainer .tokenElementtooltip{
+    min-width: 250px;
+    max-width: 250px;
+    height: 80px;
+    margin: 10px;
+    border: 1px;
+    border-style:inset;
+    overflow: wrap;
+    display: grid;
+
+    word-wrap: break-word;
+    overflow-wrap: break-word; 
+}
+
+.overviewTokenContainer .TokenThumbnail{
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    /* align-content: center; */
+    align-self: center;
+    
+    
+}
+
+.overviewTokenContainer .tokenElementName{
+    font-weight: bold;
+    margin-left: 10px;
+    text-align: left;
+    align-self: center;
+    justify-self: start;
+    grid-row: 1;
+    grid-column: 2;
+}
+
+.overviewTokenContainer .tokenElementAmount{
+    font-weight: bold;
+    text-align: right;
+    align-self: center;
+    justify-self: end;
+    grid-row: 1;
+    grid-column: 3;
+}
+
+/* .overviewTokenContainer .tooltip {
+
+} */
+
+
+@media (max-width: 768px) {
+    
+    .overviewTokenContainer{
+        width: 100%;
+        display: flex;
+        flex-flow: column nowrap;
+        padding: 10px;
+    }
+    
+    .overviewTokenContainer .TokenElement{
+        display: flex;
+        flex-flow: row nowrap;
+
+    }
+
+    .overviewTokenContainer .TokenThumbnail{
+        border-radius: 50%;
+        position: relative;
+        width: 69px;
+    }
+    
+    .overviewTokenContainer .tokenElementName{
+        position: relative;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .overviewTokenContainer .tokenElementAmount{
+        
+        font-weight: bold;
+        text-align: left;
+    }
+  }
+
+
+  .overviewTokenContainer img{
+    width: 66px;
+    height: auto;
+    
+}
+
+
+.overviewTokenContainer .TokenToolTip{
+    position: relative;
+    display: inline-block;
+    font-size: small;
+     white-space: nowrap;
+    
+}
+
+.overviewTokenContainer .TokenElement{
+    flex: 1;
+    width: 250px;
+    display: grid;
+    grid-template-columns: 110px 1fr min-content;
+    grid-template-rows: 50% 1fr;
+    gap: 10px; 
+    align-self: center;
+    margin: 15px;
+}
+
+.overviewTokenContainer .TokenElementText{
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+}
+.overviewTokenContainer .TokenElement:hover{
+    background-color: var(--clrblue);
+    color: var(--clrwhite); 
 }

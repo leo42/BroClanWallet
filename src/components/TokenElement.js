@@ -58,11 +58,15 @@ function TokenElement(props){
       return ""
     }else  return (
     
-    <div onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)} className="TokenElement" > 
+    <div className="TokenElementWrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}> 
+    <div  className="TokenElement" > 
        <img className="TokenThumbnail" src={tokenInfo.image } />
+       <div className="TokenElementText"> 
        <span className="tokenElementName">{tokenInfo.name }</span>
-       { !tokenInfo.isNft && <span className="tokenElementAmount"> :{((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span> }
-       {showTooltip && <div className="tooltip">{tooltipinfo}</div>}
+       { !tokenInfo.isNft && <span className="tokenElementAmount"> {((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span> }
+     </div>
+      </div>
+       {showTooltip && <div className="tokenElementtooltip">{tooltipinfo}</div>}
      </div>)
 }
 

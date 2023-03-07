@@ -1,145 +1,16 @@
-.overviewTokenContainer img{
-    width: 66px;
-    height: auto;
-    
-}
 
-.overviewTokenContainer{
-    width: 445px;
-    height: 68px;
-    margin: 10px;
-    padding: 20px 10px;
-    border: 1px;
-    border-style:solid;
-    overflow: hidden;
+.TokenThumbnail{
     display: flex;
-    /*flex-flow: row wrap;
-    align-items: center;
-    justify-content: space-between; */
-
-}
-
-.overviewTokenContainer .TokenElement{
-    /* width: inherit;
-    height: inherit;
-    overflow: hidden; */
-
-    flex: 1;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 110px 1fr min-content;
-    grid-template-rows: 50% 1fr;
-    gap: 10px; 
-    align-self: center;
-   
-    
-    
-    
-    /* display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center; */
-    /* flex-flow: row wrap; */
-    /* align-items: center;
-    justify-content: space-between; */
-    /* grid-template-columns: 4vw 11vw 4vw;
-    gap: 5px;
-    align-items: center;
-    justify-content: stretch; */
-    /* flex: 1 0 25%; */
-
-}
-
-.tokenImage{
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100%;
+    max-width: 80px;
+    max-height: 80px;
     grid-column: 1;
     grid-row: 1 / span 2;
 }
 
 
-.overviewTokenContainer .TokenThumbnail{
-    border-radius: 50%;
-    width: 86px;
-    /* align-content: center; */
-    align-self: center;
-    
-    
-}
 
-.overviewTokenContainer .tokenElementName{
-    font-weight: bold;
-    margin-left: 10px;
-    text-align: left;
-    align-self: end;
-    justify-self: start;
-}
-
-.overviewTokenContainer .tokenElementAmount{
-    font-weight: bold;
-    text-align: right;
-    align-self: end;
-    justify-self: end;
-}
-
-/* .overviewTokenContainer .tooltip {
-
-} */
-
-
-@media (max-width: 768px) {
-    
-    .overviewTokenContainer{
-        width: 100%;
-        display: flex;
-        flex-flow: column nowrap;
-        padding: 10px;
-    }
-    
-    .overviewTokenContainer .TokenElement{
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: center;
-
-    }
-
-    .overviewTokenContainer .TokenThumbnail{
-        border-radius: 50%;
-        position: relative;
-        left: 15px;
-        width: 69px;
-    }
-    
-    .overviewTokenContainer .tokenElementName{
-        position: relative;
-        left: 46px; /* should match item-1 width */
-        width: calc(100% - 250px);
-        font-weight: bold;
-        margin-left: 10px;
-        text-align: left;
-    }
-
-    .overviewTokenContainer .tokenElementAmount{
-        margin-left: auto; /* push item-3 to the end of the row */
-        min-width: 100px;
-        
-        position: relative;
-        right: 0;
-        width: 100px;
-        font-weight: bold;
-        text-align: right;
-    }
-  }
 .tokenElementName{
-    width: inherit;
     overflow: hidden;
 }
 
-.tokenElementNameText{
-    
-    overflow: hidden;
-    white-space: nowrap;
-}
