@@ -142,7 +142,7 @@ io.on('connection', (socket ) => {
 
       users.findOneAndUpdate( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now(), lastLogin: Date.now() }}, {upsert: true}).then((user) => {
         if (user){
-            findNewWallets(PubkeyHash, user.value.lastLogin ?user.value.lastLogin : 0, socket)
+            findNewWallets(PubkeyHash, user.value ?user.value.lastLogin : 0, socket)
             subscribeToWallets( socket,  data.wallets , user.lastLogin) 
         }else{
             findNewWallets(PubkeyHash, 0, socket)
