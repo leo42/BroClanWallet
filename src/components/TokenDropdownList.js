@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TokenElement from "./TokenElement";
-import getTokenInfo from "../helpers/tokenInfo.js"
+import "./TokenDropdownList.css";
 
 function TokenDropdownMenu(props) {
     // State to keep track of whether the menu is open or closed
@@ -16,12 +16,12 @@ function TokenDropdownMenu(props) {
         <div>
             <button onClick={() => setIsOpen(!isOpen)}>Add Token</button>
             {isOpen && (
-                <ul>
+                <div  className="TokenList">
                     {Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 
-                    <li key={index} ><div onClick={() =>handleClick(token, props.index)}><TokenElement tokenId={token} amount={props.ballances[token]}/></div> </li>
+                    <div className="TokenListTokenContainer" key={index} ><div onClick={() =>handleClick(token, props.index)}><TokenElement tokenId={token} amount={props.ballances[token]}/></div> </div>
 
                     )}
-                </ul>
+                </div>
             )}
         </div>
     );

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import getTokenInfo from "../helpers/tokenInfo.js"
 import TokenDropdownMenu from './TokenDropdownList.js';
 import TokenElement from "./TokenElement";
-
+import "./WalletCreateTx.css"
 class WalletCreateTx extends React.Component {
 
   state = {
@@ -125,7 +125,7 @@ class WalletCreateTx extends React.Component {
       {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
 <div key={i}>        
       <label >
-      <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/>:
+     <div className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>:
         <input
           type="number"
           name="amount"

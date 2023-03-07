@@ -23,4 +23,10 @@
     border-style: groove;
     border-radius: 6px;
 }
+
+.transactionHistoryTokenBalance{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
  

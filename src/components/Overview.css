@@ -64,6 +64,8 @@
     height: 50px;
     /* align-content: center; */
     align-self: center;
+    justify-self: center;
+    grid-row: 1 / span 2;
     
     
 }
