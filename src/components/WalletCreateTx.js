@@ -23,9 +23,10 @@ class WalletCreateTx extends React.Component {
   setAmount = (value,token,index) => {
     const recipients =   [...this.state.recipients]
 
-    let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData) ? ("metadata" in this.state.tokenData[token]  && this.state.tokenData[token].metadata !== null ) ? value * (10**this.state.tokenData[token].metadata.decimals)  : value : value
-     valueNew= valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
 
+    let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData) ? ("metadata" in this.state.tokenData[token]  && this.state.tokenData[token].metadata !== null ) ? value * (10**this.state.tokenData[token].metadata.decimals)  : value : value
+    if(token === "lovelace") valueNew = Math.round(valueNew)
+    valueNew= valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
     console.log(value,valueNew)
     recipients[index].amount[token] = valueNew
     this.setState({recipients})
