@@ -88,7 +88,7 @@ class App extends React.Component {
     pendingWallets: {},
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
-    settings: { metadataProvider :"Koios", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Kupmios" ,  api :  {"kupoUrl": "https://kupo-mainnet-wmalletmainnet-c8be04.us1.demeter.run" , "ogmiosUrl": "wss://ogmios-wmalletmainnet-c8be04.us1.demeter.run"} }
+    settings: { metadataProvider :"Koios", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  {"api": "http://194.163.159.42:3002" , "projectId": "preprod"} }
   }
 
   walletLock = false

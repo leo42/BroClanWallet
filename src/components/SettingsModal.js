@@ -13,9 +13,9 @@ function SettingsModal(props) {
     setNetwork(network)
   }
 
-  useEffect(() => {
-    setDefaultValues()
-  }, [provider, network, metadataProvider])
+//  useEffect(() => {
+//    setDefaultValues()
+//  }, [provider, network, metadataProvider])
 
 
   function setDefaultValues(){
@@ -40,8 +40,8 @@ function SettingsModal(props) {
 }
 
   function resetSettings(){
-    setProvider("Kupmios")
-    setMetadataProvider("Koios")
+    setProvider("MWallet")
+    setMetadataProvider("Blockfrost")
     networkChange("Preprod")
 
   }
@@ -90,20 +90,20 @@ function SettingsModal(props) {
         return
       }
     }else if (provider === "MWallet"){
+      localproviderConnection.url = "http://194.163.159.42:3002"  
+
       switch (network) {
       case "Mainnet": 
-      localproviderConnection.url = "https://cardano-mainnet.blockfrost.io/api/v0"  
-      localproviderConnection.projectId = "mainnetpHvIYtcVH3eRVTJLwln9cd6aUCC9zAh6"
+      localproviderConnection.projectId = "mainnet"
       break;
     case "Testnet":
-      localproviderConnection.url = "https://cardano-testnet.blockfrost.io/api/v0"
+      localproviderConnection.projectId = "testnet"
       break;
     case "Preprod":
-      localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
-      localproviderConnection.projectId = "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"
+      localproviderConnection.projectId = "preprod"
       break;
     default:
-      localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
+      localproviderConnection.projectId = "custom"
       break;
 
 
@@ -131,7 +131,7 @@ function SettingsModal(props) {
       <div> {  
     (provider === "Blockfrost" || metadataProvider === "Blockfrost") && (
         <div>
-          {network === "Custom" && <input type="text" placeholder="url" value={providerConnection.url ? providerConnection.urt : ""} onChange={(event) => setProviderConnection({...providerConnection, url: event.target.value})} />} <br />
+          {network === "Custom" && <input type="text" placeholder="url" value={providerConnection.url ? providerConnection.url : ""} onChange={(event) => setProviderConnection({...providerConnection, url: event.target.value})} />} <br />
           <input type="text" placeholder="projectId" value={providerConnection.projectId ? providerConnection.projectId :  "" } onChange={(event) => setProviderConnection({...providerConnection, projectId: event.target.value})} />
         </div>)  }
     { provider === "Kupmios" &&( <div>
