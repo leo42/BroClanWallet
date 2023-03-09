@@ -22,7 +22,7 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
         const json = await response.json();
         return  await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
     }else if ( settings.metadataProvider === "Blockfrost"){
-        const api = settings.network === "Mainnet" ? "https://cardano-mainnet.blockfrost.io/api/v0" : `https://cardano-${settings.network.toLowerCase()}.blockfrost.io/api/v0`
+        const api = settings.api.url
         const response = await fetch(
             `${api}/addresses/${address}/transactions`,
             {
