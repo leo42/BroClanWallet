@@ -134,13 +134,16 @@ app.get('/txs/:txHash',  async (req, res) => {
 app.post('/tx/submit',  async (req, res) => {
     const { txHash } = req.params;
     try {
-        const response = await axios.post(`${blockfrostApis[req.headers.project_id]}/tx/submit`, { headers: { project_id: blockfrostApiKeys[req.headers.project_id] } });
+        const response = await axios.post(`${blockfrostApis[req.headers.project_id]}/tx/submit`, { headers: { project_id: blockfrostApiKeys[req.headers.project_id] }, body: req.body }
+         );
         res.header('Access-Control-Allow-Origin', SERVING);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+
 //Endpoint :scripts/${r.reference_script_hash}
 app.get('/scripts/:reference_script_hash',  async (req, res) => {
     const { reference_script_hash } = req.params;

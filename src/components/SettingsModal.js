@@ -3,9 +3,11 @@ import "./SettingsModal.css";
 import { useState} from 'react';
 import {  toast } from 'react-toastify';
 
+
+const MwalletPassthrough = "http://194.163.159.42:3002" 
 function SettingsModal(props) {
   const [network, setNetwork] = useState(props.root.state.settings.network);
-  const [provider, setProvider] = useState(props.root.state.settings.provider);
+  const [provider, setProvider] = useState(props.root.state.settings.api.url === MwalletPassthrough ? "MWallet" :  props.root.state.settings.provider);
   const [providerConnection, setProviderConnection] = useState(props.root.state.settings.api);
   const [metadataProvider, setMetadataProvider] = useState(props.root.state.settings.metadataProvider);
   
@@ -90,7 +92,7 @@ function SettingsModal(props) {
         return
       }
     }else if (provider === "MWallet"){
-      localproviderConnection.url = "http://194.163.159.42:3002"  
+      localproviderConnection.url =  MwalletPassthrough
 
       switch (network) {
       case "Mainnet": 
@@ -129,7 +131,7 @@ function SettingsModal(props) {
     
     return (
       <div> {  
-    (provider === "Blockfrost" || metadataProvider === "Blockfrost") && (
+    ((provider === "Blockfrost" || metadataProvider === "Blockfrost" ) && provider !== "MWallet") && (
         <div>
           {network === "Custom" && <input type="text" placeholder="url" value={providerConnection.url ? providerConnection.url : ""} onChange={(event) => setProviderConnection({...providerConnection, url: event.target.value})} />} <br />
           <input type="text" placeholder="projectId" value={providerConnection.projectId ? providerConnection.projectId :  "" } onChange={(event) => setProviderConnection({...providerConnection, projectId: event.target.value})} />
