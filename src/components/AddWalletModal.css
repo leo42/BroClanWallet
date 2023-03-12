@@ -117,6 +117,15 @@ input:focus + label, input:valid + label{
   pointer-events: none;
 
 }
+.inputInvalidValidAddress {
+  border: 1px solid red;
+  border-radius: 5px;
+  }
+
+.inputValidAddress{
+  border: 1px solid green;
+  border-radius: 5px;
+}
 
 input[type="text"]:focus {
   outline: none;

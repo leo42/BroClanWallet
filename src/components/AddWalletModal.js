@@ -1,6 +1,7 @@
 import React from "react";
 import "./AddWalletModal.css";
-import { Lucid  } from "lucid-cardano";
+import { Lucid, C  } from "lucid-cardano";
+import { toast } from "react-toastify";
 
 
 
@@ -39,6 +40,39 @@ class AddWalletModal extends React.Component {
                                                                     
                 ]
 
+  isAddressValid = (address) => {
+    try {
+      C.Ed25519KeyHash.from_hex( address)
+      return true
+    } catch (error) {
+      try{
+        this.lucid.utils.getAddressDetails(address);
+        return true
+      }catch
+      {
+        return false;
+      }
+    }
+  }
+
+  checkAllAddresses = (scripts) => {
+    let valid = true
+    for (const script of scripts){
+      if (script.type === "sig"){
+        const validAddress = this.isAddressValid(script.keyHash)
+
+        valid = valid && this.isAddressValid(script.keyHash)
+        if(!validAddress){
+           toast.error(`Invalid address: ${script.keyHash} for Signatory ${script.name}`) 
+          }
+      }else{
+        valid = valid && this.checkAllAddresses(script.scripts)
+      }
+    }
+    return valid
+  }
+
+
   componentDidMount(){
     const lucidLoad =  Lucid.new(
       null,
@@ -60,11 +94,12 @@ class AddWalletModal extends React.Component {
   }  
 
   handleSubmit(event){
-
+    if(this.checkAllAddresses(this.state.json.scripts)){
     event.preventDefault();
     this.props.root.addWallet(this.state.json,this.state.WName)
     this.props.setOpenModal(false)
     this.props.hostModal(false)
+    }
   }
 
   handlePresetChange(value){
@@ -228,13 +263,14 @@ class AddWalletModal extends React.Component {
             <label>Nickname</label>
           </div>
           
-         <div className="input_wrap">
+         <div className={"input_wrap " + ( this.isAddressValid(json.keyHash) ? "inputValidAddress" : "inputInvalidValidAddress")}>
             <input
             className="createWalletAddress"
               required
               type="text"
               name="amount"
               value={json.keyHash}
+              
               onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
             />
             <label>Address/ KeyHash</label>
