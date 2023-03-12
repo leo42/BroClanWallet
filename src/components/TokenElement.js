@@ -40,13 +40,16 @@ function TokenElement(props){
       </div>
 
     
+    // Search filter look for props.search in tokenId, name and fingerprint
+    // make name case insensitive
     if(props.search !== "" && props.search !== undefined) {
       if (tokenInfo !== {}) 
-       if (!props.tokenId.includes(props.search) && tokenInfo.name !== undefined && !tokenInfo.name.includes(props.search)  )
+       if (!props.tokenId.toLowerCase().includes(props.search.toLowerCase()) && tokenInfo.name !== undefined && !tokenInfo.name.toLowerCase().includes(props.search.toLowerCase())  )
           if(tokenInfo.fingerprint !== undefined){
-            if ( !tokenInfo.fingerprint.includes(props.search))
+            if ( !tokenInfo.fingerprint.toLowerCase().includes(props.search.toLowerCase()))
             return ("")
-          } else return ("")
+          } else 
+            return ("")
           
     }
 
