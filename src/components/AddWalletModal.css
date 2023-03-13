@@ -79,15 +79,20 @@
     position: relative;
    }
 
+input[type="text"]:not(.createWalletAddress){
+  border-bottom: solid black 1px;
+}
+
+
 input[type="text"] {
   padding: 1px 3px;
   border: none;
-  border-bottom: solid black 1px;
   height: 22px;
   padding-left: 5px;
   margin-top: 25px;
   font-size:17px;
 }
+
 
 input:focus + label, input:valid + label{
   font-size: 12px;
@@ -118,12 +123,14 @@ input:focus + label, input:valid + label{
 
 }
 .inputInvalidValidAddress {
-  border: 1px solid red;
+  border: none;
+  border-bottom: 1px solid red;
   border-radius: 5px;
   }
 
 .inputValidAddress{
-  border: 1px solid green;
+  border: none;
+  border-bottom: 1px solid green;
   border-radius: 5px;
 }
 
