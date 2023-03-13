@@ -170,3 +170,8 @@
     background-color: var(--clrblue);
     color: var(--clrwhite); 
 }
+
+button img{
+    width: 50px;
+    height: auto;
+}
