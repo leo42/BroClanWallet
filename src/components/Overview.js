@@ -1,6 +1,7 @@
 import React, { useState , useRef, useEffect } from 'react';
 import TokenElement from './TokenElement';
 import "./Overview.css"
+import { ReactComponent as DownloadIcon } from '../html/assets/download.svg';
 
 function Overview(props) {
   const linkRef = useRef(null);
@@ -82,7 +83,7 @@ function Overview(props) {
           <div>
             <a ref={linkRef}  style={{ display: "none" }}>Download</a>
             < br/>
-            <button onClick={handleExport}> <img src='./download.svg' alt="downloadIcon" /> </button>
+             <DownloadIcon className="downloadButton" onClick={handleExport} alt="downloadIcon" />
             < br/>   <div>
             < br/>
             </div>

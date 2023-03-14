@@ -1,4 +1,6 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 module.exports = {
     entry: './src/index.js',
     output: {
@@ -14,7 +16,12 @@ module.exports = {
 	  },
 	
     module: {
-			rules: [{
+			rules: [
+				{
+					test: /\.svg$/,
+					use: ['@svgr/webpack', 'svg-url-loader'],
+				  },
+				{
 				loader: 'babel-loader',
 				test: /\.js$/,
 				exclude: /node_modules/
@@ -24,6 +31,13 @@ module.exports = {
 			  },
 		]
     },
+	plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'src/html', to: '' },
+            ],
+        }),
+    ],
 
 	mode: 'development',
 	experiments: {
