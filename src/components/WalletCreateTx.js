@@ -48,7 +48,12 @@ class WalletCreateTx extends React.Component {
 
   setAmount = (value,token,index) => {
     const recipients =   [...this.state.recipients]
-    if (isNaN(value)) {
+    console.log(value)
+    //if the last character is a dot, add a zero
+    if (value[value.length-1] === ".") {
+      value = value + "0"
+    }
+    if (isNaN(value) ) {
       return
     }
 
@@ -142,12 +147,11 @@ class WalletCreateTx extends React.Component {
   <div className="addressWrap">
   <div className="address_wrap">
     <input className='createTxADAInputField'
-      type="text"
+      type="number"
       name="amount"
-      value={this.state.recipients[index].amount.lovelace/1000000}
+      value={this.state.recipients[index].amount.lovelace === 0 ? "" :this.state.recipients[index].amount.lovelace/1_000_000 }
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     /> 
-    <label>ADA</label>
     </div>
     </div>
   <br/>
@@ -159,9 +163,9 @@ class WalletCreateTx extends React.Component {
   <div className="address_wrap">
      <div className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>:
         <input
-          type="text"
+          type="number"
           name="amount"
-          value={(this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
+          value={ this.state.recipients[index].amount[item] === 0 ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
           />
     <button type="submit" onClick={ () =>  this.deleteToken(item,index)}>Remove token</button>
