@@ -17,6 +17,16 @@ function TokenElement(props){
         )
     },[])
 
+    const handleThumpnailClick = () => {
+      // prevent default  behaviour
+      window.open(`https://${networkPrefix}cexplorer.io/asset/${props.tokenId}`,'_blank')
+    }
+
+    const handleClick = () => {
+      if(props.f !== undefined) {
+        props.f(props.tokenId)
+      }
+    }
     React.useEffect(() => {
       if ( tokenInfo.fingerprint === ""  ){
         //set 10 sec timeout to prevent too many requests
@@ -34,8 +44,8 @@ function TokenElement(props){
 
     console.log(tokenInfo)
     const tooltipinfo =
-     <div className="TokenToolTip">
-      <span><a  target="_blank" href={`https://${networkPrefix}cexplorer.io/asset/${props.tokenId}`  }>{props.tokenId} </a><br/></span>
+     <div onClick={handleThumpnailClick}  className="TokenToolTip">
+      <span><a  >{props.tokenId} </a><br/></span>
       <span> {tokenInfo.fingerprint} </span>
       </div>
 
@@ -62,14 +72,14 @@ function TokenElement(props){
     }else  return (
     
     <div className="TokenElementWrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}> 
-    <div  className="TokenElement" > 
+    <div  className="TokenElement" onClick={handleClick} > 
        <img className="TokenThumbnail" src={tokenInfo.image } />
        <div className="TokenElementText"> 
        <span className="tokenElementName">{tokenInfo.name }</span>
        { !tokenInfo.isNft && <span className="tokenElementAmount"> {((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span> }
      </div>
       </div>
-       {showTooltip && <div className="tokenElementtooltip">{tooltipinfo}</div>}
+       {( showTooltip || props.expanded === true ) && props.expanded !== false && <div className="tokenElementtooltip">{tooltipinfo}</div>}
      </div>)
 }
 

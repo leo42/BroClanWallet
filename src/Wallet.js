@@ -642,6 +642,10 @@ setPendingTxs(pendingTxs){
     isAddressMine(address){
       return (this.lucid.utils.getAddressDetails(address).paymentCredential.hash === this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential.hash)
     }
+
+    isAddressValid(address){
+      return  this.lucid.utils.getAddressDetails(address) ? true : false
+    }
     
     decodeSignature(signature){
 

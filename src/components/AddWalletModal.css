@@ -122,6 +122,7 @@ input:focus + label, input:valid + label{
   pointer-events: none;
 
 }
+
 .inputInvalidValidAddress {
   border: none;
   border-bottom: 1px solid red;

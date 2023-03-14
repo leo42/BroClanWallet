@@ -13,6 +13,18 @@ class WalletCreateTx extends React.Component {
     sendAll: null
   }
 
+  
+  isAddressValid = (address) => {
+
+      try{
+        this.props.wallet.isAddressValid( address);
+        return true
+      }catch(e  )
+      { 
+        console.log(e)
+        return false;
+      }
+  }
   componentDidMount() {
     for(const token of Object.keys(this.props.wallet.getBalanceFull(this.state.sendFrom))) {
       if (token !== "lovelace") {
@@ -36,7 +48,9 @@ class WalletCreateTx extends React.Component {
 
   setAmount = (value,token,index) => {
     const recipients =   [...this.state.recipients]
-
+    if (isNaN(value)) {
+      return
+    }
 
     let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData)  ? value * (10**this.state.tokenData[token].decimals)  : value 
     valueNew = Math.round(valueNew)
@@ -112,47 +126,54 @@ class WalletCreateTx extends React.Component {
   }
 
   RecipientJSX = () => this.state.recipients.map( (recipient, index) => (
-    <div key={index}>
-      <label>
-    Address:
-    <input
+    <div className='createTxRecipientContainer' key={index}>
+      <div className="addressWrap">
+      <div className={"address_wrap "  + ( this.isAddressValid(recipient.address) ? "sendInputValidAddress" : "sendInputInvalidValidAddress")} >
+        <input className='createTxAddressInputField' 
+          type="text"
+          name="cardano_address"
+          value={recipient.address}
+          onChange={event => this.setAddress(event.target.value,index)}
+        />
+        <label>Address</label>
+     </div>
+    </div>
+
+  <div className="addressWrap">
+  <div className="address_wrap">
+    <input className='createTxADAInputField'
       type="text"
-      name="cardano_address"
-      value={recipient.address}
-      onChange={event => this.setAddress(event.target.value,index)}
-    />
-  { index > 0 ? <button type="submit" onClick={ () =>  this.deleteRecipient(index)}>Delete recipient</button> : ""}
-
-  </label>
-
-  <label>
-    ADA:
-    <input
-      type="number"
       name="amount"
       value={this.state.recipients[index].amount.lovelace/1000000}
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
-    />
-    
-  </label>
+    /> 
+    <label>ADA</label>
+    </div>
+    </div>
   <br/>
-  { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
+  
       {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
-<div key={i}>        
-      <label >
+        <div key={i}>        
+    
+      <div className="addressWrap">
+  <div className="address_wrap">
      <div className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>:
         <input
-          type="number"
+          type="text"
           name="amount"
           value={(this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
-        />
+          />
     <button type="submit" onClick={ () =>  this.deleteToken(item,index)}>Remove token</button>
-    </label>
+
+    </div>
+    </div>
     </div>
     ))}
-    <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={this.addToken} index={index}></TokenDropdownMenu>
+    <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index}></TokenDropdownMenu>
+    { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
 
+  { index > 0 ? <button type="submit" onClick={ () =>  this.deleteRecipient(index)}>Delete recipient</button> : ""}
 
 
   </div>

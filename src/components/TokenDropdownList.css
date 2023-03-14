@@ -1,10 +1,49 @@
-.TokenListTokenContainer{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 10px;
-    height: 40px;
-    border-bottom: 1px solid #e6e6e6;
-    cursor: pointer;
+.TokenListTokenContainer .TokenElementWrapper{
+    width: 45vw;
 }
+
+.TokenListTokenContainer .TokenElement{
+    height: 40px;
+    cursor: pointer;
+    width: 10vw;
+}
+
+
+.TokenListTokenContainer .TokenToolTip{
+    overflow: hidden;
+    width: 30vw;
+}
+
+.TokenListTokenContainer:hover{
+    background-color: #f6f6f6;
+}
+
+.TokenListTokenContainer .tokenElementName{
+    color: #000000;
+    align-items: center;
+    text-align: center;
+    width: 40px;
+}
+
+.TokenListTokenContainer .TokenElementText{
+    color: #000000;
+    align-items: center;
+    text-align: center;
+    width: 40%;
+}
+
+.TokenListTokenContainer .TokenThumbnail{
+    height: 90%;
+    margin-right: 10px;
+    width: auto;
+}
+
+.TokenList{
+/* make 2 colums */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    padding: 10px;
+
+}
+

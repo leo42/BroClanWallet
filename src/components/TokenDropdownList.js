@@ -7,8 +7,8 @@ function TokenDropdownMenu(props) {
     const [isOpen, setIsOpen] = useState(false);
     
 
-    function handleClick(token,index ){ 
-        props.f(token, index)
+    function handleClick(token ){ 
+        props.f(token)
         setIsOpen(!isOpen)
     }
 
@@ -18,7 +18,7 @@ function TokenDropdownMenu(props) {
             {isOpen && (
                 <div  className="TokenList">
                     {Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 
-                    <div className="TokenListTokenContainer" key={index} ><div onClick={() =>handleClick(token, props.index)}><TokenElement tokenId={token} amount={props.ballances[token]}/></div> </div>
+                    <div className="TokenListTokenContainer" key={index} > <div ><TokenElement tokenId={token} f={handleClick} amount={props.ballances[token]}  expanded={true}/></div> </div>
 
                     )}
                 </div>

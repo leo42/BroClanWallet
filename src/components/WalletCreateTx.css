@@ -1,0 +1,101 @@
+.createTxRecipientContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    /* create boarder that looks like it hovers over the page */
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+
+}
+
+.CreateTxTokenContainer .TokenElement {
+    display: flex;
+    flex-direction: row;
+    height: 20px;
+}
+
+.CreateTxTokenContainer .tokenElementAmount{
+    /* hide */
+    display: none;
+}
+
+.CreateTxTokenContainer .tokenElementtooltip{
+    /* hide */
+    display: none;
+}
+
+.CreateTxTokenContainer .TokenThumbnail{
+    /* hide */
+    height: 100%;
+    width: auto;
+}
+
+.createTxADAInputlabel{
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10px;
+}
+
+.createTxADAInputField input{
+    height: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;    
+}
+
+.createTxAddressInputField{
+    width: 80vw;
+    height: 100%;
+    margin-bottom: 10px;
+    position: relative;
+    /* remove line under input */
+ 
+    
+}
+
+.address_wrap {
+    width:auto; 
+    height:auto;
+    position: relative; 
+  }
+  
+  .address_wrap label {
+    font-family:arial;
+    font-size:20px;
+    color: #777777;
+    position: absolute;
+    top: 23px;
+    left: 6px;
+    transition:0.2s ease all; 
+    -moz-transition:0.2s ease all; 
+    -webkit-transition:0.2s ease all;
+    pointer-events: none;
+  
+  }
+
+  .address_wrap input {
+  
+  }
+
+  .addressWrap div{
+    display: inline-block;
+  }
+
+  
+.sendInputInvalidValidAddress {
+    border: none;
+    border-bottom: 1px solid red;
+    border-radius: 0px;
+    }
+  
+.sendInputValidAddress{
+    border: none;
+    border-bottom: 1px solid green;
+    border-radius: 0px;
+  }
+  

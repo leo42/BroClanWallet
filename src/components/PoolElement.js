@@ -41,7 +41,7 @@ function handleClick(e) {
       </div>
       <div className="PoolElementAtribution"  onClick={handleClick}>
         <span className="PoolElementAtributionText">Pool data provided by 
-        <img className="PoolElementAtributionImg" src="cexplorer.svg" ></img> 
+        <img className="PoolElementAtributionImg" src="assets/cexplorer.svg" ></img> 
         </span>
          </div>
      </div>)
