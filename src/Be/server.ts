@@ -10,7 +10,7 @@ const { MongoClient } = require("mongodb");
 const CardanoWasm  = require("@dcspark/cardano-multiplatform-lib-nodejs");
 const MS = require('@emurgo/cardano-message-signing-nodejs');
 
-const uri = "mongodb+srv://cluster0.9drtorw.mongodb.net/test?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=mongo.pem";
+const uri = "mongodb+srv://cluster0.9drtorw.mongodb.net/test?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=secrets/mongo.pem";
 const client = new MongoClient(uri);
 const connection = client.connect();
 var transactions ;
