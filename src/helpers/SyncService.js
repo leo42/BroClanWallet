@@ -1,4 +1,4 @@
-import {  Lucid } from "../lucid/dist/esm/mod.js";
+import {  Lucid } from "lucid-cardano";
 import io from 'socket.io-client'
 import { toast } from 'react-toastify';
 

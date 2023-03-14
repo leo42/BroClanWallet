@@ -124,10 +124,10 @@ res.header('Access-Control-Allow-Origin', SERVING);
 
 //Endpoint :txs/${txHash}
 app.get('/txs/:txHash',  async (req, res) => {
+res.header('Access-Control-Allow-Origin', SERVING);
     const { txHash } = req.params;
     try {
       const response = await axios.get(`${blockfrostApis[req.headers.project_id]}/txs/${txHash}`, { headers: { project_id: blockfrostApiKeys[req.headers.project_id] } });
-      res.header('Access-Control-Allow-Origin', SERVING);
         res.json(response.data);
     } catch (error) {
       const statusCode = error.response.status || 500;
