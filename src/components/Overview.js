@@ -75,14 +75,14 @@ function Overview(props) {
       <br/>
       <button onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}> Delete Wallet</button>
       <label>
-         
+      
 
           < br/>
           < br/>
           <div>
             <a ref={linkRef}  style={{ display: "none" }}>Download</a>
             < br/>
-            <button onClick={handleExport}>Download</button>
+            <button onClick={handleExport}> <img src='./download.svg' alt="downloadIcon" /> </button>
             < br/>   <div>
             < br/>
             </div>
