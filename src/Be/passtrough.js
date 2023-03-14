@@ -14,11 +14,9 @@ const blockfrostApis ={
     "preview" : "https://cardano-preview.blockfrost.io/api/v0"
 }
 
-const blockfrostApiKeys ={
-    "preprod": "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"
-}
+
 // Set Blockfrost API key as an environment variable or hard-code it here
-const blockfrostApiKey = process.env.BLOCKFROST_API_KEY || 'preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp';
+const blockfrostApiKeys = require('./blockfrostApiKeys.json');
 const SERVING = process.env.SERVING || '*' ;
 
 app.use(bodyParser.raw({ type: 'application/cbor', limit: '10mb' }));
@@ -235,5 +233,5 @@ const server = http.createServer(app);
 
 
 server.listen(3002, () => {
-    console.log('listening on *:3001');
+    console.log('listening on *:3002');
   });

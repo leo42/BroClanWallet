@@ -16,7 +16,7 @@
 .CreateTxTokenContainer .TokenElement {
     display: flex;
     flex-direction: row;
-    height: 20px;
+    height: 50px;
 }
 
 .CreateTxTokenContainer .tokenElementAmount{
