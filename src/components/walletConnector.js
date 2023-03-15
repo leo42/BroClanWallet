@@ -1,8 +1,13 @@
 import React from "react";
-import "./walletConnector.css"
-import WalletPicker from "./WalletPicker"
-import SettingsModal from "./SettingsModal"
-import WalletImportModal from "./WalletImportModal"
+import "./walletConnector.css";
+import WalletPicker from "./WalletPicker";
+import SettingsModal from "./SettingsModal";
+import WalletImportModal from "./WalletImportModal";
+import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
+import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
+
+
+
 function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
@@ -32,10 +37,18 @@ function WalletConnector(props){
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
                 { walletImportModalOpen  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
-                <button onClick={() => setSettingsModalOpen(true)}>Settings </button>  
+                <label> <div>
+                <SettingsIcon className="settingsButton" onClick={() => setSettingsModalOpen(true)} alt="settingsIcon" />
+                < br/>  </div> 
+                </label>
         </div>
     if(props.root.state.connectedWallet.socket === null) {
-        return (<div className="WalletConnector"><button data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)}>Connect Wallet </button>
+        return (<div className="WalletConnector">
+            {/* <button data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)}>Connect Wallet </button> */}
+            <label><div>
+             <ConnectIcon className="connectButton" data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)} alt="connectIcon" />
+            < br/>  </div> 
+            </label>   
                 {content}
             </div>)
     }else{   
