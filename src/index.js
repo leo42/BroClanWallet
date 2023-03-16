@@ -532,7 +532,7 @@ class App extends React.Component {
         <React.StrictMode>
 
         <div className='WalletInner'>
-            <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
+           <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
             <MWalletList root={this}  ></MWalletList>
           { this.state.wallets.length ===0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>

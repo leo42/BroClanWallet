@@ -4,3 +4,37 @@
     right: 0px;
     margin: 10px;
 }
+
+.settingsButton{
+    background-color: var(--clrorange);
+    color: var(--clrwhite);
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 10px;
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+}
+
+.settings_svg__settingsImage{
+    width: 100%;
+    height: 100%;
+}
+
+.connectButton{
+    background-color: var(--clrorange);
+    color: var(--clrwhite);
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 10px;
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+}
+
+.connect_svg__connectImage{
+    width: 100%;
+    height: 100%;
+}
