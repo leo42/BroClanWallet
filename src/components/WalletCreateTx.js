@@ -21,7 +21,6 @@ class WalletCreateTx extends React.Component {
         return true
       }catch(e  )
       { 
-        console.log(e)
         return false;
       }
   }
@@ -48,7 +47,6 @@ class WalletCreateTx extends React.Component {
 
   setAmount = (value,token,index) => {
     const recipients =   [...this.state.recipients]
-    console.log(value)
     //if the last character is a dot, add a zero
     if (value[value.length-1] === ".") {
       value = value + "0"
@@ -60,7 +58,6 @@ class WalletCreateTx extends React.Component {
     let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData)  ? value * (10**this.state.tokenData[token].decimals)  : value 
     valueNew = Math.round(valueNew)
     valueNew= valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
-    console.log(value,valueNew)
     recipients[index].amount[token] = valueNew
     this.setState({recipients})
   }
@@ -73,7 +70,6 @@ class WalletCreateTx extends React.Component {
   };
 
   handleChangeFrom = (event) => {
-    console.log(event.target.value)
     this.setState({sendFrom : event.target.value})
   }
 
@@ -91,6 +87,8 @@ class WalletCreateTx extends React.Component {
 
 
   deleteRecipient = (index) =>{
+    // rerender all the recipients after deleting one   
+    
     const recipients =   [...this.state.recipients]
     recipients.splice(index, 1)
     this.setState({recipients})
@@ -106,12 +104,20 @@ class WalletCreateTx extends React.Component {
   
   }
 
+  setMax = (tokenId,index) => {
+
+    console.log(tokenId,index ,this.props.wallet.getBalanceFull(this.state.sendFrom)[tokenId])
+    if ((tokenId in this.state.recipients[index].amount)) {
+      const recipients = [...this.state.recipients]
+      recipients[index].amount[tokenId] = Number( this.props.wallet.getBalanceFull(this.state.sendFrom)[tokenId])
+      this.setState({recipients})
+    }
+  }
     
   addToken = (tokenId,index) => {
-    console.log(`Option selected:`, tokenId)
     if (!(tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]
-      recipients[index].amount[tokenId] = 0
+      recipients[index].amount[tokenId] =  this.state.tokenData[tokenId].isNft ? 1 : 0 
       this.setState({recipients})
     } 
   
@@ -133,6 +139,7 @@ class WalletCreateTx extends React.Component {
   RecipientJSX = () => this.state.recipients.map( (recipient, index) => (
     <div className='createTxRecipientContainer' key={index}>
       <div className="addressWrap">
+        <label>Address</label>
       <div className={"address_wrap "  + ( this.isAddressValid(recipient.address) ? "sendInputValidAddress" : "sendInputInvalidValidAddress")} >
         <input className='createTxAddressInputField' 
           type="text"
@@ -140,7 +147,6 @@ class WalletCreateTx extends React.Component {
           value={recipient.address}
           onChange={event => this.setAddress(event.target.value,index)}
         />
-        <label>Address</label>
      </div>
     </div>
 
@@ -156,24 +162,27 @@ class WalletCreateTx extends React.Component {
     </div>
   <br/>
   
+  <div className="createTxSelectedTokenList">
       {Object.keys(this.state.recipients[index].amount).filter((token => token!=="lovelace")).map( (item,i) => (
         <div key={i}>        
     
-      <div className="addressWrap">
-  <div className="address_wrap">
-     <div className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>:
-        <input
+  <div className="addressWrap">
+     <div className="CreateTxSelectedToken">
+     <div key={item} className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>
+       {!this.state.tokenData[item].isNft &&  <input
           type="number"
           name="amount"
           value={ this.state.recipients[index].amount[item] === 0 ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
           />
-    <button type="submit" onClick={ () =>  this.deleteToken(item,index)}>Remove token</button>
-
+        }
+    <button type="submit" onClick={ () =>  this.deleteToken(item,index)}>x</button>
+    {!this.state.tokenData[item].isNft &&  <button type="submit" onClick={ () =>  this.setMax(item,index)}>max</button>}
     </div>
     </div>
     </div>
     ))}
+    </div>
     <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index}></TokenDropdownMenu>
     { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
 
@@ -222,7 +231,7 @@ class WalletCreateTx extends React.Component {
   render(){
 
   return (
-    <div>
+    <div className='CreateTransactionContainer'>
       <div> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} tA </div>
       { this.RecipientJSX()}
       <button type="submit" onClick={this.addRecipient}>Add recipient</button>

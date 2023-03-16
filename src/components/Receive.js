@@ -53,32 +53,26 @@ function Receive(props){
     useEffect(() => {
             const options =  props.wallet.getFundedAddress()
             const optionsNames = {}
-            console.log(options,optionsNames)
 
             options.map( option => { optionsNames[option] = props.wallet.getAddressName(option) })
             
             // add the unstaked address only if it is not already in the list of funded addresses 
-            console.log()
             
-            console.log(props.wallet.getAddress())
             options.includes( props.wallet.getAddress())?   "" :  options.push(props.wallet.getAddress())
             props.wallet.getAddress() in optionsNames && optionsNames[props.wallet.getAddress()] !== props.wallet.getAddress() ?  "" :  optionsNames[props.wallet.getAddress()] = "Regular Address" 
         
-            console.log(options,optionsNames)
 
 
             options.includes(props.wallet.getAddress(donationAddress))  ? "" : options.push(props.wallet.getAddress(donationAddress))
             props.wallet.getAddress(donationAddress) in optionsNames && optionsNames[props.wallet.getAddress(donationAddress)] !== props.wallet.getAddress(donationAddress) ?  "" :  optionsNames[props.wallet.getAddress(donationAddress)] = "Donate rewards" 
 
         
-            console.log(options,optionsNames)
         
         
             options.push("new")
             optionsNames["new"] = "New Externaly Staked Address"
             setOptions(options)
             setOptionsNames(optionsNames)
-            console.log(options,optionsNames)
     }, [props.wallet])
 
     

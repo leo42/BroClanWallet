@@ -42,7 +42,6 @@ function TokenElement(props){
     },[tokenInfo])
 
 
-    console.log(tokenInfo)
     const tooltipinfo =
      <div onClick={handleThumpnailClick}  className="TokenToolTip">
       <span><a  >{props.tokenId} </a><br/></span>

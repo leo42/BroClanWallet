@@ -182,8 +182,7 @@ setPendingTxs(pendingTxs){
 
 
     getAddress(stakingAddress="") {
-       // return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
-        if (stakingAddress !== "") console.log(this.lucid.utils.getAddressDetails(stakingAddress))
+        return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
         const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
         return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
     }
@@ -223,8 +222,6 @@ setPendingTxs(pendingTxs){
   
     async loadUtxos() {
       const utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
-      console.log("Load Utxos")
-      console.log(utxos,this.utxos)
       if(this.delegation === undefined){
         this.getDelegation()
       }
@@ -239,28 +236,22 @@ setPendingTxs(pendingTxs){
     }
 
     compareUtxos(a,b){ 
-      console.log( "compare Utxos", a,b)
       if (a.length !== b.length) {
         return false
       }
       for (let i = 0; i < a.length; i++) {
         if (a[i].txHash !== b[i].txHash || a[i].outputIndex !== b[i].outputIndex) {
-          console.log("Utxos are not equal")
           return false
 
         }
       }
-      console.log("Utxos are equal")
       return true
     }
     
     async checkTransactions(){
       const utxos = this.utxos
-      console.log("Check Transactions")
-      console.log(this.getPendingTxs())
       for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
         const isValid = await this.checkTransaction(this.pendingTxs[i].tx)
-        console.log("isValid", isValid)
         if (!isValid){
           console.log("Remove Pending Tx")
           this.removePendingTx(i)
@@ -270,7 +261,6 @@ setPendingTxs(pendingTxs){
     
     async checkTransaction(tx){
       const utxos = this.utxos
-      console.log("Check Transaction")
       const transactionDetails = this.decodeTransaction(tx)
       
         const inputsUtxos =  await this.getUtxosByOutRef(transactionDetails.inputs)
@@ -314,7 +304,6 @@ setPendingTxs(pendingTxs){
 
     checkSigners(signers){
         const json=this.wallet_script
-        console.log(json)
         const that = this
         let requires_before = false
         let requires_after = false
@@ -373,7 +362,6 @@ setPendingTxs(pendingTxs){
         function checkBefore(json){ 
           const slot = json.slot          
           const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
-          console.log(slot,currentSlot)
           if (slot > currentSlot){
               (requires_before === false || requires_before > json.slot) ? requires_before = json.slot : null
               return true
@@ -515,7 +503,6 @@ setPendingTxs(pendingTxs){
       if (!await this.checkTransaction(transaction)){
         throw new Error("Transaction invalid")
       }
-      console.log(transaction)
       let uint8Array , tx
 
       try{
@@ -523,7 +510,6 @@ setPendingTxs(pendingTxs){
 
 
         uint8Array = typeof transaction === 'string' ?  new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16))) : transaction;
-        console.log(uint8Array)
         tx =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
       }catch(e){
         console.log(e)
@@ -592,7 +578,6 @@ setPendingTxs(pendingTxs){
       .complete()
       
       this.pendingTxs.map( (PendingTx) => {
-        console.log(PendingTx.tx.toHash(),completedTx.toHash())
         if (PendingTx.tx.toHash() === completedTx.toHash()) {
           throw new Error('Transaction already registerd');
         }

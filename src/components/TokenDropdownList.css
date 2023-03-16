@@ -1,5 +1,10 @@
 .TokenListTokenContainer .TokenElementWrapper{
     width: 45vw;
+    border-bottom: #000000;
+    border-radius: 1px;
+    padding: 10px;
+    margin: 10px;
+    border-style:outset
 }
 
 .TokenListTokenContainer .TokenElement{
@@ -14,9 +19,14 @@
     width: 30vw;
 }
 
-.TokenListTokenContainer:hover{
+.TokenListTokenContainer .TokenElement:hover{
     background-color: #f6f6f6;
 }
+
+.TokenListTokenContainer .TokenToolTip:hover{
+    background-color: #f6f6f6;
+}
+
 
 .TokenListTokenContainer .tokenElementName{
     color: #000000;

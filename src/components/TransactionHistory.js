@@ -28,7 +28,6 @@ function TransactionHistory (props) {
     , [address, props.root.state.settings]);
 
     function handleChangeFrom(event) {
-        console.log()
         setAddress(event.target.value)
 
     }
