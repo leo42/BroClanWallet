@@ -1,9 +1,19 @@
 .txDetailsInputs {
   display: flex;
   flex-direction: column;
+  align-items: center;
   margin-bottom: 10px;
   width: 45%;
   overflow: hidden;
+}
+
+.pendingTxTokenContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+  width: 100%;
 }
 
 .txDetailsInput{

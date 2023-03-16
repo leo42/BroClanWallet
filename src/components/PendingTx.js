@@ -99,7 +99,7 @@ function WalletPendingTx(props) {
                          { input.datum ? <p>datum: {JSON.stringify(input.datum) }</p> : ""}
                         {input.scriptRef ?  <p>Script Ref: {input.scriptRef ? "None" : input.scriptRef}</p> : ""}
                         
-                    {Object.keys( input.assets).map( (asset,index) => <div  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
+                    {Object.keys( input.assets).map( (asset,index) => <div className="pendingTxTokenContainer"  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
                     
                     </div>
         )
@@ -112,7 +112,7 @@ function WalletPendingTx(props) {
                     <div key={JSON.stringify(output)}>
                         <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {output.address}</p>
                         {Object.keys(amount).map((key, index) => (
-                            <div key={index}>
+                            <div className="pendingTxTokenContainer" key={index}>
                                <TokenElement tokenId={key} amount={amount[key]}/>
                             </div>
                         ))}

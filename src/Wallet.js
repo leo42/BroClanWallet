@@ -709,8 +709,12 @@ setPendingTxs(pendingTxs){
     }
 
     getDefaultAddress(){
-     return this.defaultAddress 
+        if (this.defaultAddress === null) {
+            this.defaultAddress = this.getAddress();
+        }
+        return this.defaultAddress;
     }
+
     getAddressNames(){
       return this.addressNames
     }
