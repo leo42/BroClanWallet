@@ -109,7 +109,7 @@ function WalletPendingTx(props) {
         const amount = transformAmount(output.amount)
         return (
                  
-                    <div key={JSON.stringify(output)}>
+                    <div key={JSON.stringify(output)} className="txDetailsOutput">
                         <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {output.address}</p>
                         {Object.keys(amount).map((key, index) => (
                             <div className="pendingTxTokenContainer" key={index}>

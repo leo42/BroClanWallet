@@ -3,7 +3,8 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 10px;
-  width: 45%;
+  width: 45vw;
+  margin-right: 10px;
   overflow: hidden;
 }
 
@@ -18,6 +19,11 @@
 
 .txDetailsInput{
   margin-bottom: 5px;
+  width: 100%;
+  /* add a light boarder */
+  border-bottom: 1px solid #000000;
+  border-top: 1px solid #000000;
+  padding: 5px;
 }
 
 .txDetailsOutputs{
@@ -25,23 +31,30 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  width: 45%;
-  
-  overflow: hidden;
+  width: 45vw;
 }
 
 .txDetailsInputsOutputs{
   display: flex;
+  margin-left: 10px;
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 5px;
   width: 100%;
 }
 
+.txDetailsOutput{
+  margin-bottom: 5px;
+  width: 100%;
+  /* add a light boarder */
+  border-bottom: 1px solid #000000;
+  border-top: 1px solid #000000;
+  padding: 5px;
+}
 .txDetailsAddressMine{
-  color: #00ff00;
+  color: #00a100;
 }
 
 .txDetailsAddressNotMine{
-  color: #ff0000;
+  color: #da0000;
 }
