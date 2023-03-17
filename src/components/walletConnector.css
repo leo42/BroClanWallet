@@ -6,7 +6,8 @@
 }
 
 .settingsButton{
-    background-color: var(--clrorange);
+    background-color: transparent;
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
     color: var(--clrwhite);
     border: 0;
     border-radius: 5px;
@@ -23,7 +24,8 @@
 }
 
 .connectButton{
-    background-color: var(--clrorange);
+    background-color: transparent;
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
     color: var(--clrwhite);
     border: 0;
     border-radius: 5px;
