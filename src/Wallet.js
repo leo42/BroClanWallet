@@ -86,6 +86,11 @@ class Wallet {
     } 
 
     async changeSettings(settings){
+      if(settings.network !== this.lucid.network){
+        this.utxos = []
+        this.delegation = {poolId: null, rewards: null}
+      }
+
       try{
       if (settings.provider === "Blockfrost"){
         await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
