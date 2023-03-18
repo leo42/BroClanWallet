@@ -14,7 +14,8 @@ function PoolElement(props){
 function handleClick(e) {
     e.preventDefault();
     console.log('The link was clicked.');
-    window.open(`https://cexplorer.io/pool/${props.poolId}`, '_blank');
+    const urlPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."; 
+    window.open(`https://${urlPrefix}cexplorer.io/pool/${props.poolId}`, '_blank');
   }
 
     console.log("PoolElement", PoolInfo)
@@ -39,9 +40,9 @@ function handleClick(e) {
         </div>
 
       </div>
-      <div className="PoolElementAtribution"  onClick={handleClick}>
+      <div className="PoolElementAtribution" >
         <span className="PoolElementAtributionText">Pool data provided by 
-        <img className="PoolElementAtributionImg" src="assets/cexplorer.svg" ></img> 
+        <img className="PoolElementAtributionImg" src="assets/cexplorer.svg"  onClick={handleClick} ></img> 
         </span>
          </div>
      </div>)

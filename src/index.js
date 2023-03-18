@@ -178,6 +178,20 @@ class App extends React.Component {
 
     this.setState({connectedWallet})
   }
+  async reloadAllBalance(){
+    try {
+      if (this.state.wallets.length > 0){
+        const wallets = this.state.wallets
+        for(let index = 0 ; index < this.state.wallets.length ; index++){
+          await wallets[index].loadUtxos()
+        }
+        this.setState({wallets})
+      }
+    }
+    catch(e) {
+      toast.error(e.message);
+    } 
+  }
 
   async reloadBalance(){
       try {
@@ -228,7 +242,7 @@ class App extends React.Component {
       myWallet.setPendingTxs(wallets[index].pendingTxs)
       await myWallet.checkTransactions()
       state.wallets.push(myWallet)
-
+      this.reloadAllBalance()
     }
     state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings

@@ -13,9 +13,8 @@
     max-width: 750px;
     margin-left: auto;
     margin-right: auto;
-    cursor: pointer;
     /* stop pool element from shwoing up when modals are open */
-    z-index: -1;
+    z-index: 1;
 
     
 
@@ -45,6 +44,7 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .PoolElementText   {
@@ -80,4 +80,7 @@
 .PoolElementAtributionImg{
     width: 80px;
     height: 20px;
+    z-index: 100;
+    cursor: pointer;
+
 }

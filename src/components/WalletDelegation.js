@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PoolElement from './PoolElement';
 import SearchPools from '../helpers/SearchPools';
-
+import "./WalletDelegation.css"
 function WalletDelegation(props) {
   const wallet = props.wallet
   const initialState = [] 

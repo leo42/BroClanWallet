@@ -81,7 +81,6 @@ class Wallet {
 
       this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
-      this.loadUtxos()
 
     } 
 
