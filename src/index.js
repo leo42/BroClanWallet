@@ -1,4 +1,3 @@
-import { Lucid } from 'lucid-cardano';
 import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -10,6 +9,7 @@ import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
 import connectSocket from  './helpers/SyncService';
 import sha256 from 'crypto-js/sha256';
+import {  Blockfrost ,Kupmios} from "lucid-cardano";
 
 
 const script1 = {
@@ -101,17 +101,44 @@ class App extends React.Component {
   }
 
   async setSettings(settings){
-   
+    console.log(settings)
+    const valid = await this.checkSettings(settings)
+    if (!valid){
+      toast.error("Invalid settings");
+      return
+    }
     const wallets=[...this.state.wallets]
     for(let index = 0 ; index < this.state.wallets.length ; index++){
+      try{
        await wallets[index].changeSettings(settings)
+      }catch(e){
+        console.log(e)
+      }
     }
      this.setState({settings})
     this.setState({wallets})
     this.reloadBalance()
-    
   }
 
+  async checkSettings(settings){
+    console.log("checkSettings",settings)
+    try{
+      if (settings.provider === "Blockfrost"){
+        const provider = new Blockfrost(settings.api.url, settings.api.projectId)
+        await provider.getProtocolParameters()
+      }else if (settings.provider === "Kupmios"){
+        const provider = new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl)
+        await provider.getProtocolParameters()
+      }else if (settings.provider === "MWallet"){
+        const provider = new Blockfrost(settings.api.url, settings.api.projectId)
+        await provider.getProtocolParameters()
+      }
+      return true
+    }catch(e){
+      console.log(e)
+      return false
+    }
+  }
 
 
   componentDidMount() {

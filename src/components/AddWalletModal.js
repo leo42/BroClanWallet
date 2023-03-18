@@ -57,6 +57,8 @@ class AddWalletModal extends React.Component {
 
   checkAllAddresses = (scripts) => {
     let valid = true
+    if(scripts === undefined)
+      return true
     for (const script of scripts){
       if (script.type === "sig"){
         const validAddress = this.isAddressValid(script.keyHash)

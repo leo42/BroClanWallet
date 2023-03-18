@@ -30,6 +30,7 @@ class Wallet {
       this.txDetails = {}
       this.pendingTxs = [];
       this.addressNames = {}
+      this.utxos = []
       
     }
 
@@ -80,7 +81,7 @@ class Wallet {
 
       this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
-      await this.loadUtxos()
+      this.loadUtxos()
 
     } 
 
@@ -221,6 +222,7 @@ setPendingTxs(pendingTxs){
     }
   
     async loadUtxos() {
+      try{
       const utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
       if(this.delegation === undefined){
         this.getDelegation()
@@ -232,7 +234,9 @@ setPendingTxs(pendingTxs){
         this.getDelegation()
         this.utxos = utxos
         await this.checkTransactions()
-        
+    }catch(e){
+      console.log("Error loading utxos", e)
+    }
     }
 
     compareUtxos(a,b){ 
