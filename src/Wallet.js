@@ -257,7 +257,8 @@ setPendingTxs(pendingTxs){
     }
     
     async checkTransactions(){
-      const utxos = this.utxos
+
+      await this.loadUtxos()
       for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
         const isValid = await this.checkTransaction(this.pendingTxs[i].tx)
         if (!isValid){

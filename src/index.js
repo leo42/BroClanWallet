@@ -242,7 +242,6 @@ class App extends React.Component {
       myWallet.setPendingTxs(wallets[index].pendingTxs)
       await myWallet.checkTransactions()
       state.wallets.push(myWallet)
-      this.reloadAllBalance()
     }
     state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
