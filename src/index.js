@@ -104,7 +104,7 @@ class App extends React.Component {
     console.log(settings)
     const valid = await this.checkSettings(settings)
     if (!valid){
-      toast.error("Invalid settings");
+      throw ("Invalid settings");
       return
     }
     const wallets=[...this.state.wallets]
