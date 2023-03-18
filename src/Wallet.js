@@ -346,16 +346,13 @@ setPendingTxs(pendingTxs){
         function checkAtLeast(json,required){
           var sigs=0;
           for (var index = 0; index < json.length; index++){
-
             if (checkRoot(json[index]) ){
-               sigs++
-               
+               sigs++     
             }
-            if(sigs >= required){
-              return true
-            }
-            
           }
+          if(sigs >= required){
+          return true
+        }
           return false
        }
         
