@@ -84,6 +84,8 @@ function Overview(props) {
           </div>
           <div>
              <DownloadIcon className="downloadButton" onClick={handleExport} alt="downloadIcon" />
+             <a ref={linkRef}  style={{ display: "none" }}></a>
+
             < br/>   
           </div>
       </div>
