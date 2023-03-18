@@ -59,15 +59,24 @@
     overflow-wrap: break-word; 
 }
 
+.overviewButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items: center;
+    margin: 10px;
+}
+
 .downloadButton{
-    background-color: var(--clrorange);
+    background-color: transparent;
     color: var(--clrwhite);
-    border: 0;
+    /* border: 1px solid black; */
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
     border-radius: 5px;
     padding: 5px 10px;
     margin: 10px;
-    height: 50px;
-    width: 50px;
+    height: 30px;
+    width: 30px;
     cursor: pointer;
 }
 
@@ -76,15 +85,35 @@
     height: 100%;
 }
 
+.deleteButton{
+    background-color: transparent;
+    color: var(--clrwhite);
+    /* border: 1px solid black; */
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 10px;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+}
+
+.delete_svg__deleteImage{
+    width: 100%;
+    height: 100%;
+}
+
 .expandButton{
-    background-color: var(--clrorange);
+    background-color: transparent;
     color: var(--clrwhite);
     border: 0;
     border-radius: 5px;
     padding: 5px 10px;
-    margin: 10px;
-    height: 50px;
-    width: 50px;
+    margin-top: 22px;
+    margin-bottom: -11px;
+    margin-left: -1px;
+    height: 20px;
+    width: 20px;
     cursor: pointer;
 }
 
@@ -206,7 +235,7 @@
     color: var(--clrwhite); 
 }
 
-button img{
-    width: 50px;
-    height: auto;
-}
+
+
+
+

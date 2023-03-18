@@ -37,18 +37,15 @@ function WalletConnector(props){
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
                 { walletImportModalOpen  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
-                <label> <div>
+                 <div>
                 <SettingsIcon className="settingsButton" onClick={() => setSettingsModalOpen(true)} alt="settingsIcon" />
                 < br/>  </div> 
-                </label>
         </div>
     if(props.root.state.connectedWallet.socket === null) {
         return (<div className="WalletConnector">
-            {/* <button data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)}>Connect Wallet </button> */}
-            <label><div>
+            <div>
              <ConnectIcon className="connectButton" data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)} alt="connectIcon" />
             < br/>  </div> 
-            </label>   
                 {content}
             </div>)
     }else{   
