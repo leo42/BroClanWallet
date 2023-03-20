@@ -5,38 +5,81 @@
     margin: 10px;
 }
 
-.settingsButton{
-    background-color: transparent;
-    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
-    color: var(--clrwhite);
-    border: 0;
-    border-radius: 5px;
-    padding: 5px 10px;
+.connectorSettings{
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items: center;
     margin: 10px;
-    height: 50px;
-    width: 50px;
-    cursor: pointer;
 }
 
-.settings_svg__settingsImage{
+.settings_svg__settingsImage,
+.connect_svg__connectImage,
+.disconnect_svg__disconnectImage,
+.change_svg__changeImage,
+.load_svg__loadImage,
+.download_svg__downloadImage,
+.delete_svg__deleteImage,
+.expand_svg__expandImage{
     width: 100%;
     height: 100%;
 }
 
-.connectButton{
-    background-color: transparent;
+.settingsButton,
+.connectButton,
+.disconnectButton,
+.changeButton,
+.loadButton,
+.deleteButton{
+    background-color: white;
     box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
-    color: var(--clrwhite);
+    /* color: var(--clrwhite); */
     border: 0;
     border-radius: 5px;
     padding: 5px 10px;
     margin: 10px;
-    height: 50px;
-    width: 50px;
+    height: 30px;
+    width: 30px;
     cursor: pointer;
 }
 
-.connect_svg__connectImage{
+.downloadButton{
+    background-color: white;
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 10px;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    position: relative;
+}
+
+.download_svg__downloadImage{
     width: 100%;
     height: 100%;
 }
+
+ .downloadButton:hover{
+    transform: scale(3.1);
+}
+
+.downloadButton:hover::before {
+    content: "Click me!";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: rgb(200, 13, 13);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 1;
+  }
+
+
+
+
