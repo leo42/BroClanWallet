@@ -22,7 +22,8 @@
 .overviewTokenContainer .TokenElement img{
     size: 15px;
     
-} */
+} 
+
 .st0{fill:#000000;}
 
 .settingsIcon{
@@ -46,14 +47,6 @@
 }
 
 .overviewTokenContainer .tokenElementtooltip{
-    min-width: 250px;
-    max-width: 250px;
-    height: 80px;
-    margin: 10px;
-    border: 1px;
-    border-style:inset;
-    overflow: wrap;
-    display: grid;
 
     word-wrap: break-word;
     overflow-wrap: break-word; 
@@ -128,7 +121,7 @@
     
     .overviewTokenContainer .TokenElement{
         display: flex;
-        flex-flow: row nowrap;
+        flex-flow: column nowrap;
 
     }
 
