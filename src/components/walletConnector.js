@@ -5,6 +5,9 @@ import SettingsModal from "./SettingsModal";
 import WalletImportModal from "./WalletImportModal";
 import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
 import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
+import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg';
+import { ReactComponent as ChangeIcon } from '../html/assets/change.svg';
+import { ReactComponent as LoadIcon } from '../html/assets/load.svg';
 
 
 
@@ -27,9 +30,21 @@ function WalletConnector(props){
     
     const connectorSettings = () =>
         <div className="connectorSettings">
-        { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> }
-        <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button>
-        <button onClick={() => loadWallets()}>Load Wallets</button>
+        {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
+        <div>
+        <DisconnectIcon className="disconnectButton" onClick={() => props.root.disconnectWallet()} alt="disconnectIcon" />
+        < br/>   
+        </div>}
+        {/* <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button> */}
+        <div>
+        <ChangeIcon className="changeButton" onClick={() => setWalletPickerOpen(true)} alt="changeIcon" />
+        < br/>   
+        </div>
+        {/* <button onClick={() => loadWallets()}>Load Wallets</button> */}
+        <div>
+        <LoadIcon className="loadButton" onClick={() => loadWallets()} alt="loadIcon" />
+        < br/>   
+        </div>
         <br/>
 
         </div>  

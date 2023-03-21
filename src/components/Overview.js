@@ -82,9 +82,8 @@ function Overview(props) {
              <DeleteIcon className="deleteButton" onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)} alt="deleteIcon" />
             < br/>   
           </div>
-          <div>
+          <div className='downloadArea'>
              <DownloadIcon className="downloadButton" onClick={handleExport} alt="downloadIcon" />
-             <a ref={linkRef}  style={{ display: "none" }}></a>
 
             < br/>   
           </div>
