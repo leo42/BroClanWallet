@@ -161,9 +161,15 @@ class App extends React.Component {
 
   async connectWallet(wallet){
     try{
-      if (this.state.connectedWallet.socket !== null){
-        this.state.connectedWallet.socket.close()
-      }
+
+        if (this.state.connectedWallet) {
+            const connectedWallet = this.state.connectedWallet
+  
+            if (connectedWallet.socket) {
+                connectedWallet.socket.close()
+            }
+        }
+
       const socket =  await connectSocket(wallet, this) 
       let connectedWallet = {  name :wallet , socket: socket}
       this.setState({connectedWallet})
@@ -178,8 +184,9 @@ class App extends React.Component {
     if (error !== ""){
       toast.error(error);
     }
-    this.state.connectedWallet.socket.close()
-
+    if (this.state.connectedWallet.socket) {
+      this.state.connectedWallet.socket.close()
+    }
     let connectedWallet = {name: "", socket: null}
 
     this.setState({connectedWallet})
