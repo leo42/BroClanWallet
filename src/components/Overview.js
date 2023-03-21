@@ -13,7 +13,7 @@ function Overview(props) {
   const [showing , setShowing] = useState("All")
   const [showingAddress , setShowingAddress] = useState(props.wallet.getDefaultAddress())
   const [search , setSearch] = useState("")
-
+  const [hovering, setHovering] = useState("")
   const showSettings = (index) =>{
     let settingsOpenNew = [...settingsOpen]
     settingsOpenNew[index] = !settingsOpenNew[index]
@@ -82,12 +82,15 @@ function Overview(props) {
              <DeleteIcon className="deleteButton" onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)} alt="deleteIcon" />
             < br/>   
           </div>
-          <div className='downloadArea'>
-             <DownloadIcon className="downloadButton" onClick={handleExport} alt="downloadIcon" />
-
+          <a ref={linkRef}  style={{ display: "none" }}></a>
+          <div  onMouseEnter={() => setHovering("download")} onMouseLeave={() => setHovering("") } onClick={handleExport}  className='iconWraper'>
+             <DownloadIcon className="icon"  alt="downloadIcon" />
+            {  hovering === "download" &&  <label className='iconLabel'>download</label> }
+            
             < br/>   
           </div>
       </div>
+
     </div>
 
   return (

@@ -197,4 +197,54 @@
 
 
 
+.iconWraper{
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    background-color: white;
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    border: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+
+.icon {
+    /* color: var(--clrwhite); */
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    cursor: pointer;
+    align-self: center;
+    transition: transform 0.6s ease-in-out;
+}
+
+.download_svg__downloadImage{
+    width: 100%;
+    height: 100%;
+}
+
+.iconWraper:hover{
+    transform: scale(2);
+    box-shadow: 4px 4px 4px 4px rgba(216, 148, 71, 0.24);
+}
+
+.iconWraper label{
+    font-size: 10px;
+    color: rgb(116, 116, 116);
+    cursor: pointer;
+    align-self: center;
+    text-align: center;
+    top:-11px;
+    left: -4px;
+    position: relative;
+
+}
+
+
+
+
+
 
