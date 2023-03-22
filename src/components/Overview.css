@@ -180,8 +180,8 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-
 }
+
 .overviewTokenContainer .TokenElement:hover{
     background-color: var(--clrblue);
     color: var(--clrwhite); 
