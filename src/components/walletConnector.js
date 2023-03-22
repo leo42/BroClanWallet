@@ -8,6 +8,7 @@ import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
 import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg';
 import { ReactComponent as ChangeIcon } from '../html/assets/change.svg';
 import { ReactComponent as LoadIcon } from '../html/assets/load.svg';
+import { useEffect } from "react/cjs/react.production.min";
 
 
 
@@ -26,6 +27,7 @@ function WalletConnector(props){
 
     function loadWallets(){
         props.root.loadWallets()
+        setWalletImportModalOpen(true)
     }
     
  {/* <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
@@ -60,6 +62,7 @@ function WalletConnector(props){
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
+
                 { walletImportModalOpen  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
                 {/* <div className="WalletConnector"> */}
                 <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setSettingsModalOpen(true)} className='iconWraper settingsButton'>
@@ -67,6 +70,7 @@ function WalletConnector(props){
                 {  hovering === "settings" &&  <label className='iconLabel'>Settings</label> }
                 < br/>  </div>
                 {/* </div>  */}
+
         </div>
         
 
@@ -86,7 +90,7 @@ function WalletConnector(props){
     }else{   
         return (<div className="WalletConnector">
             <button onClick={() => openConfigMenu(!configMenu)}>{props.root.state.connectedWallet.name}</button>
-            {props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0  ? <button onClick={() => setWalletImportModalOpen(true)}>{Object.keys(props.root.state.pendingWallets).length} Wallets found</button> : ""}
+            { props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0  && <button onClick={() => setWalletImportModalOpen(true)}>{Object.keys(props.root.state.pendingWallets).length} Wallets found</button> }
             {configMenu ? connectorSettings() : ""}
 
             {content}

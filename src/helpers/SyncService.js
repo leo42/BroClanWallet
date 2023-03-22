@@ -80,17 +80,23 @@ async function  connectSocket(wallet , root){
         const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
         const walletsHashes = root.state.wallets.map((wallet) => root.walletHash(wallet.getJson()))
         const res = await Promise.all(walletsHashes)
-        
+        var newWallets = false
         data.wallets.forEach((wallet) => {
             if(!Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
                 pendingWallets[wallet.hash] = wallet
+                newWallets = true
             }
         })
         console.log("wallets_found", data)
+        if(newWallets){
+            toast("New pending wallets added")
+          }else{
+            toast("No new pending wallets")
+        }
+
+
         root.setState({pendingWallets: pendingWallets})
-    }
-    
-    
+    } 
     return socket
 }  
 
