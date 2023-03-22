@@ -139,7 +139,7 @@ class WalletCreateTx extends React.Component {
   RecipientJSX = () => this.state.recipients.map( (recipient, index) => (
     <div className='createTxRecipientContainer' key={index}>
       <div className="addressWrap">
-        <label>Address</label>
+        <label>Address:</label>
       <div className={"address_wrap "  + ( this.isAddressValid(recipient.address) ? "sendInputValidAddress" : "sendInputInvalidValidAddress")} >
         <input className='createTxAddressInputField' 
           type="text"
@@ -152,12 +152,12 @@ class WalletCreateTx extends React.Component {
 
   <div className="addressWrap">
   <div className="address_wrap">
-    <input className='createTxADAInputField'
+  <span className="overVeiwTokenSearch">ADA: <input className='createTxADAInputField'
       type="number"
       name="amount"
       value={this.state.recipients[index].amount.lovelace === 0 ? "" :this.state.recipients[index].amount.lovelace/1_000_000 }
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
-    /> 
+    /> </span>
     </div>
     </div>
   <br/>

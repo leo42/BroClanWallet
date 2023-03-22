@@ -13,6 +13,14 @@
 
 }
 
+.addressWrap label{
+    font-size: 25px;
+}
+
+.addressWrap input[type="text"] {
+    margin: 10px;
+  }
+
 .CreateTransactionContainer{
 
     width: 100%;

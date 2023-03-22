@@ -4,14 +4,48 @@
     left: 0px;
     margin: 10px;
 }
-.addWalletButton{
-    
-    height: inherit;
 
-}
-    
 .MWalletList{
     margin: 10px;
     height: auto;
 }
+
+.addWalletButton{
+    height: inherit;
+    background-color: white;
+    border: 3px solid transparent;
+    border-image: conic-gradient(
+        from var(--angle),
+        rgba(255, 153, 0, 1) 0deg 90deg,
+        rgba(255, 153, 0, 0) 90deg 360deg
+      )
+      1 stretch;
+    animation: rotate 4s linear infinite;
+    transition: transform 0.3s ease-in-out;
+
+}
+  
+@supports (background: paint(houdini)) {
+
+    @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+    }
+
+    @keyframes rotate {
+    to {
+        --angle: 360deg;
+    }
+    }}
+
+.addWalletButton:hover{
+    color: var(--clrorange);
+    transform: scale(1.5);
+}
+  
+    
+
+
+
 
