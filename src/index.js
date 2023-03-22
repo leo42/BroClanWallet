@@ -581,7 +581,7 @@ class App extends React.Component {
           theme="dark"
           />
 
-        <h1  >MWallet</h1>
+        <h1  >Bro Clan </h1>
         <React.StrictMode>
 
         <div className='WalletInner'>
