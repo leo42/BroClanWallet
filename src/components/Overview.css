@@ -193,7 +193,6 @@
 .iconWraper{
     box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
     background-color: white;
-    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
     border: 0;
     width: 30px;
     height: 30px;
@@ -201,42 +200,92 @@
     margin: 10px;
     cursor: pointer;
     padding: 10px;
+    transition: transform 0.3s ease-in-out;
 }
 
 
 .icon {
-    /* color: var(--clrwhite); */
     height: 30px;
     width: 30px;
     cursor: pointer;
-    cursor: pointer;
     align-self: center;
-    transition: transform 0.6s ease-in-out;
+    
 }
 
-.download_svg__downloadImage{
+/* .download_svg__downloadImage{
     width: 100%;
     height: 100%;
-}
+} */
 
 .iconWraper:hover{
-    transform: scale(2);
-    box-shadow: 4px 4px 4px 4px rgba(216, 148, 71, 0.24);
+    transform: scale(1.7);
+    box-shadow: 0 0 8px var(--clrorange);
 }
 
 .iconWraper label{
-    font-size: 10px;
-    color: rgb(116, 116, 116);
+    font-size: 8px;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
     cursor: pointer;
     align-self: center;
     text-align: center;
-    top:-11px;
-    left: -4px;
-    position: relative;
+    /* top:-11px;
+    left: 0px;
+    position: relative; */
 
 }
 
+.downloadButton label{
+    top: -11px;
+    left: -2px;
+    position: relative;
+}
 
+.deleteButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.connectButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.settingsButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.disconnectButton label{
+    top: -11px;
+    left: -3px;
+    position: relative;
+}
+
+.changeButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.loadButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+
+
+/* .iconLabel{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+} */
 
 
 

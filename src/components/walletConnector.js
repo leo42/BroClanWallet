@@ -17,6 +17,7 @@ function WalletConnector(props){
     const [configMenu, openConfigMenu] = React.useState(false);
     const [settingsModalOpen, setSettingsModalOpen] = React.useState(false);
     const [walletImportModalOpen, setWalletImportModalOpen] = React.useState(false);
+    const [hovering, setHovering] = React.useState("");
 
 
     function connectWallet(walletName){
@@ -29,22 +30,30 @@ function WalletConnector(props){
         setWalletImportModalOpen(true)
     }
     
-    
+ {/* <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
+             <DeleteIcon className="icon"  alt="deleteIcon" />
+             {  hovering === "delete" &&  <label className='iconLabel'>Delete</label> }
+            < br/>   
+          </div> */}
+
     const connectorSettings = () =>
         <div className="connectorSettings">
         {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
-        <div>
-        <DisconnectIcon className="disconnectButton" onClick={() => props.root.disconnectWallet()} alt="disconnectIcon" />
+        <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.disconnectWallet()} className='iconWraper disconnectButton'>
+        <DisconnectIcon className="icon" alt="disconnectIcon" />
+        {  hovering === "disconnect" &&  <label className='iconLabel'>Disconnect</label> }
         < br/>   
         </div>}
         {/* <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button> */}
-        <div>
-        <ChangeIcon className="changeButton" onClick={() => setWalletPickerOpen(true)} alt="changeIcon" />
+        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)} className='iconWraper changeButton'>
+        <ChangeIcon className="icon" alt="changeIcon" />
+        {  hovering === "change" &&  <label className='iconLabel'>Change</label> }
         < br/>   
         </div>
         {/* <button onClick={() => loadWallets()}>Load Wallets</button> */}
-        <div>
-        <LoadIcon className="loadButton" onClick={() => loadWallets()} alt="loadIcon" />
+        <div onMouseEnter={() => setHovering("load")} onMouseLeave={() => setHovering("") } onClick={() => loadWallets()} className='iconWraper loadButton'>
+        <LoadIcon className="icon" alt="loadIcon" />
+        {  hovering === "load" &&  <label className='iconLabel'>Load</label> }
         < br/>   
         </div>
         <br/>
@@ -53,16 +62,29 @@ function WalletConnector(props){
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
-                { walletImportModalOpen && props.root.state.pendingWallets  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
-                 <div>
-                <SettingsIcon className="settingsButton" onClick={() => setSettingsModalOpen(true)} alt="settingsIcon" />
-                < br/>  </div> 
+
+                { walletImportModalOpen  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
+                {/* <div className="WalletConnector"> */}
+                <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setSettingsModalOpen(true)} className='iconWraper settingsButton'>
+                <SettingsIcon className="icon" alt="settingsIcon" />
+                {  hovering === "settings" &&  <label className='iconLabel'>Settings</label> }
+                < br/>  </div>
+                {/* </div>  */}
+
         </div>
+        
+
     if(props.root.state.connectedWallet.socket === null) {
         return (<div className="WalletConnector">
-            <div>
+            {/* <div>
              <ConnectIcon className="connectButton" data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)} alt="connectIcon" />
-            < br/>  </div> 
+            < br/>  </div>  */}
+            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)}  className='iconWraper connectButton'>
+             <ConnectIcon className="icon"  alt="connectIcon" />
+             {  hovering === "connect" &&  <label className='iconLabel'>Connect</label> }
+            < br/>   
+          </div>
+
                 {content}
             </div>)
     }else{   

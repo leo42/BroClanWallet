@@ -3,7 +3,7 @@
     background-color: transparent;
     border-bottom: 3px solid rgb(171, 171, 171, 0.5) ;
     cursor: pointer;
-    margin: 5px 5px;
+    margin: 5px 0px;
     padding: 2px 15px;
     font-size: 18px;
     
@@ -13,9 +13,41 @@
     border-bottom: 3px solid var(--clrorange);
 }
 
+
 .mainTabPendingTx{
-    box-shadow: 1px 1px 2px 2px rgba(226, 230, 43, 0.24);
-}
+  border: 3px solid transparent;
+  border-image: conic-gradient(
+      from var(--angle),
+      rgba(255, 153, 0, 1) 0deg 90deg,
+      rgba(255, 153, 0, 0) 90deg 360deg
+    )
+    1 stretch;
+  animation: rotate 4s linear infinite;
+  }
+
+  @supports (background: paint(houdini)) {
+  
+    @property --angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+  
+    @keyframes rotate {
+      to {
+        --angle: 360deg;
+      }
+    }}
+
+
+/* @keyframes spin {
+    0% {
+      transform: rotate(0);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } */
 
 .pendingTxNumber{
     background-color: var(--clrorange);

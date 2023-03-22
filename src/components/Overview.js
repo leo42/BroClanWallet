@@ -78,14 +78,15 @@ function Overview(props) {
       <br/>
       <div className='overviewButtons'>
       {/* <button onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}> Delete Wallet</button> */}
-          <div>
-             <DeleteIcon className="deleteButton" onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)} alt="deleteIcon" />
+      <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
+             <DeleteIcon className="icon"  alt="deleteIcon" />
+             {  hovering === "delete" &&  <label className='iconLabel'>Delete</label> }
             < br/>   
           </div>
           <a ref={linkRef}  style={{ display: "none" }}></a>
-          <div  onMouseEnter={() => setHovering("download")} onMouseLeave={() => setHovering("") } onClick={handleExport}  className='iconWraper'>
+          <div  onMouseEnter={() => setHovering("download")} onMouseLeave={() => setHovering("") } onClick={handleExport}  className='iconWraper downloadButton'>
              <DownloadIcon className="icon"  alt="downloadIcon" />
-            {  hovering === "download" &&  <label className='iconLabel'>download</label> }
+            {  hovering === "download" &&  <label className='iconLabel'>Download</label> }
             
             < br/>   
           </div>

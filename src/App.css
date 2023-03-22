@@ -3,6 +3,8 @@
   --clrgreen: rgba(22, 217, 0, 1);
   --clrred: #ff0000;
   --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --angle: 0deg;
+  --opacity: 0.5;
 }
 
 .App {
