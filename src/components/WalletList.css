@@ -10,7 +10,7 @@
     height: auto;
 }
 
-.addWalletButton{
+.addNewWalletButton{
     height: inherit;
     background-color: white;
     border: 3px solid transparent;
@@ -20,7 +20,7 @@
         rgba(255, 153, 0, 0) 90deg 360deg
       )
       1 stretch;
-    animation: rotate 4s linear infinite;
+    animation: rotate 2s linear infinite;
     transition: transform 0.3s ease-in-out;
 
 }
@@ -39,7 +39,7 @@
     }
     }}
 
-.addWalletButton:hover{
+.addNewWalletButton:hover{
     color: var(--clrorange);
     transform: scale(1.5);
 }

@@ -17,7 +17,7 @@ function WalletList (props) {
 
     </select>
 
-<button className='addWalletButton' onClick={ () => setAddWalletOpen(true)}>+</button>
+<button className='addNewWalletButton' onClick={ () => setAddWalletOpen(true)}>+</button>
 
     </div>
     );
