@@ -17,6 +17,7 @@ function WalletList (props) {
 
     </select>
 
+
 <button className={"addWalletButton" + ( props.root.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => setAddWalletOpen(true)}>+</button>
 
     </div>
