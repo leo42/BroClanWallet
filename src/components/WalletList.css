@@ -12,6 +12,17 @@
 
 .addNewWalletButton{
     height: inherit;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--clrorange) 0px 0px 5px 0px;
+    font-size: 12px;
+    transition: 0.5s;
+    border: var(--clrorange) solid 1px;
+    color: var(--clrorange);
+    cursor: pointer;
+}
+
+.addWalletButtonHighlight{
+    height: inherit;
     background-color: white;
     border: 3px solid transparent;
     border-image: conic-gradient(

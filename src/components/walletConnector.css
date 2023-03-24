@@ -17,6 +17,23 @@
     margin: 10px;
 }
 
+.connectedWalletImg{
+    width: 30px;
+    height: 30px;
+    margin: 10px;
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.connectedWalletImg:hover{
+    transform: scale(1.7);
+    box-shadow: 0 0 8px var(--clrorange);
+}
+
 .settings_svg__settingsImage,
 .connect_svg__connectImage,
 .disconnect_svg__disconnectImage,
@@ -33,19 +50,3 @@
     height: 100%;
 }
 
-/* .settingsButton,
-.connectButton,
-.disconnectButton,
-.changeButton,
-.loadButton,
-.deleteButton{
-    background-color: white;
-    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
-    border: 0;
-    border-radius: 5px;
-    padding: 5px 10px;
-    margin: 10px;
-    height: 30px;
-    width: 30px;
-    cursor: pointer;
-} */
