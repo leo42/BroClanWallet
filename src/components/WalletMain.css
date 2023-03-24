@@ -6,11 +6,9 @@
     margin: 5px 0px;
     padding: 2px 15px;
     font-size: 18px;
+    margin-left: 3px;
+    margin-right: 3px;
     
-}
-
-.mainTabSelected{
-    border-bottom: 3px solid var(--clrorange);
 }
 
 
@@ -20,6 +18,7 @@
       from var(--angle),
       rgba(255, 153, 0, 1) 0deg 90deg,
       rgba(255, 153, 0, 0) 90deg 360deg
+
     )
     1 stretch;
   animation: rotate 2s linear infinite;
@@ -42,23 +41,43 @@
   }
 
 
-/* @keyframes spin {
-    0% {
-      transform: rotate(0);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  } */
 
-.pendingTxNumber{
-    background-color: var(--clrorange);
-    align-self: top;
-    color: var(--clrwhite);
-    border-radius: 50%;
-    padding: 2px 5px;
-    font-size: 10px;
-    width: 9px;
-    position: static;
-
+.mainTabSelected{
+  border-bottom: 3px solid var(--clrorange);
 }
+    @supports (background: paint(houdini)) {
+      
+      @property --angle {
+        syntax: "<angle>";
+        initial-value: 0deg;
+        inherits: false;
+      }
+      
+      @keyframes rotate {
+        to {
+          --angle: 360deg;
+        }
+      }}
+      
+
+      /* @keyframes spin {
+        0% {
+          transform: rotate(0);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      } */
+      
+      .pendingTxNumber{
+        background-color: var(--clrorange);
+        align-self: top;
+        color: var(--clrwhite);
+        border-radius: 50%;
+        padding: 2px 5px;
+        font-size: 10px;
+        width: 9px;
+        position: static;
+        
+      }
+      

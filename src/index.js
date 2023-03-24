@@ -88,7 +88,7 @@ class App extends React.Component {
     pendingWallets: {},
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
-    settings: { metadataProvider :"Blockfrost", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  {"url": "http://194.163.159.42:3002" , "projectId": "preprod"} }
+    settings: { metadataProvider :"Blockfrost", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} }
   }
 
   walletLock = false
@@ -581,7 +581,7 @@ class App extends React.Component {
           theme="dark"
           />
 
-        <h1  >MWallet</h1>
+        <h1  >Bro Clan </h1>
         <React.StrictMode>
 
         <div className='WalletInner'>
