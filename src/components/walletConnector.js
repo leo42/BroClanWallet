@@ -63,7 +63,7 @@ function WalletConnector(props){
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
 
-                { walletImportModalOpen  && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
+                { walletImportModalOpen  && props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
                 {/* <div className="WalletConnector"> */}
                 <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setSettingsModalOpen(true)} className='iconWraper settingsButton'>
                 <SettingsIcon className="icon" alt="settingsIcon" />
