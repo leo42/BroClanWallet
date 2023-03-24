@@ -570,6 +570,10 @@ setPendingTxs(pendingTxs){
         tx.deregisterStake(rewardAddress)
       }
 
+      if(Number(this.delegation.rewards) > 0 ){
+        tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript), this.delegation.rewards)
+      }
+
       if (sigCheck.requires_after !== false){
         tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
         
