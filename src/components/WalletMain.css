@@ -13,15 +13,34 @@
 
 
 .mainTabPendingTx{
-  border: 3px solid transparent;
+  /* border: 3px solid transparent; */
   border-image: conic-gradient(
       from var(--angle),
       rgba(255, 153, 0, 1) 0deg 90deg,
       rgba(255, 153, 0, 0) 90deg 360deg
-      )
-      1 stretch;
-      animation: rotate 3s cubic-bezier(0.17, 0.29, 0.76, 0.68) infinite;
+
+    )
+    1 stretch;
+  animation: rotate 2s linear infinite;
+  }
+
+  @supports (background: paint(houdini)) {
+  
+    @property --angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
     }
+  
+    @keyframes rotate {
+      to {
+        --angle: 360deg;
+      }
+    }
+  
+  }
+
+
 
 .mainTabSelected{
   border-bottom: 3px solid var(--clrorange);
