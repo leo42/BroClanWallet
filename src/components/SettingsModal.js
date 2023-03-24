@@ -4,7 +4,7 @@ import { useState} from 'react';
 import {  toast } from 'react-toastify';
 
 
-const MwalletPassthrough = "http://194.163.159.42:3002" 
+const MwalletPassthrough = "https://passthrough.broclan.io" 
 function SettingsModal(props) {
   const [network, setNetwork] = useState(props.root.state.settings.network);
   const [provider, setProvider] = useState(props.root.state.settings.api.url === MwalletPassthrough ? "MWallet" :  props.root.state.settings.provider);
@@ -71,8 +71,8 @@ function SettingsModal(props) {
         case "Mainnet": 
           localproviderConnection.url = "https://cardano-mainnet.blockfrost.io/api/v0"  
           break;
-        case "Testnet":
-          localproviderConnection.url = "https://cardano-testnet.blockfrost.io/api/v0"
+        case "Preview":
+          localproviderConnection.url = "https://cardano-preview.blockfrost.io/api/v0"
           break;
         case "Preprod":
           localproviderConnection.url = "https://cardano-preprod.blockfrost.io/api/v0"
@@ -98,8 +98,8 @@ function SettingsModal(props) {
       case "Mainnet": 
       localproviderConnection.projectId = "mainnet"
       break;
-    case "Testnet":
-      localproviderConnection.projectId = "testnet"
+    case "Preview":
+      localproviderConnection.projectId = "preview"
       break;
     case "Preprod":
       localproviderConnection.projectId = "preprod"

@@ -20,7 +20,7 @@
       rgba(255, 153, 0, 0) 90deg 360deg
       )
       1 stretch;
-      animation: rotate 3s linear infinite;
+      animation: rotate 3s cubic-bezier(0.17, 0.29, 0.76, 0.68) infinite;
     }
 
 .mainTabSelected{
