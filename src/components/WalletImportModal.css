@@ -4,6 +4,41 @@
     height: fit-content;
     align-items: center;
     border-radius: 10px;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.walletImportModalContainer .title{
+    font-size: 42px;
+    font-weight: bold;
+}
+
+.walletImportModalContainer .body{
+    margin-top: 0px;
+}
+
+.walletImportModalContainer .titleCloseBtn{
+    margin-top: -20px;
+
+}
+
+.walletDetailsContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.ImportWalletButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.ImportWalletButtons .iconWraper{
+    width: 20px;
+    height: 20px;
 }
 
 .ImportWalletJson{

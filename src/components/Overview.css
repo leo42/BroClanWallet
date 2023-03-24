@@ -229,10 +229,6 @@
     cursor: pointer;
     align-self: center;
     text-align: center;
-    /* top:-11px;
-    left: 0px;
-    position: relative; */
-
 }
 
 .downloadButton label{
@@ -272,6 +268,18 @@
 }
 
 .loadButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.importButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.detailsButton label{
     top: -11px;
     left: 0px;
     position: relative;

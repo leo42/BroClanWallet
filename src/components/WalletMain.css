@@ -41,6 +41,10 @@
   
   }
 
+  /* .mainTabPendingTx:after {
+    filter: blur(50px);
+  } */
+
 
 /* @keyframes spin {
     0% {
