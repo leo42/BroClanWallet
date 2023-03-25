@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import getTokenInfo from "../helpers/tokenInfo.js"
 import TokenDropdownMenu from './TokenDropdownList.js';
 import TokenElement from "./TokenElement";
+import { ReactComponent as RecipientIcon } from '../html/assets/recipient.svg';
 import "./WalletCreateTx.css"
 class WalletCreateTx extends React.Component {
 
@@ -10,10 +11,14 @@ class WalletCreateTx extends React.Component {
     signers: this.props.wallet.getSigners().map( () =>  true ),
     tokenData: {},
     sendFrom : this.props.wallet.getDefaultAddress(),
-    sendAll: null
+    sendAll: null,
+    hovering: ""
   }
 
-  
+  setHovering = (value) => {
+    this.setState({hovering: value})
+  } 
+
   isAddressValid = (address) => {
 
       try{
@@ -234,7 +239,12 @@ class WalletCreateTx extends React.Component {
     <div className='CreateTransactionContainer'>
       <div> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} tA </div>
       { this.RecipientJSX()}
-      <button type="submit" onClick={this.addRecipient}>Add recipient</button>
+
+      <div onMouseEnter={() => this.setHovering("recipient")} onMouseLeave={() => this.setHovering("") } onClick={() => this.addRecipient()} className='addRecipientWraper recipientButton'>
+        <RecipientIcon className="icon" alt="recipientIcon" />
+        {  <label className='iconLabel'>Add Recipient</label> }
+        < br/>   
+      </div>
       { this.SignersSelect()}
       <br />
       { this.props.wallet.getFundedAddress().length > 1 ? this.AccountSelect(): ""}

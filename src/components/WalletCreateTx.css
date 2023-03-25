@@ -22,7 +22,7 @@
   }
 
 .CreateTransactionContainer{
-
+    
     width: 100%;
     height: fit-content;
 }
@@ -103,13 +103,41 @@
     border-bottom: 1px solid red;
     border-radius: 0px;
     }
-  
+
+.recipientButton label{
+        top: -11px;
+        left: 10px;
+        font-size: 19px;
+        white-space: nowrap;
+        position: relative;
+        cursor: pointer;
+    }
+
 .sendInputValidAddress{
     border: none;
     border-bottom: 1px solid green;
     border-radius: 0px;
   }
-  
+
+.addRecipientWraper{
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    background-color: white;
+    border: 0;
+    
+    height: 30px;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    align-self: center;
+    
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.addRecipientWraper:hover{
+    transform: scale(1.1);
+    background-color: #faf4ee;
+}
 
   .createTxSelectedTokenList{
     display: flex;
