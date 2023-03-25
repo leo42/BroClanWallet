@@ -40,6 +40,10 @@
   
   }
 
+  /* .mainTabPendingTx:after {
+    filter: blur(50px);
+  } */
+
 
 
 .mainTabSelected{

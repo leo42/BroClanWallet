@@ -1,5 +1,8 @@
 import React from "react";
 import "./WalletImportModal.css";
+import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
+import { ReactComponent as ImportIcon } from '../html/assets/import.svg';
+import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 
 
 function WalletImportModal(props) {
@@ -12,6 +15,7 @@ function WalletImportModal(props) {
       setshowingDetails(key);
     }
   };
+  const [hovering, setHovering] = React.useState("");
 
   const walletJson = (json) => {
     const formattedData = JSON.stringify(json, null, 2);
@@ -34,7 +38,9 @@ function WalletImportModal(props) {
 
   return (
     <div className="modalBackground" >
+      <div className="modalContainer"  >
       <div className="walletImportModalContainer"  >
+      <div className="title">Wallets</div>
         <div className="titleCloseBtn">
           <button
             onClick={() => {
@@ -43,20 +49,16 @@ function WalletImportModal(props) {
           </button>
         </div>
   
-        <div className="title">
-        </div>
+        
         <div className="body">
          
-
-          </div> 
-        <div className="">
           {props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0 ? (
             <div>
-              <div className="">Wallets</div>
+              
                 {Object.keys(props.root.state.pendingWallets).map((key) => {
 
                   return (
-                    <div key={key} className="">
+                    <div key={key} className="walletDetailsContainer">
                       <div className="">{key}</div>
                     
                        <span className="DateCreated"> Created:  { new Date(props.root.state.pendingWallets[key].creationTime).toLocaleString()}</span>
@@ -71,19 +73,32 @@ function WalletImportModal(props) {
                           </div>
                         </div>
                       )} 
+
                       <div className="ImportWalletButtons">
-                      <button onClick={() => {
+                     
+                      <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => {
                             props.root.deleteImportedWallet(key);
-                          }}>Delete</button>
-                      <button onClick={() => {
+                          }}  className='iconWraper deleteButton'>
+                      <DeleteIcon className="icon"  alt="deleteIcon" />
+                      {  hovering === "delete" &&  <label className='iconLabel'>Delete</label> }
+                      < br/>   
+                      </div>
+                     
+                      <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
                             showDetails(key);
-                          }}>Details</button>
-                        <button
-                          onClick={() => {
+                          }}  className='iconWraper detailsButton'>
+                      <DetailsIcon className="icon"  alt="detailsIcon" />
+                      {  hovering === "details" &&  <label className='iconLabel'>Details</label> }
+                      < br/>   
+                      </div>   
+                        
+                      <div  onMouseEnter={() => setHovering("import")} onMouseLeave={() => setHovering("") } onClick={() => {
                             props.root.importPendingWallet(key);
-                          }}>
-                          Import
-                        </button>
+                          }}  className='iconWraper importButton'>
+                      <ImportIcon className="icon"  alt="importIcon" />
+                      {  hovering === "import" &&  <label className='iconLabel'>Import</label> }
+                      < br/>   
+                      </div>
                         </div>
                       </div>
      
@@ -95,6 +110,7 @@ function WalletImportModal(props) {
           )
                 }
         </div>
+        <div className="footer">
           <button
             onClick={() => {
               props.setOpenModal(false);
@@ -102,7 +118,9 @@ function WalletImportModal(props) {
             id="cancelBtn">
             Cancel
           </button>
+          </div>
         </div>
+      </div>
       </div>
   );
 }
