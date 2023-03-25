@@ -27,6 +27,7 @@
     flex-direction: column;
     justify-content: space-between;
     margin-top: 20px;
+    /* border-bottom: 5px double var(--clrorange); */
 }
 
 .ImportWalletButtons{
@@ -34,11 +35,12 @@
     flex-direction: row;
     justify-content: center;
     margin-top: 10px;
+    /* border-bottom: 5px double var(--clrorange); */
+    padding:10px;
 }
 
-.ImportWalletButtons .iconWraper{
-    width: 20px;
-    height: 20px;
+.walletDetailsContainer:not(:last-child){
+    border-bottom: 5px double var(--clrorange);
 }
 
 .ImportWalletJson{
