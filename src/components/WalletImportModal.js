@@ -53,7 +53,7 @@ function WalletImportModal(props) {
         <div className="body">
          
           {props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0 ? (
-            <div>
+            <div >
               
                 {Object.keys(props.root.state.pendingWallets).map((key) => {
 
