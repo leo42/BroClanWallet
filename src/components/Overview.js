@@ -4,6 +4,7 @@ import "./Overview.css";
 import { ReactComponent as DownloadIcon } from '../html/assets/download.svg';
 import { ReactComponent as ExpandIcon } from '../html/assets/expand.svg';
 import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
+import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 
 function Overview(props) {
   const linkRef = useRef(null);
@@ -14,6 +15,7 @@ function Overview(props) {
   const [showingAddress , setShowingAddress] = useState(props.wallet.getDefaultAddress())
   const [search , setSearch] = useState("")
   const [hovering, setHovering] = useState("")
+  const [showingDetails, setshowingDetails] = useState("");
   const showSettings = (index) =>{
     let settingsOpenNew = [...settingsOpen]
     settingsOpenNew[index] = !settingsOpenNew[index]
@@ -67,6 +69,18 @@ function Overview(props) {
       </label>
     </div>
   
+  
+  const walletJson = (json) => {
+    const formattedData = JSON.stringify(json, null, 2);
+
+    return (
+      <div className="ImportWalletJsonInner" style={{ whiteSpace: 'pre-wrap' }}>
+        {formattedData}
+      </div>
+    );
+
+  };
+
   const walletSettings = () =>
     <div className="walletSettings">
       <label>
@@ -78,7 +92,16 @@ function Overview(props) {
       <br/>
       <div className='overviewButtons'>
       {/* <button onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}> Delete Wallet</button> */}
+      <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
+                            setshowingDetails(!showingDetails);
+                          }}  className='iconWraper detailsButton'>
+                      <DetailsIcon className="icon"  alt="detailsIcon" />
+                      {  hovering === "details" &&  <label className='iconLabel'>Details</label> }
+                      < br/>   
+                      </div>   
+
       <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
+             
              <DeleteIcon className="icon"  alt="deleteIcon" />
              {  hovering === "delete" &&  <label className='iconLabel'>Delete</label> }
             < br/>   
@@ -91,6 +114,17 @@ function Overview(props) {
             < br/>   
           </div>
       </div>
+      {showingDetails && (
+                        <div className="">
+                          <div className="">
+                            <span className="">Json:</span>
+                            {/* show the json object as a pretty Json */}
+
+
+                            <span className="ImportWalletJson">{walletJson(props.wallet.getJson())}</span>
+                          </div>
+                        </div>
+                      )} 
 
     </div>
 

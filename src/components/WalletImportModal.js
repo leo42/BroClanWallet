@@ -76,27 +76,27 @@ function WalletImportModal(props) {
 
                       <div className="ImportWalletButtons">
                      
-                      <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => {
+                      <div  onMouseEnter={() => setHovering("delete"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
                             props.root.deleteImportedWallet(key);
                           }}  className='iconWraper deleteButton'>
                       <DeleteIcon className="icon"  alt="deleteIcon" />
-                      {  hovering === "delete" &&  <label className='iconLabel'>Delete</label> }
+                      {  hovering === "delete"+key &&  <label className='iconLabel'>Delete</label> }
                       < br/>   
                       </div>
                      
-                      <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
+                      <div  onMouseEnter={() => setHovering("details"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
                             showDetails(key);
                           }}  className='iconWraper detailsButton'>
                       <DetailsIcon className="icon"  alt="detailsIcon" />
-                      {  hovering === "details" &&  <label className='iconLabel'>Details</label> }
+                      {  hovering === "details"+key &&  <label className='iconLabel'>Details</label> }
                       < br/>   
                       </div>   
                         
-                      <div  onMouseEnter={() => setHovering("import")} onMouseLeave={() => setHovering("") } onClick={() => {
+                      <div  onMouseEnter={() => setHovering("import"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
                             props.root.importPendingWallet(key);
                           }}  className='iconWraper importButton'>
                       <ImportIcon className="icon"  alt="importIcon" />
-                      {  hovering === "import" &&  <label className='iconLabel'>Import</label> }
+                      {  hovering === "import"+key &&  <label className='iconLabel'>Import</label> }
                       < br/>   
                       </div>
                         </div>
