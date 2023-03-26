@@ -31,3 +31,20 @@
     justify-content: center;
 }
  
+.TransactionHistoryLoadMore{
+
+    padding: 5px 15px;
+    margin: 26px 60px 2px;
+    border: rgb(59, 59, 59) solid 1px;
+    background-color: transparent;
+    color: rgb(59, 59, 59);
+    border-radius: 20px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.TransactionHistoryLoadMore:hover{
+    background-color: rgb(59, 59, 59);
+    color: white;
+}

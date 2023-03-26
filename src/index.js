@@ -10,6 +10,7 @@ import WalletConnector from './components/walletConnector';
 import connectSocket from  './helpers/SyncService';
 import sha256 from 'crypto-js/sha256';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
+import  { ReactComponent as LoadingIcon } from './html/assets/loading.svg';
 
 
 const script1 = {
@@ -88,10 +89,10 @@ class App extends React.Component {
     pendingWallets: {},
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
+    loading : true,
     settings: { metadataProvider :"Blockfrost", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} }
   }
 
-  walletLock = false
 
 
   async setState(state){
@@ -229,20 +230,18 @@ class App extends React.Component {
   }
 
   storeWallets()  {
-    if (this.walletLock) return
-    this.walletLock = true
-    const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
+    if (this.state.loading) return
+
+     const dataPack = this.state.wallets.map( (wallet,index)=> ({json: wallet.getJson(),
                                                                 name :wallet.getName(),
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames(),
                                                                pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ) 
                                                               }) )
     localStorage.setItem("wallets", JSON.stringify(dataPack))
-    this.walletLock = false
   }
 
   async loadState(){
-    this.walletLock = true
     const wallets = JSON.parse(localStorage.getItem('wallets'));
     let state = this.state
 
@@ -262,7 +261,7 @@ class App extends React.Component {
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
     super.setState(state) 
-    this.walletLock = false 
+    this.setState({loading : false})
   }
  
   async toggleSendAll(){
@@ -584,13 +583,15 @@ class App extends React.Component {
         <h1  >Bro Clan </h1>
         <React.StrictMode>
 
+         {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
         <div className='WalletInner'>
-           <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
             <MWalletList root={this}  ></MWalletList>
-          { this.state.wallets.length ===0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
+          { this.state.wallets.length === 0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
+    }
         </React.StrictMode>
 
+    <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
       </div>
     );
   }

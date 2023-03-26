@@ -98,11 +98,12 @@
     margin: 10px;
     padding: 12px;
 }
+
 .sendInputInvalidValidAddress {
     border: none;
     border-bottom: 1px solid red;
     border-radius: 0px;
-    }
+}
 
 .recipientButton label{
         top: 10px;
@@ -110,9 +111,9 @@
         font-size: 19px;
         white-space: nowrap;
         cursor: pointer;
-    }
-.recipientButton{
+}
 
+.recipientButton{
     display: flex;
     flex-direction: row;
     justify-content:center;
@@ -123,6 +124,25 @@
     padding: 12px;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.deleteRecipientWrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: right;
+    width: 100%;
+
+}
+.deleteRecipient{
+    /* move to upper right corner */
+    align-self: flex-end;
+    border: none;
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
 }
@@ -153,6 +173,12 @@
     background-color: #faf4ee;
 }
 
+.deleteTokenButton{
+    border: none;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
   .createTxSelectedTokenList{
     display: flex;
     flex-direction: row;
@@ -164,4 +190,27 @@
     width: 90%;
     height: 100%;
     margin-bottom: 10px;
+  }
+
+  .tokenAmount {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .tokenAmount input {
+    flex: 1;
+    border: none;
+    outline: none;
+  }
+  
+  .maxButton {
+    border: none;
+    background-color: #ffffff;
+    cursor: pointer;
+    color: rgb(1, 173, 173);
+    transition: transform 0.3s ease-in-out;
+    width: 50px;
   }

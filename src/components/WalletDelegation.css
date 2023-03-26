@@ -6,3 +6,20 @@
     box-sizing: border-box;
     z-index: 0;
 }
+
+@keyframes rotation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(359deg);
+    }
+  }
+
+.loadingIcon {
+    width: 200px;
+    height: 200px;
+    z-index: -99999;
+    animation: rotation 5s linear infinite;
+  }
+  

@@ -92,6 +92,25 @@ select{
   border: var(--clrred) solid 1px;
 }
 
+.commonBtn{
+  padding: 5px 15px;
+  margin: 26px 60px 2px;
+  border: rgb(59, 59, 59) solid 1px;
+  background-color: transparent;
+  color: rgb(59, 59, 59);
+  border-radius: 20px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.5s;
+} 
+
+.commonBtn:hover{
+  color: var(--clrgreen);
+  letter-spacing: 0.25em;
+  box-shadow: 0 0 13px var(--clrgreen);
+  border: var(--clrgreen) solid 1px;
+}
+
 
 
 /* .pendingTx_signer{

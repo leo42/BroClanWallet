@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import PoolElement from './PoolElement';
 import SearchPools from '../helpers/SearchPools';
 import "./WalletDelegation.css"
+import  { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
+
 function WalletDelegation(props) {
   const wallet = props.wallet
   const initialState = [] 
@@ -13,7 +15,8 @@ function WalletDelegation(props) {
   const [signers, setCheckedState] = useState(initialState);
   const [delegation, setDelegation] = useState({});
   const [pools, setPools] = useState([]);
-
+  const [searching, setSearching] = useState(false);
+  
   useEffect(() => {
     wallet.getDelegation().then( (delegation) => {;
       setDelegation(delegation);
@@ -21,12 +24,14 @@ function WalletDelegation(props) {
   }, [wallet])
 
   useEffect(() => {
+    setSearching(true);
     if (pool === '') {
       setPools([]);
+      setSearching(false);
       return;
     }
     SearchPools(pool).then( (pools) => {
-      
+      setSearching(false);
       setPools(pools);
     })
   }, [pool, wallet])
@@ -70,10 +75,16 @@ function WalletDelegation(props) {
         {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
 
         <p>Rewards : {Number(delegation.rewards)/1_000_000}tA </p>
-        <input type="button" value="Undelegate" onClick={Undelegate} />
+        <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} />
       </div>
     }
   }
+
+  const searchingAnimation = () => {
+      return <div className="searching"> 
+      <LoadingIcon className="loadingIcon"  > </LoadingIcon>
+      </div>
+  } 
 
  
    const SignersSelect =  wallet.getSigners().map( (item, index) => (
@@ -107,18 +118,18 @@ function WalletDelegation(props) {
           onChange={event => setPool(event.target.value)}
         />
       </label>
-      {pools.map( (pool) => (
+      {searching ? searchingAnimation() : pools.map( (pool) => (
           <div key={pool}>
             <PoolElement key={pool.pool_id_bech32} root={props.root} poolId={pool.pool_id_bech32} />
             <br/>
-            {pools.length !== 1 && <button type="button" onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
+            {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
           </div>
         )
       )}
 
       { SignersSelect}
       <br />
-     {pools.length === 1 && <button type="submit">Delegate</button> }
+     {pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
     </form>
     </div>
   );
