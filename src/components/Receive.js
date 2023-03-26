@@ -9,7 +9,7 @@ function Receive(props){
     const [options, setOptions] = React.useState([])
     const [optionsNames, setOptionsNames] = React.useState({})
 
-    const donationAddress = "addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf"
+    const donationAddress = "addr1q8epdka8rjmemmzem63hqs3f02d3jxm5l0yym2zgvdh5jn3v94h8gqswgsgfp59e4v0z2dapyamyctfeyzykr97pajdqnv72cr"
 
     function handleClick(value){
         copyTextToClipboard(value)

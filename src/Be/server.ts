@@ -11,7 +11,14 @@ const CardanoWasm  = require("@dcspark/cardano-multiplatform-lib-nodejs");
 const MS = require('@emurgo/cardano-message-signing-nodejs');
 
 const uri =  process.env.MONGO_CONNECTION_STRING ||  "mongodb+srv://cluster0.9drtorw.mongodb.net/test?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=secrets/mongo.pem";
-const client = new MongoClient(uri);
+const client = new MongoClient(uri,{
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  retryWrites: true, 
+  keepAlive: true,
+
+});
+
 const connection = client.connect();
 var transactions ;
 var wallets ;
@@ -87,7 +94,27 @@ connection.then(() => {
   watchWallets().catch(console.error);
 }).catch(err => {
   console.log(err.stack);
+  process.exit(1);
 });
+
+client.on("close", () => {
+  console.error("Lost MongoDB connection");
+  process.exit(1);
+});
+
+client.on("error", (err) => {
+  console.error("MongoDB error:", err);
+});
+
+process.on("SIGINT", () => {
+  console.log("Closing MongoDB connection");
+  client.close().then(() => {
+    console.log("MongoDB connection closed");
+    process.exit(0);
+  });
+});
+
+
 
 
 let verification = new Map();
@@ -388,7 +415,7 @@ async function watchWallets()  {
 
 
 async function watchTransactions() {
-  const changeStream = transactions.watch();
+  const changeStream = transactions.watch( );
   changeStream.on('change', async (change) => {
     console.log(io.sockets)
     console.log(change)
