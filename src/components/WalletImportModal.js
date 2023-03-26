@@ -27,6 +27,10 @@ function WalletImportModal(props) {
     );
 
   };
+  const deleteAllWallets = () => {
+    props.root.deleteAllPendingWallets();
+    props.setOpenModal(false);
+  };
 
   const deleteWallet = (key) => {
     props.root.deletePendingWallet(key);
@@ -113,10 +117,17 @@ function WalletImportModal(props) {
         <div className="footer">
           <button
             onClick={() => {
+             deleteAllWallets();
+            }}
+            id="cancelBtn">
+            Delete All
+          </button>
+          <button
+            onClick={() => {
               props.setOpenModal(false);
             }}
             id="cancelBtn">
-            Cancel
+            Close
           </button>
           </div>
         </div>

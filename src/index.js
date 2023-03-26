@@ -417,6 +417,14 @@ class App extends React.Component {
     this.setState({pendingWallets})
   }
 
+  deleteAllPendingWallets(){
+    const pendingWallets = this.state.pendingWallets
+    for (var key in pendingWallets) {
+      delete pendingWallets[key]
+    }
+    this.setState({pendingWallets})
+  }
+
   async importPendingWallet(key){
     try{
       const pendingWallets = this.state.pendingWallets
