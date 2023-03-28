@@ -1,6 +1,6 @@
 import React from "react";
 
-function WalletList (props) {
+function NativeToken (props) {
     const [metadata, setMetadata] = React.useState({});
 
     async function getMetadata(){
@@ -23,4 +23,4 @@ function WalletList (props) {
     
 }
  
-export default WalletList;
+export default NativeToken;

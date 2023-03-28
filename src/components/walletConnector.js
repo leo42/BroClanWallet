@@ -1,8 +1,6 @@
 import React from "react";
 import "./walletConnector.css";
 import WalletPicker from "./WalletPicker";
-import SettingsModal from "./SettingsModal";
-import WalletImportModal from "./WalletImportModal";
 import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
 import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
 import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg';
@@ -16,8 +14,6 @@ import { useEffect } from "react/cjs/react.production.min";
 function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
-    const [settingsModalOpen, setSettingsModalOpen] = React.useState(false);
-    const [walletImportModalOpen, setWalletImportModalOpen] = React.useState(false);
     const [hovering, setHovering] = React.useState("");
 
 
@@ -28,7 +24,6 @@ function WalletConnector(props){
 
     function loadWallets(){
         props.root.loadWallets()
-        setWalletImportModalOpen(true)
     }
     
  {/* <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
@@ -58,7 +53,7 @@ function WalletConnector(props){
         < br/>   
         </div>
         { props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0  && 
-                <div  onMouseEnter={() => setHovering("walletsFound")} onMouseLeave={() => setHovering("") } onClick={() => setWalletImportModalOpen(true)}  className='iconWraper walletsFoundIcon'>
+                <div  onMouseEnter={() => setHovering("walletsFound")} onMouseLeave={() => setHovering("") } onClick={() => props.root.showModal("pendingWallets")}  className='iconWraper walletsFoundIcon'>
                     <WalletsFoundIcon className="icon"  alt="connectIcon" />
                     <label className='walletsFoundAmountLabel'>{Object.keys(props.root.state.pendingWallets).length}</label>
                     {/* {  hovering === "walletsFound" &&   <label className='iconLabel'>Wallets Found</label> } */}
@@ -70,11 +65,8 @@ function WalletConnector(props){
         </div>  
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
-                { settingsModalOpen ? <SettingsModal setOpenModal={setSettingsModalOpen} key={props.root.state.settings.api} root={props.root}  tx={props.tx}/> : "" }
-
-                { walletImportModalOpen  && props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={setWalletImportModalOpen} key={props.root.state.settings.api} root={props.root} /> : "" }
                 {/* <div className="WalletConnector"> */}
-                <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setSettingsModalOpen(true)} className='iconWraper settingsButton'>
+                <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => props.root.showModal("settings")} className='iconWraper settingsButton'>
                 <SettingsIcon className="icon" alt="settingsIcon" />
                 {  hovering === "settings" &&  <label className='iconLabel'>Settings</label> }
                 < br/>  </div>

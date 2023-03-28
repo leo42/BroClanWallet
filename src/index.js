@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
 import connectSocket from  './helpers/SyncService';
+import ModalsContainer from './components/ModalsContainer';
+
 import sha256 from 'crypto-js/sha256';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import  { ReactComponent as LoadingIcon } from './html/assets/loading.svg';
@@ -90,6 +92,7 @@ class App extends React.Component {
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
     loading : true,
+    modal: "",
     settings: { metadataProvider :"Blockfrost", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} }
   }
 
@@ -554,6 +557,10 @@ class App extends React.Component {
     
   }
 
+  async showModal(modalName){
+    this.setState({modal: modalName})
+  }
+
   async submit(index){
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
@@ -572,10 +579,19 @@ class App extends React.Component {
       )
   }
 
+   walletsEmpty = () => {
+    return (
+      <div className="walletsEmpty">
+        <h2>No Wallets Found</h2>
+        <p>Create a new wallet to start using this APP.</p>
+        <button onClick={() => this.setState({addWallet: true})}>Add Wallet</button>
+      </div>
+    )
+  }
   render() {
     return (
       <div className='App'>
-
+        
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -587,14 +603,14 @@ class App extends React.Component {
           pauseOnHover
           theme="dark"
           />
-
+        <ModalsContainer root={this} modal={this.state.modal} ></ModalsContainer>
         <h1  >Bro Clan </h1>
         <React.StrictMode>
 
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
         <div className='WalletInner'>
             <MWalletList root={this}  ></MWalletList>
-          { this.state.wallets.length === 0 ? "" : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
+          { this.state.wallets.length === 0 ?  this.walletsEmpty()  : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
     }
         </React.StrictMode>

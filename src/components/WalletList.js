@@ -1,14 +1,11 @@
 import React from 'react';
-import NewWalletModal   from './NewWalletModal';
 
 import "./WalletList.css"
 
 function WalletList (props) {
-    const [addWalletOpen, setAddWalletOpen] = React.useState(false);
 
     return (
             <div className='WalletListContainer'>
-        {addWalletOpen && <NewWalletModal setOpenModal={setAddWalletOpen} root={props.root} />}
         <select className="MWalletList" onChange={(event) => props.root.selectWallet(event.target.value)}>
 
         {props.root.state.wallets.map( (item, index) => (
@@ -18,7 +15,7 @@ function WalletList (props) {
     </select>
 
 
-<button className={"addWalletButton" + ( props.root.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => setAddWalletOpen(true)}>+</button>
+<button className={"addWalletButton" + ( props.root.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => props.root.showModal("newWallet")}>+</button>
 
     </div>
     );
