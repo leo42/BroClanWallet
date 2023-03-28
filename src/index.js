@@ -584,7 +584,7 @@ class App extends React.Component {
       <div className="walletsEmpty">
         <h2>No Wallets Found</h2>
         <p>Create a new wallet to start using this APP.</p>
-        <button onClick={() => this.setState({addWallet: true})}>Add Wallet</button>
+        <button onClick={() => this.setState({modal: "newWallet"})}>Add Wallet</button>
       </div>
     )
   }
