@@ -75,6 +75,22 @@ class WalletCreateTx extends React.Component {
   };
 
   handleChangeFrom = (event) => {
+    const newBalance = this.props.wallet.getBalanceFull(event.target.value)
+    this.state.recipients.map( (recipient,index) => {
+       Object.keys(recipient.amount).map( (token) => {
+        if (newBalance[token] < recipient.amount[token]) {
+          const recipients = [...this.state.recipients]
+          recipients[index].amount[token] = newBalance[token]
+          this.setState({recipients})
+        }
+        if (!Object.keys(newBalance).includes(token)) {
+          const recipients = [...this.state.recipients]
+          delete recipients[index].amount[token]
+          this.setState({recipients})
+        }
+
+       })
+    })
     this.setState({sendFrom : event.target.value})
   }
 
