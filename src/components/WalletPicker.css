@@ -13,8 +13,16 @@
  }
 
   .modalContainer .walletOption{
-    width: 70%;
-    align-self:  center ;
+    width: 85%;
+    align-self:  start ;
+    cursor: pointer;
+  }
+  
+  .modalContainer .walletOptionBtn:hover{
+    color: rgb(0, 0, 0);
+    background-color: white;
+    border: 1px;
+    border-style: solid;
   }
   
   

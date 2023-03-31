@@ -23,7 +23,7 @@ let Wallets = []
 
   return (
     <div className="modalBackground" onClick={() => { setOpenModal(false); }}>
-      <div className="modalContainer"  >
+      <div className="modalContainer"  onClick={ (e) => e.stopPropagation()}   >
         <div className="titleCloseBtn">
           <button
             onClick={() => {

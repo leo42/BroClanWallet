@@ -149,8 +149,8 @@ function SettingsModal(props) {
 
 
   return (
-    <div className="modalBackground" >
-      <div className="modalContainer"  >
+    <div className="modalBackground" onClick={() => { props.setOpenModal(false); }}>
+      <div className="modalContainer"  onClick={ (e) => e.stopPropagation()}   >
         <div className="titleCloseBtn">
           <button
             onClick={() => {

@@ -1,7 +1,5 @@
 import React, { useState , useRef, useEffect } from 'react';
 import NewWalletModal   from './NewWalletModal';
-
-
 import SettingsModal from "./SettingsModal";
 import WalletImportModal from "./WalletImportModal";
 
