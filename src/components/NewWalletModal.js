@@ -50,11 +50,11 @@ const createWallet = () => {
      
           </div>
           <div className="inputContainer">
-          <div   onClick={createWallet}  className='iconWraper createWalletButton'>
+          <div   onClick={createWallet}  className='createWalletIconWraper createWalletButton'>
                 <CreateIcon className="icon"  alt="signicon" />  
             </div>  
             <input type="file" id="file-picker" hidden={true} onChange={importWallet}></input>
-            <div   onClick={() => document.getElementById("file-picker").click()}  className='iconWraper importWalletIcon'>
+            <div   onClick={() => document.getElementById("file-picker").click()}  className='createWalletIconWraper importWalletIcon'>
                 <ImportIcon className="icon"  alt="signicon" />  
             </div>  
             

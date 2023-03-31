@@ -69,3 +69,20 @@
     top: 10px;
     align-self: center;
   }
+
+  .createWalletIconWraper{
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    background-color: white;
+    border: 0;
+
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .createWalletIconWraper:hover{
+    transform: scale(1.2);
+    box-shadow: 0 0 8px var(--clrorange);
+}
