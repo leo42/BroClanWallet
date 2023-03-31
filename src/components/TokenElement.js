@@ -28,7 +28,7 @@ function TokenElement(props){
       }
     }
     React.useEffect(() => {
-      if ( tokenInfo.fingerprint === ""  ){
+      if (tokenInfo && tokenInfo.fingerprint === ""  ){
         //set 10 sec timeout to prevent too many requests
         setTimeout(() => {
           
@@ -45,16 +45,16 @@ function TokenElement(props){
     const tooltipinfo =
      <div onClick={handleThumpnailClick}  className="TokenToolTip">
       <span><a  >{props.tokenId} </a><br/></span>
-      <span> {tokenInfo.fingerprint} </span>
+      <span> {tokenInfo && tokenInfo.fingerprint} </span>
       </div>
 
     
     // Search filter look for props.search in tokenId, name and fingerprint
     // make name case insensitive
     if(props.search !== "" && props.search !== undefined) {
-      if (tokenInfo !== {}) 
+      if (tokenInfo && tokenInfo !== {}) 
        if (!props.tokenId.toLowerCase().includes(props.search.toLowerCase()) && tokenInfo.name !== undefined && !tokenInfo.name.toLowerCase().includes(props.search.toLowerCase())  )
-          if(tokenInfo.fingerprint !== undefined){
+          if( tokenInfo.fingerprint !== undefined){
             if ( !tokenInfo.fingerprint.toLowerCase().includes(props.search.toLowerCase()))
             return ("")
           } else 

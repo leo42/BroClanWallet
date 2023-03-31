@@ -67,6 +67,16 @@ async function getTokenInfo(tokenId){
               const tokenInfo = {}
               const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
               try{
+              if (settings.metadataProvider === "None"){
+                const splitTokenName =  splitTokenId(tokenId)
+                tokenInfo["name"] = hex2a(splitTokenName[1])
+                tokenInfo["image"] = ""
+                tokenInfo["fingerprint"] = ""
+                tokenInfo["provider"] = settings.metadataProvider
+                tokenInfo["fetch_time"] = Date.now()
+                writeToLocalStorage(tokenId,tokenInfo)
+                return tokenInfo
+              }
               if ( settings.metadataProvider === "Koios"){
                 const splitTokenName =  splitTokenId(tokenId)
                 const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/asset_info" : `https://${settings.network}.koios.rest/api/v0/asset_info`
