@@ -306,7 +306,7 @@ class App extends React.Component {
     this.setState({wallets})
     toast.success("Transaction imported");
     }catch(e){
-      toast.error(e.message);
+      toast.error("Could not import transaction: " + e.message);
     }
   }
 

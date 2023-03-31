@@ -11,7 +11,7 @@ import './WalletMain.css';
 
 class WalletMain extends React.Component {
     state = {
-        showing: "createTx"
+        showing: "pendingTxs"
     }
 
 

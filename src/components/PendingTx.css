@@ -1,10 +1,25 @@
+.pedningTx{
+  width: 95vw;
+  background-color: rgb(236, 235, 234);
+  border: #7e7e7e ;
+  border-style: outset;
+  /* throw a light shadow */
+  box-shadow: 0 0 10px #8a8278;
+
+  border-width: 1px;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px;
+}
+
+
 .txDetailsInputs {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 10px;
   width: 45vw;
-  margin-right: 10px;
+  margin-right: 5px;
   overflow: hidden;
 }
 
@@ -36,9 +51,9 @@
 
 .txDetailsInputsOutputs{
   display: flex;
-  margin-left: 10px;
+  margin-right: 10px;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content:space-evenly;
   margin-bottom: 5px;
   width: 100%;
 }
@@ -57,4 +72,34 @@
 
 .txDetailsAddressNotMine{
   color: #da0000;
+}
+
+.txDetailsButton label {
+  font-size: 14px;
+  font-weight: bold;
+  top: -11px ;
+  left: -7px;
+  position: relative;
+  /* keep content in the same line */
+    white-space: nowrap;
+
+}
+
+.importSigButton label{
+  font-size: 14px;
+  font-weight: bold;
+  top: -11px ;
+  left: -7px;
+  position: relative;
+  /* keep content in the same line */
+    white-space: nowrap;
+}
+
+.pendingTx_buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: center; 
+  margin-top: 10px;
+  /* border-bottom: 5px double var(--clrorange); */
+  padding:10px;
 }

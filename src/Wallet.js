@@ -1,8 +1,6 @@
 import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "lucid-cardano";
-import Datasource  from "./Datasource";
 const { Transaction} = C;
 
-const data1 = await Datasource.from_blockfrost("preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp")
 
 class Wallet {
     // Initialize the wallet with the provided script and address

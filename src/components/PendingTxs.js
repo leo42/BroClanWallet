@@ -13,20 +13,20 @@ function PendingTxs(props){
             props.root.importTransaction(importedTx);
             setImportTransaction(false);
         }catch(error){
-            toast.error( error.message);
+            toast.error("Error importing transaction: " + error.message);
         }
 
     }
     return(
         <div className="pendingTxs">
-             <button onClick={() =>setImportTransaction(!importTransaction)}>Import Transaction</button>
-             {importTransaction ? <div>
-                   <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Transaction Data"></input>
-                   <button  onClick={ () => importTx(importedTx)}>Import</button></div> : "" }
             <h3>Pending Transactions</h3>
             {props.wallet.getPendingTxs().map( (pendingTx, index) => (
-                  <WalletPendingTx root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>
-            ) )}
+                <WalletPendingTx root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>
+                ) )}
+            <button className="commonBtn" onClick={() =>setImportTransaction(!importTransaction)}>Import Transaction</button>
+            {importTransaction ? <div>
+                    <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Transaction Data"></input>
+                    <button  className="commonBtn" onClick={ () => importTx(importedTx)}>Import</button></div> : "" }
         </div>
     )
 }
