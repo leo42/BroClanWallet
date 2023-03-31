@@ -96,16 +96,15 @@ function WalletPendingTx(props) {
 
     function TransactionInput(input){
         return (
-<div key={input.txHash+input.outputIndex} className="txDetailsInput">
-                        <p>Transaction ID: {input.txHash} | Index: {input.outputIndex}</p>
-                        <p className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {input.address ? input.address : "None" }</p>
-                        {input.datumHash &&  <p>datumHash: {input.datumHash} </p> }
-                         { input.datum && <p>datum: {JSON.stringify(input.datum) }</p> }
-                        {input.scriptRef &&  <p>Script Ref: {input.scriptRef ? "None" : input.scriptRef}</p> }
-                        
+<div key={input.txHash+input.outputIndex} className="txDetailsInput"> TEST
+                        <p > <span className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}> {input.address ? input.address : "None" }</span> <br/>
+                          Transaction ID: {input.txHash} | Index: {input.outputIndex}</p>
                     {Object.keys( input.assets).map( (asset,index) => <div className="pendingTxTokenContainer"  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
-                    
-                    </div>
+                        
+                        {input.datumHash &&  <div className="pendingTxData"> <p > <h4>Datum Hash:</h4><span >  {input.datumHash}</span> </p> </div>}
+                         { input.datum &&<div className="pendingTxData"> <p > <h4>Datum:</h4> <span > {JSON.stringify(input.datum,null,2) }</span> </p> </div>}
+                        {input.scriptRef &&  <div className="pendingTxData"> <p > <h4>Script Reference:</h4><span >  {input.scriptRef ? "None" : input.scriptRef}</span></p> </div> }
+              </div>
         )
     }
 
@@ -114,14 +113,14 @@ function WalletPendingTx(props) {
         return (
                  
                     <div key={JSON.stringify(output)} className="txDetailsOutput">
-                        <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>Address: {output.address}</p>
+                        <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>{output.address}</p>
                         {Object.keys(amount).map((key, index) => (
                             <div className="pendingTxTokenContainer" key={index}>
                                <TokenElement tokenId={key} amount={amount[key]}/>
                             </div>
                         ))}
-                       {output.datum && <div> <p>Datum: {JSON.stringify(output.datum)}</p></div>  }
-                        {output.script_ref ? <p>Script Ref: {JSON.stringify( output.script_ref)}</p>: ""}
+                       {output.datum && <div className="pendingTxData"> <p > <h4>Datum:</h4> <span>{JSON.stringify(output.datum, null, 2)} </span> </p></div>  }
+                        {output.script_ref &&<div className="pendingTxData">  <p>  <h4>Script Ref:</h4> <span>{JSON.stringify( output.script_ref, null, 2)}</span> </p></div>}
                     </div>
                     )
     }
@@ -159,10 +158,12 @@ function WalletPendingTx(props) {
                     TransactionOutput(output))}
               </div>
                 </div>
+                <div className="txDetailsMain">
                 <p>Fee: {transaction.fee / 1_000_000}tA</p>
                 { transaction.ttl && <p>TTL: {transaction.ttl}</p>}
                 {transaction.network_id &&  <p>Network: {transaction.network_id}</p> }
-             {transaction.certs  ?   <div>Certs: {transaction.certs.length}{transaction.certs.map(cert => {
+
+             {transaction.certs  ?   <div className="pendingTxData"> <p > <h4>Certificates:</h4> <span> {transaction.certs.map(cert => {
                 if (cert.StakeDelegation) {
                     return( <div key={cert}>Delegation to:{JSON.stringify(cert.StakeDelegation)}</div> )
                 }if (cert.StakeRegistration) {
@@ -177,27 +178,33 @@ function WalletPendingTx(props) {
                     return( <div key={cert}>Genesis Key Delegation {JSON.stringify(cert.GenesisKeyDelegation)}</div> )
                 }if (cert.MoveInstantaneousRewardsCert) {
                     return( <div key={cert}>Move Instantaneous Rewards Cert {JSON.stringify(cert.MoveInstantaneousRewardsCert)}</div> )
-                                }   
+             }   
 
-             })}</div> : ""}
-               {transaction.withdrawals && <div>Withdrawals: {JSON.stringify( transaction.withdrawals)} </div>}
-                <p>Update: {transaction.update}</p>
-               {transaction.auxiliary_data_hash &&  <p>Auxiliary Data Hash: {transaction.auxiliary_data_hash}</p>}
-               {transaction.validity_start_interval &&  <p>Validity Start Interval: {transaction.validity_start_interval}</p>}
-               {transaction.mint && <div>Mint/Burn:               
-                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) }</div>}
-              {transaction.script_data_hash &&  <p>Script Data Hash: {transaction.script_data_hash}</p>}
-              {transaction.collateral &&  <div>Collateral: {collateralUtXos.map((collateral) =>{TransactionInput(collateral)})}</div>}
-               {transaction.collateral_return && <div>Collateral Return: {TransactionOutput(transaction.collateral_return)}</div> }
-              { transaction.total_collateral &&   <p>Total Collateral: {transaction.total_collateral}</p> } 
-              { transaction.referenceInputs &&  <div>Reference Inputs: {referenceInputsUtxos.map((referenceInput) =>
+                            })}</span></p></div> : ""}
+
+               {transaction.withdrawals && <div className="pendingTxData"> <p > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></p> </div>}
+               {transaction.update &&  <div className="pendingTxData"> <p > <h4> Update:</h4> <span>  {transaction.update} </span></p> </div> }
+               {transaction.auxiliary_data_hash && <div className="pendingTxData"> <p > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></p> </div>}
+                {transaction.validity_start_interval &&  <div className="pendingTxData"> <p > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></p> </div>}
+
+              {transaction.script_data_hash &&  <div className="pendingTxData"> <p > <h4>Script Data Hash: </h4> <span>  {transaction.script_data_hash} </span></p> </div>}
+
+              {transaction.collateral && <div key={collateralUtXos}> <p > <h4>Collateral: </h4> <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></p> </div>}
+              
+              {transaction.collateral_return && <div className="pendingTxData"> <p > <h4>Collateral Return: </h4> <span>  {TransactionOutput(transaction.collateral_return)} </span></p> </div>}
+              { transaction.total_collateral &&   <div className="pendingTxData"> <p > <h4>Total Collateral: </h4> <span>  {transaction.total_collateral} </span></p> </div> } 
+              {transaction.invalid_before &&  <div className="pendingTxData"> <p > <h4>Invalid Before:</h4> <span>  {transaction.invalid_before} </span></p> </div>}
+              {transaction.invalid_hereafter &&  <div className="pendingTxData"> <p > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></p> </div>}
+              {transaction.required_scripts &&  <div className="pendingTxData"> <p > <h4>Required Scripts: </h4> <span>  {transaction.required_scripts.map((script) => <div key={script}> {script}</div>)} </span></p> </div>}                         
+              { transaction.referenceInputs &&  <div className="pendingTxData"> <p > <h4>Reference Inputs: </h4> <span>  {referenceInputsUtxos.map((referenceInput) =>
                        TransactionInput(referenceInput)  
-                    )}</div>}
-            {transaction.required_signers &&  <div>Required Signers: {transaction.required_signers.map((signer => <span key={signer}><br/>{signer} </span>))}</div>}
-
+                    )} </span></p> </div>}
+            {transaction.required_signers &&  <div className="pendingTxData"> <p > <h4>Required Signers: </h4> <span>   {transaction.required_signers.map((signer => <a key={signer}><br/>{signer} </a>))} </span></p> </div>}
+            {transaction.mint && <div > <p > <h4> Mint/Burn: </h4>                
+                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) } </p> </div>}
                     
        
-
+            </div>
             </div>
             );
     }
@@ -253,7 +260,6 @@ function WalletPendingTx(props) {
              
              <br/>
             {inputUtxos.length !== 0 ? transactionBalance(txDetails) : ""}
-            {showDetails && TransactionDetails(txDetails)}
              {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}
 
             <div className="pendingTx_signers">
@@ -262,10 +268,10 @@ function WalletPendingTx(props) {
                 <div key={index} className={"pendingTx_signer"+ (item.haveSig ? " pendingTx_signer_signed" : "")} >
                     { item.name}
                     { item.haveSig ? <span className="">Signed  <svg onClick={() => copySignature(props.wallet.getSignature(props.index,item.keyHash))} className="copyIcon" id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg> </span> : ""}
-                </div>
-            )
+                </div>))}
 
-             )}
+
+            {showDetails && TransactionDetails(txDetails)}
             </div>
             <div className="pendingTx_buttons">
             <div  onMouseEnter={() => setHovering("sign")} onMouseLeave={() => setHovering("") } onClick={signTransaction}  className='iconWraper detailsButton'>

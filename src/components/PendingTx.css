@@ -20,7 +20,6 @@
   margin-bottom: 10px;
   width: 45vw;
   margin-right: 5px;
-  overflow: hidden;
 }
 
 .pendingTxTokenContainer {
@@ -30,6 +29,12 @@
   align-items: center;
   margin-bottom: 5px;
   width: 100%;
+}
+
+.txDetailsInput p{
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 5px;
 }
 
 .txDetailsInput{
@@ -65,6 +70,12 @@
   border-bottom: 1px solid #000000;
   border-top: 1px solid #000000;
   padding: 5px;
+}
+
+.txDetailsOutput p {
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 5px;
 }
 .txDetailsAddressMine{
   color: #00a100;
@@ -102,4 +113,36 @@
   margin-top: 10px;
   /* border-bottom: 5px double var(--clrorange); */
   padding:10px;
+}
+
+.txDetailsMain{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+
+.pendingTxData{
+  background-color: #e7e7e7;
+  width: 100%;
+}
+
+.pendingTxData h4{
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 5px;
+}
+
+.pendingTxData span{
+  /* a span containing data, give it a custom background and  boarder, content must fit in width or wrap around to the next line */
+  display: block;
+  align-content: start;
+  background-color: #f2f2f2;
+  border: 1px solid #000000;
+  width: 100%;
+  word-wrap: break-word;
+  
+
 }
