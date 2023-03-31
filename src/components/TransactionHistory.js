@@ -12,17 +12,21 @@ function TransactionHistory (props) {
 
     useEffect(() => {
     
-                      let TxH = getTransactionHistory(address, props.root.state.settings)
-          TxH.then(transactionHistory => {setTransactions(transactionHistory)
+        let TxH = getTransactionHistory(address, props.root.state.settings)
+          TxH.then(transactionHistory => {
+            setTransactions(transactionHistory)
             if (transactionHistory.length < 10) {
                 setLoadMore(false)
             }else{
                 setLoadMore(true)
             }}
-            )
+            ).catch(e => {
+                setLoadMore(false)
+                toast.error("Error loading transaction history"+ e.message)
+            })
+
           toast.promise(TxH, {
             pending: "Loading Transaction History",
-            error: "Error Loading Transaction History"
             })  }
         
     , [address, props.root.state.settings]);

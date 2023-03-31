@@ -14,6 +14,12 @@
   z-index: 1000;
   }
 
+.createWalletModalTitle {
+  font-size: 42px;
+  font-weight: bold;
+  margin-bottom: 150px;
+  } 
+
 .modalContainer {
   width: max-content;
   height: max-content;
@@ -22,7 +28,7 @@
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   display: flex;
   flex-direction: column;
-  padding: 25px;
+  padding: 20px;
   position: absolute;
   top:10%;
   }
@@ -38,9 +44,9 @@
 .titleCloseBtn {
   display: flex;
   justify-content: flex-end;
-  margin-top: 39px;
+  margin-top: 5px;
   margin-right: 2px;
-  margin-bottom:40px;
+  z-index: 9999;
   }
   
 .titleCloseBtn button {

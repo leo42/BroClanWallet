@@ -8,6 +8,8 @@
     border-radius: 12px;
     flex-direction: row;
     justify-content: space-between;
+    align-content: center;
+    align-items: center;
  }
 
   .modalContainer .walletOption{

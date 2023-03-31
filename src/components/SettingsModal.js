@@ -216,13 +216,7 @@ function SettingsModal(props) {
           <label htmlFor="DisableSync">Disable All Sync</label>
            <input type="checkbox"  name="EnableSync" checked={props.root.state.settings.disableSync} value={props.root.state.settings.disableSync} onChange={ () => props.root.toggleDisableSync()} />
         </div>
-          <button
-            onClick={() => {
-              props.setOpenModal(false);
-            }}
-            id="cancelBtn">
-            Cancel
-          </button>
+
         </div>
       </div>
     </div>

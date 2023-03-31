@@ -479,9 +479,6 @@ class AddWalletModal extends React.Component {
     return  (
     <div className="modalBackground">
       <div className="modalContainer"  >
-      <div className="title">
-          <h1>Create Wallet</h1>
-        </div>
         <div className="titleCloseBtn">
           <button
             onClick={() => {this.props.setOpenModal(false) }}>
@@ -489,6 +486,9 @@ class AddWalletModal extends React.Component {
           </button>
         </div>
   
+      <div className="title">
+          <h1 className="createWalletModalTitle">Create Wallet</h1>
+        </div>
         
         <div className="body">
         <select value={"Examples"} onChange={(event) => this.handlePresetChange(( event.target.value))}>

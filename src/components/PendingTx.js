@@ -30,10 +30,12 @@ function WalletPendingTx(props) {
             })
 
         txDetails.collateral ? props.wallet.getUtxosByOutRef(txDetails.collateral).then( (utxos) => {
+            console.log("collateral", utxos, "collateral")
             setCollateralUtxos(utxos)
             }) : setCollateralUtxos([])
 
         txDetails.reference_inputs ? props.wallet.getUtxosByOutRef(txDetails.reference_inputs).then( (utxos) => {
+            console.log("reference_inputs", utxos, "reference_inputs")
             setReferenceInputsUtxos(utxos)
             }) : setReferenceInputsUtxos([])
 
@@ -57,7 +59,7 @@ function WalletPendingTx(props) {
         inputUtxos.map( (input, index) => {
            if ( props.wallet.isAddressMine(input.address)) {
            Object.keys( input.assets).map( (asset) => 
-                asset in BalancesOut ? BalancesOut[asset] -= input.assets[asset]:  BalancesOut[asset] =- input.assets[asset]
+                asset in BalancesOut ? BalancesOut[asset] -= BigInt(input.assets[asset]):  BalancesOut[asset] =- BigInt(input.assets[asset])
             )}})
 
         transaction.outputs.map( (output, index) => {
@@ -67,7 +69,7 @@ function WalletPendingTx(props) {
                 asset in BalancesOut ? BalancesOut[asset] += BigInt(amount[asset]) : BalancesOut[asset] = BigInt(amount[asset])
              )}})
         if(transaction.withdrawals) {
-             if(transaction.withdrawals[props.wallet.getStakingAddress()]  !== undefined) {
+             if(transaction.withdrawals.hasOwnProperty(props.wallet.getStakingAddress()) ) {
                 console.log("In withdrawals")
                 BalancesOut["lovelace"] -= BigInt(transaction.withdrawals[props.wallet.getStakingAddress()])
             }
@@ -78,7 +80,7 @@ function WalletPendingTx(props) {
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0n) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
             <div key={index} className="transactionHistoryTokenBalance">
-                <TokenElement key={index} tokenId={key} amount={BalancesOut[key]}  />
+                <TokenElement key={index} tokenId={key} amount={Number(BalancesOut[key])}  />
              </div>
             ) );
 
@@ -96,14 +98,14 @@ function WalletPendingTx(props) {
 
     function TransactionInput(input){
         return (
-<div key={input.txHash+input.outputIndex} className="txDetailsInput"> TEST
-                        <p > <span className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}> {input.address ? input.address : "None" }</span> <br/>
+<div key={input.txHash+input.outputIndex} className="txDetailsInput">
+                         <p > <span className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}> {input.address ? input.address : "None" }</span> <br/>
                           Transaction ID: {input.txHash} | Index: {input.outputIndex}</p>
                     {Object.keys( input.assets).map( (asset,index) => <div className="pendingTxTokenContainer"  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
                         
                         {input.datumHash &&  <div className="pendingTxData"> <p > <h4>Datum Hash:</h4><span >  {input.datumHash}</span> </p> </div>}
                          { input.datum &&<div className="pendingTxData"> <p > <h4>Datum:</h4> <span > {JSON.stringify(input.datum,null,2) }</span> </p> </div>}
-                        {input.scriptRef &&  <div className="pendingTxData"> <p > <h4>Script Reference:</h4><span >  {input.scriptRef ? "None" : input.scriptRef}</span></p> </div> }
+                        {input.scriptRef &&  <div className="pendingTxData"> <p > <h4>Script Reference:</h4><span >  { JSON.stringify(input.scriptRef,null,2)}</span></p> </div> }
               </div>
         )
     }
@@ -158,11 +160,12 @@ function WalletPendingTx(props) {
                     TransactionOutput(output))}
               </div>
                 </div>
+                    <div className="txDetailsSmall">
+                <p><h3>Fee:</h3> {transaction.fee / 1_000_000}tA</p>
+                { transaction.ttl && <p><h3>TTL:</h3> {transaction.ttl}</p>}
+                {transaction.network_id &&  <p> <h3>Network:</h3> {transaction.network_id}</p> }
+                    </div>
                 <div className="txDetailsMain">
-                <p>Fee: {transaction.fee / 1_000_000}tA</p>
-                { transaction.ttl && <p>TTL: {transaction.ttl}</p>}
-                {transaction.network_id &&  <p>Network: {transaction.network_id}</p> }
-
              {transaction.certs  ?   <div className="pendingTxData"> <p > <h4>Certificates:</h4> <span> {transaction.certs.map(cert => {
                 if (cert.StakeDelegation) {
                     return( <div key={cert}>Delegation to:{JSON.stringify(cert.StakeDelegation)}</div> )
@@ -196,7 +199,13 @@ function WalletPendingTx(props) {
               {transaction.invalid_before &&  <div className="pendingTxData"> <p > <h4>Invalid Before:</h4> <span>  {transaction.invalid_before} </span></p> </div>}
               {transaction.invalid_hereafter &&  <div className="pendingTxData"> <p > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></p> </div>}
               {transaction.required_scripts &&  <div className="pendingTxData"> <p > <h4>Required Scripts: </h4> <span>  {transaction.required_scripts.map((script) => <div key={script}> {script}</div>)} </span></p> </div>}                         
-              { transaction.referenceInputs &&  <div className="pendingTxData"> <p > <h4>Reference Inputs: </h4> <span>  {referenceInputsUtxos.map((referenceInput) =>
+
+              {collateralUtXos.length !== 0  && <div  className="pendingTxReferenceInputs"> <p > <h3>Collateral: </h3> <span> {collateralUtXos.map((input, index) =>
+                         TransactionInput(input)
+                         )} </span></p> </div>}
+              
+
+              { transaction.reference_inputs !== null &&  <div className="pendingTxReferenceInputs"> <p > <h3>Reference Inputs: </h3> <span >  {referenceInputsUtxos.map((referenceInput) =>
                        TransactionInput(referenceInput)  
                     )} </span></p> </div>}
             {transaction.required_signers &&  <div className="pendingTxData"> <p > <h4>Required Signers: </h4> <span>   {transaction.required_signers.map((signer => <a key={signer}><br/>{signer} </a>))} </span></p> </div>}
@@ -263,11 +272,12 @@ function WalletPendingTx(props) {
              {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}
 
             <div className="pendingTx_signers">
-            <span className="pendingTx_signers_title">Signers:</span>
+            <h4 >Signatures:</h4>
             {txDetails.signatures.map( (item, index) => (
                 <div key={index} className={"pendingTx_signer"+ (item.haveSig ? " pendingTx_signer_signed" : "")} >
-                    { item.name}
-                    { item.haveSig ? <span className="">Signed  <svg onClick={() => copySignature(props.wallet.getSignature(props.index,item.keyHash))} className="copyIcon" id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg> </span> : ""}
+                   
+                    {item.haveSig ? <span className="pendingTxCompletedSig">{item.name} Signed <svg className="copyIcon" onClick={() => copySignature(props.wallet.getSignature(props.index,item.keyHash))}  id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg> </span> :
+                      <span className="pendingTxMissingSig"> Signature missing for: {item.name}</span> }
                 </div>))}
 
 

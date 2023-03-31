@@ -51,11 +51,12 @@ class Wallet {
 
     keyHashToSighnerName(keyHash){
       for(var index=0; index< this.signersNames.length; index++){
-        if (this.signersNames[index].hash == keyHash){
+        if (this.signersNames[index].hash === keyHash){
           let name=this.signersNames[index].name
           return name
         };
       }
+      return keyHash
     }
 
     async initialize (settings){

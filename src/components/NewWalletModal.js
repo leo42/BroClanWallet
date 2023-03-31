@@ -32,40 +32,32 @@ function NewWalletModal(props) {
   return (
     <div className="modalBackground" >
       <div className="modalContainer"  >
+     
+  
+        <div className="title">
+     
         <div className="titleCloseBtn">
           <button
             onClick={() => {
               props.setOpenModal(false);
             }}
-          >
-            X
+          >X
           </button>
-        </div>
-  
-        <div className="title">
-        </div>
+        </div>   </div>
         <div className="body">
         {addWalletOpen && <AddWalletModal hostModal={props.setOpenModal} setOpenModal={setAddWalletOpen} root={props.root} />}
           <div className="inputContainer">
-            <button className='addWalletButton' onClick={ () => setAddWalletOpen(true)}>Create new Wallet</button>
+            <button className='commonBtn'  onClick={ () => setAddWalletOpen(true)}>Create new Wallet</button>
             <br/>
             <input type="file" id="file-picker" hidden={true} onChange={importWallet}></input>
-            <button className='addWalletButton' onClick={() => document.getElementById("file-picker").click()}>Import Wallet</button>
-
+            <button className='commonBtn' onClick={() => document.getElementById("file-picker").click()}>Import Wallet</button>
           </div>
 
           
         <div className="footer">
          
           </div> 
-        
-          <button
-            onClick={() => {
-              props.setOpenModal(false);
-            }}
-            id="cancelBtn">
-            Cancel
-          </button>
+
         </div>
       </div>
     </div>

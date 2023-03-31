@@ -23,6 +23,10 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
         // sort by block height
 
         const json = await response.json();
+        console.log(json)
+        if (json.error) 
+            return []
+
         json.sort((a,b) => b.block_height - a.block_height)
         return  await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
     }else if ( settings.metadataProvider === "Blockfrost"){
@@ -39,8 +43,10 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
         const json = await response.json();
         // return the first 10 transactions if page is not specified 
         // sort by block height
-        json.sort((a,b) => b.block_height - a.block_height)
-        return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
+    if (json.error) 
+        return []
+    json.sort((a,b) => b.block_height - a.block_height)
+    return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
     }
 
 
