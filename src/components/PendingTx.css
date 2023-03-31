@@ -1,6 +1,6 @@
 .pedningTx{
   width: 95vw;
-  background-color: rgb(236, 235, 234);
+  background-color: rgb(241, 240, 239);
   border: #7e7e7e ;
   border-style: outset;
   /* throw a light shadow */
@@ -133,7 +133,7 @@
 }
 
 .pendingTxData{
-  background-color: #e7e7e7;
+  background-color: #ece9e9;
   width: 100%;
 }
 

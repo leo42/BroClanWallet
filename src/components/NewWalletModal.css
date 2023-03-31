@@ -33,3 +33,39 @@
     box-shadow: var(--clrorange) 0px 0px 5px 0px;
     color: var(--clrorange);
   }
+
+  .importWalletIcon{
+    height: 150px;
+    width: 150px;
+    display: grid;
+    cursor: pointer;
+    align-self: center;
+  }
+
+  .importWalletIcon .icon{
+    height: 120px;
+    width: 120px;
+    position: relative;
+    left: 12px;
+    cursor: pointer;
+    align-self: center;
+  }
+
+  .import_svg__importImage{
+    height: 100%;
+    width: 100%;
+  }
+
+  .createWalletButton{
+    height: 150px;
+    width: 150px;
+  }
+
+  .createWalletButton .icon{
+    height: 120px;
+    width: 120px;
+    cursor: pointer;
+    position: relative;
+    top: 10px;
+    align-self: center;
+  }

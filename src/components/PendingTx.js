@@ -192,7 +192,7 @@ function WalletPendingTx(props) {
 
               {transaction.script_data_hash &&  <div className="pendingTxData"> <p > <h4>Script Data Hash: </h4> <span>  {transaction.script_data_hash} </span></p> </div>}
 
-              {transaction.collateral && <div key={collateralUtXos}> <p > <h4>Collateral: </h4> <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></p> </div>}
+              {transaction.collateral && <div key={collateralUtXos}> <p > <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></p> </div>}
               
               {transaction.collateral_return && <div className="pendingTxData"> <p > <h4>Collateral Return: </h4> <span>  {TransactionOutput(transaction.collateral_return)} </span></p> </div>}
               { transaction.total_collateral &&   <div className="pendingTxData"> <p > <h4>Total Collateral: </h4> <span>  {transaction.total_collateral} </span></p> </div> } 

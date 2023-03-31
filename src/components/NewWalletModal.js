@@ -1,6 +1,8 @@
 import React from "react";
 import { useState} from 'react';
 import "./NewWalletModal.css"
+import { ReactComponent as ImportIcon } from "../html/assets/import.svg";
+import { ReactComponent as CreateIcon } from "../html/assets/newWallet.svg";
 import { ToastContainer, toast } from 'react-toastify';
 // import "./NewWalletModal.css"
 
@@ -48,10 +50,14 @@ const createWallet = () => {
      
           </div>
           <div className="inputContainer">
-            <button className='commonBtn'  onClick={createWallet }>Create new Wallet</button>
-            <br/>
+          <div   onClick={createWallet}  className='iconWraper createWalletButton'>
+                <CreateIcon className="icon"  alt="signicon" />  
+            </div>  
             <input type="file" id="file-picker" hidden={true} onChange={importWallet}></input>
-            <button className='commonBtn' onClick={() => document.getElementById("file-picker").click()}>Import Wallet</button>
+            <div   onClick={() => document.getElementById("file-picker").click()}  className='iconWraper importWalletIcon'>
+                <ImportIcon className="icon"  alt="signicon" />  
+            </div>  
+            
           </div>
 
 
