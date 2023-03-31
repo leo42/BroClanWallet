@@ -1,6 +1,5 @@
 import React from "react";
 import { useState} from 'react';
-import AddWalletModal from "./AddWalletModal";
 import "./NewWalletModal.css"
 import { ToastContainer, toast } from 'react-toastify';
 // import "./NewWalletModal.css"
@@ -30,6 +29,9 @@ function NewWalletModal(props) {
     }    
 
 }
+const createWallet = () => {
+  props.root.showModal("createWallet");
+}
   return (
     <div className="modalBackground" onClick={() => props.setOpenModal(true)} >
       <div className="modalContainer" onClick={ (e) => e.stopPropagation()} >
@@ -45,9 +47,8 @@ function NewWalletModal(props) {
         <div className="title">
      
           </div>
-        {addWalletOpen && <AddWalletModal hostModal={props.setOpenModal} setOpenModal={setAddWalletOpen} root={props.root} />}
           <div className="inputContainer">
-            <button className='commonBtn'  onClick={ () => setAddWalletOpen(true)}>Create new Wallet</button>
+            <button className='commonBtn'  onClick={createWallet }>Create new Wallet</button>
             <br/>
             <input type="file" id="file-picker" hidden={true} onChange={importWallet}></input>
             <button className='commonBtn' onClick={() => document.getElementById("file-picker").click()}>Import Wallet</button>

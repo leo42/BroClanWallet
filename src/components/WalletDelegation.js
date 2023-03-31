@@ -88,14 +88,14 @@ function WalletDelegation(props) {
 
  
    const SignersSelect =  wallet.getSigners().map( (item, index) => (
-    <div key={index}>
-   <br />
-   <label>
+    <div key={index} >
+   <label className='signerCheckbox'>
      {wallet.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"
        value={index}
+       className='signerCheckbox'
        checked={signers[index]} 
        onChange={  () =>  handleOnChangeSigners(index)  }
       
@@ -126,9 +126,11 @@ function WalletDelegation(props) {
           </div>
         )
       )}
-
+      <div className='SignersSelect' ><h2> Signers:</h2>
+      <div className='SignersSelectList'>
       { SignersSelect}
-      <br />
+      </div>
+      </div>
      {pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
     </form>
     </div>

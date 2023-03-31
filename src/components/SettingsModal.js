@@ -161,8 +161,7 @@ function SettingsModal(props) {
           </button>
         </div>
   
-        <div className="title">
-        </div>
+ 
         <div className="body">
           <h1>Network Settings</h1>
           <span> Network</span>   

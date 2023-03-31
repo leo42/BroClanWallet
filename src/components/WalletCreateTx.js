@@ -219,15 +219,14 @@ class WalletCreateTx extends React.Component {
     
 
    SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
-    <div key={index}>
-   <br />
-   <label>
+    <div key={index} >
+   <label className='signerCheckbox'>
      {this.props.wallet.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"
        value={index}
-       
+       className='signerCheckbox'
        checked={this.state.signers[index]} 
        onChange={  () =>  this.handleOnChangeSigners(index)  }
       
@@ -265,8 +264,11 @@ class WalletCreateTx extends React.Component {
         {  <label className='iconLabel'>Add Recipient</label> }
         < br/>   
       </div>
+      <div className='SignersSelect' ><h2> Signers:</h2>
+      <div className='SignersSelectList'>
       { this.SignersSelect()}
-      <br />
+      </div>
+      </div>
       { this.props.wallet.getFundedAddress().length > 1 ? this.AccountSelect(): ""}
       <br/>
 

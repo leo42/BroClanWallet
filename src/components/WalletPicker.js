@@ -34,21 +34,15 @@ let Wallets = []
           </button>
         </div>
   
-        <div className="title">
+        <div className="walletPickerTitle">
           <h1>Select Wallet</h1>
         </div>
-        <div className="body">
+        <div className="walletPickerBody">
         {wal}
             
         </div>
         <div className="footer">
-          <button
-            onClick={() => {
-              setOpenModal(false);
-            }}
-            id="cancelBtn">
-            Cancel
-          </button>
+
         </div>
       </div>
     </div>

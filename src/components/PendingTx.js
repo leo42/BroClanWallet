@@ -4,7 +4,7 @@ import TokenElement from "./TokenElement";
 import {  toast } from 'react-toastify';
 import { ReactComponent as SignIcon } from "../html/assets/sign.svg";
 import { ReactComponent as ImportSigIcon } from "../html/assets/importSig.svg";
-import { ReactComponent as ExpandIcon } from "../html/assets/expand.svg";
+import { ReactComponent as ExpandIcon } from "../html/assets/details.svg";
 import copyTextToClipboard from "../helpers/copyTextToClipboard";
 import "./PendingTx.css"
 import { C } from "lucid-cardano";
@@ -208,7 +208,7 @@ function WalletPendingTx(props) {
               { transaction.reference_inputs !== null &&  <div className="pendingTxReferenceInputs"> <p > <h3>Reference Inputs: </h3> <span >  {referenceInputsUtxos.map((referenceInput) =>
                        TransactionInput(referenceInput)  
                     )} </span></p> </div>}
-            {transaction.required_signers &&  <div className="pendingTxData"> <p > <h4>Required Signers: </h4> <span>   {transaction.required_signers.map((signer => <a key={signer}><br/>{signer} </a>))} </span></p> </div>}
+            {transaction.required_signers &&  <div className="pendingTxData"> <p > <h4>Required Signers: </h4> <span className="pendingTxsDetailsSigners">   {transaction.required_signers.map((signer => <div key={signer}>{signer} </div>))} </span></p> </div>}
             {transaction.mint && <div > <p > <h4> Mint/Burn: </h4>                
                     {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) } </p> </div>}
                     

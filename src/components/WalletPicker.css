@@ -13,8 +13,7 @@
  }
 
   .modalContainer .walletOption{
-    width: 85%;
-    align-self:  start ;
+    width: 90%;
     cursor: pointer;
   }
   
@@ -28,4 +27,21 @@
   
   .modalContainer .walletOptionImg{
     height: 55px;
+  }
+.walletPickerTitle {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 10px;
+  }
+
+  .walletPickerBody {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    margin: 5px;
+    margin-right: 50px;
+    width: 35vw;
+    height: 100%;
   }
