@@ -105,10 +105,10 @@ select{
 } 
 
 .commonBtn:hover{
-  color: var(--clrgreen);
+  color: var(--clrorange);
   letter-spacing: 0.25em;
-  box-shadow: 0 0 13px var(--clrgreen);
-  border: var(--clrgreen) solid 1px;
+  box-shadow: 0 0 13px var(--clrorange);
+  border: var(--clrorange) solid 1px;
 }
 
 

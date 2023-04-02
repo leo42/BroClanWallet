@@ -1,11 +1,15 @@
 .overviewTokensContainer {
     margin: 8px;
     padding: 21px 10px;
+    width: 80vw;
     border: 5px;
     border-style: ridge;
     display:flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+
 }
 
 .overviewTokenContainer .TokenElement {
@@ -14,7 +18,9 @@
     height: 80px;
     margin: 10px;
     border: 1px;
-    border-style:inset;
+    border-radius: 10px;
+    border-style:outset;
+    box-shadow: 5px 5px 5px 5px #ac8e69;
     overflow: hidden;
     display: grid;
 } 
