@@ -569,13 +569,14 @@ class App extends React.Component {
       promice,
       {
         pending: 'Submiting Transaction',
-        success: 'Transaction Submited',
-        error: 'Failed Submiting Transaction'
+        success: 'Transaction Submited'
       }
       )
       promice.then( 
         //add a small delay to allow the transaction to be broadcasted
         () => setTimeout(() => this.reloadBalance(), 5000)
+      ).catch(
+        (e) => toast.error("Transaction Failed:" + JSON.stringify(e))
       )
   }
 

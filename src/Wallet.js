@@ -691,10 +691,9 @@ setPendingTxs(pendingTxs){
        const tx = this.pendingTxs[index]
        const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
        const txHash = await signedTx.submit();
-       this.pendingTxs = this.pendingTxs.filter( (item,i) => i!==index)
-      return( this.lucid.awaitTx(txHash))
-
+      return( this.lucid.awaitTx(txHash, 2500))
     }
+
     // Setters
     setScript(wallet_script) {
       this.wallet_script = wallet_script;

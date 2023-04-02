@@ -73,7 +73,7 @@
 .createTxAddressInputField{
     width: 80vw;
     height: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     /* remove line under input */
  
     
@@ -108,6 +108,7 @@
     border-radius: 5px;
     border-width: 2px;
     border-style: outset;
+    box-shadow: 5px 5px 5px 5px #b89d82;
 
 }
 .CreateTxSelectedToken .TokenThumbnail{
@@ -117,10 +118,16 @@
 }
 
 .sendInputInvalidValidAddress {
-    border: none;
-    border-bottom: 1px solid red;
-    border-radius: 0px;
+  border: none;
+  border: 1px solid red;
+  border-radius: 0px;
 }
+
+.sendInputValidAddress{
+    border: none;
+    border: 1px solid green;
+    border-radius: 0px;
+  }
 
 .recipientButton label{
         top: 10px;
@@ -163,12 +170,6 @@
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
 }
-
-.sendInputValidAddress{
-    border: none;
-    border-bottom: 1px solid green;
-    border-radius: 0px;
-  }
 
 .addRecipientWraper{
     box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);

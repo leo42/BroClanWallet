@@ -32,6 +32,11 @@
   width: 100%;
 }
 
+.pendingTx_submit{
+  scale: 1.5;
+  margin-bottom: 20px;
+}
+
 .txDetailsInput p{
   margin: 0px;
   padding: 0px;

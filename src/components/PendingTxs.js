@@ -17,8 +17,10 @@ function PendingTxs(props){
         }
 
     }
+
+    const pending = props.wallet.getPendingTxs().length;
     return(
-        <div className="pendingTxs">
+        <div className="pendingTxs"  key={pending}>
             <h3>Pending Transactions</h3>
             {props.wallet.getPendingTxs().map( (pendingTx, index) => (
                 <WalletPendingTx root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>

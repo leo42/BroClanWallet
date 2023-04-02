@@ -41,6 +41,9 @@ function WalletPendingTx(props) {
 
     }, [])
 
+  
+
+    const signaturesCompleted = props.wallet.checkSigners(txDetails.signatures.map( (signature) => signature.haveSig ? signature.keyHash : "  "))
 
     function transformAmount(amount){
         const amountOut = {}
@@ -288,12 +291,7 @@ function WalletPendingTx(props) {
                 <SignIcon className="icon"  alt="signicon" />
                 {  hovering === "sign" &&  <label className='iconLabel'>Sign</label> }
             </div>  
-              
-            <div  onMouseEnter={() => setHovering("Submit")} onMouseLeave={() => setHovering("") } onClick={() => props.root.submit(props.index)}  className='iconWraper detailsButton'>
-                <SignIcon className="icon"  alt="signicon" />
-                {  hovering === "Submit" &&  <label className='iconLabel'>Submit</label> }
-            </div>  
-              
+                            
             <div  onMouseEnter={() => setHovering("importSig")} onMouseLeave={() => setHovering("") } onClick={()=> setImportSig(!importSig)}  className='iconWraper importSigButton'>
                 <ImportSigIcon className="icon"  alt="signicon" />
                 {  hovering === "importSig" &&  <label className='iconLabel'>Import Signature</label> }
@@ -305,7 +303,7 @@ function WalletPendingTx(props) {
             </div>  
                 </div>
    
-            
+            {signaturesCompleted &&  <button className="pendingTx_submit commonBtn" onClick={() => props.root.submit(props.index)}>Submit</button> }
 
             {importSig ? 
             <div>
