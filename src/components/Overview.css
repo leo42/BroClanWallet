@@ -2,8 +2,11 @@
     margin: 8px;
     padding: 21px 10px;
     width: 80vw;
-    border: 5px;
-    border-style: ridge;
+    border: 3px;
+    border-radius: 10px;
+    border-color: orange;
+    box-shadow: #ff8c002f 1px 1px 1px 1px;
+    border-style:groove;
     display:flex;
     flex-direction: row;
     flex-wrap: wrap;

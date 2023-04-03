@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(200, 200, 200);
+  background-color: rgba(200, 200, 200, 0.438);
   position:fixed;
   overflow: auto;
   display: flex;
