@@ -3,7 +3,6 @@ async function SearchPools(string){
     const settings = JSON.parse(localStorage.getItem("settings"))
 
 
-    console.log(settings,string)
   //  if (settings.metadataProvider !== "Koios"){
    //     return []
    // }
@@ -30,7 +29,6 @@ async function SearchPools(string){
     const data = await responseTicker.json()
     
     const data2 = await responseId.json()
-    console.log(data,data2)
     //return sublist of data that matches string size 10
         
     return (data.length !== 0 ? data : data2).slice(0,10)

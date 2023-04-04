@@ -13,13 +13,13 @@ class AddWalletModal extends React.Component {
       [
         {
           "type": "sig",
-          "name" : "Test",
-          "keyHash": "487b9485cf18d99e875e7aef9b80c4d3a89cccddefbc2641c87da293"
+          "name" : "",
+          "keyHash": ""
         },
         {
           "type": "sig",
-          "name": "Leo",
-          "keyHash": "7190ae1c26a87ed572e8d72049454ddc874d360293c1eb43aef490e3"
+          "name": "",
+          "keyHash": ""
         },
       ]
     } , 
@@ -106,7 +106,6 @@ class AddWalletModal extends React.Component {
 
   handlePresetChange(value){
     var json 
-    console.log(value)
     switch(value){
       case "Social Recovery":
         json = {"type": "any", "scripts": [{"type": "sig", "name":"Me" , "keyHash": ""}, 
@@ -172,45 +171,33 @@ class AddWalletModal extends React.Component {
   
   handleAddScript(coordinates){
     const json=this.state.json;
-    console.log("In handle Type Change")
-    console.log(coordinates)
     let current = json;
     for (const index of coordinates) {
       current = current.scripts[index];
     }
     current.scripts.push({ "type": "sig","name" : "","keyHash": "" })
 
-    console.log(json)
     this.setState({json})
   }
 
   handleRequiredChange(value,coordinates){
     const json=this.state.json;
-    console.log("In handle Type Change")
-    console.log(coordinates)
-    console.log(value)
     let current = json;
     for (const index of coordinates) {
       current = current.scripts[index];
     }
     current.required=Number.parseInt(value)
 
-    console.log(json)
     this.setState({json})
   }
 
   handleSignatoryNameChange(value,coordinates){
     const json=this.state.json;
-    console.log("In handle Type Change")
-    console.log(coordinates)
-    console.log(value)
     let current = json;
     for (const index of coordinates) {
       current = current.scripts[index];
     }
     current.name=value
-
-    console.log(json)
     this.setState({json})
     
   }
@@ -227,30 +214,23 @@ class AddWalletModal extends React.Component {
     }
     current.slot= Number(value) ?  Number(value) : value==="" ? "" : current.slot
 
-    console.log(json)
     this.setState({json})
     
   }
 
   handleKeyHashChange(value,coordinates){
     const json=this.state.json;
-    console.log(coordinates)
-    console.log(value)
     let current = json;
     for (const index of coordinates) {
       current = current.scripts[index];
     }
     current.keyHash=value
 
-    console.log(json)
     this.setState({json})
     
   }
 
   sigComponent(json,coordinates){
-   // console.log("In Sig component")
-   // console.log(json)
-    //console.log(coordinates)
     return (
         <div className="sigWrap">
           <div className="input_wrap">
@@ -283,9 +263,6 @@ class AddWalletModal extends React.Component {
   }
  
   beforeComponent(json,coordinates){
-    // console.log("In Sig component")
-    // console.log(json)
-     //console.log(coordinates)
      return (
       <React.Fragment>
          <div className="input_wrap beforeSlot">
@@ -315,10 +292,6 @@ class AddWalletModal extends React.Component {
    }
 
    afterComponent(json,coordinates){
-    // console.log("In Sig component")
-    // console.log(json)
-     //console.log(coordinates)
-     
      return (
       <React.Fragment>
          <div className="input_wrap beforeAndAfterSlot">
@@ -344,9 +317,6 @@ class AddWalletModal extends React.Component {
 
   deleteElement(value,coordinates){
     const json=this.state.json;
-    console.log("In Delete Element")
-    console.log(coordinates)
-    console.log(value)
     let current = json;
     let previus
     for (const index of coordinates) {
@@ -354,22 +324,17 @@ class AddWalletModal extends React.Component {
       current = current.scripts[index];
     }
     previus.scripts.splice(coordinates[coordinates.length-1], 1)
-    console.log(coordinates[-1])
     this.setState({json})
   }
 
   handleTypeChange(value,coordinates){
     const json=this.state.json;
-    console.log("In handle Type Change")
-    console.log(coordinates)
-    console.log(value)
     let current = json;
     for (const index of coordinates) {
       current = current.scripts[index];
     }
     
 
-    console.log("hey leo")
     current.type=value
     switch(value){
       case "all": 
@@ -417,16 +382,12 @@ class AddWalletModal extends React.Component {
             delete current.slot
             break;
     }
-    console.log(json)
     this.setState({json})
     
   }
   
   rootComponenent(json, coordinates=[]){
    const extraClasses = "WalletCreateColor"+(coordinates.length % 2)  + " WalletCreateType"+json.type
-  //  console.log("In root component")
- //   console.log(json)
- //   console.log(coordinates)
     var content 
     
     switch (json.type) {
@@ -451,7 +412,6 @@ class AddWalletModal extends React.Component {
   };
 
   
-  console.log(coordinates)
   return (
   <div key={coordinates} className={"rootElement "+  extraClasses}>
     

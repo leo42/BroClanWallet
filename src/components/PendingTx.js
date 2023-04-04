@@ -20,7 +20,6 @@ function WalletPendingTx(props) {
     const [referenceInputsUtxos,    setReferenceInputsUtxos] = React.useState([]);
 
     const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
-    console.log(txDetails)
     
     
     useEffect(() => {
@@ -30,12 +29,10 @@ function WalletPendingTx(props) {
             })
 
         txDetails.collateral ? props.wallet.getUtxosByOutRef(txDetails.collateral).then( (utxos) => {
-            console.log("collateral", utxos, "collateral")
             setCollateralUtxos(utxos)
             }) : setCollateralUtxos([])
 
         txDetails.reference_inputs ? props.wallet.getUtxosByOutRef(txDetails.reference_inputs).then( (utxos) => {
-            console.log("reference_inputs", utxos, "reference_inputs")
             setReferenceInputsUtxos(utxos)
             }) : setReferenceInputsUtxos([])
 
@@ -73,7 +70,6 @@ function WalletPendingTx(props) {
              )}})
         if(transaction.withdrawals) {
              if(transaction.withdrawals.hasOwnProperty(props.wallet.getStakingAddress()) ) {
-                console.log("In withdrawals")
                 BalancesOut["lovelace"] -= BigInt(transaction.withdrawals[props.wallet.getStakingAddress()])
             }
         }
@@ -131,7 +127,6 @@ function WalletPendingTx(props) {
     }
 
     function mintToAssets(mint){
-        console.log(mint)
         const assets = {}
         Object.keys(mint).map( (policy) => {
             Object.keys(mint[policy]).map( (asset) => {
@@ -144,7 +139,6 @@ function WalletPendingTx(props) {
 
     function TransactionDetails(transaction){
         const mintAssets =  transaction.mint ? mintToAssets(transaction.mint) : {}
-        console.log(mintAssets)
 
         return (
             <div>
@@ -251,8 +245,6 @@ function WalletPendingTx(props) {
     }
 
     function signTransaction(){
-    console.log(props.root.state.connectedWallet.name)
-    console.log("reeeeeeee")
       if( props.root.state.connectedWallet.name === "" ) 
         setWalletPickerOpen(true) 
     else

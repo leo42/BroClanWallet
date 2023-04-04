@@ -30,10 +30,8 @@ app.use(express.json());
 
 
 app.post('/api/wallet', function(req, res) {
-  console.log(req.body)
   const hash = walletHash(req.body)
   wallets.updateOne( {hash: hash}, {  $setOnInsert : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
-  console.log(hash);
   res.sendStatus(200);
 });
 
@@ -141,7 +139,6 @@ io.on('connection', (socket ) => {
   
  
   socket.on('authentication_start', (data) => {
-    console.log("authentication Start", data)
     
      users.findOne({authenticationToken: data.token} ).then((user) => {
           if (user){
@@ -163,7 +160,6 @@ io.on('connection', (socket ) => {
 
 
   socket.on('authentication_response', (data) => {
-    console.log("authentication responsea", data)
     const { address, signature } = data;
     const { challenge_string } = verification[socket.id];
     try{
@@ -191,7 +187,6 @@ io.on('connection', (socket ) => {
  })
 
  socket.on("subscribe", (data) => {
-  console.log("subscribe", data)
   if(verification[socket.id].state === "Authenticated"){
     //Date.now() minus 4 hours to get all transactions since last login
     
@@ -228,9 +223,7 @@ io.on('connection', (socket ) => {
 };
 
 function subscribeToWallets(socket, wallets , lastLogin){
-  console.log("Subscribing to wallets", wallets)
    wallets.map((wallet) => {
-    console.log(wallet)
 
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
     if(subscriptions[socket.id]){
@@ -250,8 +243,6 @@ function subscribeToWallets(socket, wallets , lastLogin){
 
 
 app.get('/api', function(req, res) {
-  console.log(__dirname + 'public')
-  console.log("Hey")
   res.sendfile('public/index.html');
 });
 
@@ -278,7 +269,6 @@ const verify = (address, payload, walletSig) => {
   const coseSign1 = MS.COSESign1.from_bytes(Buffer.from(walletSig.signature, 'hex'));
   const coseKey = MS.COSEKey.from_bytes(Buffer.from(walletSig.key, 'hex'));
   const payloadCose = coseSign1.payload();
-  console.log(JSON.stringify(coseKey))
   if (verifyPayload(payload, payloadCose))
     throw new Error('Payload does not match');
   const keyHeaders = coseKey.header(MS.Label.new_int( MS.Int.new_i32(-2))).as_bytes()
@@ -353,10 +343,8 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
 
 
 function findNewWallets(PubKeyHash, lastLogin, socket){
-  console.log("lastLogin:" + lastLogin)
   let walletsFound = wallets.find({members: PubKeyHash, creationTime: {$gt: lastLogin}})
   walletsFound.toArray().then((walletsFound) => {
-    console.log(walletsFound)
   if (walletsFound.length > 0) {
     socket.emit('wallets_found', { wallets: walletsFound })
   } 
@@ -369,10 +357,8 @@ function findNewWallets(PubKeyHash, lastLogin, socket){
 }
 
 function findNewTransactions(wallet, lastLogin, socket, ){
-  console.log("lastLogin:" + lastLogin)
   let TransactionsFound = transactions.find({wallet: wallet, lastUpdate: {$gt: lastLogin}})
   TransactionsFound.toArray().then((TransactionsFound) => {
-    console.log(TransactionsFound)
   if (TransactionsFound.length > 0) {
     socket.emit('transaction', { transactions: TransactionsFound })
   } 
@@ -391,19 +377,13 @@ async function watchWallets()  {
       
       const wallet = await wallets.findOne({ _id: change.documentKey._id });
       const signers = wallet.members;
-      console.log(io.sockets.sockets)
-
-      console.log(verification)
-      console.log(signers)
       const RelevantSockets : String[] = []
       Object.keys(verification).map( (key) => {
         if( signers.includes(verification[key].user) ){RelevantSockets.push(key)}}
       )
-      console.log(RelevantSockets)
       if (RelevantSockets.length > 0) {
         RelevantSockets.forEach((socket) => {
           const sock = io.sockets.sockets.get(socket)
-          console.log(sock)
           if (sock && sock.connected) {
             sock.emit('wallets_found', { wallets: [wallet] });
           }
@@ -417,8 +397,6 @@ async function watchWallets()  {
 async function watchTransactions() {
   const changeStream = transactions.watch( );
   changeStream.on('change', async (change) => {
-    console.log(io.sockets)
-    console.log(change)
     if (change.operationType === 'update' ||  change.operationType === 'insert') {
 
 
@@ -428,13 +406,10 @@ async function watchTransactions() {
       Object.keys(verification).map( (key) => {
         if( transaction.requiredSigners.includes(verification[key].user) && subscriptions[key]?.includes(transaction.wallet)  ){RelevantSockets.push(key)}}
       )
-      console.log("RelevantSockets:" + RelevantSockets)
-      console.log("verification :" + JSON.stringify( verification))
-      console.log("subscriptions :" +JSON.stringify( subscriptions))
+
       if (RelevantSockets.length > 0) {
         RelevantSockets.forEach((socket) => {
           const sock = io.sockets.sockets.get(socket)
-          console.log("sock:  " + sock)
           if (sock && sock.connected) {
             sock.emit('transaction', { transactions: [transaction] });
           }
@@ -466,9 +441,6 @@ function walletHash(wallet) {
 
   const cleanWallet = JSON.parse(JSON.stringify(wallet));
   removeName(cleanWallet)
-  console.log(wallet)
-  
-
  return crypt.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex');
 }
 

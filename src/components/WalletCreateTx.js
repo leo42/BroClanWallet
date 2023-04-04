@@ -127,7 +127,6 @@ class WalletCreateTx extends React.Component {
 
   setMax = (tokenId,index) => {
 
-    console.log(tokenId,index ,this.props.wallet.getBalanceFull(this.state.sendFrom)[tokenId])
     if ((tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]
       recipients[index].amount[tokenId] = Number( this.props.wallet.getBalanceFull(this.state.sendFrom)[tokenId])

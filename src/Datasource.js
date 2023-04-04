@@ -14,7 +14,6 @@ class Datasource{
                 new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", projectId),
                 "Preprod",
               );
-              console.log()
 
     
         return new Datasource("blockfrost", lucid )

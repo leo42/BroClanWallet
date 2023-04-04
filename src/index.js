@@ -99,19 +99,16 @@ class App extends React.Component {
 
 
   async setState(state){
-    console.log("setState",state)
 
       
     
-    await super.setState(state)
+    super.setState(state)
     this.storeWallets()
     
-    console.log(state,state.wallets)
     this.storeState()
   }
 
   async setSettings(settings){
-    console.log(settings)
     const valid = await this.checkSettings(settings)
     if (!valid){
       throw ("Invalid settings");
@@ -131,7 +128,6 @@ class App extends React.Component {
   }
 
   async checkSettings(settings){
-    console.log("checkSettings",settings)
     try{
       if (settings.provider === "Blockfrost"){
         const provider = new Blockfrost(settings.api.url, settings.api.projectId)
@@ -300,7 +296,6 @@ class App extends React.Component {
 
   async importTransaction(transaction){
     try{
-    console.log(transaction)
     const wallets = this.state.wallets
     await this.state.wallets[this.state.selectedWallet].importTransaction(transaction)
     this.setState({wallets})
@@ -464,7 +459,6 @@ class App extends React.Component {
     const walletHash = await this.walletHash(script)
     if (this.state.connectedWallet.socket) {
        this.state.connectedWallet.socket.emit('subscribe' , script)}
-    console.log(res, walletHash,walletsHashes )
     if (! res.includes(walletHash)) {
       const myWallet = new Wallet(script,name);
       await myWallet.initialize(this.state.settings);
@@ -487,7 +481,6 @@ class App extends React.Component {
   transmitTransaction(transaction) {
     if(this.state.settings.disableSync) return
 
-    console.log("transmitting transaction", transaction)
     fetch('/api/transaction', {
       method: 'POST',
       headers: {
@@ -500,7 +493,6 @@ class App extends React.Component {
 
   transmitWallet(script) {
     if(this.state.settings.disableSync) return
-    console.log("transmitting wallet")
     fetch('/api/wallet', {
       method: 'POST',
       headers: {
@@ -543,7 +535,6 @@ class App extends React.Component {
   
     const cleanWallet = JSON.parse(JSON.stringify(wallet));
     removeName(cleanWallet)
-    console.log(wallet)
     
   //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
     return getSHA256Hash(cleanWallet)

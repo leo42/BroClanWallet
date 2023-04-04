@@ -36,7 +36,6 @@ function Receive(props){
             setNewStake(false)
             setAddress(props.wallet.getAddress(event.target.value))
         } 
-               console.log(event.target.value)
     }
     const handleNewAddressChange = (event) =>{
         try{

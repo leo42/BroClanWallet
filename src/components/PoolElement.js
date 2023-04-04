@@ -4,7 +4,6 @@ import "./PoolElement.css"
 function PoolElement(props){
     const [ PoolInfo, setPoolInfo] =  React.useState(undefined)
     React.useEffect(() => {
-        console.log("PoolElement", props)
         var poolInfoFetch =  getPoolInfo(props.poolId)
         poolInfoFetch.then( info => 
           setPoolInfo(info)
@@ -13,12 +12,10 @@ function PoolElement(props){
 
 function handleClick(e) {
     e.preventDefault();
-    console.log('The link was clicked.');
     const urlPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."; 
     window.open(`https://${urlPrefix}cexplorer.io/pool/${props.poolId}`, '_blank');
   }
 
-    console.log("PoolElement", PoolInfo)
     if (PoolInfo === undefined  ) return (<div className="PoolElementNotFound">Pool Not found </div>)
 
     const networkPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."

@@ -282,7 +282,6 @@ setPendingTxs(pendingTxs){
           if (utxos.find(WalletUtxo => WalletUtxo.txHash === inputsUtxos[i].txHash && WalletUtxo.outputIndex === inputsUtxos[i].outputIndex)){
            
           }else{
-            console.log("utxo not available")
             return false
           }
         }

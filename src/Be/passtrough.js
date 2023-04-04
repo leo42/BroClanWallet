@@ -140,7 +140,6 @@ res.header('Access-Control-Allow-Origin', SERVING);
 app.post('/tx/submit',  async (req, res) => {
   res.header('Access-Control-Allow-Origin', SERVING);
   try {
-    console.log(req.body)
     const payloadString = req.body;
 
     // convert string to buffer
@@ -148,9 +147,7 @@ app.post('/tx/submit',  async (req, res) => {
 
     // decode binary CBOR string
     const decoded = await cbor.decodeFirst(payloadBuffer);
-    console.log(decoded)
   
-    console.log(req.body)
     axios.post(`${blockfrostApis[req.headers.project_id]}/tx/submit`, cbor.encode(decoded)  , { headers: { project_id: blockfrostApiKeys[req.headers.project_id] ,  'Content-Type': 'application/cbor'} })
     .then(response => {;
       res.json(response.data);

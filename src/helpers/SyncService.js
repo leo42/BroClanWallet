@@ -7,12 +7,10 @@ async function  connectSocket(wallet , root){
     const lucid = await Lucid.new();
         lucid.selectWallet(api);
         const address = await lucid.wallet.address();
-        console.log(address)
         const socket = io(window.location.origin);
         
         
         socket.on('disconnect', () => {
-            console.log("disconnected")
             root.disconnectWallet()
             socket.close()
         });
@@ -34,7 +32,6 @@ async function  connectSocket(wallet , root){
         });
 
         socket.on('transaction', (data) => {
-            console.log("transaction", data)
             data.transactions.map((transaction) => {
                 for(let i = 0; i < root.state.wallets.length; i++){
                     root.walletHash(root.state.wallets[i].getJson()).then(walletHash => {
@@ -54,21 +51,17 @@ async function  connectSocket(wallet , root){
         //a function to decode CBOR address to base 68
         
     socket.on("authentication_challenge", (data) => {
-        console.log("authentication_challenge")
-        console.log()
         
         const signed = lucid.wallet.signMessage( address,data.challenge );
         signed.then((signature) => {
             socket.emit("authentication_response", {address : address  ,signature: signature , wallets:  root.state.wallets.map((wallet) => wallet.getJson() )})   
         }).catch((error) => {
-            console.log(error)
             socket.close()
         })
         
     });
 
     socket.on("authentication_success", (data) => {
-        console.log("authentication_success")
         localStorage.setItem("token_"+address, data.authenticationToken)
     });
     
@@ -87,7 +80,6 @@ async function  connectSocket(wallet , root){
                 newWallets = true
             }
         })
-        console.log("wallets_found", data)
         if(newWallets){
             toast("New pending wallets added")
           }else{

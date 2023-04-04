@@ -15,7 +15,6 @@ function NewWalletModal(props) {
     const reader = new FileReader();
     reader.onload = (e) => {
       const fileText = e.target.result;
-      console.log(fileText);
       try {
         props.root.addWallet(JSON.parse(fileText),"Imported Wallet");
         props.setOpenModal(false);

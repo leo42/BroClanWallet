@@ -6,7 +6,6 @@ async function getTokenInfo(tokenId){
     const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
 
     if(tokenId == 'lovelace'){
-      console.log("tokenId",tokenId)
         return   {
         "name": "ADA",
         "ticker": "ADA",
@@ -86,21 +85,17 @@ async function getTokenInfo(tokenId){
                   ).then((res) => res.json());
       
                   
-                console.log("KoiosTokenInfo",koiosTokenInfo)
                 tokenInfo["fetch_time"] = Date.now()
                 if(koiosTokenInfo[0].token_registry_metadata){
                   tokenInfo["name"] = koiosTokenInfo[0].token_registry_metadata.name
                   tokenInfo["image"] = "data:image/jpeg;base64," +koiosTokenInfo[0].token_registry_metadata.logo.replace(/\s/g, ';')}
                 else if (koiosTokenInfo[0].minting_tx_metadata){
                   const mintingTxMetadata = koiosTokenInfo[0].minting_tx_metadata["721"] ? koiosTokenInfo[0].minting_tx_metadata["721"] : koiosTokenInfo[0].minting_tx_metadata["20"]
-                  console.log("mintingTxMetadata",mintingTxMetadata)
-                  console.log("hex2a(splitTokenName[1])",splitTokenName,hex2a(splitTokenName[1]))
 
                   if(mintingTxMetadata[splitTokenName[0]][splitTokenName[1]]){
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].name ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].name : mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].ticker
                     tokenInfo["image"] = (mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image  :mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].icon ).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                   }else if(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])]){
-                    console.log(typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image))
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].name ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].name : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].ticker
                     tokenInfo["image"] = (typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "string" ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image : typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "object" ?  mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image.join("") : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].icon ).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                   }else{
@@ -121,18 +116,15 @@ async function getTokenInfo(tokenId){
 
                 tokenInfo["provider"] = "Koios"
                 tokenInfo["fingerprint"] = koiosTokenInfo[0].fingerprint
-                console.log("tokenInfo",tokenId,tokenInfo)
       
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
 
               }else if ( settings.metadataProvider === "Blockfrost"){
-                console.log("fetching from blockfrost")
               const BlockfrostTokenInfo = await fetch(
                   `${settings.api.url}/assets/${tokenId}`,
                   { headers: { project_id: settings.api.projectId } },
                 ).then((res) => res.json());     
-                  console.log("BlockfrostTokenInfo",BlockfrostTokenInfo)
                    tokenInfo["fetch_time"] = Date.now()
       
                   if(BlockfrostTokenInfo.metadata){
@@ -151,12 +143,10 @@ async function getTokenInfo(tokenId){
                     tokenInfo["provider"] = "Blockfrost"
                     tokenInfo["fingerprint"] = BlockfrostTokenInfo.fingerprint
                     tokenInfo["isNft"] =  (BlockfrostTokenInfo.quantity) === "1"
-                console.log("tokenInfo",tokenId,tokenInfo)
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
               }
             }catch (error) {
-              console.log("error",error)
               return {name: hex2a(splitTokenId(tokenId)[1]), image:"", decimals:0, isNft:false, provider: settings.metadataProvider, fingerprint:"", fetch_time:Date.now()}
             }
       
