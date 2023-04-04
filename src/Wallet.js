@@ -536,7 +536,8 @@ setPendingTxs(pendingTxs){
 
     async loadTransaction(transaction){
         
-        this.importTransaction(transaction.transaction)
+        await this.importTransaction(transaction.transaction)
+        // sleep for 2 seconds
         Object.keys(transaction.signatures).map( (key) => {
           try{
             this.addSignature(transaction.signatures[key])
