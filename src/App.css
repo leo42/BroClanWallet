@@ -9,6 +9,7 @@
 
 .App {
   text-align: center;
+  font-family: 'Roboto', sans-serif;
   /* height: 87vh; */
 }
 
@@ -17,6 +18,11 @@
   width: 550px;
 }
 
+.MainAppLogo{
+  height: 70px;
+  width: 300px;
+  margin: 30px;
+}
 .WalletInner{
   display: flex;
   height: 100%;

@@ -294,7 +294,7 @@ function WalletPendingTx(props) {
                             
             <div  onMouseEnter={() => setHovering("importSig")} onMouseLeave={() => setHovering("") } onClick={()=> setImportSig(!importSig)}  className='iconWraper importSigButton'>
                 <ImportSigIcon className="icon"  alt="signicon" />
-                {  hovering === "importSig" &&  <label className='iconLabel'>Import Signature</label> }
+                {  hovering === "importSig" &&  <label className='iconLabel'>Import Sig</label> }
             </div>  
               
             <div  onMouseEnter={() => setHovering("Details")} onMouseLeave={() => setHovering("") } onClick={() => setShowDetails(!showDetails)}  className='iconWraper txDetailsButton'>

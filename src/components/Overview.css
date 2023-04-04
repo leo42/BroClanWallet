@@ -2,11 +2,11 @@
     margin: 8px;
     padding: 21px 10px;
     width: 80vw;
-    border: 3px;
+    border: 1px;
     border-radius: 10px;
-    border-color: orange;
-    box-shadow: #ff8c002f 1px 1px 1px 1px;
-    border-style:groove;
+    border-color: var(--clrorange);
+    /* box-shadow: #ff8c002f 1px 1px 1px 1px; */
+    border-style: solid;
     display:flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -23,7 +23,9 @@
     border: 1px;
     border-radius: 10px;
     border-style:outset;
-    box-shadow: 5px 5px 5px 5px #ac8e69;
+    box-shadow:  3px 3px 7px 3px #acacac; 
+    /* add blur to box shadow */
+    
     overflow: hidden;
     display: grid;
 } 

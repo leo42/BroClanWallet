@@ -605,7 +605,8 @@ class App extends React.Component {
           theme="dark"
           />
         <ModalsContainer root={this} modal={this.state.modal} ></ModalsContainer>
-        <h1  >Bro Clan </h1>
+        <img src={"./assets/logoFull.png"} alt="Logo" className='MainAppLogo' />
+        <br/>
         <React.StrictMode>
 
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :

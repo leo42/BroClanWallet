@@ -174,7 +174,7 @@ class WalletCreateTx extends React.Component {
      </div>
     </div>
 
-  <div className="addressWrap">
+  <div className="addressWrap ADAAmountContainer">
   <div className="address_wrap">
   <span className="overVeiwTokenSearch">ADA: <input className='createTxADAInputField'
       type="number"

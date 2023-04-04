@@ -1,6 +1,6 @@
 .pedningTx{
   width: 95vw;
-  background-color: rgb(241, 240, 239);
+  background-color: rgba(134, 134, 134, 0.027);
   border: #7e7e7e ;
   border-style: outset;
   /* throw a light shadow */
@@ -94,7 +94,7 @@
 .txDetailsButton label {
   font-size: 14px;
   font-weight: bold;
-  top: -11px ;
+  top: -12px ;
   left: -7px;
   position: relative;
   /* keep content in the same line */
@@ -105,8 +105,8 @@
 .importSigButton label{
   font-size: 14px;
   font-weight: bold;
-  top: -11px ;
-  left: -7px;
+  top: -12px ;
+  left: -3px;
   position: relative;
   /* keep content in the same line */
     white-space: nowrap;
@@ -139,7 +139,6 @@
 }
 
 .pendingTxData{
-  background-color: #ece9e9;
   width: 100%;
 }
 
