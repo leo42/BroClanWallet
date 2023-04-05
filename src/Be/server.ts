@@ -407,11 +407,11 @@ async function watchTransactions( socket , wallet ) {
     }
   };
   const options = { fullDocument: "updateLookup" };
-  const changeStream = transactions.watch( );
+  const changeStream = transactions.watch( filter , options );
 
   changeStream.on('change', async (change) => {
       const transaction = await transactions.findOne({ _id: change.documentKey._id }); 
-          socket.emit('transaction', { transactions: [transaction] });
+          socket.emit('transaction', { transactions: [ transaction] });
 });
 
   socket.on('disconnect', () => {
