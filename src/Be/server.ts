@@ -226,14 +226,14 @@ function subscribeToWallets(socket, wallets , lastLogin){
    wallets.map((wallet) => {
 
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
-    watchTransactions( socket,wallet ).catch(console.error);
-    if(subscriptions[socket.id]){
-      subscriptions[socket.id].push( walletHash(wallet) )
-      findNewTransactions(walletHash(wallet), lastLogin, socket)
-    }else{
-      subscriptions[socket.id] = [walletHash(wallet)]
-      findNewTransactions(walletHash(wallet), lastLogin, socket)
-    }
+      watchTransactions( socket,walletHash(wallet) ).catch(console.error);
+      if(subscriptions[socket.id]){
+        subscriptions[socket.id].push( walletHash(wallet) )
+        findNewTransactions(walletHash(wallet), lastLogin, socket)
+      }else{
+        subscriptions[socket.id] = [walletHash(wallet)]
+        findNewTransactions(walletHash(wallet), lastLogin, socket)
+      }
   }
   })
 
@@ -400,19 +400,24 @@ async function watchWallets()  {
 
 
 async function watchTransactions( socket , wallet ) {
-  const filter = {
-    $match: {
-      operationType: { $in: ["update", "insert"] },
-      "fullDocument.wallet": {  wallet },
+
+
+  const pipeline = [
+    {
+      $match: {
+        operationType: { $in: ["update", "insert"] },
+        "fullDocument.wallet": {$eq : wallet}
+      }
     }
-  };
+  ];
+  
   const options = { fullDocument: "updateLookup" };
-  const changeStream = transactions.watch( filter , options );
+  const changeStream = transactions.watch( pipeline , options );
 
   changeStream.on('change', async (change) => {
-      const transaction = await transactions.findOne({ _id: change.documentKey._id }); 
-          socket.emit('transaction', { transactions: [ transaction] });
-});
+    const transaction = await transactions.findOne({ _id: change.documentKey._id });
+    socket.emit('transaction', { transactions: [ transaction] });
+  });
 
   socket.on('disconnect', () => {
     changeStream.close();

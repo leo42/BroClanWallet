@@ -1,6 +1,6 @@
 import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "lucid-cardano";
 const { Transaction} = C;
-
+import {  toast } from 'react-toastify';
 
 class Wallet {
     // Initialize the wallet with the provided script and address
@@ -545,6 +545,7 @@ setPendingTxs(pendingTxs){
         Object.keys(transaction.signatures).map( (key) => {
           try{
             this.addSignature(transaction.signatures[key])
+            toast.info("Transaction update for wallet:" + this.getName());
           }catch(e){
           }
             

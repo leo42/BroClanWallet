@@ -507,7 +507,6 @@ class App extends React.Component {
 
   async loadTransaction(transaction, walletIndex){
     const wallets = this.state.wallets
-    toast.info("Transaction update for wallet " + wallets[walletIndex].getName());
     await wallets[walletIndex].loadTransaction(transaction)
     this.setState({wallets})
   }
