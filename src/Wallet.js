@@ -634,7 +634,7 @@ setPendingTxs(pendingTxs){
       .attachSpendingValidator(this.lucidNativeScript)
       .complete()
       
-      this.pendingTxs.push({tx:completedTx, signatures:[]})
+      this.pendingTxs.push({tx:completedTx, signatures:{}})
       return "Sucsess"
     }
 
@@ -674,7 +674,7 @@ setPendingTxs(pendingTxs){
             {
               valid = true
               if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
-                   this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)
+                   this.pendingTxs[index].signatures[signatureInfo.signer] = signature
                    return  this.pendingTxs[index]
                 }else{
                    throw new Error('Signature already registered');
