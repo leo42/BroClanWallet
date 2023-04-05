@@ -88,7 +88,6 @@ connection.then(() => {
   transactions= client.db('MWallet').collection("transactions");
   users = client.db('MWallet').collection("Users");
   wallets = client.db('MWallet').collection("wallets");
-  watchTransactions().catch(console.error);
   watchWallets().catch(console.error);
 }).catch(err => {
   console.log(err.stack);
@@ -223,9 +222,11 @@ io.on('connection', (socket ) => {
 };
 
 function subscribeToWallets(socket, wallets , lastLogin){
+  
    wallets.map((wallet) => {
 
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
+    watchTransactions( socket,wallet ).catch(console.error);
     if(subscriptions[socket.id]){
       subscriptions[socket.id].push( walletHash(wallet) )
       findNewTransactions(walletHash(wallet), lastLogin, socket)
@@ -347,7 +348,8 @@ function findNewWallets(PubKeyHash, lastLogin, socket){
   walletsFound.toArray().then((walletsFound) => {
   if (walletsFound.length > 0) {
     socket.emit('wallets_found', { wallets: walletsFound })
-  } 
+  }
+ 
 
 }).catch((err) => {
   console.log(err)
@@ -362,11 +364,14 @@ function findNewTransactions(wallet, lastLogin, socket, ){
   if (TransactionsFound.length > 0) {
     socket.emit('transaction', { transactions: TransactionsFound })
   } 
+
 }).catch((err) => {
   console.log(err)
   socket.emit('error', {error: "Wallets not found"})
   socket.disconnect()
 })
+
+
 }
 
 async function watchWallets()  {
@@ -394,30 +399,27 @@ async function watchWallets()  {
 }
 
 
-async function watchTransactions() {
-  const changeStream = transactions.watch( );
-  changeStream.on('change', async (change) => {
-    if (change.operationType === 'update' ||  change.operationType === 'insert') {
-
-
-      const transaction = await transactions.findOne({ _id: change.documentKey._id });
-
-      const RelevantSockets : String[] = []
-      Object.keys(verification).map( (key) => {
-        if( transaction.requiredSigners.includes(verification[key].user) && subscriptions[key]?.includes(transaction.wallet)  ){RelevantSockets.push(key)}}
-      )
-
-      if (RelevantSockets.length > 0) {
-        RelevantSockets.forEach((socket) => {
-          const sock = io.sockets.sockets.get(socket)
-          if (sock && sock.connected) {
-            sock.emit('transaction', { transactions: [transaction] });
-          }
-        });
-      }
+async function watchTransactions( socket , wallet ) {
+  const filter = {
+    $match: {
+      operationType: { $in: ["update", "insert"] },
+      "fullDocument.wallet": {  wallet },
     }
+  };
+  const options = { fullDocument: "updateLookup" };
+  const changeStream = transactions.watch( );
+
+  changeStream.on('change', async (change) => {
+      const transaction = await transactions.findOne({ _id: change.documentKey._id }); 
+          socket.emit('transaction', { transactions: [transaction] });
+});
+
+  socket.on('disconnect', () => {
+    changeStream.close();
   });
 }
+
+
 
 
 function walletHash(wallet) {

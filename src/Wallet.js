@@ -536,6 +536,7 @@ setPendingTxs(pendingTxs){
     }
 
     async loadTransaction(transaction){
+        
         try{
           await this.importTransaction(transaction.transaction)
         }catch(e){

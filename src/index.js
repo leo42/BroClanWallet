@@ -456,16 +456,19 @@ class App extends React.Component {
     const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
     console.log(script)
     const res = await Promise.all(walletsHashes)
-    const walletHash = await this.walletHash(script)
+    const myWallet = new Wallet(script,name);
+    await myWallet.initialize(this.state.settings);
+    const walletHash = await this.walletHash(myWallet.getJson())
+
     if (this.state.connectedWallet.socket) {
        this.state.connectedWallet.socket.emit('subscribe' , script)}
     if (! res.includes(walletHash)) {
-      const myWallet = new Wallet(script,name);
-      await myWallet.initialize(this.state.settings);
+      
       this.transmitWallet(script)
       wallets.push(myWallet)
       this.setState(wallets)
     }else{
+      
       toast.error("Wallet already exists")
     }
   }
@@ -502,9 +505,10 @@ class App extends React.Component {
       })
   }
 
-  loadTransaction(transaction, walletIndex){
+  async loadTransaction(transaction, walletIndex){
     const wallets = this.state.wallets
-    wallets[walletIndex].loadTransaction(transaction)
+    toast.info("Transaction update for wallet " + wallets[walletIndex].getName());
+    await wallets[walletIndex].loadTransaction(transaction)
     this.setState({wallets})
   }
 

@@ -98,28 +98,13 @@ class AddWalletModal extends React.Component {
 
 
   // change the address to a keyHash if it is an address and not a keyHash and update state with the new json
-  changeAllAddress(coordinates=[]) {
-    const json = this.state.json
-    for (const script of json.scripts){
-      if (script.type === "sig" ){
-        if(script.keyHash.substring(0, 4)=== "addr"){
-          const keyHash = this.lucid.utils.getAddressDetails(script.keyHash).paymentCredential.hash
-          this.handleKeyHashChange(keyHash,coordinates)
-          script.keyHash = keyHash
-          
-        }
-      }else{
-        this.changeAllAddress(script.scripts,[...coordinates,script.scripts.indexOf(script)])
-      }
-    }
-  }
+
 
 
 
   handleSubmit(event){
     if(this.checkAllAddresses(this.state.json.scripts)){
     event.preventDefault();
-    this.changeAllAddress()
     this.props.root.addWallet(this.state.json,this.state.WName)
     this.props.setOpenModal(false)
     this.props.hostModal(false)
