@@ -20,6 +20,7 @@ const client = new MongoClient(uri,{
 });
 
 const connection = client.connect();
+const LEYWAY = 1000 * 10; // 10 seconds
 var transactions ;
 var wallets ;
 var users;
@@ -227,13 +228,9 @@ function subscribeToWallets(socket, wallets , lastLogin){
 
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
       watchTransactions( socket,walletHash(wallet) ).catch(console.error);
-      if(subscriptions[socket.id]){
-        subscriptions[socket.id].push( walletHash(wallet) )
-        findNewTransactions(walletHash(wallet), lastLogin, socket)
-      }else{
-        subscriptions[socket.id] = [walletHash(wallet)]
-        findNewTransactions(walletHash(wallet), lastLogin, socket)
-      }
+      findNewTransactions(walletHash(wallet), lastLogin, socket)
+  
+
   }
   })
 
@@ -344,7 +341,7 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
 
 
 function findNewWallets(PubKeyHash, lastLogin, socket){
-  let walletsFound = wallets.find({members: PubKeyHash, creationTime: {$gt: lastLogin}})
+  let walletsFound = wallets.find({members: PubKeyHash, creationTime: {$gt: (lastLogin - LEYWAY ) }})
   walletsFound.toArray().then((walletsFound) => {
   if (walletsFound.length > 0) {
     socket.emit('wallets_found', { wallets: walletsFound })
@@ -359,7 +356,7 @@ function findNewWallets(PubKeyHash, lastLogin, socket){
 }
 
 function findNewTransactions(wallet, lastLogin, socket, ){
-  let TransactionsFound = transactions.find({wallet: wallet, lastUpdate: {$gt: lastLogin}})
+  let TransactionsFound = transactions.find({wallet: wallet, lastUpdate: {$gt: (lastLogin - LEYWAY ) }})
   TransactionsFound.toArray().then((TransactionsFound) => {
   if (TransactionsFound.length > 0) {
     socket.emit('transaction', { transactions: TransactionsFound })
@@ -367,7 +364,7 @@ function findNewTransactions(wallet, lastLogin, socket, ){
 
 }).catch((err) => {
   console.log(err)
-  socket.emit('error', {error: "Wallets not found"})
+  socket.emit('error', {error: "Transactions not found"})
   socket.disconnect()
 })
 
