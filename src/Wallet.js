@@ -32,13 +32,14 @@ class Wallet {
       
     }
 
+  
     extractSignerNames(json) {
       for (const key in json) {
         if (json.hasOwnProperty(key)) {
           const element = json[key];
           if (element.type === "sig"){
             this.signersNames.push( { hash:element.keyHash , name:element.name})
-            if (element.keyHash.substring(0, 5)=== "addr_"){
+            if (element.keyHash.substring(0, 4)=== "addr"){
               
               element.keyHash=this.lucid.utils.getAddressDetails(element.keyHash).paymentCredential.hash
             }
@@ -674,7 +675,7 @@ setPendingTxs(pendingTxs){
                    this.pendingTxs[index].signatures[signatureInfo.signer] = (signature)
                    return  this.pendingTxs[index]
                 }else{
-                   throw new Error('Signature already registerd');
+                   throw new Error('Signature already registered');
                   }
             }
 

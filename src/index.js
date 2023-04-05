@@ -25,7 +25,7 @@ const script1 = {
     },
     {
       "type": "sig",
-      "keyHash": "7190ae1c26a87ed572e8d72049454ddc874d360293c1eb43aef490e3"
+      "keyHash": "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
     },
   ]
 } 
@@ -454,7 +454,7 @@ class App extends React.Component {
   async addWallet(script,name){
     const wallets = this.state.wallets
     const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
-    // resole promices in walletHashes
+    console.log(script)
     const res = await Promise.all(walletsHashes)
     const walletHash = await this.walletHash(script)
     if (this.state.connectedWallet.socket) {

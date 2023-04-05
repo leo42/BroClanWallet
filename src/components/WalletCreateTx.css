@@ -4,13 +4,11 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    /* create boarder that looks like it hovers over the page */
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     padding: 10px;
     width: 100%;
     height: 100%;
-
 }
 
 .ADAAmountContainer{
