@@ -359,7 +359,7 @@ class App extends React.Component {
     const wallets = this.state.wallets
     const transaction = wallets[this.state.selectedWallet].addSignature(signature)
 
-    this.transmitTransaction(transaction)
+    this.transmitTransaction(transaction, signature)
     this.setState({wallets})
     toast.info('Signature Added');
     }
@@ -481,15 +481,14 @@ class App extends React.Component {
     }
   }
 
-  transmitTransaction(transaction) {
+  transmitTransaction(transaction, sigAdded) {
     if(this.state.settings.disableSync) return
-
     fetch('/api/transaction', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         },
-        body: JSON.stringify({tx: transaction.tx.toString() , signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
+        body: JSON.stringify({tx: transaction.tx.toString() ,sigAdded: sigAdded ,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
       })
   }
 

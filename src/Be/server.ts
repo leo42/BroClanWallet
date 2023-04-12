@@ -43,23 +43,23 @@ app.post('/api/transaction', function(req, res) {
     const data = req.body
     const tx = CardanoWasm.Transaction.from_bytes( Buffer.from(data.tx, 'hex') )
     const txWallet = walletHash(data.wallet)
+    const signerAddedwitness =  CardanoWasm.TransactionWitnessSet.from_bytes( Buffer.from(String(data.sigAdded), 'hex') )
+    const sigAddedSigner = signerAddedwitness.vkeys().get(0).vkey().public_key().hash().to_hex();
+    if(!signerAddedwitness.vkeys().get(0).vkey().public_key().verify(  CardanoWasm.hash_transaction(tx.body()).to_bytes(), signerAddedwitness.vkeys().get(0).signature())){
+      console.log('Invalid signature');
+      return
+    }
 
-    const verifiedSighners =  Object.values(data.signatures).map((signature  ) => {
-      const witness  =  CardanoWasm.TransactionWitnessSet.from_bytes( Buffer.from(String( signature), 'hex') )
-      const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
-      if(!witness.vkeys().get(0).vkey().public_key().verify(  CardanoWasm.hash_transaction(tx.body()).to_bytes(), witness.vkeys().get(0).signature())){
-        console.log('Invalid signature');
-        return
-      }else {
-        return signer
-      }
-    })
+  
     
-      if(getMemebers(data.wallet).filter((member) => verifiedSighners.includes(member)).length === 0){
+      if(getMemebers(data.wallet).filter((member) => sigAddedSigner === member).length === 0){
         console.log('Signer not member of wallet');
         return
       }
-      transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: data.signatures ,  requiredSigners : tx.body().to_js_value().required_signers , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
+    const required_signers = tx.body().to_js_value().required_signers
+    const membersToUpdate = required_signers.filter((member) => member !== sigAddedSigner)
+
+      transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: data.signatures ,  requiredSigners : tx.body().to_js_value().required_signers , membersToUpdate:membersToUpdate  , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
     }catch(e){
         console.log(e) 
       }
@@ -229,14 +229,8 @@ function subscribeToWallets(socket, wallets , lastLogin){
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
       watchTransactions( socket,walletHash(wallet) ).catch(console.error);
       findNewTransactions(walletHash(wallet), lastLogin, socket)
-  
-
   }
   })
-
-  
-
-
 }
 
 
@@ -356,11 +350,18 @@ function findNewWallets(PubKeyHash, lastLogin, socket){
 }
 
 function findNewTransactions(wallet, lastLogin, socket, ){
-  let TransactionsFound = transactions.find({wallet: wallet, lastUpdate: {$gt: (lastLogin - LEYWAY ) }})
+  // membersToUpdate is a list of members that need to be updated with the new transaction
+  const PubKeyHash = verification[socket.id].user
+
+  let TransactionsFound = transactions.find({wallet: wallet, membersToUpdate: PubKeyHash })
+  
   TransactionsFound.toArray().then((TransactionsFound) => {
   if (TransactionsFound.length > 0) {
     socket.emit('transaction', { transactions: TransactionsFound })
   } 
+  TransactionsFound.forEach((transaction) => {
+    transactions.updateOne({ _id: transaction._id }, { $pull: { membersToUpdate: PubKeyHash } })
+  })
 
 }).catch((err) => {
   console.log(err)
@@ -397,13 +398,16 @@ async function watchWallets()  {
 
 
 async function watchTransactions( socket , wallet ) {
-
+  // membersToUpdate is a list of members that need to be updated with the new transaction
+  const PubKeyHash = verification[socket.id].user
 
   const pipeline = [
     {
       $match: {
         operationType: { $in: ["update", "insert"] },
-        "fullDocument.wallet": {$eq : wallet}
+        "fullDocument.membersToUpdate": PubKeyHash,
+        "fullDocument.wallet": wallet
+      
       }
     }
   ];
@@ -414,6 +418,7 @@ async function watchTransactions( socket , wallet ) {
   changeStream.on('change', async (change) => {
     const transaction = await transactions.findOne({ _id: change.documentKey._id });
     socket.emit('transaction', { transactions: [ transaction] });
+    transactions.updateOne({ _id: transaction._id }, { $pull: { membersToUpdate: PubKeyHash } })
   });
 
   socket.on('disconnect', () => {
