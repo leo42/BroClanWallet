@@ -1,5 +1,5 @@
 .pedningTx{
-  width: 95vw;
+  width: 90vw; 
   background-color: rgba(134, 134, 134, 0.027);
   border: #7e7e7e ;
   border-style: outset;
@@ -19,8 +19,7 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 10px;
-  width: 45vw;
-  margin-right: 5px;
+  margin: 10px;
 }
 
 .pendingTxTokenContainer {
@@ -44,12 +43,12 @@
 }
 
 .txDetailsInput{
-  margin-bottom: 5px;
   width: 100%;
   /* add a light boarder */
   border-bottom: 1px solid #000000;
   border-top: 1px solid #000000;
   padding: 5px;
+  margin: 5px;
 }
 
 .txDetailsOutputs{
@@ -57,16 +56,18 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  width: 45vw;
 }
+/* if on mobile flex-direction: collum */
+
 
 .txDetailsInputsOutputs{
   display: flex;
-  margin-right: 10px;
+  margin: 15px;
   flex-direction: row;
   justify-content:space-evenly;
-  margin-bottom: 5px;
-  width: 100%;
+  align-items: center;
+  width: 95%;
+  margin-right: 15px;
 }
 
 .txDetailsOutput{
@@ -77,6 +78,14 @@
   border-top: 1px solid #000000;
   padding: 5px;
 }
+
+@media only screen and (max-width: 767px) {
+  /* Enter your custom CSS code here */
+  .txDetailsInputsOutputs {
+    flex-direction: column;  
+  }
+}
+
 
 .txDetailsOutput p {
   margin: 0px;

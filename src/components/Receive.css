@@ -3,6 +3,20 @@
     width: 15px;
 }
 
+.receiveTab{
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    /* brake words when oveflow */
+    word-break: break-word;
+    /* overflow-wrap: break-word; */
+    /* word-wrap: break-word; */    
+
+    width: 100%;
+    height: 100%;
+}
+
 .ReseiveAddress{
     margin: 10px;
 }

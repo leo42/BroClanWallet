@@ -34,7 +34,7 @@ function Overview(props) {
   const AccountSelect = () => 
     <div>
    <br />
-       <select defaultValue={props.wallet.getDefaultAddress()} onChange={(event)=> setShowingAddress(event.target.value)} >  
+       <select className="addressSelect" defaultValue={props.wallet.getDefaultAddress()} onChange={(event)=> setShowingAddress(event.target.value)} >  
                 <option value="" >All</option>
 
                 {props.wallet.getFundedAddress().map( (item, index) => (

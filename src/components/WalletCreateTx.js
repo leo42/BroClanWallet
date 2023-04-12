@@ -239,7 +239,7 @@ class WalletCreateTx extends React.Component {
     <div>
    <br />
       <span>Send From</span>
-      <select defaultValue={this.props.wallet.getDefaultAddress()} onChange={this.handleChangeFrom} >
+      <select className="addressSelect" defaultValue={this.props.wallet.getDefaultAddress()} onChange={this.handleChangeFrom} >
                 <option value="" >All</option>
 
                 {this.props.wallet.getFundedAddress().map( (item, index) => (

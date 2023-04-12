@@ -76,8 +76,8 @@ function Receive(props){
 
     
 
-    return <div>    
-        <select onChange={handleStakingChange} defaultValue={props.wallet.getDefaultAddress()}>
+    return <div className="receiveTab">    
+        <select onChange={handleStakingChange} className="addressSelect" defaultValue={props.wallet.getDefaultAddress()}>
             {options.map( (item, index) => (
                   <option key={index} value={item} >{optionsNames[item]}</option>
          ))}

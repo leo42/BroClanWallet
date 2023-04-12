@@ -72,7 +72,7 @@ function TransactionHistory (props) {
         const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
                    <a  href={`${urlPrefix}${transaction.tx_hash}`} target="_blank"> {transaction.tx_hash}<br/></a>
-                     <span className="TransactionHistoryListTime">{date.toString()}</span>
+                     <span className="TransactionHistoryListTime">{date.toLocaleString()}</span>
                      <br/>
                      {transactionBalance(transaction)}
                 </div>  )
@@ -95,10 +95,10 @@ function TransactionHistory (props) {
 
 
     return (
-       <div>
+       <div className="TransactionHistory"> 
         {props.wallet.getFundedAddress().length === 0 && <div className="TransactionHistoryNoFunds">No funds in this wallet</div>}
         {props.wallet.getFundedAddress().length > 1 && <div className="TransactionHistorySelectAddress">
-      <select defaultValue={props.wallet.getDefaultAddress()} onChange={handleChangeFrom} >
+      <select className="addressSelect" defaultValue={props.wallet.getDefaultAddress()} onChange={handleChangeFrom} >
                  {props.wallet.getFundedAddress().map( (item, index) => (
                   <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
             ))}
