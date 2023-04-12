@@ -57,12 +57,19 @@ app.post('/api/transaction', function(req, res) {
         return
       }
     const required_signers = tx.body().to_js_value().required_signers
-    const membersToUpdate = required_signers.filter((member) => member !== sigAddedSigner)
-
-      transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: data.signatures ,  requiredSigners : tx.body().to_js_value().required_signers , membersToUpdate:membersToUpdate  , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
+    transactions.findOne({ hash: CardanoWasm.hash_transaction(tx.body()).to_hex() }).then((existingTx) => {
+      const existingMembersToUpdate = existingTx ? existingTx.membersToUpdate || [] : [];
+      const existingSignatures = existingTx ? existingTx.signatures || [] : [];
+      const membersToUpdate = required_signers.filter((member) => member !== sigAddedSigner).concat(existingMembersToUpdate);
+      const signatures = existingSignatures.concat(data.signatures);
+      // if the transaction exist update the signatures and add to the membersToUpdate list
+      transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: signatures ,  requiredSigners : tx.body().to_js_value().required_signers , membersToUpdate:membersToUpdate  , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
+    })
     }catch(e){
-        console.log(e) 
+        console.log(e)
       }
+
+
    
   res.sendStatus(200);
 });
