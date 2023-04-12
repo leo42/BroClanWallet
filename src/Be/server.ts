@@ -32,7 +32,7 @@ app.use(express.json());
 
 app.post('/api/wallet', function(req, res) {
   const hash = walletHash(req.body)
-  wallets.updateOne( {hash: hash}, {  $setOnInsert : { hash: hash , json: req.body , members: getMemebers(req.body) , creationTime : Date.now() }}, {upsert: true})
+  wallets.updateOne( {hash: hash}, {  $setOnInsert : { hash: hash , json: req.body , members: getMemebers(req.body), membersToUpdate: getMemebers(req.body), creationTime : Date.now() }}, {upsert: true})
   res.sendStatus(200);
 });
 
@@ -59,9 +59,9 @@ app.post('/api/transaction', function(req, res) {
     const required_signers = tx.body().to_js_value().required_signers
     transactions.findOne({ hash: CardanoWasm.hash_transaction(tx.body()).to_hex() }).then((existingTx) => {
       const existingMembersToUpdate = existingTx ? existingTx.membersToUpdate || [] : [];
-      const existingSignatures = existingTx ? existingTx.signatures || [] : [];
+      const existingSignatures = existingTx ? existingTx.signatures || {} : {};
       const membersToUpdate = required_signers.filter((member) => member !== sigAddedSigner).concat(existingMembersToUpdate);
-      const signatures = existingSignatures.concat(data.signatures);
+      const signatures = existingSignatures.hasOwnProperty(sigAddedSigner) ? existingSignatures : {...existingSignatures, [sigAddedSigner]: data.sigAdded};
       // if the transaction exist update the signatures and add to the membersToUpdate list
       transactions.updateOne( {hash: CardanoWasm.hash_transaction(tx.body()).to_hex()}, { $set : { hash:  CardanoWasm.hash_transaction(tx.body()).to_hex() , transaction :  Buffer.from(tx.to_bytes(), 'hex').toString('hex') , signatures: signatures ,  requiredSigners : tx.body().to_js_value().required_signers , membersToUpdate:membersToUpdate  , lastUpdate : Date.now(), wallet: txWallet }}, {upsert: true})
     })
@@ -342,12 +342,15 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
 
 
 function findNewWallets(PubKeyHash, lastLogin, socket){
-  let walletsFound = wallets.find({members: PubKeyHash, creationTime: {$gt: (lastLogin - LEYWAY ) }})
+  
+  let walletsFound = wallets.find({members: PubKeyHash,  membersToUpdate: PubKeyHash  })
   walletsFound.toArray().then((walletsFound) => {
   if (walletsFound.length > 0) {
     socket.emit('wallets_found', { wallets: walletsFound })
   }
- 
+  walletsFound.forEach((wallet) => {
+    wallets.updateOne({ _id: wallet._id }, { $pull: { membersToUpdate: PubKeyHash } })
+  })
 
 }).catch((err) => {
   console.log(err)
@@ -389,13 +392,14 @@ async function watchWallets()  {
       const signers = wallet.members;
       const RelevantSockets : String[] = []
       Object.keys(verification).map( (key) => {
-        if( signers.includes(verification[key].user) ){RelevantSockets.push(key)}}
+        if( wallet.membersToUpdate.includes(verification[key].user) ){RelevantSockets.push(key)}}
       )
       if (RelevantSockets.length > 0) {
         RelevantSockets.forEach((socket) => {
           const sock = io.sockets.sockets.get(socket)
           if (sock && sock.connected) {
             sock.emit('wallets_found', { wallets: [wallet] });
+            wallets.updateOne({ _id: wallet._id }, { $pull: { membersToUpdate: verification[sock.id].user } })
           }
         });
       }
