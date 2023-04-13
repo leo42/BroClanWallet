@@ -17,7 +17,7 @@
 .inputContainer{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
     height: 100%;
@@ -85,4 +85,32 @@
   .createWalletIconWraper:hover{
     transform: scale(1.2);
     box-shadow: 0 0 8px var(--clrorange);
+}
+
+@media (max-width: 768px) { 
+  .createWalletButton{
+    height: 70px;
+    width: 70px;
+  }
+  .createWalletButton .icon{
+    height: 70px;
+    width: 70px;
+    top: 0px;
+    align-self: center;
+  }
+
+  .importWalletIcon{
+    height: 70px;
+    width: 70px;
+  }
+
+  .importWalletIcon .icon{
+    height: 70px;
+    width: 70px;
+    top: 0px;
+    left: 0px;
+    align-self: center;
+  }
+  
+
 }

@@ -8,8 +8,16 @@
 .MWalletList{
     margin: 10px;
     height: auto;
+    
 }
 
+@media (max-width: 768px) { 
+    
+.MWalletList{
+    max-width: 50px;    
+}
+}
+ 
 .addNewWalletButton{
     height: inherit;
     background-color: rgba(255, 255, 255, 0.7);

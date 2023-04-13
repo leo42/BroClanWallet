@@ -145,11 +145,11 @@ input[type="text"]:focus {
 }
  
 .createWalletAddress{
-  width: 950px;
+  width: 75vw;
 }
 
 .createWalletName{
-  width: 150px;
+  width: 12vw;
   margin-right: 5px;
 }
 
@@ -243,4 +243,50 @@ input[type="text"]:focus {
 .WalletCreateTypebefore,
 .WalletCreateTypeafter{
   background-color: white;
+}
+
+@media (max-width: 768px) { 
+  .createWalletAddress{
+    width: 70vw;
+  }
+
+  .createWalletName{
+    width: 70vw;
+  }
+
+  .sigWrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sigWrap div{
+    display: block;
+  }
+  .modalContainer{
+    margin: 0px;
+    padding: 0px;
+  }
+
+  .titleCloseBtn {
+    position: relative;
+    right: 10px;
+    margin-right: 0px;
+  }
+
+  .modalContainer {
+    width: 99vw;
+  }
+
+  .beforeAndAfterSlot label{
+    top: -2px;
+    left: -210px;
+    position: relative;
+  }
+  
+  .beforeAndAfterSlot input:focus + label, .beforeAndAfterSlot input:valid + label{
+    left: -215px;
+    top: -23px;
+    position: relative;
+  }
+  
 }

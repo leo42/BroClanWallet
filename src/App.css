@@ -18,11 +18,22 @@
   width: 550px;
 }
 
+
 .MainAppLogo{
   height: 70px;
   width: 300px;
   margin: 30px;
 }
+@media (max-width: 768px) { 
+  .MainAppLogo{
+    position: relative;
+    height: 50px;
+    width: 160px;
+    margin: 10px;
+    top: 30px;
+  }
+}
+
 .WalletInner{
   display: flex;
   height: 100%;
