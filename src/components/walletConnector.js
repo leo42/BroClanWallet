@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect }   from "react";
 import "./walletConnector.css";
 import WalletPicker from "./WalletPicker";
 import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
@@ -7,7 +7,6 @@ import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg'
 import { ReactComponent as ChangeIcon } from '../html/assets/change.svg';
 import { ReactComponent as LoadIcon } from '../html/assets/load.svg';
 import { ReactComponent as WalletsFoundIcon } from '../html/assets/walletsFound.svg';
-import { useEffect } from "react/cjs/react.production.min";
 
 
 
@@ -15,6 +14,19 @@ function WalletConnector(props){
     const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
     const [hovering, setHovering] = React.useState("");
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const updateWindowDimensions = () => {
+        const newIsMobile = window.innerWidth <= 768;
+        if (isMobile !== newIsMobile) {
+          setIsMobile(newIsMobile);
+        }
+      };
+      window.addEventListener("resize", updateWindowDimensions);
+      updateWindowDimensions();
+      return () => window.removeEventListener("resize", updateWindowDimensions);
+    }, [isMobile]);
 
 
     function connectWallet(walletName){
@@ -37,19 +49,19 @@ function WalletConnector(props){
         {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
         <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.disconnectWallet()} className='iconWraper disconnectButton'>
         <DisconnectIcon className="icon" alt="disconnectIcon" />
-        {  hovering === "disconnect" &&  <label className='iconLabel'>Disconnect</label> }
+        { ( hovering === "disconnect"|| isMobile)   &&  <label className='iconLabel'>Disconnect</label> }
         < br/>   
         </div>}
         {/* <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button> */}
         <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)} className='iconWraper changeButton'>
         <ChangeIcon className="icon" alt="changeIcon" />
-        {  hovering === "change" &&  <label className='iconLabel'>Change</label> }
+        {  (hovering === "change"  || isMobile) &&  <label className='iconLabel'>Change</label> }
         < br/>   
         </div>
         {/* <button onClick={() => loadWallets()}>Load Wallets</button> */}
         <div onMouseEnter={() => setHovering("load")} onMouseLeave={() => setHovering("") } onClick={() => loadWallets()} className='iconWraper loadButton'>
         <LoadIcon className="icon" alt="loadIcon" />
-        {  hovering === "load" &&  <label className='iconLabel'>Load</label> }
+        {  (hovering === "load" || isMobile)  &&  <label className='iconLabel'>Load</label> }
         < br/>   
         </div>
         { props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0  && 
@@ -68,7 +80,7 @@ function WalletConnector(props){
                 {/* <div className="WalletConnector"> */}
                 <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => props.root.showModal("settings")} className='iconWraper settingsButton'>
                 <SettingsIcon className="icon" alt="settingsIcon" />
-                {  hovering === "settings" &&  <label className='iconLabel'>Settings</label> }
+                {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'>Settings</label> }
                 < br/>  </div>
                 {/* </div>  */}
 
@@ -82,7 +94,7 @@ function WalletConnector(props){
             < br/>  </div>  */}
             <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)}  className='iconWraper connectButton'>
              <ConnectIcon className="icon"  alt="connectIcon" />
-             {  hovering === "connect" &&   <label className='iconLabel'>Connect</label> }
+             { ( hovering === "connect"  || isMobile) &&   <label className='iconLabel'>Connect</label> }
             < br/>   
           </div>
 

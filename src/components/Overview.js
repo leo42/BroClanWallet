@@ -16,6 +16,21 @@ function Overview(props) {
   const [search , setSearch] = useState("")
   const [hovering, setHovering] = useState("")
   const [showingDetails, setshowingDetails] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const updateWindowDimensions = () => {
+      const newIsMobile = window.innerWidth <= 768;
+      if (isMobile !== newIsMobile) {
+        setIsMobile(newIsMobile);
+      }
+    };
+    window.addEventListener("resize", updateWindowDimensions);
+    updateWindowDimensions();
+    return () => window.removeEventListener("resize", updateWindowDimensions);
+  }, [isMobile]);
+  
+
   const showSettings = (index) =>{
     let settingsOpenNew = [...settingsOpen]
     settingsOpenNew[index] = !settingsOpenNew[index]
@@ -96,20 +111,20 @@ function Overview(props) {
                             setshowingDetails(!showingDetails);
                           }}  className='iconWraper detailsButton'>
                       <DetailsIcon className="icon"  alt="detailsIcon" />
-                      {  hovering === "details" &&  <label className='iconLabel'>Details</label> }
+                      {  (hovering === "details" || isMobile ) &&  <label className='iconLabel'>Details</label> }
                       < br/>   
                       </div>   
 
       <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
              
              <DeleteIcon className="icon"  alt="deleteIcon" />
-             {  hovering === "delete" &&  <label className='iconLabel'>Delete</label> }
+             {  (hovering === "delete" || isMobile ) && <label className='iconLabel'>Delete</label> }
             < br/>   
           </div>
           <a ref={linkRef}  style={{ display: "none" }}></a>
           <div  onMouseEnter={() => setHovering("download")} onMouseLeave={() => setHovering("") } onClick={handleExport}  className='iconWraper downloadButton'>
              <DownloadIcon className="icon"  alt="downloadIcon" />
-            {  hovering === "download" &&  <label className='iconLabel'>Download</label> }
+            {  (hovering === "download" || isMobile ) && <label className='iconLabel'>Download</label> }
             
             < br/>   
           </div>

@@ -18,7 +18,20 @@ function WalletPendingTx(props) {
     const [inputUtxos, setInputUtxos] = React.useState([]);
     const [collateralUtXos, setCollateralUtxos] = React.useState([]);
     const [referenceInputsUtxos,    setReferenceInputsUtxos] = React.useState([]);
+    const [isMobile, setIsMobile] = React.useState(false);
 
+    useEffect(() => {
+      const updateWindowDimensions = () => {
+        const newIsMobile = window.innerWidth <= 768;
+        if (isMobile !== newIsMobile) {
+          setIsMobile(newIsMobile);
+        }
+      };
+      window.addEventListener("resize", updateWindowDimensions);
+      updateWindowDimensions();
+      return () => window.removeEventListener("resize", updateWindowDimensions);
+    }, [isMobile]);
+    
     const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
     
     
@@ -281,17 +294,17 @@ function WalletPendingTx(props) {
             <div className="pendingTx_buttons">
             <div  onMouseEnter={() => setHovering("sign")} onMouseLeave={() => setHovering("") } onClick={signTransaction}  className='iconWraper detailsButton'>
                 <SignIcon className="icon"  alt="signicon" />
-                {  hovering === "sign" &&  <label className='iconLabel'>Sign</label> }
+                {  (hovering === "sign" || isMobile) &&  <label className='iconLabel'>Sign</label> }
             </div>  
                             
             <div  onMouseEnter={() => setHovering("importSig")} onMouseLeave={() => setHovering("") } onClick={()=> setImportSig(!importSig)}  className='iconWraper importSigButton'>
                 <ImportSigIcon className="icon"  alt="signicon" />
-                {  hovering === "importSig" &&  <label className='iconLabel'>Import Sig</label> }
+                {  ( hovering === "importSig" || isMobile)  &&  <label className='iconLabel'>Import Sig</label> }
             </div>  
               
             <div  onMouseEnter={() => setHovering("Details")} onMouseLeave={() => setHovering("") } onClick={() => setShowDetails(!showDetails)}  className='iconWraper txDetailsButton'>
                 <ExpandIcon className="icon"  alt="signicon" />
-                {  hovering === "Details" &&  <label className='iconLabel'>{showDetails ? "Hide" : "Show" } Details</label> }
+                { ( hovering === "Details" || isMobile)  &&  <label className='iconLabel'>{showDetails ? "Hide" : "Show" } Details</label> }
             </div>  
                 </div>
    
