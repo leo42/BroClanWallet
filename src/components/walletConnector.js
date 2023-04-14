@@ -46,7 +46,6 @@ function WalletConnector(props){
 
     const connectorSettings = () =>
     <div>
-       <div className="connectorSettingsOverlay" onClick={() => openConfigMenu(!configMenu)} />
         <div className="connectorSettings">
 
         {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
@@ -76,6 +75,8 @@ function WalletConnector(props){
                 </div>
         }
         <br/>
+        <div className="connectorSettingsOverlay" onClick={() => openConfigMenu(!configMenu)} />
+
         </div>
         </div>  
 

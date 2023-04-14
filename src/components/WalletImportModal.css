@@ -9,6 +9,11 @@
     word-break: break-word;
 }
 
+.ImportWalletJsonInner{
+    text-align: left;
+    align-items: left;
+    word-break: break-word;
+}
 @media only screen and (max-width: 767px) {
     .walletImportModalContainer{
         width: 90%;
@@ -64,9 +69,4 @@
     align-items: left;
     position: relative;
     overflow: hidden;
-}
-
-.ImportWalletJsonInner{
-    text-align: left;
-    align-items: left;
 }

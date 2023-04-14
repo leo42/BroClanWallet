@@ -143,6 +143,8 @@
 
     .overviewTokenContainer .TokenThumbnail{
         border-radius: 50%;
+        height: 70px;
+        width: 50px;
         position: relative;
         width: 69px;
     }
@@ -217,6 +219,7 @@
     cursor: pointer;
     padding: 10px;
     transition: transform 0.3s ease-in-out;
+    z-index: 11;
 }
 
 
