@@ -651,14 +651,25 @@ setPendingTxs(pendingTxs){
       try{
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
-      return {signer: signer , witness : witness}     
+      const isolatedSignatureWhitness = C.Vkeywitnesses.new()
+      isolatedSignatureWhitness.add(witness.vkeys().get(0))
+      const isolatedSignature = C.TransactionWitnessSet.new()
+      
+      isolatedSignature.set_vkeys(isolatedSignatureWhitness)
+      return {signer: signer , witness : witness , signature : this.bytesToHex(isolatedSignature.to_bytes())}     
       }catch(e){
         console.log(e)
         throw new Error('Invalid signature');
       }
     }
 
-
+    bytesToHex(bytes) {
+      for (var hex = [], i = 0; i < bytes.length; i++) {
+        hex.push((bytes[i] >>> 4).toString(16));
+        hex.push((bytes[i] & 0xF).toString(16));
+      } 
+      return hex.join("");
+    }
     hexToBytes(hex) {
       for (var bytes = [], c = 0; c < hex.length; c += 2)
         bytes.push(parseInt(hex.substr(c, 2), 16));
@@ -674,7 +685,7 @@ setPendingTxs(pendingTxs){
             {
               valid = true
               if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
-                   this.pendingTxs[index].signatures[signatureInfo.signer] = signature
+                   this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature
                    return  this.pendingTxs[index]
                 }else{
                    throw new Error('Signature already registered');
