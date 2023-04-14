@@ -45,7 +45,10 @@ function WalletConnector(props){
           </div> */}
 
     const connectorSettings = () =>
+    <div>
+       <div className="connectorSettingsOverlay" onClick={() => openConfigMenu(!configMenu)} />
         <div className="connectorSettings">
+
         {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
         <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.disconnectWallet()} className='iconWraper disconnectButton'>
         <DisconnectIcon className="icon" alt="disconnectIcon" />
@@ -73,7 +76,7 @@ function WalletConnector(props){
                 </div>
         }
         <br/>
-
+        </div>
         </div>  
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }

@@ -7,7 +7,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     padding: 10px;
-    width: 95%;
+    width: 90vw;
     height: 100%;
 }
 
@@ -30,6 +30,7 @@
     justify-content: center;
     align-items: center;
     align-content: center;
+    align-self: center;
     margin-bottom: 10px;
 
 }
@@ -201,9 +202,7 @@
   .createTxSelectedTokenList{
     display: flex;
     flex-direction: row;
-    /* make a new row when adding many items */
     flex-wrap: wrap;
-    
     justify-content: space-evenly;
     align-items: center;
     width: 90%;
@@ -238,7 +237,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     padding: 10px;
-    width: 100%;
+    width: 90%;
     height: 100%;
 
   }
@@ -256,3 +255,43 @@
     height: 100%;
     margin-bottom: 10px;
   }
+
+  
+@media only screen and (max-width: 767px) {
+  .CreateTxSelectedToken{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 90%;
+    height: 80px;
+    
+    
+
+}
+.CreateTxSelectedToken .TokenThumbnail{
+    height: 40px;
+    margin: 10px;
+    width: auto;
+}
+
+.CreateTxSelectedToken .tokenAmount{
+    height: 20px;
+    margin: 0px;
+    width: auto;
+}
+
+.CreateTxSelectedToken input {
+    height: 20px;
+
+    padding: 10px;    
+    width: 70px;
+}
+
+.CreateTxSelectedToken .TokenElement{
+    height: 20px;
+    margin: 0px;
+    min-width: none;
+}
+
+}

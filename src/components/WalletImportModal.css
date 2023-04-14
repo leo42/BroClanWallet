@@ -6,6 +6,21 @@
     border-radius: 10px;
     padding: 20px;
     z-index: 1000;
+    word-break: break-word;
+}
+
+@media only screen and (max-width: 767px) {
+    .walletImportModalContainer{
+        width: 90%;
+        border-radius: 0;
+    }
+
+    .walletImportModalContainer .footer{
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        
+    }
 }
 
 .walletImportModalContainer .title{

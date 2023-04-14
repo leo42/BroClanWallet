@@ -1,5 +1,5 @@
 .TokenListTokenContainer .TokenElementWrapper{
-    width: 45vw;
+    width: 40vw;
     border-bottom: #000000;
     border-radius: 1px;
     padding: 10px;
@@ -54,8 +54,47 @@
     grid-template-columns: 1fr 1fr;
     grid-gap: 10px;
     padding: 10px;
-
+    width: 100%;
 }
+
+.TokenLisWrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    width: 100%;
+}
+
+@media only screen and (max-width: 767px) {
+    .TokenList{
+        /* make 2 colums */
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-gap: 10px;
+            padding: 10px;
+        }
+
+        .TokenListTokenContainer .TokenElementWrapper{
+            width: 75vw;
+            border-bottom: #000000;
+            border-radius: 1px;
+            padding: 10px;
+            margin: 10px;
+            border-style:outset;
+            word-break: break-word;
+        }
+
+        .TokenLisWrapper{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width:  80vw;
+            height: 100%;
+        }
+}
+
 
 .tokenIconButton label{
     font-size: 25px;
@@ -67,13 +106,3 @@
     cursor: pointer;
 }
 
-.TokenLisWrapper{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    margin: 10px;
-    padding: 12px;
-}

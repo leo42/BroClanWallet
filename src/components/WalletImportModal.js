@@ -8,6 +8,21 @@ import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 function WalletImportModal(props) {
 
   const [ showingDetails, setshowingDetails] = React.useState("");
+
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const updateWindowDimensions = () => {
+      const newIsMobile = window.innerWidth <= 768;
+      if (isMobile !== newIsMobile) {
+        setIsMobile(newIsMobile);
+      }
+    };
+    window.addEventListener("resize", updateWindowDimensions);
+    updateWindowDimensions();
+    return () => window.removeEventListener("resize", updateWindowDimensions);
+  }, [isMobile]);
+  
   const showDetails = (key) => {
     if (showingDetails === key) {
       setshowingDetails("");
@@ -84,7 +99,7 @@ function WalletImportModal(props) {
                             props.root.deleteImportedWallet(key);
                           }}  className='iconWraper deleteButton'>
                       <DeleteIcon className="icon"  alt="deleteIcon" />
-                      {  hovering === "delete"+key &&  <label className='iconLabel'>Delete</label> }
+                      {  (hovering === "delete"+key || isMobile )  &&  <label className='iconLabel'>Delete</label> }
                       < br/>   
                       </div>
                      
@@ -92,7 +107,7 @@ function WalletImportModal(props) {
                             showDetails(key);
                           }}  className='iconWraper detailsButton'>
                       <DetailsIcon className="icon"  alt="detailsIcon" />
-                      {  hovering === "details"+key &&  <label className='iconLabel'>Details</label> }
+                      {  (hovering === "details"+key || isMobile )  &&  <label className='iconLabel'>Details</label> }
                       < br/>   
                       </div>   
                         
@@ -100,7 +115,7 @@ function WalletImportModal(props) {
                             props.root.importPendingWallet(key);
                           }}  className='iconWraper importButton'>
                       <ImportIcon className="icon"  alt="importIcon" />
-                      {  hovering === "import"+key &&  <label className='iconLabel'>Import</label> }
+                      { ( hovering === "import"+key || isMobile ) &&  <label className='iconLabel'>Import</label> }
                       < br/>   
                       </div>
                         </div>
