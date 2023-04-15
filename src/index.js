@@ -600,6 +600,7 @@ class App extends React.Component {
         <ModalsContainer root={this} modal={this.state.modal} ></ModalsContainer>
         <img src={"./assets/logoFull.png"} alt="Logo" className='MainAppLogo' />
         <br/>
+       <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
         <React.StrictMode>
 
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
@@ -610,7 +611,6 @@ class App extends React.Component {
     }
         </React.StrictMode>
 
-    <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
       </div>
     );
   }
