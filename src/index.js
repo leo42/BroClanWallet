@@ -441,6 +441,9 @@ class App extends React.Component {
         delete pendingWallets[key]
         
         this.setState({pendingWallets})
+        if (this.state.connectedWallet.socket) {
+          this.state.connectedWallet.socket.emit('subscribe' , pendingWallet.script)}
+            
         toast.success("Wallet Imported");
       }else{
         toast.error("Wallet already exists")
