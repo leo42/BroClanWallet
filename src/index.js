@@ -252,6 +252,10 @@ class App extends React.Component {
   async loadState(){
     const wallets = JSON.parse(localStorage.getItem('wallets'));
     let state = this.state
+    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
+    state.acceptedTerms = localStorage.getItem('acceptedTerms')
+    state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
+    super.setState(state) 
 
     if (wallets) for(let index = 0 ; index < wallets.length ; index++){
 
@@ -263,9 +267,6 @@ class App extends React.Component {
       await myWallet.checkTransactions()
       state.wallets.push(myWallet)
     }
-    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
-    state.acceptedTerms = localStorage.getItem('acceptedTerms')
-    state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }

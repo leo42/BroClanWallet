@@ -11,7 +11,7 @@ function TermsAndConditionsBanner(props) {
     });
   }
 
-  if (props.root.state.settings.termsAccepted === "acceptedV1" || props.root.state.loading === true) {
+  if (props.root.state.settings.termsAccepted === "acceptedV1" ) {
     return null;
   }
 
