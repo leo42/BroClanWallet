@@ -7,9 +7,10 @@ import MWalletMain from './components/WalletMain';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import WalletConnector from './components/walletConnector';
+import TermsAndConditionsBanner from './components/TermsBanner';
 import connectSocket from  './helpers/SyncService';
 import ModalsContainer from './components/ModalsContainer';
-
+import TestnetBanner from './components/TestnetBanner';
 import sha256 from 'crypto-js/sha256';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import  { ReactComponent as LoadingIcon } from './html/assets/loading.svg';
@@ -93,27 +94,34 @@ class App extends React.Component {
     connectedWallet: {name: "", socket: null},
     loading : true,
     modal: "",
-    settings: { metadataProvider :"Blockfrost", sendAll: false, network: "Preprod", explorer: "https://preprod.cardanoscan.io/" , provider: "Blockfrost" ,  api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} }
+    settings: { metadataProvider :"Blockfrost", 
+                sendAll: false, 
+                network: "Preprod", 
+                explorer: "https://preprod.cardanoscan.io/" , 
+                provider: "Blockfrost" , 
+                disableSync: false,
+                termsAccepted: "NotAccepted",
+                api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
+                }
   }
-
 
 
   async setState(state){
-
-      
-    
-    super.setState(state)
+   
+    await super.setState(state)
+    this.storeState()
     this.storeWallets()
     
-    this.storeState()
+    
   }
 
-  async setSettings(settings){
-    const valid = await this.checkSettings(settings)
+  async setSettings(newSettings){
+    const valid = await this.checkSettings(newSettings)
     if (!valid){
       throw ("Invalid settings");
       return
     }
+    const settings = {...this.state.settings, ...newSettings}
     const wallets=[...this.state.wallets]
     for(let index = 0 ; index < this.state.wallets.length ; index++){
       try{
@@ -122,7 +130,7 @@ class App extends React.Component {
         console.log(e)
       }
     }
-     this.setState({settings})
+    this.setState({settings})
     this.setState({wallets})
     this.reloadBalance()
   }
@@ -225,6 +233,7 @@ class App extends React.Component {
     localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet.name ))
     localStorage.setItem("settings", JSON.stringify(this.state.settings))
     localStorage.setItem("pendingWallets", JSON.stringify(this.state.pendingWallets))
+    localStorage.setItem("acceptedTerms", this.state.acceptedTerms)
 
   }
 
@@ -255,6 +264,7 @@ class App extends React.Component {
       state.wallets.push(myWallet)
     }
     state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
+    state.acceptedTerms = localStorage.getItem('acceptedTerms')
     state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
@@ -588,7 +598,7 @@ class App extends React.Component {
   render() {
     return (
       <div className='App'>
-        
+        <TestnetBanner />
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -611,7 +621,9 @@ class App extends React.Component {
             <MWalletList root={this}  ></MWalletList>
           { this.state.wallets.length === 0 ?  this.walletsEmpty()  : <MWalletMain root={this} wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
-    }
+    } 
+    
+    <TermsAndConditionsBanner root={this}/>
         </React.StrictMode>
 
       </div>
