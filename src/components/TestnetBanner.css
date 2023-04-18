@@ -19,5 +19,7 @@
 .Testnet-banner .commonBtn{
     margin: 5px;
     color: #fffafa;
+    background-color: black;
+    font-size: 25px;
     z-index: 999990;
 }
