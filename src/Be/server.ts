@@ -136,7 +136,7 @@ io.on('connection', (socket ) => {
   console.info(`Client connected [id=${socket.id}]`);
   
   socket.on('disconnect', () => {
-    if (verification[socket.id].state === "Authenticated"){
+    if (verification[socket.id] && verification[socket.id].state === "Authenticated"){
       users.findOneAndUpdate({PubkeyHash: verification[socket.id].user}, { $set : { lastLogin: Date.now()}})
     }
     verification.delete(socket.id);
