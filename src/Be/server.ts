@@ -194,7 +194,7 @@ io.on('connection', (socket ) => {
  })
 
  socket.on("subscribe", (data) => {
-  if(verification[socket.id].state === "Authenticated"){
+  if(verification[socket.id] && verification[socket.id].state === "Authenticated"){
     //Date.now() minus 4 hours to get all transactions since last login
     
     subscribeToWallets( socket,  [data] , data.lastUpdate ? data.lastUpdate : Date.now() - 14400000)  
@@ -205,7 +205,7 @@ io.on('connection', (socket ) => {
  })
 
  socket.on('loadWallets', (data) => {
-  if(verification[socket.id].state === "Authenticated"){
+  if(verification[socket.id] && verification[socket.id].state === "Authenticated"){
     let walletsFound = wallets.find({members: verification[socket.id].user})
     walletsFound.toArray().then((walletsFound) => {
     if (walletsFound.length > 0) {
