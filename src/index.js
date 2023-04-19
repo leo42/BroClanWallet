@@ -569,6 +569,7 @@ class App extends React.Component {
   }
 
   async submit(index){
+   
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
     this.setState({wallets})
@@ -583,8 +584,9 @@ class App extends React.Component {
         //add a small delay to allow the transaction to be broadcasted
         () => setTimeout(() => this.reloadBalance(), 5000)
       ).catch(
-        (e) => toast.error("Transaction Failed:" + JSON.stringify(e))
+        (e) => toast.error("Transaction Failed:" + JSON.stringify(e.message))
       )
+    
   }
 
    walletsEmpty = () => {

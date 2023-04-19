@@ -152,7 +152,13 @@ app.post('/tx/submit',  async (req, res) => {
     .then(response => {;
       res.json(response.data);
     
-    })
+    }).catch(error => {
+      console.log(error);
+            const statusCode = error.response.status || 500;
+
+	const errorMessage = error.response && error.response.data && error.response.data.message ? error.response.data.message : error.message;
+      res.status(statusCode).json({ error: "Bad Request" , message : errorMessage, status_code : 400 });
+    });
 
   } catch (error) {
       console.log(error)

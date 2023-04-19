@@ -693,10 +693,16 @@ setPendingTxs(pendingTxs){
     }
 
     async submitTransaction(index){
+      try{
        const tx = this.pendingTxs[index]
        const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
        const txHash = await signedTx.submit();
       return( this.lucid.awaitTx(txHash, 2500))
+      }catch(e){
+        console.log(e)
+        const errorMessage = e.message ? e.message : JSON.stringify(e) 
+        throw new Error(errorMessage);
+      }
     }
 
     // Setters
