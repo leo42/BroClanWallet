@@ -115,9 +115,9 @@ function WalletPendingTx(props) {
                           Transaction ID: {input.txHash} | Index: {input.outputIndex}</p>
                     {Object.keys( input.assets).map( (asset,index) => <div className="pendingTxTokenContainer"  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
                         
-                        {input.datumHash &&  <div className="pendingTxData"> <p > <h4>Datum Hash:</h4><span >  {input.datumHash}</span> </p> </div>}
-                         { input.datum &&<div className="pendingTxData"> <p > <h4>Datum:</h4> <span > {JSON.stringify(input.datum,null,2) }</span> </p> </div>}
-                        {input.scriptRef &&  <div className="pendingTxData"> <p > <h4>Script Reference:</h4><span >  { JSON.stringify(input.scriptRef,null,2)}</span></p> </div> }
+                        {input.datumHash &&  <div className="pendingTxData"> <div > <h4>Datum Hash:</h4><span >  {input.datumHash}</span> </div> </div>}
+                         { input.datum &&<div className="pendingTxData"> <div > <h4>Datum:</h4> <span > {JSON.stringify(input.datum,null,2) }</span> </div> </div>}
+                        {input.scriptRef &&  <div className="pendingTxData"> <div > <h4>Script Reference:</h4><span >  { JSON.stringify(input.scriptRef,null,2)}</span></div> </div> }
               </div>
         )
     }
@@ -133,8 +133,8 @@ function WalletPendingTx(props) {
                                <TokenElement tokenId={key} amount={amount[key]}/>
                             </div>
                         ))}
-                       {output.datum && <div className="pendingTxData"> <p > <h4>Datum:</h4> <span>{JSON.stringify(output.datum, null, 2)} </span> </p></div>  }
-                        {output.script_ref &&<div className="pendingTxData">  <p>  <h4>Script Ref:</h4> <span>{JSON.stringify( output.script_ref, null, 2)}</span> </p></div>}
+                       {output.datum && <div className="pendingTxData"> <div > <h4>Datum:</h4> <span>{JSON.stringify(output.datum, null, 2)} </span> </div></div>  }
+                        {output.script_ref &&<div className="pendingTxData">  <div>  <h4>Script Ref:</h4> <span>{JSON.stringify( output.script_ref, null, 2)}</span> </div></div>}
                     </div>
                     )
     }
@@ -171,56 +171,56 @@ function WalletPendingTx(props) {
               </div>
                 </div>
                     <div className="txDetailsSmall">
-                <p><h3>Fee:</h3> {transaction.fee / 1_000_000}tA</p>
-                { transaction.ttl && <p><h3>TTL:</h3> {transaction.ttl}</p>}
-                {transaction.network_id &&  <p> <h3>Network:</h3> {transaction.network_id}</p> }
+                <div><h3>Fee:</h3> {transaction.fee / 1_000_000}tA</div>
+                { transaction.ttl && <div><h3>TTL:</h3> {transaction.ttl}</div>}
+                {transaction.network_id &&  <div> <h3>Network:</h3> {transaction.network_id}</div> }
                     </div>
                 <div className="txDetailsMain">
-             {transaction.certs  ?   <div className="pendingTxData"> <p > <h4>Certificates:</h4> <span> {transaction.certs.map(cert => {
+             {transaction.certs  ?   <div className="pendingTxData"> <div > <h4>Certificates:</h4> <span> {transaction.certs.map((cert, index) => {
                 if (cert.StakeDelegation) {
-                    return( <div key={cert}>Delegation to:{JSON.stringify(cert.StakeDelegation)}</div> )
+                    return( <div key={index}>Delegation to:{JSON.stringify(cert.StakeDelegation)}</div> )
                 }if (cert.StakeRegistration) {
-                    return( <div key={cert}>Stake Registration {JSON.stringify(cert.StakeRegistration)}</div> )
+                    return( <div key={index}>Stake Registration {JSON.stringify(cert.StakeRegistration)}</div> )
                 }if (cert.StakeDeregistration) {
-                    return( <div key={cert}>Stake Deregistration  {JSON.stringify(cert.StakeDeregistration)}</div> )
+                    return( <div key={index}>Stake Deregistration  {JSON.stringify(cert.StakeDeregistration)}</div> )
                 }if (cert.PoolRegistration) {
-                    return( <div key={cert}>Pool Registration {JSON.stringify(cert.PoolRegistration)}</div> )
+                    return( <div key={index}>Pool Registration {JSON.stringify(cert.PoolRegistration)}</div> )
                 }if (cert.PoolRetirement) {
-                    return( <div key={cert}>Pool Retirement {JSON.stringify(cert.PoolRetirement)}</div> )
+                    return( <div key={index}>Pool Retirement {JSON.stringify(cert.PoolRetirement)}</div> )
                 }if (cert.GenesisKeyDelegation) {
-                    return( <div key={cert}>Genesis Key Delegation {JSON.stringify(cert.GenesisKeyDelegation)}</div> )
+                    return( <div key={index}>Genesis Key Delegation {JSON.stringify(cert.GenesisKeyDelegation)}</div> )
                 }if (cert.MoveInstantaneousRewardsCert) {
-                    return( <div key={cert}>Move Instantaneous Rewards Cert {JSON.stringify(cert.MoveInstantaneousRewardsCert)}</div> )
+                    return( <div key={index}>Move Instantaneous Rewards Cert {JSON.stringify(cert.MoveInstantaneousRewardsCert)}</div> )
              }   
 
-                            })}</span></p></div> : ""}
+                            })}</span></div></div> : ""}
 
-               {transaction.withdrawals && <div className="pendingTxData"> <p > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></p> </div>}
-               {transaction.update &&  <div className="pendingTxData"> <p > <h4> Update:</h4> <span>  {transaction.update} </span></p> </div> }
-               {transaction.auxiliary_data_hash && <div className="pendingTxData"> <p > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></p> </div>}
-                {transaction.validity_start_interval &&  <div className="pendingTxData"> <p > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></p> </div>}
+               {transaction.withdrawals && <div className="pendingTxData"> <div > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></div> </div>}
+               {transaction.update &&  <div className="pendingTxData"> <div > <h4> Update:</h4> <span>  {transaction.update} </span></div> </div> }
+               {transaction.auxiliary_data_hash && <div className="pendingTxData"> <div > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></div> </div>}
+                {transaction.validity_start_interval &&  <div className="pendingTxData"> <div > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></div> </div>}
 
-              {transaction.script_data_hash &&  <div className="pendingTxData"> <p > <h4>Script Data Hash: </h4> <span>  {transaction.script_data_hash} </span></p> </div>}
+              {transaction.script_data_hash &&  <div className="pendingTxData"> <div > <h4>Script Data Hash: </h4> <span>  {transaction.script_data_hash} </span></div> </div>}
 
-              {transaction.collateral && <div key={collateralUtXos}> <p > <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></p> </div>}
+              {transaction.collateral && <div key={collateralUtXos}> <div > <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></div> </div>}
               
-              {transaction.collateral_return && <div className="pendingTxData"> <p > <h4>Collateral Return: </h4> <span>  {TransactionOutput(transaction.collateral_return)} </span></p> </div>}
-              { transaction.total_collateral &&   <div className="pendingTxData"> <p > <h4>Total Collateral: </h4> <span>  {transaction.total_collateral} </span></p> </div> } 
-              {transaction.invalid_before &&  <div className="pendingTxData"> <p > <h4>Invalid Before:</h4> <span>  {transaction.invalid_before} </span></p> </div>}
-              {transaction.invalid_hereafter &&  <div className="pendingTxData"> <p > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></p> </div>}
-              {transaction.required_scripts &&  <div className="pendingTxData"> <p > <h4>Required Scripts: </h4> <span>  {transaction.required_scripts.map((script) => <div key={script}> {script}</div>)} </span></p> </div>}                         
+              {transaction.collateral_return && <div className="pendingTxData"> <div > <h4>Collateral Return: </h4> <span>  {TransactionOutput(transaction.collateral_return)} </span></div> </div>}
+              { transaction.total_collateral &&   <div className="pendingTxData"> <div > <h4>Total Collateral: </h4> <span>  {transaction.total_collateral} </span></div> </div> } 
+              {transaction.invalid_before &&  <div className="pendingTxData"> <div > <h4>Invalid Before:</h4> <span>  {transaction.invalid_before} </span></div> </div>}
+              {transaction.invalid_hereafter &&  <div className="pendingTxData"> <div > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></div> </div>}
+              {transaction.required_scripts &&  <div className="pendingTxData"> <div > <h4>Required Scripts: </h4> <span>  {transaction.required_scripts.map((script) => <div key={script}> {script}</div>)} </span></div> </div>}                         
 
-              {collateralUtXos.length !== 0  && <div  className="pendingTxReferenceInputs"> <p > <h3>Collateral: </h3> <span> {collateralUtXos.map((input, index) =>
+              {collateralUtXos.length !== 0  && <div  className="pendingTxReferenceInputs"> <div > <h3>Collateral: </h3> <span> {collateralUtXos.map((input, index) =>
                          TransactionInput(input)
-                         )} </span></p> </div>}
+                         )} </span></div> </div>}
               
 
-              { transaction.reference_inputs !== null &&  <div className="pendingTxReferenceInputs"> <p > <h3>Reference Inputs: </h3> <span >  {referenceInputsUtxos.map((referenceInput) =>
+              { transaction.reference_inputs !== null &&  <div className="pendingTxReferenceInputs"> <div > <h3>Reference Inputs: </h3> <span >  {referenceInputsUtxos.map((referenceInput) =>
                        TransactionInput(referenceInput)  
-                    )} </span></p> </div>}
-            {transaction.required_signers &&  <div className="pendingTxData"> <p > <h4>Required Signers: </h4> <span className="pendingTxsDetailsSigners">   {transaction.required_signers.map((signer => <div key={signer}>{signer} </div>))} </span></p> </div>}
-            {transaction.mint && <div > <p > <h4> Mint/Burn: </h4>                
-                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) } </p> </div>}
+                    )} </span></div> </div>}
+            {transaction.required_signers &&  <div className="pendingTxData"> <div > <h4>Required Signers: </h4> <span className="pendingTxsDetailsSigners">   {transaction.required_signers.map((signer => <div key={signer}>{signer} </div>))} </span></div> </div>}
+            {transaction.mint && <div > <div > <h4> Mint/Burn: </h4>                
+                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) } </div> </div>}
                     
        
             </div>
