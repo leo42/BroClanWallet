@@ -10,7 +10,7 @@ function TestnetBanner(props) {
 
   } 
 
-    if (testnetAccepted === true || window.location.hostname === "app.broclan.io" ) {
+    if (testnetAccepted === true || !["alpha.broclan.io","beta.broclan.io","testnet.broclan.io"].includes(window.location.hostname)    ) {
         return null;
     }
 
