@@ -2,9 +2,9 @@
     
     height: inherit;
 
-    /* border: var(--clrorange) solid 1px;
+     border: var(--clrorange) solid 1px;
     background-color: rgba(255, 255, 255, 0.7);
-    box-shadow: var(--clrorange) 0px 0px 5px 0px; */
+    box-shadow: var(--clrorange) 0px 0px 5px 0px; 
     /* border-radius: 20px; */
     width: fit-content;
     padding:3px 9px;

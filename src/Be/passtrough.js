@@ -152,6 +152,10 @@ app.post('/tx/submit',  async (req, res) => {
     .then(response => {;
       res.json(response.data);
     
+    }).catch(error => {
+      console.log(error);
+      const statusCode = error.response ? error.response.status : 500;
+      res.status(statusCode).json({ error: error.message });
     });
 
   } catch (error) {
