@@ -39,11 +39,31 @@
 }
 
 .transactionHistoryTokenBalance{
+    width: 100%;
     display: flex;
-    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
     justify-content: center;
 }
+
+.transactionHistoryTokenBalance .TokenElement{
+    min-width: 100%;
+    align-self: center;
+
+ }
+
+.transactionHistoryTokenBalance .tokenElementAmountPositive{
+    font-weight: lighter;
+    font-size: 20px;
+    color: green;
+}
  
+.transactionHistoryTokenBalance .tokenElementAmountNegative{
+    font-weight: lighter;
+    font-size: 20px;
+    color: red;
+}
 .TransactionHistoryLoadMore{
 
     padding: 5px 15px;

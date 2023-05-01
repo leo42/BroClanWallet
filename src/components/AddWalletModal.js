@@ -170,7 +170,7 @@ class AddWalletModal extends React.Component {
               name="amount"
               value={json.required}
               onChange={event => this.handleRequiredChange(event.target.value, coordinates)}
-            />
+            /> of {json.scripts.length}
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
        <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
     </div>)

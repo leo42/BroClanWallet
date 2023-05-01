@@ -53,7 +53,7 @@ function TransactionHistory (props) {
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
             <div key={index} className="transactionHistoryTokenBalance">
-                <TokenElement tokenId={key} amount={BalancesOut[key]}/>
+                <TokenElement tokenId={key} amount={BalancesOut[key]} expanded={false} />
              </div>
             ) );
 

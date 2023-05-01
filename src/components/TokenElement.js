@@ -75,7 +75,7 @@ function TokenElement(props){
        <img className="TokenThumbnail" src={tokenInfo.image } />
        <div className="TokenElementText"> 
        <span className="tokenElementName">{tokenInfo.name }</span>
-       { !tokenInfo.isNft && <span className="tokenElementAmount"> {((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span> }
+       { !tokenInfo.isNft && <span className={"tokenElementAmount" + (props.amount > 0 ? " tokenElementAmountPositive" : " tokenElementAmountNegative") } > {((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span> }
      </div>
       </div>
        {( showTooltip || props.expanded === true ) && props.expanded !== false && <div className="tokenElementtooltip">{tooltipinfo}</div>}
