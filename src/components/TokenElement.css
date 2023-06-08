@@ -50,7 +50,7 @@
 .scroll-container {
     overflow: hidden;
     white-space: nowrap;
-    width: 140px;
+    width: 120px;
   }
   
   .scroll-container > span {
@@ -64,6 +64,6 @@
       transform: translateX(15px);
     }
     100% {
-        transform: translateX(calc(120px - 100% ));
+        transform: translateX(calc(100px - 100% ));
     }
   }

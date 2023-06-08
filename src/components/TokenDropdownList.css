@@ -12,11 +12,31 @@
     cursor: pointer;
     width: 10vw;
 }
+.TokenListTokenContainer .scroll-container{
+    width: 100%
+}
 
+
+
+.TokenListTokenContainer .scroll-container > span {
+    animation: ListscrollText 5s linear infinite;
+    display: inline-block;
+    width: fit-content;
+    animation-direction: alternate;
+  }
+
+@keyframes ListscrollText {
+    0% {
+      transform: translateX(10px);
+    }
+    100% {
+        transform: translateX(calc(-100% + 50px  ));
+    }
+  }
 
 .TokenListTokenContainer .TokenToolTip{
     overflow: hidden;
-    width: 30vw;
+    width: 90%;
 }
 
 .TokenListTokenContainer .TokenElement:hover{
@@ -64,6 +84,13 @@
     align-items: center;
     padding: 12px;
     width: 100%;
+}
+
+@media only screen and (max-width: 1500px) {
+   
+    .TokenListTokenContainer .TokenElementWrapper{ 
+        word-break: break-word;
+    }
 }
 
 @media only screen and (max-width: 767px) {

@@ -41,6 +41,10 @@
     height: 70px;
 }
 
+.CreateTxTokenContainer .scroll-container{
+  max-width: 80px;
+}
+
 .CreateTxTokenContainer .tokenElementAmount{
     /* hide */
     display: none;
