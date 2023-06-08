@@ -162,7 +162,7 @@ function Overview(props) {
       <span className="overVeiwTokenSearch">Search:<input type="text"  defaultValue={search} onChange={(event) => setSearch(event.target.value)} />  </span>
       <div className='overviewTokensContainer'>
       {Object.keys(wallet.getBalanceFull(showingAddress)).map((asset, index) => (
-          <div className='overviewTokenContainer' key={index}><TokenElement tokenId={asset} expanded={false}  amount={wallet.getBalanceFull(showingAddress)[asset]} filter={showing} search={search} /></div>
+          <div className='overviewTokenContainer' key={index+showingAddress}><TokenElement tokenId={asset} expanded={false}  amount={wallet.getBalanceFull(showingAddress)[asset]} filter={showing} search={search} /></div>
         ))}
 
     </div>
