@@ -44,5 +44,8 @@ module.exports = {
 		asyncWebAssembly: true,
 		topLevelAwait: true,
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
-		}
+		},
+    devtool: 'source-map' // Generate source maps for better error debugging
+
+
 };

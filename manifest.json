@@ -1,0 +1,12 @@
+{
+    "manifest_version": 2,
+    "name": "Bro Clan",
+    "version": "0.1",
+    "browser_action": {
+      "default_popup": "index.html"
+    },
+    "permissions": [
+      "http://*/*",
+      "https://*/*"
+    ]
+  }

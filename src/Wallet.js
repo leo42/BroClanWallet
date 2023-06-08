@@ -1,5 +1,4 @@
 import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "lucid-cardano";
-const { Transaction} = C;
 import {  toast } from 'react-toastify';
 
 class Wallet {
@@ -181,7 +180,7 @@ setPendingTxs(pendingTxs){
 
   this.pendingTxs = pendingTxs.map( tx => { 
     const uint8Array = new Uint8Array(tx.tx.match(/.{2}/g).map(byte => parseInt(byte, 16)));
-    const txParced =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+    const txParced =  new  TxComplete(this.lucid, C.Transaction.from_bytes(uint8Array)) 
      return({tx:txParced, signatures:tx.signatures})})
 }
 
@@ -296,7 +295,7 @@ setPendingTxs(pendingTxs){
 
     decodeTransaction(tx){
       const uint8Array = new Uint8Array(tx.toString().match(/.{2}/g).map(byte => parseInt(byte, 16)));
-      const txBody =  Transaction.from_bytes(uint8Array).body().to_js_value()
+      const txBody =  C.Transaction.from_bytes(uint8Array).body().to_js_value()
   
       return txBody
 
@@ -515,7 +514,7 @@ setPendingTxs(pendingTxs){
 
 
         uint8Array = typeof transaction === 'string' ?  new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16))) : transaction;
-        tx =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
+        tx =  new  TxComplete(this.lucid, C.Transaction.from_bytes(uint8Array)) 
       }catch(e){
         console.log(e)
          throw new Error('Invalid Transaction data');
