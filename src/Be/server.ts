@@ -151,8 +151,8 @@ io.on('connection', (socket ) => {
           if (user){
             users.findOneAndUpdate({authenticationToken: data.token}, { $set : { lastLogin: Date.now()}})
             verification[socket.id] = { state: "Authenticated" , user: user.PubkeyHash}
-            subscribeToWallets( socket,  data.wallets , user.lastLogin)            
-            findNewWallets(user.PubkeyHash, user.lastLogin, socket )
+            subscribeToWallets( socket,  data.wallets )            
+            findNewWallets(user.PubkeyHash, socket )
           }else{
             verification[socket.id] = { state: "Challenge" , challenge_string: stringToHex("challenge_" + (crypt.randomBytes(36).toString('hex')))}
             socket.emit('authentication_challenge', {challenge: verification[socket.id].challenge_string})
@@ -175,11 +175,11 @@ io.on('connection', (socket ) => {
 
       users.findOneAndUpdate( {PubkeyHash: PubkeyHash}, { $set : { PubkeyHash: PubkeyHash , authenticationToken: authenticationToken , issueTime : Date.now(), lastLogin: Date.now() }}, {upsert: true}).then((user) => {
         if (user){
-            findNewWallets(PubkeyHash, user.value ? user.value.lastLogin : 0, socket)
-            subscribeToWallets( socket,  data.wallets , user.lastLogin) 
+            findNewWallets(PubkeyHash, socket)
+            subscribeToWallets( socket,  data.wallets ) 
         }else{
-            findNewWallets(PubkeyHash, 0, socket)
-            subscribeToWallets( socket,  data.wallets , user.lastLogin) 
+            findNewWallets(PubkeyHash,  socket)
+            subscribeToWallets( socket,  data.wallets ) 
         }
       })
       socket.emit('authentication_success', {authenticationToken: authenticationToken})
@@ -197,7 +197,7 @@ io.on('connection', (socket ) => {
   if(verification[socket.id] && verification[socket.id].state === "Authenticated"){
     //Date.now() minus 4 hours to get all transactions since last login
     
-    subscribeToWallets( socket,  [data] , data.lastUpdate ? data.lastUpdate : Date.now() - 14400000)  
+    subscribeToWallets( socket,  [data] )  
   }else {
     socket.emit('error', { error: "Not authenticated" })
     socket.disconnect()
@@ -229,13 +229,13 @@ io.on('connection', (socket ) => {
 
 };
 
-function subscribeToWallets(socket, wallets , lastLogin){
+function subscribeToWallets(socket, wallets ){
   
    wallets.map((wallet) => {
 
     if (getMemebers(wallet).includes(verification[socket.id].user)){  
       watchTransactions( socket,walletHash(wallet) ).catch(console.error);
-      findNewTransactions(walletHash(wallet), lastLogin, socket)
+      findNewTransactions(walletHash(wallet),  socket)
   }
   })
 }
@@ -341,7 +341,7 @@ const verifyAddress = (address, addressCose, publicKeyCose) => {
 };
 
 
-function findNewWallets(PubKeyHash, lastLogin, socket){
+function findNewWallets(PubKeyHash, socket){
   
   let walletsFound = wallets.find({members: PubKeyHash,  membersToUpdate: PubKeyHash  })
   walletsFound.toArray().then((walletsFound) => {
@@ -359,7 +359,7 @@ function findNewWallets(PubKeyHash, lastLogin, socket){
 })
 }
 
-function findNewTransactions(wallet, lastLogin, socket, ){
+function findNewTransactions(wallet, socket, ){
   // membersToUpdate is a list of members that need to be updated with the new transaction
   const PubKeyHash = verification[socket.id].user
 
