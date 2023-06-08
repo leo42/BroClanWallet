@@ -17,8 +17,8 @@ function TestnetBanner(props) {
 
     return (
         <div className="Testnet-banner">
-            <p>This Is a testnet Deployment of the BroClan software, it is not adviced to use with real funds on the mainnet at this point in time.</p>
-            <button className='commonBtn' onClick={handleAcceptClick}>I Undestand</button>
+            <p>This Is a testnet Deployment of the BroClan software, it is not advised to use with real funds on the mainnet at this point in time.</p>
+            <button className='commonBtn' onClick={handleAcceptClick}>I Understand</button>
         </div>
     );
 }
