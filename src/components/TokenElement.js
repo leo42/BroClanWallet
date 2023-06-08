@@ -73,8 +73,10 @@ function TokenElement(props){
     <div className="TokenElementWrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}> 
     <div  className="TokenElement" onClick={handleClick} > 
        <img className="TokenThumbnail" src={tokenInfo.image } />
-       <div className="TokenElementText"> 
-       <span className="tokenElementName">{tokenInfo.name }</span>
+       <div className={"TokenElementText" } > 
+        <div className={(tokenInfo.name && tokenInfo.name.length > 20) ? " scroll-container" : ""}>
+          <span className="tokenElementName">{tokenInfo.name }</span>
+        </div>
        { !tokenInfo.isNft && <span className={"tokenElementAmount" + (props.amount > 0 ? " tokenElementAmountPositive" : " tokenElementAmountNegative") } > {((tokenInfo.decimals) ? Number(props.amount)  / (10**tokenInfo.decimals) : props.amount ).toString()} </span> }
      </div>
       </div>

@@ -191,7 +191,7 @@ class WalletCreateTx extends React.Component {
     
   <div className="addressWrap">
      <div className="CreateTxSelectedToken">
-     <div key={item} className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>
+     <div key={item+this.state.sendFrom} className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>
        {!this.state.tokenData[item].isNft && <div className='tokenAmount'> <input
           type="number"
           name="amount"
@@ -208,7 +208,7 @@ class WalletCreateTx extends React.Component {
     </div>
     ))}
     </div>
-    <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index}></TokenDropdownMenu>
+    <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index+this.state.sendFrom}></TokenDropdownMenu>
     { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
 
 

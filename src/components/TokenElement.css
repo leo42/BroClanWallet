@@ -45,3 +45,25 @@
     overflow: visible;
     cursor: pointer;
 }
+
+
+.scroll-container {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 120px;
+  }
+  
+  .scroll-container > span {
+    animation: scrollText 5s linear infinite;
+    display: inline-block;
+    animation-direction: alternate;
+  }
+  
+  @keyframes scrollText {
+    0% {
+      transform: translateX(15px);
+    }
+    100% {
+        transform: translateX(calc(100px - 100% ));
+    }
+  }
