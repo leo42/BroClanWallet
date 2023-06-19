@@ -41,20 +41,23 @@ class AddWalletModal extends React.Component {
                 ]
 
   isAddressValid = (address) => {
+    console.log(this)
     try {
-      C.Ed25519KeyHash.from_hex( address)
-      return true
+     // console.log(this.lucid.utils.keyHashToCredential( address))
+     // return true
+     throw new Error("not a Keyhash")
     } catch (error) {
+      console.log(error)
       try{
         this.lucid.utils.getAddressDetails(address);
         return true
-      }catch
+      }catch(error)
       {
+        console.log(error)
         return false;
       }
     }
   }
-
   checkAllAddresses = (scripts) => {
     let valid = true
     if(scripts === undefined)
@@ -76,6 +79,7 @@ class AddWalletModal extends React.Component {
 
 
   componentDidMount(){
+    console.log("alarm")
     const lucidLoad =  Lucid.new(
       null,
       this.props.root.state.settings.network

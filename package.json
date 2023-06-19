@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack && tsc -module amd src/Be/server.ts --outFile build/server.js",
-    "start": "webpack serve",
+    "start": "concurrently \"webpack --watch\" \"webpack serve\"",
+  
     "dev": "concurrently \"webpack --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --trace-uncaught --watch server.js \"",
     "Uidev": "concurrently \"webpack --watch\"  \"cd build && node --trace-uncaught server.js \""
   },

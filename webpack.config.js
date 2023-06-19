@@ -32,11 +32,21 @@ module.exports = {
 		]
     },
 	plugins: [
-        new CopyWebpackPlugin({
-            patterns: [
-                { from: 'src/html', to: '' },
+		new CopyWebpackPlugin({
+			patterns: [
+				{ from: 'src/html', to: '' },
             ],
         }),
+		new CopyWebpackPlugin({
+			patterns: [
+				{ from: path.join(__dirname, 'build/public'), to: path.join(__dirname, 'build/extension') },
+			],
+		}),
+		new CopyWebpackPlugin({
+			patterns: [
+				{ from: path.join(__dirname, 'src/extension'), to: path.join(__dirname, 'build/extension') },
+			],
+		}),
     ],
 
 	mode: 'development',
