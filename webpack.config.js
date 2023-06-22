@@ -1,12 +1,14 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
-    entry: './src/index.js',
-    output: {
-			filename: 'bundle.js',
-			path: path.join(__dirname, 'build/public')
-    },
+
+var config = {
+	entry:  './src/index.js',
+	  output: {
+		filename: 'bundle.js',
+		path: path.resolve(__dirname, 'build/public'),
+		// Specify the folder name for the extension output
+	  },
 	devServer: {
 		static: {
 		  directory: path.join(__dirname, 'build/public'),
@@ -39,12 +41,7 @@ module.exports = {
         }),
 		new CopyWebpackPlugin({
 			patterns: [
-				{ from: path.join(__dirname, 'build/public'), to: path.join(__dirname, 'build/extension') },
-			],
-		}),
-		new CopyWebpackPlugin({
-			patterns: [
-				{ from: path.join(__dirname, 'src/extension'), to: path.join(__dirname, 'build/extension') },
+				{ from: path.join(__dirname, 'src/extension/static'), to: path.join(__dirname, 'build/extension') },
 			],
 		}),
     ],
@@ -56,6 +53,36 @@ module.exports = {
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
 		},
     devtool: 'source-map' // Generate source maps for better error debugging
+	};
 
+				
 
-};
+var extensionConfig = {
+	entry:  './src/extension/extension.js',
+	  output: {
+		filename: 'extension.js',
+		path: path.resolve(__dirname, 'build/extension'),
+		// Specify the folder name for the extension output
+	  },
+	  mode: 'development',
+	  experiments: {
+		asyncWebAssembly: true,
+		topLevelAwait: false,
+		layers: true // optional, with some bundlers/frameworks it doesn't work without
+		},
+	  module: {
+		rules: [
+			{
+			loader: 'babel-loader',
+			test: /\.js$/,
+			exclude: /node_modules/
+		}, {
+			test: /\.css$/i,
+			use: ["style-loader", "css-loader"],
+		  },
+	]
+},
+	};
+	
+
+module.exports =  [config, extensionConfig]
