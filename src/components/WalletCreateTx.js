@@ -30,7 +30,7 @@ class WalletCreateTx extends React.Component {
       }
   }
   componentDidMount() {
-    for(const token of Object.keys(this.props.wallet.getBalanceFull(this.state.sendFrom))) {
+    for(const token of Object.keys(this.props.wallet.getBalanceFull())) {
       if (token !== "lovelace") {
         getTokenInfo(token).then( (data) => {
           const tokenData = {...this.state.tokenData}
