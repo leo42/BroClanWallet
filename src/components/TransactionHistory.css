@@ -41,15 +41,15 @@
 .transactionHistoryTokenBalance{
     width: 100%;
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
     align-content: center;
+    border: 1px solid rgb(8, 8, 8);
     justify-content: center;
+    background-color: rgb(241, 241, 241);
+    margin: 3px;
 }
 
 .transactionHistoryTokenBalance .TokenElement{
-    min-width: 100%;
-    align-self: center;
+    min-width: 20vw;
 
  }
 
@@ -63,6 +63,10 @@
     font-weight: lighter;
     font-size: 20px;
     color: red;
+}
+.transactionHistoryTokenBalance .TokenToolTip{
+    width: 40vw;
+    
 }
 .TransactionHistoryLoadMore{
 
