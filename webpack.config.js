@@ -65,8 +65,9 @@ var extensionConfig = {
 		// Specify the folder name for the extension output
 	  },
 	  mode: 'development',
+	  devtool: 'source-map',
 	  experiments: {
-		asyncWebAssembly: true,
+		asyncWebAssembly: false,
 		topLevelAwait: false,
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
 		},
