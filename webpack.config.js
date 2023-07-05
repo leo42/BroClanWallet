@@ -85,5 +85,28 @@ var extensionConfig = {
 },
 	};
 	
+var workerConfig = {
+	entry:  './src/extension/worker.js',
+	  output: {
+		filename: 'worker.js',
+		path: path.resolve(__dirname, 'build/extension'),
+		// Specify the folder name for the extension output
+	  },
+	  mode: 'development',
+	  devtool: 'source-map',
+	  experiments: {
+		asyncWebAssembly: false,
+		topLevelAwait: false,
+		layers: true // optional, with some bundlers/frameworks it doesn't work without
+		},
+		module: {
+			rules: [
+				{
+				loader: 'babel-loader',
+				test: /\.js$/,
+				exclude: /node_modules/
+			}]
+		},
+	};
 
-module.exports =  [config, extensionConfig]
+module.exports =  [config, extensionConfig, workerConfig]

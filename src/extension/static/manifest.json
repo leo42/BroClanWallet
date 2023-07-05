@@ -10,6 +10,8 @@
     "storage",
     "activeTab",
     "scripting", 
+    "webRequest",
+    "<all_urls>",
     "tabs"],
     "content_scripts": [
       {

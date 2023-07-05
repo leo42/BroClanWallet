@@ -40,28 +40,21 @@ class AddWalletModal extends React.Component {
                                                                     
                 ]
 
-  isAddressValid = (address) => {
-    console.log(this)
-    try {
-      // if address is not a hex string throw an error
-      if (typeof address !== "string" || !/^[0-9a-fA-F]+$/.test(address)) {
-        throw new Error("not a hex string");
-      }
-      return true
-     throw new Error("not a Keyhash")
-    } catch (error) {
-      console.log(error)
-      try{
-        console.log(address)
-        this.lucid.utils.getAddressDetails(address);
+    isAddressValid = (address) => {
+      try {
+        C.Ed25519KeyHash.from_hex( address)
         return true
-      }catch(error)
-      {
-        console.log(error)
-        return false;
+      } catch (error) {
+        try{
+          this.lucid.utils.getAddressDetails(address);
+          return true
+        }catch
+        {
+          return false;
+        }
       }
     }
-  }
+
   checkAllAddresses = (scripts) => {
     let valid = true
     if(scripts === undefined)
