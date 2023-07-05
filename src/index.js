@@ -601,6 +601,7 @@ class App extends React.Component {
   render() {
     return (
       <div className='App'>
+      
         <TestnetBanner />
         <ToastContainer
           position="top-right"

@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack && tsc -module amd src/Be/server.ts --outFile build/server.js",
-    "start": "webpack serve",
-    "dev": "concurrently \"webpack --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --trace-uncaught --watch server.js \"",
-    "Uidev": "concurrently \"webpack --watch\"  \"cd build && node --trace-uncaught server.js \""
+    "build": "webpack --mode=production && tsc -module amd src/Be/server.ts --outFile build/server.js",
+    "start": "webpack  serve --mode=development",
+    "dev": "concurrently \"webpack --mode=development --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --trace-uncaught --watch server.js \"",
+    "Uidev": "concurrently \"webpack  --mode=development --watch\"  \"cd build && node --trace-uncaught server.js \""
   },
   "keywords": [],
   "author": "",
@@ -19,7 +19,7 @@
     "@dcspark/cardano-multiplatform-lib-nodejs": "^3.1.2",
     "@emurgo/cardano-message-signing-nodejs": "^1.0.1",
     "axios": "^1.2.2",
-    "babel-loader": "^8.2.2",
+    "babel-loader": "^8.0.6",
     "cbor": "^8.1.0",
     "crypto-js": "^4.1.1",
     "lucid-cardano": "0.9.4",
@@ -40,6 +40,8 @@
     "concurrently": "^7.6.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
-    "svg-url-loader": "^8.0.0"
+    "html-webpack-plugin": "^5.5.3",
+    "svg-url-loader": "^8.0.0",
+    "webpack-subresource-integrity": "^5.2.0-rc.1"
   }
 }
