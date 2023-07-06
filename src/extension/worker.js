@@ -1,4 +1,4 @@
-
+var record = {}
 
 chrome.action.onClicked.addListener((tab) => {
     var newURL = chrome.runtime.getURL("index.html");
@@ -11,7 +11,6 @@ chrome.action.onClicked.addListener((tab) => {
 findTab()
 
 function injectTab(tabId) {
-
 
 
 chrome.scripting.executeScript({
@@ -53,31 +52,26 @@ function findTab(){
 
 chrome.webRequest.onCompleted.addListener(
   function(details) {
+    if (details.type === "main_frame" && details.statusCode === 200 && details.url.includes("broclan.io")) {
     // Access the response details
     var url = details.url;
-    var responseHeaders = details.responseHeaders;
-    var responseSize = details.encodedDataLength;
 
-    // Calculate the hash of the response data
-    // (You'll need to implement your own hash calculation method)
-    var hash = "test"// calculateHash(responseData);
-
-
-    // Do something with the hash value
-    console.log("Hash of " + url + ": " + hash, details);
-  },
+    record[url] = details;
+    console.log("Hash of " + url , details);
+  }}
+  ,
   { urls: ["<all_urls>"] }
 );
 
-function ipfsOnlyHash(value){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const buffer = reader.result
-      const hash = ipfsHash(buffer)
-      resolve(hash)
-    }
-    reader.onerror = reject
-    reader.readAsArrayBuffer(value)
-  }, { urls: ["<all_urls>"] })
-}
+let data = "Hello from background!"; // Replace with your actual data
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'getData' ) {
+    if (  message.url in record){
+    // Send the data to the popup
+      sendResponse({ data: record[message.url] });
+    }else{
+      sendResponse({ data: "no data" });
+    } 
+  }
+});
