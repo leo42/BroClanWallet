@@ -38,11 +38,11 @@ class Wallet {
         if (json.hasOwnProperty(key)) {
           const element = json[key];
           if (element.type === "sig"){
-            this.signersNames.push( { hash:element.keyHash , name:element.name})
             if (element.keyHash.substring(0, 4)=== "addr"){
               
               element.keyHash=this.lucid.utils.getAddressDetails(element.keyHash).paymentCredential.hash
             }
+            this.signersNames.push( { hash:element.keyHash , name:element.name})
           } else if (typeof element === 'object') {
             this.extractSignerNames(element);
           } 
