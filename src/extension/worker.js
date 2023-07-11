@@ -6,7 +6,6 @@ chrome.action.onClicked.addListener((tab) => {
   });
   
   
-  // Get the tab ID of a random open tab in the current window and filter out tabs that are not http or https URLs 
   
 findTab()
 
@@ -17,13 +16,10 @@ chrome.scripting.executeScript({
   target: { tabId: tabId },
   function: () => {
     //sleep 10 sec to allow page to load
-
-    console.log('Code injected into tab',window) ;
-
-
-    
+    console.log('Code injected into tab',window) ;   
   }
 });
+
 //watch for tab closing 
 chrome.tabs.onRemoved.addListener(function(ClosedtabId, removeInfo) {
   if (tabId !== ClosedtabId) return;
@@ -50,10 +46,50 @@ function findTab(){
 }
 
 
+chrome.runtime.onConnect.addListener(function(port) {
+  if (port.name === "devtools") {
+    port.onMessage.addListener(function(message) {
+      if (message.type === "init") {
+          console.log("devtools.js loaded")
+      }
+    });
+  }
+});
+
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "devtools-page") {
+    port.onMessage.addListener((message) => {
+      if (message.name === "init") {
+        chrome.devtools.network.getHAR((harLog) => {
+          harLog.entries.forEach((entry) => {
+            // Retrieve the response content from each entry
+            entry.getContent((content, encoding) => {
+              console.log(content);
+            });
+          });
+        });
+      }
+    });
+  }
+});
+chrome.webRequest.onBeforeRequest.addListener(
+  function(details)
+  {
+      console.log(details);
+      console.log(details.requestBody);
+  },
+  {urls: ["https://alpha.broclan.io/*"]},
+  ['requestBody']
+);
+
 chrome.webRequest.onCompleted.addListener(
   function(details) {
     if (details.type === "main_frame" && details.statusCode === 200 && details.url.includes("broclan.io")) {
-    // Access the response details
+      //resolve the response body as a string
+
+      
+    
     var url = details.url;
 
     record[url] = details;
@@ -63,7 +99,6 @@ chrome.webRequest.onCompleted.addListener(
   { urls: ["<all_urls>"] }
 );
 
-let data = "Hello from background!"; // Replace with your actual data
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'getData' ) {
@@ -71,7 +106,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Send the data to the popup
       sendResponse({ data: record[message.url] });
     }else{
-      sendResponse({ data: "no data" });
+      sendResponse({ data: null });
     } 
   }
 });

@@ -28,25 +28,6 @@ function getCurrentTabInfo(callback) {
     console.log(tabInfo.title);
   });
 
-function getRequestDetails(requestId) {
-  chrome.devtools.network.getHAR((harLog) => {
-    const entries = harLog.entries;
-  
-    // Replace 'requestId' with the actual request ID you want to inspect
-    const requestId = '1234567890';
-  
-    // Find the entry with the matching request ID
-    const entry = entries.find((entry) => entry.request.requestId === requestId);
-  
-    if (entry) {
-      return entry;
-      // You can access other properties of the entry as needed
-    } else {
-      console.log('Request not found.');
-    }
-  });
-}
-
 class App extends React.Component {
     state = {
         url: '',
@@ -73,7 +54,7 @@ class App extends React.Component {
 
 
     render() {
-        return (<h1>You are viewing: {this.state.title}{this.state.data}</h1>);
+        return (<h1>You are viewing: {this.state.title}{this.state.data ? this.state.data : ""}</h1>);
     }
 
 }
