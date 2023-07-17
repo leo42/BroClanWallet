@@ -2,6 +2,7 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Wallet from './Wallet';
+import TokenWallet from './TokenWallet';
 import MWalletList from "./components/WalletList";
 import MWalletMain from './components/WalletMain'; 
 import { ToastContainer, toast } from 'react-toastify';
@@ -156,10 +157,12 @@ class App extends React.Component {
 
 
   componentDidMount() {
+
     this.loadState()
     this.interval = setInterval(() => {
         this.reloadBalance()
     }, 15000);
+    this.addTokenWallet("test","testname")
   }
 
   componentWillUnmount() {
@@ -464,6 +467,17 @@ class App extends React.Component {
       }
   }
 
+  async addTokenWallet(token,name){
+    const wallets = this.state.wallets
+    const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
+    const res = await Promise.all(walletsHashes)
+    const myWallet = new TokenWallet("test",name);
+    await myWallet.initialize(this.state.settings); 
+    wallets.push(myWallet)
+    this.setState(wallets)
+
+    
+  }
 
   async addWallet(script,name){
     const wallets = this.state.wallets

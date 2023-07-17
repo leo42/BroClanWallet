@@ -1,22 +1,27 @@
 import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "lucid-cardano";
 const { Transaction} = C;
 import {  toast } from 'react-toastify';
+import { Program } from "@hyperionbt/helios"
 
 class Wallet {
-    // Initialize the wallet with the provided script and address
-    constructor(wallet_json,name) {
-    //   const address =  Address.from_bech32("addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf") // L
-            
-    //   const address2 =  Address.from_bech32("addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m") // Trash
+    constructor(Token,name) {
+      const src = `
+spending always_succeeds
 
-    //   let mintingScripts =  NativeScripts.new()
-    //   mintingScripts.add( NativeScript.new_script_pubkey( ScriptPubkey.new( BaseAddress.from_address(address).payment_cred().to_keyhash())))
-    //   mintingScripts.add( NativeScript.new_script_pubkey( ScriptPubkey.new( BaseAddress.from_address(address2).payment_cred().to_keyhash())))
-    //   console.log(NativeScript.new_script_all( ScriptAll.new(mintingScripts)).to_json())
-    //   this.wallet_script = NativeScript.new_script_all( ScriptAll.new(mintingScripts))
-      
-      this.signersNames = []
-      this.wallet_script = wallet_json
+func main(_, _, _) -> Bool {
+    true
+}`
+      const program = Program.new(src)
+
+      const simplify = true
+    
+      const myUplcProgram = program.compile(simplify)
+      console.log(myUplcProgram.serialize())
+    
+      this.signersNames = []  
+      this.ValidatorScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
+      console.log( this.ValidatorScript)
+
       this.wallet_address = "";
       this.name=name
       this.delegation = {poolId: null, rewards: null}
@@ -29,32 +34,7 @@ class Wallet {
     }
 
   
-    extractSignerNames(json) {
-      for (const key in json) {
-        if (json.hasOwnProperty(key)) {
-          const element = json[key];
-          if (element.type === "sig"){
-            if (element.keyHash.substring(0, 4)=== "addr"){
-              
-              element.keyHash=this.lucid.utils.getAddressDetails(element.keyHash).paymentCredential.hash
-            }
-            this.signersNames.push( { hash:element.keyHash , name:element.name})
-          } else if (typeof element === 'object') {
-            this.extractSignerNames(element);
-          } 
-        }
-      }
-    }
-
-    keyHashToSighnerName(keyHash){
-      for(var index=0; index< this.signersNames.length; index++){
-        if (this.signersNames[index].hash === keyHash){
-          let name=this.signersNames[index].name
-          return name
-        };
-      }
-      return keyHash
-    }
+ 
 
     async initialize (settings){
       if(settings.provider === "Blockfrost"){
@@ -73,9 +53,9 @@ class Wallet {
         settings.network
       )}
       
-      this.extractSignerNames(this.wallet_script)
 
-      this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
+     
+      
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
 
     } 
@@ -110,7 +90,7 @@ class Wallet {
     }
 
     getCBOR() {
-      return  JSON.stringify(this.lucidNativeScript);
+      return  JSON.stringify(this.ValidatorScript);
     }
 
     getName(){
@@ -184,12 +164,12 @@ setPendingTxs(pendingTxs){
 
     getAddress(stakingAddress="") {
       //  return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
-        const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.lucidNativeScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
-        return this.lucid.utils.validatorToAddress(this.lucidNativeScript, {type:"key", hash: rewardAddress} )
+        const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.ValidatorScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
+        return this.lucid.utils.validatorToAddress(this.ValidatorScript, {type:"key", hash: rewardAddress} )
     }
 
     getStakingAddress() {
-      return this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
+      return this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
     }
       
  
@@ -467,7 +447,7 @@ setPendingTxs(pendingTxs){
 
 
         if(withdraw && Number(this.delegation.rewards) > 0 ){
-          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript), this.delegation.rewards)
+          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
         }
 
         if (sigCheck.requires_after !== false){
@@ -484,7 +464,7 @@ setPendingTxs(pendingTxs){
         ))
 
 
-        tx.attachSpendingValidator(this.lucidNativeScript)
+        tx.attachSpendingValidator(this.ValidatorScript)
         
         const completedTx = sendAll === null ? await tx.complete() : await tx.complete({ change :{address :recipients[sendAll].address }}) 
 
@@ -551,7 +531,7 @@ setPendingTxs(pendingTxs){
 
     async createStakeUnregistrationTx(signers){
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
+      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
 
       const sigCheck = this.checkSigners(signers)
       if (!sigCheck){
@@ -571,7 +551,7 @@ setPendingTxs(pendingTxs){
       }
 
       if(Number(this.delegation.rewards) > 0 ){
-        tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript), this.delegation.rewards)
+        tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
       }
 
       if (sigCheck.requires_after !== false){
@@ -584,7 +564,7 @@ setPendingTxs(pendingTxs){
       }
 
 
-      const completedTx = await tx.attachSpendingValidator(this.lucidNativeScript)
+      const completedTx = await tx.attachSpendingValidator(this.ValidatorScript)
       .complete()
       
       this.pendingTxs.map( (PendingTx) => {
@@ -600,7 +580,7 @@ setPendingTxs(pendingTxs){
 
     async createDelegationTx(pool, signers){ 
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
+      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
       const sigCheck = this.checkSigners(signers)
       if (!sigCheck){
         throw new Error('Not enough signers');
@@ -627,7 +607,7 @@ setPendingTxs(pendingTxs){
       }
       const completedTx = await tx.payToAddress(this.getAddress(),{lovelace: 5000000})
       .delegateTo(rewardAddress,pool)
-      .attachSpendingValidator(this.lucidNativeScript)
+      .attachSpendingValidator(this.ValidatorScript)
       .complete()
       
       this.pendingTxs.push({tx:completedTx, signatures:{}})
