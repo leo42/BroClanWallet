@@ -61,7 +61,7 @@ function TransactionHistory (props) {
             <div className="transactionHistoryListBalance">
                 <span className={ lovelace >= 0 ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
                 { lovelace >= 0 ?  "+" : ""} {lovelace/1000000}
-                 </span>tA 
+                 </span>{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  
                  {tokens}
              </div>
              )

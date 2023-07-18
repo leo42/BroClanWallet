@@ -74,7 +74,7 @@ function WalletDelegation(props) {
         Delegated to  <br />
         {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
 
-        <p>Rewards : {Number(delegation.rewards)/1_000_000}tA </p>
+        <p>Rewards : {Number(delegation.rewards)/1_000_000}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </p>
         <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} />
       </div>
     }

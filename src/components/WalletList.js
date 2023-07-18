@@ -9,7 +9,7 @@ function WalletList (props) {
         <select className="MWalletList" onChange={(event) => props.root.selectWallet(event.target.value)}>
 
         {props.root.state.wallets.map( (item, index) => (
-               <option key={index} value={index}> {item.getName()}-{String((item.getBalance()/1000000).toFixed(2))}tA</option>
+               <option key={index} value={index}> {item.getName()}-{String((item.getBalance()/1000000).toFixed(2))}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </option>
         ))}
 
     </select>
