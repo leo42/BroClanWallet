@@ -40,7 +40,7 @@ class WalletMain extends React.Component {
             <br />
             
 
-            {(this.props.wallet.getBalance()/1000000).toFixed(2)}tA
+            {(this.props.wallet.getBalance()/1000000).toFixed(2)}{this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  
             <br/>
             <button className={`mainTab` + ( this.state.showing === "overview" ? " mainTabSelected" : " " )} value="overview"  onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
             <button className={`mainTab` + ( this.state.showing === "createTx" ? " mainTabSelected" : " " )}  value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Tx</button>
