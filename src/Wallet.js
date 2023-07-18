@@ -34,8 +34,10 @@ class Wallet {
 
   
     extractSignerNames(json) {
-      if(json.type === "sig" && json.keyHash.substring(0, 4)=== "addr"){
-        json.keyHash=this.lucid.utils.getAddressDetails(json.keyHash).paymentCredential.hash
+      if(json.type === "sig" ){
+        if (json.keyHash.substring(0, 4)=== "addr"){
+          json.keyHash=this.lucid.utils.getAddressDetails(json.keyHash).paymentCredential.hash
+        }
         this.signersNames.push( { hash:json.keyHash , name:json.name})
       }
       for (const key in json) {
