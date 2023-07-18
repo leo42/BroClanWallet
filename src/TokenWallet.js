@@ -1,24 +1,25 @@
-import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "lucid-cardano";
+import {   C , Lucid, Blockfrost , TxComplete ,Kupmios , Data , Constr} from "lucid-cardano";
 const { Transaction} = C;
 import {  toast } from 'react-toastify';
 import { Program } from "@hyperionbt/helios"
 
 class Wallet {
     constructor(Token,name) {
-      const src = `
+      const SpendingSrc = `
 spending always_succeeds
-
 func main(_, _, _) -> Bool {
-    true
-}`
-      const program = Program.new(src)
+  true
+}
+`
+      const program = Program.new(SpendingSrc)
 
       const simplify = true
     
       const myUplcProgram = program.compile(simplify)
       console.log(myUplcProgram.serialize())
     
-      this.signersNames = []  
+      this.token = Token 
+
       this.ValidatorScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
       console.log( this.ValidatorScript)
 
@@ -86,7 +87,7 @@ func main(_, _, _) -> Bool {
 
     
     getJson() {
-      return this.wallet_script;
+      return { type: "tokenVault" , token : this.token}
     }
 
     getCBOR() {
@@ -174,7 +175,7 @@ setPendingTxs(pendingTxs){
       
  
     getSigners(){
-      return this.signersNames
+      return []
     }
 
     getFundedAddress(){
@@ -287,6 +288,7 @@ setPendingTxs(pendingTxs){
     }
 
     checkSigners(signers){
+      return true
         const json=this.wallet_script
         const that = this
         let requires_before = false
@@ -393,36 +395,30 @@ setPendingTxs(pendingTxs){
     
     
     async createTx(recipients, signers,sendFrom="" , sendAll=null , withdraw=true) { 
-        const sigCheck = this.checkSigners(signers)
-        if (!sigCheck){
-          throw new Error('Not enough signers');
-        }
+      const redeemer = Data.to(new Constr(0, [""]));
 
-
-        var sumOfRecipientsMinusSendAll = {}
-        recipients.map( (recipient,index) => {
-          if (index !== sendAll){
+      
+      var sumOfRecipientsMinusSendAll = {}
+      recipients.map( (recipient,index) => {
+        if (index !== sendAll){
           Object.keys(recipient.amount).map( (key,index) => {
-
-          
+            
+            
             if (key in sumOfRecipientsMinusSendAll){
               sumOfRecipientsMinusSendAll[key] += recipient.amount[key]
             }else{
               sumOfRecipientsMinusSendAll[key] = recipient.amount[key]
             }
           } ) 
-    }})
-      
-          
-          
-
+        }})
         //check if there is enough funds in the wallet
         const balance = this.getBalanceFull()
-
-
-          for (const [key, value] of Object.entries(sumOfRecipientsMinusSendAll)) {
-            if (key in balance){
-              if (balance[key] < value){
+        
+        console.log("createTx")
+        
+        for (const [key, value] of Object.entries(sumOfRecipientsMinusSendAll)) {
+          if (key in balance){
+            if (balance[key] < value){
                 throw new Error('Not enough funds');
               }
             }else{
@@ -430,13 +426,14 @@ setPendingTxs(pendingTxs){
             }
           }
     
-        
-        if(sendFrom!==""){
-          let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
+          let utxos = this.utxos
+        if(sendFrom!==""){ 
+          utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
           this.lucid.selectWalletFrom(  { "address":sendFrom, "utxos": utxos})
         }else{
           this.lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": this.utxos})
         }
+
         const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
@@ -450,22 +447,17 @@ setPendingTxs(pendingTxs){
           tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
         }
 
-        if (sigCheck.requires_after !== false){
-          tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
-          
-        }
-
-        if (sigCheck.requires_before !== false){
-          tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
-        }
+       
 
         signers.map( value => (
           tx.addSignerKey(value)
         ))
 
 
+        console.log(redeemer)
+        console.log(utxos)
+        tx.collectFrom(utxos, redeemer)
         tx.attachSpendingValidator(this.ValidatorScript)
-        
         const completedTx = sendAll === null ? await tx.complete() : await tx.complete({ change :{address :recipients[sendAll].address }}) 
 
         

@@ -162,7 +162,7 @@ class App extends React.Component {
     this.interval = setInterval(() => {
         this.reloadBalance()
     }, 15000);
-    this.addTokenWallet("test","testname")
+ //   this.addTokenWallet("test","testname")
   }
 
   componentWillUnmount() {
@@ -261,8 +261,9 @@ class App extends React.Component {
     super.setState(state) 
 
     if (wallets) for(let index = 0 ; index < wallets.length ; index++){
-
-      const myWallet = new Wallet(wallets[index].json,wallets[index].name);
+      
+    
+      const myWallet = wallets[index].json.type === "tokenVault" ? new TokenWallet(wallets[index].json.token,wallets[index].name) : new Wallet(wallets[index].json,wallets[index].name);
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings  );
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
       myWallet.setAddressNamess(wallets[index].addressNames)
