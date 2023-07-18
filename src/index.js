@@ -468,12 +468,10 @@ class App extends React.Component {
   async addWallet(script,name){
     const wallets = this.state.wallets
     const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
-    console.log(script)
     const res = await Promise.all(walletsHashes)
     const myWallet = new Wallet(script,name);
     await myWallet.initialize(this.state.settings);
     const walletHash = await this.walletHash(myWallet.getJson())
-
     if (this.state.connectedWallet.socket) {
        this.state.connectedWallet.socket.emit('subscribe' , script)}
     if (! res.includes(walletHash)) {

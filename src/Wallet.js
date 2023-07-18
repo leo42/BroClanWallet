@@ -34,6 +34,10 @@ class Wallet {
 
   
     extractSignerNames(json) {
+      if(json.type === "sig" && json.keyHash.substring(0, 4)=== "addr"){
+        json.keyHash=this.lucid.utils.getAddressDetails(json.keyHash).paymentCredential.hash
+        this.signersNames.push( { hash:json.keyHash , name:json.name})
+      }
       for (const key in json) {
         if (json.hasOwnProperty(key)) {
           const element = json[key];
@@ -76,9 +80,7 @@ class Wallet {
         new Blockfrost(settings.api.url, settings.api.projectId),
         settings.network
       )}
-      
       this.extractSignerNames(this.wallet_script)
-
       this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
 
