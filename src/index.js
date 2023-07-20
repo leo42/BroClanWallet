@@ -47,16 +47,8 @@ class App extends React.Component {
       return
     }
     const settings = {...this.state.settings, ...newSettings}
-    const wallets=[...this.state.wallets]
-    for(let index = 0 ; index < this.state.wallets.length ; index++){
-      try{
-       await wallets[index].changeSettings(settings)
-      }catch(e){
-        console.log(e)
-      }
-    }
+
     this.setState({settings})
-    this.reloadBalance()
   }
 
   async checkSettings(settings){

@@ -7,9 +7,12 @@ import connectSocket from  '../helpers/SyncService';
 import sha256 from 'crypto-js/sha256';
 import  { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
 import React from 'react';
+import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import "./MultisigContainer.css"
 import ModalsContainer from './ModalsContainer';
+
+
 
 class MultisigContainer extends React.Component {
 state= {
@@ -20,6 +23,32 @@ state= {
     connectedWallet: {name: "", socket: null},
     loading : true
 }
+
+componentDidUpdate(prevProps) {
+  console.log("settings", prevProps)
+
+  if (this.props.settings !== prevProps.settings) {
+    this.newSettings(this.props.root.state.settings)
+    console.log("settings changed")
+    
+    
+  }
+}
+
+async newSettings(newSettings){
+  const wallets=[...this.state.wallets]
+  for(let index = 0 ; index < this.state.wallets.length ; index++){
+    try{
+     await wallets[index].changeSettings(newSettings)
+    }catch(e){
+      console.log(e)
+    }
+  }
+  this.reloadBalance()
+
+}
+
+
 async showModal(modalName){
     this.setState({modal: modalName})
   }
