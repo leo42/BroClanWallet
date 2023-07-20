@@ -19,17 +19,17 @@ class WalletMain extends React.Component {
     mainView() {
         switch ( this.state.showing){
             case "overview":
-                return  <WalletOverview key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></WalletOverview>
+                return  <WalletOverview key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root} modalRoot={this.props.modalRoot} ></WalletOverview>
             case "createTx":
-                return  <WalletCreateTx key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  ></WalletCreateTx>
+                return  <WalletCreateTx key={this.props.root.state.selectedWallet} wallet={this.props.wallet} root={this.props.root}  modalRoot={this.props.modalRoot}></WalletCreateTx>
             case "delegation":
-                return  <WalletDelegation key={this.props.root.state.selectedWallet+"delegation"} wallet={this.props.wallet} root={this.props.root}  ></WalletDelegation>
+                return  <WalletDelegation key={this.props.root.state.selectedWallet+"delegation"} wallet={this.props.wallet} root={this.props.root} modalRoot={this.props.modalRoot} ></WalletDelegation>
             case "pendingTxs": 
-                return( <PendingTxs key={this.props.root.state.selectedWallet+"pendingTxs"} wallet={this.props.wallet} root={this.props.root}  ></PendingTxs>)
+                return( <PendingTxs key={this.props.root.state.selectedWallet+"pendingTxs"} wallet={this.props.wallet} root={this.props.root}  modalRoot={this.props.modalRoot}></PendingTxs>)
             case "transactions": 
-                return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.root.state.selectedWallet}>  </TransactionHistory> 
+                return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.root.state.selectedWallet}>  modalRoot={this.props.modalRoot} </TransactionHistory> 
             case "receive": 
-                return  <Receive root={this.props.root}  wallet={this.props.wallet}  key={this.props.root.state.selectedWallet}>  </Receive> 
+                return  <Receive root={this.props.root}  wallet={this.props.wallet}  key={this.props.root.state.selectedWallet}> modalRoot={this.props.modalRoot} </Receive> 
         }
     } 
 

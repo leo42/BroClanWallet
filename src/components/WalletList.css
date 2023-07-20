@@ -1,8 +1,8 @@
 .WalletListContainer{
-    position: fixed;
-    top:0px;
-    left: 0px;
-    margin: 10px;
+    position: absolute;
+    top: 108px;
+    left: 16px;
+    font-size: 18px;
 }
 
 .MWalletList{

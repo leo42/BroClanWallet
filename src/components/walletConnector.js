@@ -1,7 +1,6 @@
 import React, { useState, useEffect }   from "react";
 import "./walletConnector.css";
 import WalletPicker from "./WalletPicker";
-import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
 import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
 import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg';
 import { ReactComponent as ChangeIcon } from '../html/assets/change.svg';
@@ -82,10 +81,7 @@ function WalletConnector(props){
 
     let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
                 {/* <div className="WalletConnector"> */}
-                <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => props.root.showModal("settings")} className='iconWraper settingsButton'>
-                <SettingsIcon className="icon" alt="settingsIcon" />
-                {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'>Settings</label> }
-                < br/>  </div>
+                
                 {/* </div>  */}
 
         </div>
