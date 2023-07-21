@@ -59,12 +59,10 @@ async setState(state){
   }
 
   componentDidMount() {
-
     this.loadState()
     this.interval = setInterval(() => {
         this.reloadBalance()
     }, 15000);
- //   this.addTokenWallet("test","testname")
   }
 
   
@@ -106,6 +104,7 @@ async setState(state){
 
     this.setState({connectedWallet})
   }
+  
   async reloadAllBalance(){
     try {
       if (this.state.wallets.length > 0){

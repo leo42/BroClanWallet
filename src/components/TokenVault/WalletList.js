@@ -3,7 +3,7 @@ import {useState , useEffect} from 'react';
 import "./WalletList.css"
 import { Lucid, C } from "lucid-cardano";
 function WalletList (props) {
-    const [tokens, setTokens] = useState(["test1","test2"])
+    const [tokens, setTokens] = useState([])
     
     async function getTokens ()  {
         const lucid = await Lucid.new( );

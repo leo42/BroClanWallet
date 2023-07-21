@@ -8,7 +8,12 @@
     z-index: -1;
 }
 
+.TokenVaultsContainerActive .WalletConnector{
+    position: fixed;
+}
+
 .WalletConnector{
+
     top: 110px;
     right: 0px;
     margin: 10px;

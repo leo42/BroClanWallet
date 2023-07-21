@@ -38,8 +38,7 @@ class WalletMain extends React.Component {
             {(this.props.wallet.getBalance()/1000000).toFixed(2)}{this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  
             <br/>
             <button className={`mainTab` + ( this.state.showing === "overview" ? " mainTabSelected" : " " )} value="overview"  onClick={(event) => this.setState({showing: event.target.value })}>Overview</button>
-            <button className={`mainTab` + ( this.state.showing === "createTx" ? " mainTabSelected" : " " )}  value="createTx" onClick={(event) => this.setState({showing: event.target.value })}>Create Tx</button>
-            <button className={`mainTab` + ( this.state.showing === "pendingTxs" ? " mainTabSelected" : " " ) + (this.props.wallet.getPendingTxs().length > 0 ? " mainTabPendingTx" : "")}  value="pendingTxs" onClick={(event) => this.setState({showing: event.target.value })}> Pending Txs {this.props.wallet.getPendingTxs().length> 0 && <label className='pendingTxNumber'> {this.props.wallet.getPendingTxs().length}</label>  }</button>         
+            <button className={`mainTab` + ( this.state.showing === "send" ? " mainTabSelected" : " " )}  value="send" onClick={(event) => this.setState({showing: event.target.value })}>Send</button>
             <button className={`mainTab` + ( this.state.showing === "delegation" ? " mainTabSelected" : " " )}  value="delegation" onClick={(event) => this.setState({showing: event.target.value })}>Staking Center</button>
             <button className={`mainTab` + ( this.state.showing === "transactions" ? " mainTabSelected" : " " )}  value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Tx History</button>
             <button className={`mainTab` + ( this.state.showing === "receive" ? " mainTabSelected" : " " )}  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Receive</button>

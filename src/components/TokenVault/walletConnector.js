@@ -30,9 +30,7 @@ function walletConnector(props){
         props.moduleRoot.connectWallet(walletName)
     }
 
-    function loadWallets(){
-        props.moduleRoot.loadWallets()
-    }
+
     
  {/* <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
              <DeleteIcon className="icon"  alt="deleteIcon" />
