@@ -40,7 +40,8 @@ class App extends React.Component {
   }
 
   loadState(){
-    this.state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
+    const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
+    this.setState({settings})
   }
   setModule(module){
     this.setState({module})
@@ -114,7 +115,7 @@ class App extends React.Component {
         <br/>
      {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "tokenVault" }
-      <TermsAndConditionsBanner root={this}/>
+      <TermsAndConditionsBanner key={this.state.settings} root={this}/>
    </div>
     );
     }
