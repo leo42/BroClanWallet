@@ -102,7 +102,7 @@ function WalletPendingTx(props) {
             <div className="transactionHistoryListBalance">
                <span className={ lovelace >= 0n ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
                 { lovelace >= 0n ?  "+" : ""} {Number(lovelace)/1000000}
-                 </span>tA 
+                 </span> {props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  
                  {tokens}
              </div>
              ) : <div className="transactionHistoryListBalance"> </div>
@@ -171,7 +171,7 @@ function WalletPendingTx(props) {
               </div>
                 </div>
                     <div className="txDetailsSmall">
-                <div><h3>Fee:</h3> {transaction.fee / 1_000_000}tA</div>
+                <div><h3>Fee:</h3> {transaction.fee / 1_000_000}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </div>
                 { transaction.ttl && <div><h3>TTL:</h3> {transaction.ttl}</div>}
                 {transaction.network_id &&  <div> <h3>Network:</h3> {transaction.network_id}</div> }
                     </div>
