@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MultisigContainer from './components/MultisigContainer';
+import MultisigContainer from './components/Multisig/MultisigContainer';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import TermsAndConditionsBanner from './components/TermsBanner';
@@ -9,7 +9,7 @@ import TestnetBanner from './components/TestnetBanner';
 import NavBar from './components/NavBar';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import SettingsModal from "./components/SettingsModal";
-
+import TokenVaultsContainer from './components/TokenVault/TokenVaultContainer';
 
 class App extends React.Component {
   state= {
@@ -32,6 +32,9 @@ class App extends React.Component {
     if (state.settings){
       localStorage.setItem("settings", JSON.stringify(state.settings))
     } 
+    if (state.module){
+      localStorage.setItem("module", state.module)
+    }
 
   }
 
@@ -42,6 +45,8 @@ class App extends React.Component {
   loadState(){
     const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     this.setState({settings})
+    const module = localStorage.getItem("module") ? localStorage.getItem("module") : this.state.module
+    this.setState({module})
   }
   setModule(module){
     this.setState({module})
@@ -114,7 +119,7 @@ class App extends React.Component {
         <NavBar root={this} />
         <br/>
      {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
-     {this.state.module === "tokenVault" }
+     {this.state.module === "tokenVault" &&  <TokenVaultsContainer root={this} settings={this.state.settings} /> }
       <TermsAndConditionsBanner key={this.state.settings} root={this}/>
    </div>
     );

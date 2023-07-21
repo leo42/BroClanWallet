@@ -1,6 +1,6 @@
 import React, { useState , useRef, useEffect } from 'react';
 import NewWalletModal   from './NewWalletModal';
-import WalletImportModal from "./WalletImportModal";
+import WalletImportModal from "../WalletImportModal";
 import AddWalletModal from "./AddWalletModal";
 
 function ModalsContainer(props){

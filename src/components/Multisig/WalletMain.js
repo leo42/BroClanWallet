@@ -1,11 +1,9 @@
 import React from 'react';
-import WalletCreateTx from "./WalletCreateTx"
-import WalletPendingTx from './PendingTx';
-import WalletDelegation from './WalletDelegation';
-import WalletOverview from './Overview'
-import TransactionHistory from './TransactionHistory';
-import Receive from './Receive';
-import { toHex } from 'lucid-cardano';
+import WalletCreateTx from "../WalletCreateTx"
+import WalletDelegation from '../WalletDelegation';
+import WalletOverview from '../Overview'
+import TransactionHistory from '../TransactionHistory';
+import Receive from '../Receive';
 import PendingTxs from './PendingTxs';
 import './WalletMain.css';
 

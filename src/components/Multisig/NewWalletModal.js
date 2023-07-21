@@ -1,13 +1,11 @@
 import React from "react";
-import { useState} from 'react';
 import "./NewWalletModal.css"
-import { ReactComponent as ImportIcon } from "../html/assets/import.svg";
-import { ReactComponent as CreateIcon } from "../html/assets/newWallet.svg";
-import { ToastContainer, toast } from 'react-toastify';
+import { ReactComponent as ImportIcon } from "../../html/assets/import.svg";
+import { ReactComponent as CreateIcon } from "../../html/assets/newWallet.svg";
+import {  toast } from 'react-toastify';
 // import "./NewWalletModal.css"
 
 function NewWalletModal(props) {
-  const [addWalletOpen, setAddWalletOpen] = useState(false);
 
   const importWallet = (event) => {
     try {

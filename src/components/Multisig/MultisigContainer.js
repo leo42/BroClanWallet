@@ -1,13 +1,12 @@
 
-import Wallet from '../Wallet';
+import Wallet from '../../Wallet';
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
 import WalletConnector from './walletConnector';
-import connectSocket from  '../helpers/SyncService';
+import connectSocket from  '../../helpers/SyncService';
 import sha256 from 'crypto-js/sha256';
-import  { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
+import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import React from 'react';
-import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import "./MultisigContainer.css"
 import ModalsContainer from './ModalsContainer';

@@ -1,11 +1,11 @@
 import React, { useState, useEffect }   from "react";
 import "./walletConnector.css";
-import WalletPicker from "./WalletPicker";
-import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
-import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg';
-import { ReactComponent as ChangeIcon } from '../html/assets/change.svg';
-import { ReactComponent as LoadIcon } from '../html/assets/load.svg';
-import { ReactComponent as WalletsFoundIcon } from '../html/assets/walletsFound.svg';
+import WalletPicker from "../WalletPicker";
+import { ReactComponent as ConnectIcon } from '../../html/assets/connect.svg';
+import { ReactComponent as DisconnectIcon } from '../../html/assets/disconnect.svg';
+import { ReactComponent as ChangeIcon } from '../../html/assets/change.svg';
+import { ReactComponent as LoadIcon } from '../../html/assets/load.svg';
+import { ReactComponent as WalletsFoundIcon } from '../../html/assets/walletsFound.svg';
 
 
 
@@ -29,12 +29,11 @@ function WalletConnector(props){
 
 
     function connectWallet(walletName){
-        props.root.connectWallet(walletName)
-        
+        props.moduleRoot.connectWallet(walletName)
     }
 
     function loadWallets(){
-        props.root.loadWallets()
+        props.moduleRoot.loadWallets()
     }
     
  {/* <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.root.deleteWallet(props.root.state.selectedWallet)}  className='iconWraper deleteButton'>
