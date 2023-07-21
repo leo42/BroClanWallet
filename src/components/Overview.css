@@ -274,11 +274,7 @@
     position: relative;
 }
 
-.settingsButton label{
-    top: -11px;
-    left: 0px;
-    position: relative;
-}
+
 
 .disconnectButton label{
     top: -11px;

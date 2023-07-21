@@ -52,7 +52,7 @@ function WalletDelegation(props) {
         item ? wallet.getSigners()[index].hash : ""
     )
 
-    props.root.createDelegationTx(pools[0].pool_id_bech32, txSigners.filter((element, index) => signers[index]));
+    props.moduleRoot.createDelegationTx(pools[0].pool_id_bech32, txSigners.filter((element, index) => signers[index]));
   }
 
   const Undelegate = event => {
@@ -62,7 +62,7 @@ function WalletDelegation(props) {
         item ? wallet.getSigners()[index].hash : ""
     )
 
-    props.root.createStakeUnregistrationTx(txSigners.filter((element, index) => signers[index]));
+    props.moduleRoot.createStakeUnregistrationTx(txSigners.filter((element, index) => signers[index]));
   }
 
 

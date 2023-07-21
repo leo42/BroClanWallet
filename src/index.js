@@ -14,6 +14,7 @@ import SettingsModal from "./components/SettingsModal";
 class App extends React.Component {
   state= {
     modal: "",
+    module : "multisig",
     settings: { metadataProvider :"Blockfrost", 
                 sendAll: false, 
                 network: "Preprod", 
@@ -25,6 +26,14 @@ class App extends React.Component {
                 }
   }
 
+   setState(state){
+    super.setState(state)
+    console.log(state)
+    if (state.settings){
+      localStorage.setItem("settings", JSON.stringify(state.settings))
+    } 
+
+  }
 
   componentDidMount() {
     this.loadState()
@@ -32,6 +41,9 @@ class App extends React.Component {
 
   loadState(){
     this.state.settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
+  }
+  setModule(module){
+    this.setState({module})
   }
 
   async setSettings(newSettings){
@@ -100,8 +112,8 @@ class App extends React.Component {
           />
         <NavBar root={this} />
         <br/>
-     
-      <MultisigContainer root={this} settings={this.state.settings} />
+     {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
+     {this.state.module === "tokenVault" }
       <TermsAndConditionsBanner root={this}/>
    </div>
     );

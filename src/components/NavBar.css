@@ -1,7 +1,79 @@
 .NavBarWrapper{
     width: 100%;
     position: fixed;
+    top: 0px;
+    left: 0px;
     height: 100px;
     background-color: #d46b24;
 
+}
+.settingsButton{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    margin: 10px;
+    cursor: pointer;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+.settingsButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.moduleOption{
+        position: relative;
+        top: -70px;
+        margin-left: 90px;
+        margin-right: 90px;
+        padding: 5px 15px;
+        margin: 26px 60px 2px;
+        border: rgb(59, 59, 59) solid 1px;
+        
+        color: rgb(59, 59, 59);
+        border-radius: 20px;
+        font-size: 17px;
+        cursor: pointer;
+        transition: 0.5s;
+}
+
+.navMenu {
+    position: absolute;
+    top: 100px;
+    left: 0px;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: end;
+    padding: 0px 20px;
+    z-index: 1;
+}
+
+
+.navMenuOption{
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: var(--clrorange);
+    border: gold solid 1px;
+    width: 270px;
+    height: 100px;
+    margin: 2px;
+    transition: 0.5s;
+}
+
+.navMenuOption:hover{
+    background-color: aliceblue;
+    color: #000000;
+}
+
+.navMenuBackground{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100vh;
 }

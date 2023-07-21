@@ -1,5 +1,5 @@
 .WalletListContainer{
-    position: absolute;
+    position: fixed;
     top: 108px;
     left: 16px;
     font-size: 18px;

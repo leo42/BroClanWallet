@@ -16,7 +16,7 @@ function NewWalletModal(props) {
     reader.onload = (e) => {
       const fileText = e.target.result;
       try {
-        props.root.addWallet(JSON.parse(fileText),"Imported Wallet");
+        props.moduleRoot.addWallet(JSON.parse(fileText),"Imported Wallet");
         props.setOpenModal(false);
       }catch (error) {
           toast.error("Invalid Wallet File");

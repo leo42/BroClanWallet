@@ -5,7 +5,7 @@ import { useState , useEffect} from "react";
 function NavBar(props){
     const [hovering, setHovering] = React.useState("");
     const [isMobile, setIsMobile] = useState(false);
-
+    const [navOpen, setNavOpen] = useState(false);
     useEffect(() => {
         const updateWindowDimensions = () => {
           const newIsMobile = window.innerWidth <= 768;
@@ -20,13 +20,22 @@ function NavBar(props){
   
     return (
         <div className="NavBarWrapper"   >
-            
             <img src={"./assets/logoFull.png"} alt="Logo" className='MainAppLogo' />
-
-        <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => props.root.showModal("settings")} className='iconWraper settingsButton'>
+        
+        <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className='iconWraper settingsButton'>
             <SettingsIcon className="icon" alt="settingsIcon" />
             {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'>Settings</label> }
-            < br/>  </div>
+            </div>
+            {navOpen && 
+            <div className="navMenuBackground" onClick={() => setNavOpen(false)}>
+            <div className="navMenu"> 
+                <div className="navMenuOption" onClick={() =>  props.root.setModule("multisig")}>Multisig</div>
+                <div className="navMenuOption" onClick={() =>  props.root.setModule("tokenVault")}>TokenVaults</div>
+                <div className="navMenuOption" onClick={() => props.root.showModal("settings")}>Settings</div>
+            </div>
+            </div>
+            }
+            
         </div>
     )
                 
