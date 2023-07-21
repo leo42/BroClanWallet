@@ -1,0 +1,70 @@
+.WalletListContainer{
+    position: fixed;
+    top: 108px;
+    left: 16px;
+    font-size: 18px;
+}
+
+.MWalletList{
+    margin: 10px;
+    height: auto;
+    
+}
+
+@media (max-width: 768px) { 
+    
+.MWalletList{
+    max-width: 50px;    
+}
+}
+ 
+.addNewWalletButton{
+    height: inherit;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--clrorange) 0px 0px 5px 0px;
+    font-size: 12px;
+    transition: 0.5s;
+    border: var(--clrorange) solid 1px;
+    color: var(--clrorange);
+    cursor: pointer;
+}
+
+.addWalletButtonHighlight{
+    height: inherit;
+    background-color: white;
+    border: 3px solid transparent;
+    border-image: conic-gradient(
+        from var(--angle),
+        rgba(255, 153, 0, 1) 0deg 90deg,
+        rgba(255, 153, 0, 0) 90deg 360deg
+      )
+      1 stretch;
+    animation: rotate 2s linear infinite;
+    transition: transform 0.3s ease-in-out;
+
+}
+  
+@supports (background: paint(houdini)) {
+
+    @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+    }
+
+    @keyframes rotate {
+    to {
+        --angle: 360deg;
+    }
+    }}
+
+.addNewWalletButton:hover{
+    color: var(--clrorange);
+    transform: scale(1.5);
+}
+  
+    
+
+
+
+

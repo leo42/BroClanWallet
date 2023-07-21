@@ -4,9 +4,9 @@
     top: 0px;
     left: 0px;
     height: 100px;
-    background-color: #d46b24;
-
+    border-bottom: var(--clrorange) solid 1px;
 }
+
 .settingsButton{
     position: absolute;
     top: 15px;

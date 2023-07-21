@@ -6,6 +6,7 @@ function NavBar(props){
     const [hovering, setHovering] = React.useState("");
     const [isMobile, setIsMobile] = useState(false);
     const [navOpen, setNavOpen] = useState(false);
+    
     useEffect(() => {
         const updateWindowDimensions = () => {
           const newIsMobile = window.innerWidth <= 768;
