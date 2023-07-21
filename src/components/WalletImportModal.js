@@ -43,16 +43,16 @@ function WalletImportModal(props) {
 
   };
   const deleteAllWallets = () => {
-    props.root.deleteAllPendingWallets();
+    props.moduleRoot.deleteAllPendingWallets();
     props.setOpenModal(false);
   };
 
   const deleteWallet = (key) => {
-    props.root.deletePendingWallet(key);
+    props.moduleRoot.deletePendingWallet(key);
   };
 
   const importWallet = (key) => {
-    props.root.importPendingWallet(key);
+    props.moduleRoot.importPendingWallet(key);
   };
 
   return (
@@ -71,16 +71,16 @@ function WalletImportModal(props) {
         
         <div className="body">
          
-          {props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0 ? (
+          {props.moduleRoot.state.pendingWallets && Object.keys(props.moduleRoot.state.pendingWallets).length > 0 ? (
             <div >
               
-                {Object.keys(props.root.state.pendingWallets).map((key) => {
+                {Object.keys(props.moduleRoot.state.pendingWallets).map((key) => {
 
                   return (
                     <div key={key} className="walletDetailsContainer">
                       <div className="">{key}</div>
                     
-                       <span className="DateCreated"> Created:  { new Date(props.root.state.pendingWallets[key].creationTime).toLocaleString()}</span>
+                       <span className="DateCreated"> Created:  { new Date(props.moduleRoot.state.pendingWallets[key].creationTime).toLocaleString()}</span>
                       {showingDetails === key && (
                         <div className="">
                           <div className="">
@@ -88,7 +88,7 @@ function WalletImportModal(props) {
                             {/* show the json object as a pretty Json */}
 
 
-                            <span className="ImportWalletJson">{walletJson(props.root.state.pendingWallets[key].json)}</span>
+                            <span className="ImportWalletJson">{walletJson(props.moduleRoot.state.pendingWallets[key].json)}</span>
                           </div>
                         </div>
                       )} 
@@ -96,7 +96,7 @@ function WalletImportModal(props) {
                       <div className="ImportWalletButtons">
                      
                       <div  onMouseEnter={() => setHovering("delete"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
-                            props.root.deleteImportedWallet(key);
+                            props.moduleRoot.deleteImportedWallet(key);
                           }}  className='iconWraper deleteButton'>
                       <DeleteIcon className="icon"  alt="deleteIcon" />
                       {  (hovering === "delete"+key || isMobile )  &&  <label className='iconLabel'>Delete</label> }
@@ -112,7 +112,7 @@ function WalletImportModal(props) {
                       </div>   
                         
                       <div  onMouseEnter={() => setHovering("import"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
-                            props.root.importPendingWallet(key);
+                            props.moduleRoot.importPendingWallet(key);
                           }}  className='iconWraper importButton'>
                       <ImportIcon className="icon"  alt="importIcon" />
                       { ( hovering === "import"+key || isMobile ) &&  <label className='iconLabel'>Import</label> }

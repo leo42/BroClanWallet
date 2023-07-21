@@ -31,7 +31,7 @@ function NewWalletModal(props) {
 
 }
 const createWallet = () => {
-  props.modalRoot.showModal("createWallet");
+  props.moduleRoot.showModal("createWallet");
 }
   return (
     <div className="modalBackground" onClick={() => props.setOpenModal(true)} >

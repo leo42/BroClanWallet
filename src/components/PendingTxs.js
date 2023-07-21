@@ -10,7 +10,7 @@ function PendingTxs(props){
 
     const  importTx = (importedTx) =>{
         try{
-            props.root.importTransaction(importedTx);
+            props.moduleRoot.importTransaction(importedTx);
             setImportTransaction(false);
         }catch(error){
             toast.error("Error importing transaction: " + error.message);
@@ -23,7 +23,7 @@ function PendingTxs(props){
         <div className="pendingTxs"  key={pending}>
             <h3>Pending Transactions</h3>
             {props.wallet.getPendingTxs().map( (pendingTx, index) => (
-                <WalletPendingTx root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>
+                <WalletPendingTx moduleRoot={props.moduleRoot} root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>
                 ) )}
             <button className="commonBtn" onClick={() =>setImportTransaction(!importTransaction)}>Import Transaction</button>
             {importTransaction ? <div>

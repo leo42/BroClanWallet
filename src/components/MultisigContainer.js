@@ -498,14 +498,14 @@ async setState(state){
   return(
     <div className="MultisigContainer">
         <React.StrictMode>
-        <ModalsContainer modalRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
+        <ModalsContainer moduleRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
 
-        <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
+        <WalletConnector  moduleRoot={this} root={this.props.root}  key={this.state.connectedWallet}></WalletConnector>
 
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
         <div className='WalletInner'>
-            <MWalletList root={this.props.root} modalRoot={this}  ></MWalletList>
-          { this.state.wallets.length === 0 ?  this.walletsEmpty()  : <MWalletMain root={this.props.root} modalRoot={this}  wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
+            <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+          { this.state.wallets.length === 0 ?  this.walletsEmpty()  : <MWalletMain root={this.props.root} moduleRoot={this}  wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
     }
         </React.StrictMode>

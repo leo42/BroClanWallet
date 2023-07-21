@@ -32,7 +32,7 @@ function WalletPendingTx(props) {
       return () => window.removeEventListener("resize", updateWindowDimensions);
     }, [isMobile]);
     
-    const txDetails = props.root.state.wallets[props.root.state.selectedWallet].getPendingTxDetails(props.index)
+    const txDetails = props.moduleRoot.state.wallets[props.moduleRoot.state.selectedWallet].getPendingTxDetails(props.index)
     
     
     useEffect(() => {
@@ -232,7 +232,7 @@ function WalletPendingTx(props) {
         try{
         const api = await window.cardano[wallet].enable()
         const signature = await api.signTx(props.tx.tx.toString() ,true)
-        props.root.addSignature(signature)
+        props.moduleRoot.addSignature(signature)
         }catch(error){
             toast.error("Error signing with local wallet: " + error.info)
         }
@@ -250,7 +250,7 @@ function WalletPendingTx(props) {
 
     function importSigniture(){
         try{
-            props.root.addSignature(importedTx);
+            props.moduleRoot.addSignature(importedTx);
             setImportSig(false);
         }catch(error){
             toast.error( error.message);
@@ -258,17 +258,17 @@ function WalletPendingTx(props) {
     }
 
     function signTransaction(){
-      if( props.root.state.connectedWallet.name === "" ) 
+      if( props.moduleRoot.state.connectedWallet.name === "" ) 
         setWalletPickerOpen(true) 
     else
-        signWithLocalWallet(props.root.state.connectedWallet.name)
+        signWithLocalWallet(props.moduleRoot.state.connectedWallet.name)
 
     }
 
     return (
         <div className="pedningTx">
      <div className='deleteRecipientWrapper'>
-            <div   > <button className='deleteRecipient' type="submit" onClick={ ()=> props.root.removePendingTx(props.index)}>x</button> </div>
+            <div   > <button className='deleteRecipient' type="submit" onClick={ ()=> props.moduleRoot.removePendingTx(props.index)}>x</button> </div>
       </div>
 
 
@@ -308,7 +308,7 @@ function WalletPendingTx(props) {
             </div>  
                 </div>
    
-            {signaturesCompleted &&  <button className="pendingTx_submit commonBtn" onClick={() => props.root.submit(props.index)}>Submit</button> }
+            {signaturesCompleted &&  <button className="pendingTx_submit commonBtn" onClick={() => props.moduleRoot.submit(props.index)}>Submit</button> }
 
             {importSig ? 
             <div>

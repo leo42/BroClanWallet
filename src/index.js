@@ -24,13 +24,7 @@ class App extends React.Component {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
                 }
   }
-  async setState(state){
-   
-    localStorage.setItem("settings", JSON.stringify(this.state.settings))
-    await super.setState(state)
-    
-    
-  }
+
 
   componentDidMount() {
     this.loadState()
@@ -47,6 +41,7 @@ class App extends React.Component {
       return
     }
     const settings = {...this.state.settings, ...newSettings}
+    localStorage.setItem("settings", JSON.stringify(newSettings))
 
     this.setState({settings})
   }

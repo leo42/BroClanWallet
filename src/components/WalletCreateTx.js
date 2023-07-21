@@ -103,7 +103,7 @@ class WalletCreateTx extends React.Component {
 
 
 
-      this.props.root.createTx( this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]),this.state.sendFrom,this.state.sendAll);
+      this.props.moduleRoot.createTx( this.state.recipients, txSigners.filter((element, index) => this.state.signers[index]),this.state.sendFrom,this.state.sendAll);
   }
 
 
@@ -142,6 +142,7 @@ class WalletCreateTx extends React.Component {
     } 
   
   }
+
   handleSendAlltoggle = (index) => {
     if (this.state.sendAll === index) {
       this.setState({sendAll: null})

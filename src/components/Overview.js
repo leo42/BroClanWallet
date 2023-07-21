@@ -76,11 +76,11 @@ function Overview(props) {
 
   const addressSettings = (address) =>
     <div className="addressSettings">
-      { wallet.getDefaultAddress() === address ? "" : <button className='defaultButton' onClick={() => props.modalRoot.setDefaultAddress(address)}> Make Default</button> }
+      { wallet.getDefaultAddress() === address ? "" : <button className='defaultButton' onClick={() => props.moduleRoot.setDefaultAddress(address)}> Make Default</button> }
       <br/>
       <label>
         <span>Name</span>
-        <input type="text"  value={wallet.getAddressName(address)} onChange={(event) => props.modalRoot.changeAddressName(address,event.target.value)}></input>
+        <input type="text"  value={wallet.getAddressName(address)} onChange={(event) => props.moduleRoot.changeAddressName(address,event.target.value)}></input>
       </label>
     </div>
   
@@ -100,13 +100,13 @@ function Overview(props) {
     <div className="walletSettings">
       <label>
         <span>Wallet Name</span>
-        <input type="text"  value={wallet.getName()} onChange={(event) => props.modalRoot.changeWalletName(event.target.value)}></input>
+        <input type="text"  value={wallet.getName()} onChange={(event) => props.moduleRoot.changeWalletName(event.target.value)}></input>
       </label>
       <br/>
-      {wallet.getDefaultAddress() !== "" && <button onClick={() => props.modalRoot.setDefaultAddress("")}> Make Default</button> }
+      {wallet.getDefaultAddress() !== "" && <button onClick={() => props.moduleRoot.setDefaultAddress("")}> Make Default</button> }
       <br/>
       <div className='overviewButtons'>
-      {/* <button onClick={() => props.modalRoot.deleteWallet(props.modalRoot.state.selectedWallet)}> Delete Wallet</button> */}
+      {/* <button onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}> Delete Wallet</button> */}
       <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
                             setshowingDetails(!showingDetails);
                           }}  className='iconWraper detailsButton'>
@@ -115,7 +115,7 @@ function Overview(props) {
                       < br/>   
                       </div>   
 
-      <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.modalRoot.deleteWallet(props.modalRoot.state.selectedWallet)}  className='iconWraper deleteButton'>
+      <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}  className='iconWraper deleteButton'>
              
              <DeleteIcon className="icon"  alt="deleteIcon" />
              {  (hovering === "delete" || isMobile ) && <label className='iconLabel'>Delete</label> }

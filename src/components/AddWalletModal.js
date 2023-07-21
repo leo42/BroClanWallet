@@ -105,7 +105,7 @@ class AddWalletModal extends React.Component {
   handleSubmit(event){
     if(this.checkAllAddresses(this.state.json.scripts)){
     event.preventDefault();
-    this.props.modalRoot.addWallet(this.state.json,this.state.WName)
+    this.props.moduleRoot.addWallet(this.state.json,this.state.WName)
     this.props.setOpenModal(false)
     this.props.hostModal(false)
     }
