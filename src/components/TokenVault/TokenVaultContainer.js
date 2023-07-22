@@ -5,14 +5,19 @@ import Wallet from "../../TokenWallet.js"
 import "./TokenVaultContainer.css"
 import MWalletList from './WalletList';
 import WalletMain from './WalletMain';
+
 class TokenVaultsContainer extends React.Component {
     state= {
       connectedWallet: "none",
       wallet : "none"
     }
-    selectWallet(token){
-      const wallet = new Wallet(token,"testing")    
-      wallet.initialize(this.props.root.state.settings)
+
+
+
+    async selectWallet(token, utxo, collateralUtxo){
+      console.log("selecting wallet")
+      const wallet = new Wallet(token,utxo, collateralUtxo)    
+      await wallet.initialize(this.props.root.state.settings)
       this.setState({wallet: wallet})
      }
 
@@ -33,6 +38,16 @@ class TokenVaultsContainer extends React.Component {
     disconnectWallet(){
       this.setState({connectedWallet: "none"})
       this.setState({wallet: "none"})
+    }
+
+    async createTx(recipients,signers,sendFrom, sendAll=null){
+      try{
+       await this.state.wallet.createTx(recipients,signers,sendFrom,sendAll)
+      
+    
+      }catch(e){
+        console.log(e)
+      }
     }
 
 render() {  

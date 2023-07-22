@@ -4,13 +4,15 @@ import {  toast } from 'react-toastify';
 import { Program } from "@hyperionbt/helios"
 
 class Wallet {
-    constructor(Token,name) {
+    constructor(token, utxo, collateralUtxo) {
+
       const SpendingSrc = `
 spending always_succeeds
 func main(_, _, _) -> Bool {
   true
 }
-`
+`     
+      console.log(token, utxo)
       const program = Program.new(SpendingSrc)
 
       const simplify = true
@@ -18,20 +20,20 @@ func main(_, _, _) -> Bool {
       const myUplcProgram = program.compile(simplify)
       console.log(myUplcProgram.serialize())
     
-      this.token = Token 
+      this.token = token 
 
       this.ValidatorScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
       console.log( this.ValidatorScript)
 
       this.wallet_address = "";
-      this.name=name
       this.delegation = {poolId: null, rewards: null}
       this.defaultAddress= ""
       this.txDetails = {}
       this.pendingTxs = [];
       this.addressNames = {}
       this.utxos = []
-      
+      this.hostUtxo = utxo
+      this.collateralUtxo = collateralUtxo
     }
 
   
@@ -58,6 +60,12 @@ func main(_, _, _) -> Bool {
      
       
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
+      await this.loadUtxos()
+      // reload utxos every 15 seconds
+      setInterval(() => {
+        this.loadUtxos()
+      }
+      , 15000);
 
     } 
 
@@ -442,32 +450,31 @@ setPendingTxs(pendingTxs){
           sendAll === index ? tx.payToAddress(recipient.address,  sendAllAmount ) : tx.payToAddress(recipient.address,recipient.amount)
         ))
 
-
+        const tx2 = this.lucid.newTx()
+        console.log(utxos, this.hostUtxo, this.collateralUtxo)
+        tx2.payToAddress(this.hostUtxo.address, this.hostUtxo.assets)
+        tx2.payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets)
+        
         if(withdraw && Number(this.delegation.rewards) > 0 ){
           tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
         }
 
        
 
-        signers.map( value => (
-          tx.addSignerKey(value)
-        ))
+
 
 
         console.log(redeemer)
-        console.log(utxos)
-        tx.collectFrom(utxos, redeemer)
+        tx2.collectFrom([this.hostUtxo, this.collateralUtxo])
+        tx.collectFrom(utxos , Data.void())
+        tx.addSigner(this.hostUtxo.address)
         tx.attachSpendingValidator(this.ValidatorScript)
-        const completedTx = sendAll === null ? await tx.complete() : await tx.complete({ change :{address :recipients[sendAll].address }}) 
+        const complete2 = await tx2.complete()
+      //  const complete = await tx.complete()
+        const finaltx = tx.compose(complete2)
+        const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
 
-        
-        this.pendingTxs.map( (PendingTx) => {
-          if (PendingTx.tx.toHash() === completedTx.toHash()) {
-            throw new Error('Transaction already registerd');
-          }
-      })
-
-        this.pendingTxs.push({tx:completedTx, signatures:{}})
+      
         return "Sucsess"
     }
 
