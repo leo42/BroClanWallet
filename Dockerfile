@@ -1,4 +1,4 @@
-FROM node:16 as builder
+FROM node:latest as builder
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 
-FROM node:16
+FROM node:latest
 
 WORKDIR /usr/src/app
  
