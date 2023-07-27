@@ -14,7 +14,7 @@ import TestnetBanner from './components/TestnetBanner';
 import sha256 from 'crypto-js/sha256';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import  { ReactComponent as LoadingIcon } from './html/assets/loading.svg';
-
+import { Lucid } from 'lucid-cardano';
 
 const script1 = {
   "type": "all",
@@ -107,12 +107,9 @@ class App extends React.Component {
 
 
   async setState(state){
-   
     await super.setState(state)
     this.storeState()
     this.storeWallets()
-    
-    
   }
 
   async setSettings(newSettings){
@@ -528,6 +525,33 @@ class App extends React.Component {
     this.reloadBalance()
   }
 
+  async  sendToGuardian(){ 
+    const lucid = await Lucid.new(
+      new Blockfrost("https://cardano-preprod.blockfrost.io/api/v0", "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp"),
+      "Preprod",
+    );  
+    const api = await window.cardano.nami.enable();
+    lucid.selectWallet(api);
+
+    const tx = await lucid.newTx()
+    .payToContract(
+      "addr_test1wpv87y6lu3j6qf96twfqxs7kvq5ztarkrvt635r8wf80tegwfr2v6",
+      { inline: "d8799f1a001566b7582a746231717832376b7773727a6e637a756b6a6a396b616e7330743237326333357230613978616c74766bd8799fd8799f581cdba9dd23bf321637051d6341cf69c90c5abdbbd3555f58afb597da75ffd87a80ffff" },
+      { lovelace: BigInt(1000000) }
+    ).complete()
+ 
+
+    try{
+const signature = await tx.sign().complete();
+
+const txHash = await signature.submit();
+
+console.log(txHash);
+    }catch(e){
+      console.log(e)
+    }
+}
+
   walletHash(wallet) {
     //remove the name field from the wallet object recursively
     function removeName(obj) {
@@ -565,6 +589,8 @@ class App extends React.Component {
   async showModal(modalName){
     this.setState({modal: modalName})
   }
+
+
 
   async submit(index){
    
@@ -617,7 +643,7 @@ class App extends React.Component {
         <br/>
        <WalletConnector root={this} key={this.state.connectedWallet}></WalletConnector>
         <React.StrictMode>
-
+      <button onClick={() => this.sendToGuardian()} > Send To Guardian  </button>
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
         <div className='WalletInner'>
             <MWalletList root={this}  ></MWalletList>
