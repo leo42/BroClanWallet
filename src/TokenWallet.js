@@ -450,28 +450,25 @@ setPendingTxs(pendingTxs){
           sendAll === index ? tx.payToAddress(recipient.address,  sendAllAmount ) : tx.payToAddress(recipient.address,recipient.amount)
         ))
 
-        const tx2 = this.lucid.newTx()
+        const VaultTx = this.lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
         console.log(utxos, this.hostUtxo, this.collateralUtxo)
-        tx2.payToAddress(this.hostUtxo.address, this.hostUtxo.assets)
-        tx2.payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets)
+        const collateralTx = this.lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets)
         
         if(withdraw && Number(this.delegation.rewards) > 0 ){
-          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
+          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards).collectFrom( this.collateralUtxo)
         }
 
-       
-
-
-
-
         console.log(redeemer)
-        tx2.collectFrom([this.hostUtxo, this.collateralUtxo])
+        
         tx.collectFrom(utxos , Data.void())
         tx.addSigner(this.hostUtxo.address)
         tx.attachSpendingValidator(this.ValidatorScript)
-        const complete2 = await tx2.complete()
       //  const complete = await tx.complete()
-        const finaltx = tx.compose(complete2)
+        const finaltx = this.lucid.newTx()
+                        .compose(tx)
+                        .compose(VaultTx)
+                        .compose(collateralTx)
+
         const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
 
       
