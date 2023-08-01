@@ -5,25 +5,40 @@ import { Program } from "@hyperionbt/helios"
 
 class Wallet {
     constructor(token, utxo, collateralUtxo) {
+    console.log(token, utxo, collateralUtxo)
 
+      const policy = token.substring(0, 56)
+      const assetName = token.substring(56 )
+      console.log(policy, assetName)
       const SpendingSrc = `
-spending always_succeeds
-func main(_, _, _) -> Bool {
-  true
-}
+      spending TokenKey
+
+      const  MintingPolicy: ByteArray = #${policy}
+      const TokenName: String = "${assetName}"
+      func main(_, _, ctx: ScriptContext) -> Bool {
+           
+      
+      tt_assetclass: AssetClass = AssetClass::new(
+             MintingPolicyHash::new(MintingPolicy),
+                TokenName.serialize()
+          );
+      
+        ctx.tx.inputs.any((input: TxInput) -> Bool { 
+                                              input.value.get_safe(
+                                                   tt_assetclass) !=  0
+                                          })
+    
+      }
 `     
-      console.log(token, utxo)
       const program = Program.new(SpendingSrc)
 
       const simplify = true
     
       const myUplcProgram = program.compile(simplify)
-      console.log(myUplcProgram.serialize())
     
       this.token = token 
 
       this.ValidatorScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
-      console.log( this.ValidatorScript)
 
       this.wallet_address = "";
       this.delegation = {poolId: null, rewards: null}
@@ -40,21 +55,8 @@ func main(_, _, _) -> Bool {
  
 
     async initialize (settings){
-      if(settings.provider === "Blockfrost"){
-      this.lucid = await Lucid.new(
-        new Blockfrost(settings.api.url, settings.api.projectId),
-        settings.network,
-      );
-     }else if(settings.provider === "Kupmios"){
-        this.lucid = await Lucid.new(
-          new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
-          settings.network,
-        );
-      }else if(settings.provider === "MWallet"){
-        this.lucid = await Lucid.new(
-        new Blockfrost(settings.api.url, settings.api.projectId),
-        settings.network
-      )}
+      this.settings = settings
+      this.lucid = await this.newLucidInstance(settings);
       
 
      
@@ -69,7 +71,27 @@ func main(_, _, _) -> Bool {
 
     } 
 
+  async newLucidInstance(settings) {
+    if (settings.provider === "Blockfrost") {
+      return await Lucid.new(
+        new Blockfrost(settings.api.url, settings.api.projectId),
+        settings.network
+      );
+    } else if (settings.provider === "Kupmios") {
+      return await Lucid.new(
+        new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
+        settings.network
+      );
+    } else if (settings.provider === "MWallet") {
+      return await Lucid.new(
+        new Blockfrost(settings.api.url, settings.api.projectId),
+        settings.network
+      );
+    }
+  }
+
     async changeSettings(settings){
+      this.settings = settings
       if(settings.network !== this.lucid.network){
         this.utxos = []
         this.delegation = {poolId: null, rewards: null}
@@ -403,9 +425,7 @@ setPendingTxs(pendingTxs){
     
     
     async createTx(recipients, signers,sendFrom="" , sendAll=null , withdraw=true) { 
-      const redeemer = Data.to(new Constr(0, [""]));
-
-      
+      const lucid = await this.newLucidInstance(this.settings);
       var sumOfRecipientsMinusSendAll = {}
       recipients.map( (recipient,index) => {
         if (index !== sendAll){
@@ -437,40 +457,42 @@ setPendingTxs(pendingTxs){
           let utxos = this.utxos
         if(sendFrom!==""){ 
           utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-          this.lucid.selectWalletFrom(  { "address":sendFrom, "utxos": utxos})
-        }else{
-          this.lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": this.utxos})
+          lucid.selectWalletFrom(  { "address":sendFrom, "utxos": []})
+       }else{
+          lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": []})
         }
 
         const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
-        const tx = this.lucid.newTx()
+        const OutputTx = lucid.newTx()
         recipients.map( (recipient,index) => (
-          sendAll === index ? tx.payToAddress(recipient.address,  sendAllAmount ) : tx.payToAddress(recipient.address,recipient.amount)
+          sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) : OutputTx.payToAddress(recipient.address,recipient.amount)
         ))
-
-        const VaultTx = this.lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
+        const TokenHostTx = lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
         console.log(utxos, this.hostUtxo, this.collateralUtxo)
-        const collateralTx = this.lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets)
+        const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
         
-        if(withdraw && Number(this.delegation.rewards) > 0 ){
-          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards).collectFrom( this.collateralUtxo)
-        }
+        // if(withdraw && Number(this.delegation.rewards) > 0 ){
+        //   tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards).collectFrom( this.collateralUtxo)
+        // }
 
-        console.log(redeemer)
-        
-        tx.collectFrom(utxos , Data.void())
-        tx.addSigner(this.hostUtxo.address)
-        tx.attachSpendingValidator(this.ValidatorScript)
-      //  const complete = await tx.complete()
-        const finaltx = this.lucid.newTx()
-                        .compose(tx)
-                        .compose(VaultTx)
+        const inputsTx = lucid.newTx().collectFrom(utxos , Data.void()).attachSpendingValidator(this.ValidatorScript)
+        const signersTx = lucid.newTx().addSigner(this.hostUtxo.address)
+     //   const complete = await tx.complete()
+        const finaltx = lucid.newTx()
+                        .compose(inputsTx)
                         .compose(collateralTx)
-
-        const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
-
+                        .compose(TokenHostTx)
+                        .compose(OutputTx)
+                        .compose(signersTx)
+                        
+      const completedTx = await finaltx.complete()
+       // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
+        console.log(completedTx.toString())
+        return completedTx
+        const txId = await completedTx.submit()
+        console.log(txId)
       
         return "Sucsess"
     }

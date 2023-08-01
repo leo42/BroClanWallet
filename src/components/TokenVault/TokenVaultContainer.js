@@ -16,23 +16,15 @@ class TokenVaultsContainer extends React.Component {
 
     async selectWallet(token, utxo, collateralUtxo){
       console.log("selecting wallet")
-      const wallet = new Wallet(token,utxo, collateralUtxo)    
+      const wallet = new Wallet(token, utxo , collateralUtxo)    
       await wallet.initialize(this.props.root.state.settings)
       this.setState({wallet: wallet})
      }
 
-    connectWallet(walletName){
+   async connectWallet(walletName){
       this.setState({connectedWallet: "none"})
-      const connection = window.cardano[walletName].enable();
-      connection.then("ready", () => {
-        console.log("Wallet connected");
-
-        // Do something with the wallet
-        // connection.wallet.getBalance().then((balance) => {
-        //   console.log("Balance:", balance);
-        // });
-      });
-        this.setState({connectedWallet: walletName})
+      const connection =  await window.cardano[walletName].enable();
+      this.setState({connectedWallet: { name: walletName, api : connection }})
     }
 
     disconnectWallet(){
@@ -42,9 +34,11 @@ class TokenVaultsContainer extends React.Component {
 
     async createTx(recipients,signers,sendFrom, sendAll=null){
       try{
-       await this.state.wallet.createTx(recipients,signers,sendFrom,sendAll)
-      
-    
+       const tx = await this.state.wallet.createTx(recipients,signers,sendFrom,sendAll)
+        const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
+        const signedTx = await tx.complete([signature])
+        const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
+        console.log(txHash)
       }catch(e){
         console.log(e)
       }
@@ -59,7 +53,7 @@ render() {
           <WalletConnector  moduleRoot={this}   key={this.state.connectedWallet}></WalletConnector>
           <div className='WalletInner'>
 
-          {this.state.wallet !== "none" && <WalletMain wallet={this.state.wallet} root={this.props.root} moduleRoot={this}  ></WalletMain>}
+          {this.state.wallet !== "none" && <WalletMain key={this.state.wallet} wallet={this.state.wallet} root={this.props.root} moduleRoot={this}  ></WalletMain>}
           </div>
           </React.StrictMode>
       </div>

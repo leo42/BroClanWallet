@@ -5,10 +5,11 @@ import { Lucid, C } from "lucid-cardano";
 function WalletList (props) {
     const [tokens, setTokens] = useState({})
     const [collateralUtxo, setCollateralUtxo] = useState(undefined)
+    
     async function getTokens ()  {
         const lucid = await Lucid.new( );
         
-        const api =  await window.cardano[props.wallet].enable()
+        const api = props.wallet.api
         lucid.selectWallet(api)
         const utxos = await lucid.wallet.getUtxos()
         console.log(utxos)
@@ -20,7 +21,7 @@ function WalletList (props) {
         const tokens = {}
         console.log(utxos)
        utxos.map(utxo => {
-            if (Object.keys(utxo.assets).length = 1 && Number( utxo.assets["lovelace"]) > 5_000_000 && (collateralUtxo === undefined || Number(utxo.assets["lovelace"]) < Number(collateralUtxo.assets["lovelace"])) ) {
+            if (Object.keys(utxo.assets).length = 1 && Number( utxo.assets["lovelace"]) > 10_000_000 && (collateralUtxo === undefined || Number(utxo.assets["lovelace"]) < Number(collateralUtxo.assets["lovelace"])) ) {
                 console.log("setting collateral")
                setCollateralUtxo(utxo)
            }
@@ -37,7 +38,7 @@ function WalletList (props) {
         })
 
         console.log(tokens)
-        if (Object.keys(tokens).length > 0) {
+        if (Object.keys(tokens).length > 0 && collateralUtxo) {
             props.moduleRoot.selectWallet(Object.keys(tokens)[0],  tokens[Object.keys(tokens)[0]] , collateralUtxo)
         }
         return tokens
