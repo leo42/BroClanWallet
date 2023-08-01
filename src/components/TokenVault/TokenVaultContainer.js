@@ -12,24 +12,47 @@ class TokenVaultsContainer extends React.Component {
       wallet : "none"
     }
 
+    async componentDidMount(){
+      const connectedWallet = JSON.parse( localStorage.getItem("TokenVaultsConnectedWallet") )
+      console.log(connectedWallet)
+      if(connectedWallet){
+        await  this.connectWallet(connectedWallet)
+        const selectedWallet = JSON.parse( localStorage.getItem("TokenVaultsSelectedWallet") )
+        if(selectedWallet){
+          await this.selectWallet(selectedWallet )
+        }
+      }
+
+      
+ 
+    }
 
 
-    async selectWallet(token, utxo, collateralUtxo){
+
+    async selectWallet(token, utxo=undefined, collateralUtxo=undefined){
       console.log("selecting wallet")
       const wallet = new Wallet(token, utxo , collateralUtxo)    
       await wallet.initialize(this.props.root.state.settings)
+      localStorage.setItem("TokenVaultsSelectedWallet", JSON.stringify(token))
       this.setState({wallet: wallet})
      }
 
    async connectWallet(walletName){
-      this.setState({connectedWallet: "none"})
+    try{
+      console.log(window.cardano)
       const connection =  await window.cardano[walletName].enable();
+      localStorage.setItem("TokenVaultsConnectedWallet", JSON.stringify(walletName))
       this.setState({connectedWallet: { name: walletName, api : connection }})
+    }catch(e){
+      console.log(e)
+    }
     }
 
     disconnectWallet(){
       this.setState({connectedWallet: "none"})
       this.setState({wallet: "none"})
+      localStorage.removeItem("TokenVaultsConnectedWallet")
+      localStorage.removeItem("TokenVaultsSelectedWallet")
     }
 
     async createTx(recipients,signers,sendFrom, sendAll=null){
