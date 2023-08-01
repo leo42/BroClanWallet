@@ -24,7 +24,7 @@ class WalletMain extends React.Component {
             case "transactions": 
                 return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.moduleRoot.state.selectedWallet}>  moduleRoot={this.props.moduleRoot} </TransactionHistory> 
             case "receive": 
-                return  <Deposit root={this.props.root}  wallet={this.props.wallet}  key={this.props.moduleRoot.state.selectedWallet}> moduleRoot={this.props.moduleRoot} </Deposit> 
+                return  <Deposit root={this.props.root}  wallet={this.props.wallet}  key={this.props.moduleRoot.state.selectedWallet} moduleRoot={this.props.moduleRoot}> </Deposit> 
         }
     } 
 
@@ -41,10 +41,7 @@ class WalletMain extends React.Component {
             <button className={`mainTab` + ( this.state.showing === "send" ? " mainTabSelected" : " " )}  value="send" onClick={(event) => this.setState({showing: event.target.value })}>Send</button>
             <button className={`mainTab` + ( this.state.showing === "delegation" ? " mainTabSelected" : " " )}  value="delegation" onClick={(event) => this.setState({showing: event.target.value })}>Staking Center</button>
             <button className={`mainTab` + ( this.state.showing === "transactions" ? " mainTabSelected" : " " )}  value="transactions" onClick={(event) => this.setState({showing: event.target.value })}>Tx History</button>
-            <button className={`mainTab` + ( this.state.showing === "receive" ? " mainTabSelected" : " " )}  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Deposit</button>
-
-
-        
+            <button className={`mainTab` + ( this.state.showing === "receive" ? " mainTabSelected" : " " )}  value="receive" onClick={(event) => this.setState({showing: event.target.value })}>Deposit</button>       
         <br/>
         {this.mainView()}
         <br/>

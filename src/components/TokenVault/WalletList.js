@@ -1,16 +1,13 @@
 import React from 'react';
 import {useState , useEffect} from 'react';
 import "./WalletList.css"
-import { Lucid, C } from "lucid-cardano";
+
 function WalletList (props) {
     const [tokens, setTokens] = useState({})
     const [collateralUtxo, setCollateralUtxo] = useState(undefined)
-    
+
     async function getTokens ()  {
-        const lucid = await Lucid.new( );
-        
-        const api = props.wallet.api
-        lucid.selectWallet(api)
+        const lucid = await props.moduleRoot.state.connectedWallet.lucid
         const utxos = await lucid.wallet.getUtxos()
         console.log(utxos)
         setTokens(getUtxoTokens(utxos))

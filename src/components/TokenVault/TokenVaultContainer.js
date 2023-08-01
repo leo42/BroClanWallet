@@ -5,6 +5,7 @@ import Wallet from "../../TokenWallet.js"
 import "./TokenVaultContainer.css"
 import MWalletList from './WalletList';
 import WalletMain from './WalletMain';
+import { Lucid } from 'lucid-cardano';
 
 class TokenVaultsContainer extends React.Component {
     state= {
@@ -22,12 +23,7 @@ class TokenVaultsContainer extends React.Component {
           await this.selectWallet(selectedWallet )
         }
       }
-
-      
- 
     }
-
-
 
     async selectWallet(token, utxo=undefined, collateralUtxo=undefined){
       console.log("selecting wallet")
@@ -41,8 +37,10 @@ class TokenVaultsContainer extends React.Component {
     try{
       console.log(window.cardano)
       const connection =  await window.cardano[walletName].enable();
+      const lucid = await Lucid.new( );
+      lucid.selectWallet(connection)
       localStorage.setItem("TokenVaultsConnectedWallet", JSON.stringify(walletName))
-      this.setState({connectedWallet: { name: walletName, api : connection }})
+      this.setState({connectedWallet: { name: walletName, api : connection , lucid : lucid}})
     }catch(e){
       console.log(e)
     }
