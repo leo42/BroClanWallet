@@ -23,11 +23,10 @@ class Wallet {
                 TokenName.serialize()
           );
       
-        ctx.tx.inputs.any((input: TxInput) -> Bool { 
-                                              input.value.get_safe(
-                                                   tt_assetclass) !=  0
+      ctx.tx.inputs.any((input: TxInput) -> Bool { 
+                                              input.value.get_safe( tt_assetclass) !=  0
                                           })
-    
+                                          
       }
 `     
       const program = Program.new(SpendingSrc)
@@ -225,16 +224,23 @@ setPendingTxs(pendingTxs){
     }
    
     getutxo(utxoHash)  {
-      return this.utxos.find(utxo => utxo.txHash === utxoHash)
+      return this.utxos.find(utxo => utxo.txHash === utxoHash )
     }
     async getUtxosByOutRef(OutputRef)  {
       const resault= await this.lucid.provider.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
       return resault
     }
-  
+    
+    filterUtxos(utxos){ 
+      console.log(utxos)
+      return utxos.filter(utxo => utxo.datum !== undefined )
+    }
+
     async loadUtxos() {
       try{
-      const utxos = await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential)
+      const utxos = this.filterUtxos (await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential))
+      
+     
       if(this.delegation === undefined){
         this.getDelegation()
       }

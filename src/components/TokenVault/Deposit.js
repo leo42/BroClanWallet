@@ -1,5 +1,6 @@
 import React, { useEffect , useState} from 'react';
 import { Lucid , Data , C } from 'lucid-cardano';
+import {  toast } from 'react-toastify';
 
 function Deposit(props) {
     const [utxos, setUtxos] = useState([])
@@ -20,15 +21,16 @@ function Deposit(props) {
     }, [lucid, api])
 
     async function performDeposit() {
+    try {
         console.log("performing deposit", props.moduleRoot.state.connectedWallet.lucid)
         const lucid = await props.moduleRoot.state.wallet.newLucidInstance(props.root.state.settings)
         lucid.selectWallet(props.moduleRoot.state.connectedWallet.api)
-        const tx = await lucid.newTx().payToContract(props.moduleRoot.state.wallet.getAddress() , Data.void(), {"lovelace" : BigInt(amount)}).complete()
+        const tx = await lucid.newTx().payToContract(props.moduleRoot.state.wallet.getAddress() ,{ inline : Data.void()}, {"lovelace" : BigInt(amount)}).complete()
         const signedTx = await tx.sign().complete()
         const txHash = await signedTx.submit()
-        console.log(props.moduleRoot.state.wallet.getAddress())
-       
-        
+    } catch (error) {
+        toast.error(error.message)
+       }
     }
 
     return(
