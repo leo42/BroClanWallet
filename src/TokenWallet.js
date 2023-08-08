@@ -13,8 +13,8 @@ class Wallet {
       const SpendingSrc = `
 spending TokenKey
 
-const  MintingPolicy: ByteArray = #648823ffdad1610b4162f4dbc87bd47f6f9cf45d772ddef661eff198 
-const TokenName: ByteArray = #77425443
+const  MintingPolicy: ByteArray = #${policy} 
+const TokenName: ByteArray = #${assetName}
      
 const tt_assetclass: AssetClass = AssetClass::new(
   MintingPolicyHash::new(MintingPolicy),
@@ -476,7 +476,7 @@ setPendingTxs(pendingTxs){
 
         const TokenHostTx = lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
         console.log(utxos, this.hostUtxo, this.collateralUtxo)
-        const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
+     //   const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
         
         // if(withdraw && Number(this.delegation.rewards) > 0 ){
         //   tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards).collectFrom( this.collateralUtxo)
@@ -487,7 +487,6 @@ setPendingTxs(pendingTxs){
         const signersTx = lucid.newTx().addSigner(this.hostUtxo.address)
      //   const complete = await tx.complete()
         const finaltx = lucid.newTx()
-        .compose(collateralTx)
         .compose(TokenHostTx)
         .compose(OutputTx)
         .compose(signersTx)
