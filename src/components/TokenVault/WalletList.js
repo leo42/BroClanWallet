@@ -53,7 +53,7 @@ function WalletList (props) {
     return (
     <div className='WalletListContainer'>
 
-        <select className="MWalletList" onChange={(event) => props.moduleRoot.selectWallet(event.target.value,  tokens[event.target.value] , collateralUtxo)}>
+        <select className="MWalletList" onChange={(event) => props.moduleRoot.selectWallet(event.target.value,  tokens[event.target.value] , collateralUtxo)} value={props.selected}>
         {Object.keys(tokens).map( (item, index) => (
                <option key={index} value={item}> {item}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  } </option>
         ))}

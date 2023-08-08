@@ -132,17 +132,10 @@ func main(_ ,ctx: ScriptContext) -> Bool {
       return { type: "tokenVault" , token : this.token}
     }
 
-    getCBOR() {
-      return  JSON.stringify(this.ValidatorScript);
-    }
+   
 
     getName(){
       return this.name
-    }
-
-
-    getSignatures(){
-      return this.signatures;
     }
 
     async getDelegation() { 
@@ -215,6 +208,9 @@ setPendingTxs(pendingTxs){
       return this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
     }
       
+    getToken() {
+      return this.token
+    }
  
     getSigners(){
       return []
@@ -282,18 +278,7 @@ setPendingTxs(pendingTxs){
       return true
     }
     
-    async checkTransactions(){
 
-      await this.loadUtxos()
-      for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
-        const isValid = await this.checkTransaction(this.pendingTxs[i].tx)
-        if (!isValid){
-          console.log("Remove Pending Tx")
-          this.removePendingTx(i)
-        }
-      }
-    }
-    
     async checkTransaction(tx){
       const utxos = this.utxos
       const transactionDetails = this.decodeTransaction(tx)
@@ -338,106 +323,6 @@ setPendingTxs(pendingTxs){
 
     checkSigners(signers){
       return true
-        const json=this.wallet_script
-        const that = this
-        let requires_before = false
-        let requires_after = false
-        let result = checkRoot(json)
-        if (result){
-          return ({requires_before:requires_before, requires_after:requires_after})
-        }
-        else{
-          return false
-        }
-        function checkAll(json){
-              for (var index = 0; index < json.length; index++){
-
-                if (!checkRoot(json[index]) ){
-                  return false;
-                }
-              }
-              return true
-          }
-
-        function checkAny(json){
-            for (var index = 0; index < json.length; index++){
-
-              if (checkRoot(json[index]) ){
-                return true;
-              }
-            }
-            return false
-        }
-
-        function checkAtLeast(json,required){
-          var sigs=0;
-          for (var index = 0; index < json.length; index++){
-            if (checkRoot(json[index]) ){
-               sigs++     
-            }
-          }
-          if(sigs >= required){
-          return true
-        }
-          return false
-       }
-        
-
-        function checkSig(json){
-
-            if( signers.includes( json.keyHash))
-              return true
-            else
-              return false
-        }
-
-        function checkBefore(json){ 
-          const slot = json.slot          
-          const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
-          if (slot > currentSlot){
-              (requires_before === false || requires_before > json.slot) ? requires_before = json.slot : null
-              return true
-          }
-          else{
-              return false
-          }
-        }     
-      
-
-        function checkAfter(json){
-          const slot = json.slot          
-          const currentSlot = that.lucid.utils.unixTimeToSlot(Date.now())
-          if (slot < currentSlot){
-              (requires_after === false || requires_after < json.slot) ? requires_after = json.slot : null
-      
-            return true
-          }
-          else{
-              return false
-          }
-        }
-
-        function checkRoot(json) {
-            switch (json.type) {
-              case "all": 
-                    return checkAll(json.scripts)
-                    break;
-              case "any": 
-                    return checkAny(json.scripts)
-                    break;
-              case "atLeast":
-                    return  checkAtLeast(json.scripts,json.required)
-                    break;
-              case "sig":
-                    return checkSig(json)
-                    break;              
-              case "before":
-                    return checkBefore(json)
-                    break;              
-              case "after":
-                    return checkAfter(json)
-                    break;
-          }}
       }
 
       
@@ -551,24 +436,6 @@ setPendingTxs(pendingTxs){
       }
     }
 
-    async loadTransaction(transaction){
-        
-        try{
-          await this.importTransaction(transaction.transaction)
-        }catch(e){
-
-        }
-        Object.keys(transaction.signatures).map( (key) => {
-          try{
-            this.addSignature(transaction.signatures[key])
-            toast.info("Transaction update for wallet:" + this.getName());
-          }catch(e){
-          }
-            
-      })
-    }
-      
-
     async createStakeUnregistrationTx(signers){
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
@@ -616,7 +483,6 @@ setPendingTxs(pendingTxs){
       this.pendingTxs.push({tx:completedTx, signatures:{}})
       return "Sucsess"
     }
-
 
     async createDelegationTx(pool){ 
       const curentDelegation = await this.getDelegation()
@@ -728,10 +594,7 @@ setPendingTxs(pendingTxs){
       }
     }
 
-    // Setters
-    setScript(wallet_script) {
-      this.wallet_script = wallet_script;
-    }
+
 
     setDefaultAddress(address){
       this.defaultAddress = address

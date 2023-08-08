@@ -10,7 +10,7 @@ import { Lucid } from 'lucid-cardano';
 class TokenVaultsContainer extends React.Component {
     state= {
       connectedWallet: "none",
-      wallet : "none"
+      wallet : undefined
     }
 
     async componentDidMount(){
@@ -53,7 +53,7 @@ class TokenVaultsContainer extends React.Component {
 
     disconnectWallet(){
       this.setState({connectedWallet: "none"})
-      this.setState({wallet: "none"})
+      this.setState({wallet: undefined})
       localStorage.removeItem("TokenVaultsConnectedWallet")
       localStorage.removeItem("TokenVaultsSelectedWallet")
     }
@@ -88,6 +88,7 @@ class TokenVaultsContainer extends React.Component {
     }
 
     reloadUtXOs(){
+      if(!this.state.wallet) return
       const wallet = this.state.wallet
       wallet.loadUtxos()
       this.setState({wallet: wallet})
@@ -95,14 +96,14 @@ class TokenVaultsContainer extends React.Component {
 
 render() {  
     return(
-      <div className={ this.state.wallet !== "none" ? "TokenVaultsContainer TokenVaultsContainerActive" :  "TokenVaultsContainer"} >
+      <div className={ this.state.wallet  ? "TokenVaultsContainer TokenVaultsContainerActive" :  "TokenVaultsContainer"} >
           <React.StrictMode>
-          {this.state.connectedWallet !== "none" && <MWalletList wallet={this.state.connectedWallet} root={this.props.root} moduleRoot={this}  ></MWalletList> }
+          {this.state.connectedWallet !== "none" && <MWalletList wallet={this.state.connectedWallet} root={this.props.root} moduleRoot={this}  selected={this.state.wallet ? this.state.wallet.getToken(): undefined}></MWalletList> }
   
           <WalletConnector  moduleRoot={this}   key={this.state.connectedWallet}></WalletConnector>
           <div className='WalletInner'>
 
-          {this.state.wallet !== "none" && <WalletMain key={this.state.wallet} wallet={this.state.wallet} root={this.props.root} moduleRoot={this}  ></WalletMain>}
+          {this.state.wallet  && <WalletMain key={this.state.wallet} wallet={this.state.wallet} root={this.props.root} moduleRoot={this}  ></WalletMain>}
           </div>
           </React.StrictMode>
       </div>
