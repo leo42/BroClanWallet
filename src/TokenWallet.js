@@ -11,23 +11,21 @@ class Wallet {
       const assetName = token.substring(56 )
       console.log(policy, assetName)
       const SpendingSrc = `
-      spending TokenKey
+spending TokenKey
 
-      const  MintingPolicy: ByteArray = #${policy}
-      const TokenName: String = "${assetName}"
-      func main(_, _, ctx: ScriptContext) -> Bool {
-           
-      
-      tt_assetclass: AssetClass = AssetClass::new(
-             MintingPolicyHash::new(MintingPolicy),
-                TokenName.serialize()
-          );
-      
-      ctx.tx.inputs.any((input: TxInput) -> Bool { 
-                                              input.value.get_safe( tt_assetclass) !=  0
-                                          })
-                                          
-      }
+const  MintingPolicy: ByteArray = #648823ffdad1610b4162f4dbc87bd47f6f9cf45d772ddef661eff198 
+const TokenName: ByteArray = #77425443
+     
+const tt_assetclass: AssetClass = AssetClass::new(
+  MintingPolicyHash::new(MintingPolicy),
+  TokenName
+)
+
+func main(_, _, ctx: ScriptContext) -> Bool {
+  ctx.tx.inputs.any((input: TxInput) -> Bool { 
+    input.value.get_safe(tt_assetclass) != 0
+  })
+}
 `     
       const program = Program.new(SpendingSrc)
 
@@ -430,7 +428,7 @@ setPendingTxs(pendingTxs){
       
     
     
-    async createTx(recipients, signers,sendFrom="" , sendAll=null , withdraw=true) { 
+    async createTx(api , recipients, signers,sendFrom="" , sendAll=null , withdraw=true ) { 
       const lucid = await this.newLucidInstance(this.settings);
       var sumOfRecipientsMinusSendAll = {}
       recipients.map( (recipient,index) => {
@@ -463,11 +461,11 @@ setPendingTxs(pendingTxs){
           let utxos = this.utxos
         if(sendFrom!==""){ 
           utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-          lucid.selectWalletFrom(  { "address":sendFrom, "utxos": []})
+        //  lucid.selectWalletFrom(  { "address":sendFrom, "utxos": []})
        }else{
-          lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": []})
+       //   lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": []})
         }
-
+        lucid.selectWallet( api)
         const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
@@ -475,6 +473,7 @@ setPendingTxs(pendingTxs){
         recipients.map( (recipient,index) => (
           sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) : OutputTx.payToAddress(recipient.address,recipient.amount)
         ))
+
         const TokenHostTx = lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
         console.log(utxos, this.hostUtxo, this.collateralUtxo)
         const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
@@ -483,17 +482,18 @@ setPendingTxs(pendingTxs){
         //   tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards).collectFrom( this.collateralUtxo)
         // }
 
-        const inputsTx = lucid.newTx().collectFrom(utxos , Data.void()).attachSpendingValidator(this.ValidatorScript)
+        const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom(utxos , Data.void())
+
         const signersTx = lucid.newTx().addSigner(this.hostUtxo.address)
      //   const complete = await tx.complete()
         const finaltx = lucid.newTx()
-                        .compose(inputsTx)
-                        .compose(collateralTx)
-                        .compose(TokenHostTx)
-                        .compose(OutputTx)
-                        .compose(signersTx)
+        .compose(collateralTx)
+        .compose(TokenHostTx)
+        .compose(OutputTx)
+        .compose(signersTx)
+        .compose(inputsTx)
                         
-      const completedTx = await finaltx.complete()
+      const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
        // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
         console.log(completedTx.toString())
         return completedTx

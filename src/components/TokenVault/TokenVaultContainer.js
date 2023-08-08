@@ -55,13 +55,14 @@ class TokenVaultsContainer extends React.Component {
 
     async createTx(recipients,signers,sendFrom, sendAll=null){
       try{
-       const tx = await this.state.wallet.createTx(recipients,signers,sendFrom,sendAll)
+       const tx = await this.state.wallet.createTx(this.state.connectedWallet.api,recipients,signers,sendFrom,sendAll)
         const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
         const signedTx = await tx.complete([signature])
         const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
         console.log(txHash)
       }catch(e){
         console.log(e)
+        console.log(e.message)
       }
     }
 

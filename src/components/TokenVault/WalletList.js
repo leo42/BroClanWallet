@@ -17,10 +17,12 @@ function WalletList (props) {
     function getUtxoTokens(utxos) {
         const tokens = {}
         console.log(utxos)
+        let localCollateralUtxo = undefined
        utxos.map(utxo => {
-            if (Object.keys(utxo.assets).length = 1 && Number( utxo.assets["lovelace"]) > 10_000_000 && (collateralUtxo === undefined || Number(utxo.assets["lovelace"]) < Number(collateralUtxo.assets["lovelace"])) ) {
-                console.log("setting collateral")
-               setCollateralUtxo(utxo)
+            if (Object.keys(utxo.assets).length = 1 && Number( utxo.assets["lovelace"]) > 5_000_000 && (localCollateralUtxo === undefined || Number(utxo.assets["lovelace"]) < Number(localCollateralUtxo.assets["lovelace"])) ) {
+                console.log("setting collateral", utxo)
+                localCollateralUtxo = utxo
+                setCollateralUtxo(localCollateralUtxo)
            }
              Object.keys(utxo.assets).map(asset => {
                 if (asset !== "lovelace") {
@@ -32,7 +34,10 @@ function WalletList (props) {
                 }
                 
             })
-        })
+        }   )
+    
+       setCollateralUtxo(localCollateralUtxo)
+        
 
         console.log(tokens)
         if (Object.keys(tokens).length > 0 && collateralUtxo) {
