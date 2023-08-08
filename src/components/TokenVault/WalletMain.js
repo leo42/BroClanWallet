@@ -30,7 +30,7 @@ class WalletMain extends React.Component {
 
      render() { 
 
-        return (<div className='WalletMain'>
+        return (<div className='WalletMain' key={this.props.wallet.getBalance()} >
             {this.props.wallet.getName()}
             <br />
             

@@ -4,12 +4,10 @@ import {  toast } from 'react-toastify';
 import { Program } from "@hyperionbt/helios"
 
 class Wallet {
-    constructor(token, utxo, collateralUtxo) {
-    console.log(token, utxo, collateralUtxo)
+    constructor(token, api) {
 
       const policy = token.substring(0, 56)
       const assetName = token.substring(56 )
-      console.log(policy, assetName)
       const SpendingSrc = `
 spending TokenKey
 
@@ -64,8 +62,8 @@ func main(_ ,ctx: ScriptContext) -> Bool {
       this.pendingTxs = [];
       this.addressNames = {}
       this.utxos = []
-      this.hostUtxo = utxo
-      this.collateralUtxo = collateralUtxo
+      this.api = api
+      
     }
 
   
@@ -81,10 +79,7 @@ func main(_ ,ctx: ScriptContext) -> Bool {
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
       // reload utxos every 15 seconds
-      setInterval(() => {
-        this.loadUtxos()
-      }
-      , 15000);
+
 
     } 
 
@@ -258,7 +253,7 @@ setPendingTxs(pendingTxs){
       try{
       const utxos = this.filterUtxos (await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential))
       
-     
+        
       if(this.delegation === undefined){
         this.getDelegation()
       }
@@ -448,7 +443,7 @@ setPendingTxs(pendingTxs){
       
     
     
-    async createTx(api , recipients, signers,sendFrom="" , sendAll=null , withdraw=true ) { 
+    async createTx( recipients, signers,sendFrom="" , sendAll=null , withdraw=true ) { 
       const lucid = await this.newLucidInstance(this.settings);
       var sumOfRecipientsMinusSendAll = {}
       recipients.map( (recipient,index) => {
@@ -485,7 +480,9 @@ setPendingTxs(pendingTxs){
        }else{
        //   lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": []})
         }
-        lucid.selectWallet( api)
+        lucid.selectWallet(this.api)
+        const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
+
         const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
@@ -494,8 +491,8 @@ setPendingTxs(pendingTxs){
           sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) : OutputTx.payToAddress(recipient.address,recipient.amount)
         ))
 
-        const TokenHostTx = lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
-        console.log(utxos, this.hostUtxo, this.collateralUtxo)
+        const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
+        console.log(utxos, hostUtxo, this.collateralUtxo)
      //   const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
         
         // if(withdraw && Number(this.delegation.rewards) > 0 ){
@@ -504,7 +501,7 @@ setPendingTxs(pendingTxs){
 
         const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom(utxos , Data.void())
 
-        const signersTx = lucid.newTx().addSigner(this.hostUtxo.address)
+        const signersTx = lucid.newTx().addSigner(hostUtxo.address)
      //   const complete = await tx.complete()
         const finaltx = lucid.newTx()
         .compose(TokenHostTx)
@@ -621,15 +618,15 @@ setPendingTxs(pendingTxs){
     }
 
 
-    async createDelegationTx(api,pool){ 
+    async createDelegationTx(pool){ 
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.StakingScript)
 
       const lucid = await this.newLucidInstance(this.settings);
-      lucid.selectWallet( api)
+      lucid.selectWallet( this.api)
     
-      const TokenHostTx = lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
-      const signersTx = lucid.newTx().addSigner(this.hostUtxo.address)
+      const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
+      const signersTx = lucid.newTx().addSigner(hostUtxo.address)
       const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom( this.getUtxos() , Data.void())
 
       const delegationTx =  lucid.newTx()
