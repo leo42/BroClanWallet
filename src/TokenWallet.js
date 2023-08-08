@@ -28,7 +28,7 @@ func main(_, _, ctx: ScriptContext) -> Bool {
 }
 `      
       const stakingSrc = `
-      staking TokenKey
+staking TokenKey
 const  MintingPolicy: ByteArray = #${policy} 
 const TokenName: ByteArray = #${assetName}
      
