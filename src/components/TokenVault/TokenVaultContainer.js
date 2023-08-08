@@ -66,6 +66,22 @@ class TokenVaultsContainer extends React.Component {
       }
     }
 
+    async createDelegationTx(poolId){
+      try{
+        const tx = await this.state.wallet.createDelegationTx(this.state.connectedWallet.api,poolId)
+        console.log(tx)
+
+        const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
+        const signedTx = await tx.assemble([signature]).complete()
+        const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
+        console.log(txHash)
+      }catch(e){
+        console.log(e)
+        console.log(e.message)
+      }
+      
+    }
+
 render() {  
     return(
       <div className={ this.state.wallet !== "none" ? "TokenVaultsContainer TokenVaultsContainerActive" :  "TokenVaultsContainer"} >

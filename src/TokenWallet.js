@@ -26,17 +26,37 @@ func main(_, _, ctx: ScriptContext) -> Bool {
     input.value.get_safe(tt_assetclass) != 0
   })
 }
-`     
+`      
+      const stakingSrc = `
+      staking TokenKey
+const  MintingPolicy: ByteArray = #${policy} 
+const TokenName: ByteArray = #${assetName}
+     
+const tt_assetclass: AssetClass = AssetClass::new(
+  MintingPolicyHash::new(MintingPolicy),
+  TokenName
+)
+
+func main(_ ,ctx: ScriptContext) -> Bool {
+  ctx.tx.inputs.any((input: TxInput) -> Bool { 
+    input.value.get_safe(tt_assetclass) != 0
+  })
+}
+`    
+
       const program = Program.new(SpendingSrc)
+      const stakingProgram = Program.new(stakingSrc)
 
       const simplify = true
     
       const myUplcProgram = program.compile(simplify)
-    
+      const myUplcStakingProgram = stakingProgram.compile(simplify)
+
       this.token = token 
 
       this.ValidatorScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
-
+      //this.StakingScript = this.ValidatorScript
+      this.StakingScript = { type: "PlutusV2", script : JSON.parse(myUplcStakingProgram.serialize()).cborHex }
       this.wallet_address = "";
       this.delegation = {poolId: null, rewards: null}
       this.defaultAddress= ""
@@ -192,8 +212,8 @@ setPendingTxs(pendingTxs){
 
     getAddress(stakingAddress="") {
       //  return "addr1qx0mmzuwnya2yasfy78klcqazd73a320a9agpunuv4zqlyjwrycda8m2jmtws4hktfq6xp59q2t2a8w6elnky6a9txts5a6hkj"
-        const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.ValidatorScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
-        return this.lucid.utils.validatorToAddress(this.ValidatorScript, {type:"key", hash: rewardAddress} )
+        const rewardAddress = stakingAddress === "" ? this.lucid.utils.validatorToScriptHash(this.StakingScript) : this.lucid.utils.getAddressDetails(stakingAddress).stakeCredential.hash
+        return this.lucid.utils.validatorToAddress(this.ValidatorScript, {type:"Script", hash: rewardAddress} )
     }
 
     getStakingAddress() {
@@ -601,38 +621,45 @@ setPendingTxs(pendingTxs){
     }
 
 
-    async createDelegationTx(pool, signers){ 
+    async createDelegationTx(api,pool){ 
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
-      const sigCheck = this.checkSigners(signers)
-      if (!sigCheck){
-        throw new Error('Not enough signers');
-      }
+      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.StakingScript)
 
-      const tx = this.lucid.newTx()
+      const lucid = await this.newLucidInstance(this.settings);
+      lucid.selectWallet( api)
+    
+      const TokenHostTx = lucid.newTx().payToAddress(this.hostUtxo.address, this.hostUtxo.assets).collectFrom([this.hostUtxo])
+      const signersTx = lucid.newTx().addSigner(this.hostUtxo.address)
+      const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom( this.getUtxos() , Data.void())
 
-      signers.map( value => (
-        tx.addSignerKey(value)
-      ))
+      const delegationTx =  lucid.newTx()
+      .delegateTo(rewardAddress,pool)
+      .attachWithdrawalValidator(this.StakingScript)
+      .attachCertificateValidator(this.StakingScript)
+     
+      
+      const finaltx = lucid.newTx()
+      .compose(TokenHostTx)
+      .compose(delegationTx)
+      .compose(signersTx)
+      .compose(inputsTx)
+
+
+
+
       if (curentDelegation.poolId === pool){
         throw new Error('Already delegated to this pool');
       } else if (curentDelegation.poolId === null){
-        tx.registerStake(rewardAddress) 
-      }
-      
-      if (sigCheck.requires_after !== false){
-        tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
-        
+        const tx = lucid.newTx().registerStake(rewardAddress)
+        finaltx.compose(tx) 
       }
 
-      if (sigCheck.requires_before !== false){
-        tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
-      }
-      const completedTx = await tx.payToAddress(this.getAddress(),{lovelace: 5000000})
-      .delegateTo(rewardAddress,pool)
-      .attachSpendingValidator(this.ValidatorScript)
-      .complete()
-      
+
+      const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
+      // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
+      console.log(completedTx.toString())
+      return completedTx
+
       this.pendingTxs.push({tx:completedTx, signatures:{}})
       return "Sucsess"
     }
