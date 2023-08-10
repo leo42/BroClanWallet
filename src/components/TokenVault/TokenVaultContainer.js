@@ -6,6 +6,7 @@ import "./TokenVaultContainer.css"
 import MWalletList from './WalletList';
 import WalletMain from './WalletMain';
 import { Lucid } from 'lucid-cardano';
+import { toast } from 'react-toastify';
 
 class TokenVaultsContainer extends React.Component {
     state= {
@@ -63,11 +64,15 @@ class TokenVaultsContainer extends React.Component {
        const tx = await this.state.wallet.createTx(recipients,signers,sendFrom,sendAll)
         const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
         const signedTx = await tx.assemble([signature]).complete()
-        const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
-        console.log(txHash)
+        const submiting =  this.state.wallet.submitTransaction(signedTx)
+        toast.promise(submiting, {
+          pending: 'Submitting transaction',
+          success: 'Transaction confirmed',
+          error: 'Transaction failed',
+        })
       }catch(e){
         console.log(e)
-        console.log(e.message)
+        toast.error(e)
       }
     }
 
@@ -78,11 +83,15 @@ class TokenVaultsContainer extends React.Component {
 
         const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
         const signedTx = await tx.assemble([signature]).complete()
-        const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
-        console.log(txHash)
+        const submiting =  this.state.wallet.submitTransaction(signedTx)
+        toast.promise(submiting, {
+          pending: 'Submitting Delegation transaction',
+          success: 'Delegation confirmed',
+          error: 'Delegation failed',
+        })
       }catch(e){
         console.log(e)
-        console.log(e.message)
+        toast.error(e)
       }
       
     }
@@ -94,12 +103,16 @@ class TokenVaultsContainer extends React.Component {
         
         const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
         const signedTx = await tx.assemble([signature]).complete()
-        const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
-        console.log(txHash)
+        const submiting =  this.state.wallet.submitTransaction(signedTx)
+        toast.promise(submiting, {
+          pending: 'Submitting Undelegation transaction',
+          success: 'Undelegation confirmed',
+          error: 'Undelegation failed',
+        })
       }catch(e){
         console.log(e)
-        console.log(e.message)
-      }   
+        toast.error(e)
+      }
 
     }
 

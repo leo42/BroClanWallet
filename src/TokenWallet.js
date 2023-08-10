@@ -419,11 +419,8 @@ setPendingTxs(pendingTxs){
       .deregisterStake(rewardAddress, Data.void())
       .attachCertificateValidator(this.StakingScript)
       .attachWithdrawalValidator(this.StakingScript)
-     
-      
+        
       const finaltx = lucid.newTx()
-
-
 
       finaltx.compose(TokenHostTx)
       .compose(delegationTx)
@@ -453,7 +450,7 @@ setPendingTxs(pendingTxs){
       const delegationTx =  lucid.newTx()
       .delegateTo(rewardAddress,pool, Data.void())
       .attachCertificateValidator(this.StakingScript)
-      .attachWithdrawalValidator(this.StakingScript)
+    //  .attachWithdrawalValidator(this.StakingScript)
      
       
       const finaltx = lucid.newTx()
@@ -530,12 +527,10 @@ setPendingTxs(pendingTxs){
       return this.pendingTxs[index].signatures[keyHash]
     }
 
-    async submitTransaction(index){
+    async submitTransaction(tx){
       try{
-       const tx = this.pendingTxs[index]
-       const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
-       const txHash = await signedTx.submit();
-      return( this.lucid.awaitTx(txHash, 2500))
+        const txHash = await tx.submit();
+        return( this.lucid.awaitTx(txHash, 2500))
       }catch(e){
         console.log(e)
         const errorMessage = e.message ? e.message : JSON.stringify(e) 
