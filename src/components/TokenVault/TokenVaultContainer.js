@@ -87,6 +87,22 @@ class TokenVaultsContainer extends React.Component {
       
     }
 
+    async createStakeUnregistrationTx(){
+      try{
+        const tx = await this.state.wallet.createStakeUnregistrationTx()
+        console.log(tx)
+        
+        const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
+        const signedTx = await tx.assemble([signature]).complete()
+        const txHash = await this.state.connectedWallet.api.submitTx(signedTx.toString())
+        console.log(txHash)
+      }catch(e){
+        console.log(e)
+        console.log(e.message)
+      }   
+
+    }
+
     reloadUtXOs(){
       if(!this.state.wallet) return
       const wallet = this.state.wallet

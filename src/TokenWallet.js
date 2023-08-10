@@ -402,52 +402,39 @@ setPendingTxs(pendingTxs){
 
 
 
-    async createStakeUnregistrationTx(signers){
+    async createStakeUnregistrationTx(){
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
+      const rewardAddress = this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential) 
+      console.log(curentDelegation)
+      const lucid = await this.newLucidInstance(this.settings);
+      lucid.selectWallet( this.api)
+    
+      const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
 
-      const sigCheck = this.checkSigners(signers)
-      if (!sigCheck){
-        throw new Error('Not enough signers');
-      }
+      const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
+      const signersTx = lucid.newTx().addSigner(hostUtxo.address)
+      const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom( this.getUtxos() , Data.void())
 
-      const tx = this.lucid.newTx()
-
-      signers.map( value => (
-        tx.addSignerKey(value)
-      ))
-        
-      if (curentDelegation.poolId === null){
-        throw new Error('Not delegated');
-      } else {
-        tx.deregisterStake(rewardAddress)
-      }
-
-      if(Number(this.delegation.rewards) > 0 ){
-        tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
-      }
-
-      if (sigCheck.requires_after !== false){
-        tx.validFrom( this.lucid.utils.slotToUnixTime(sigCheck.requires_after))
-        
-      }
-
-      if (sigCheck.requires_before !== false){
-        tx.validTo( this.lucid.utils.slotToUnixTime(sigCheck.requires_before))
-      }
-
-
-      const completedTx = await tx.attachSpendingValidator(this.ValidatorScript)
-      .complete()
+      const delegationTx =  lucid.newTx()
+      .deregisterStake(rewardAddress, Data.void())
+      .attachCertificateValidator(this.StakingScript)
+      .attachWithdrawalValidator(this.StakingScript)
+     
       
-      this.pendingTxs.map( (PendingTx) => {
-        if (PendingTx.tx.toHash() === completedTx.toHash()) {
-          throw new Error('Transaction already registerd');
-        }
-    })
+      const finaltx = lucid.newTx()
 
-      this.pendingTxs.push({tx:completedTx, signatures:{}})
-      return "Sucsess"
+
+
+      finaltx.compose(TokenHostTx)
+      .compose(delegationTx)
+      .compose(signersTx)
+      .compose(inputsTx)
+
+      const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
+      // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
+      console.log(completedTx.toString())
+      return completedTx
+
     }
 
     async createDelegationTx(pool){ 
