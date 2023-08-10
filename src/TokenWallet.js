@@ -259,7 +259,6 @@ setPendingTxs(pendingTxs){
       }}
         this.getDelegation()
         this.utxos = utxos
-        await this.checkTransactions()
     }catch(e){
       console.log("Error loading utxos", e)
     }
@@ -398,43 +397,10 @@ setPendingTxs(pendingTxs){
        // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
         console.log(completedTx.toString())
         return completedTx
-        const txId = await completedTx.submit()
-        console.log(txId)
-      
-        return "Sucsess"
+
     }
 
-    async importTransaction(transaction)
-    { 
-      if (!await this.checkTransaction(transaction)){
-        throw new Error("Transaction invalid")
-      }
-      let uint8Array , tx
 
-      try{
-        //if transaction type is string
-
-
-        uint8Array = typeof transaction === 'string' ?  new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16))) : transaction;
-        tx =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
-      }catch(e){
-        console.log(e)
-         throw new Error('Invalid Transaction data');
-      }
-      try{
-        this.pendingTxs.map( (PendingTx) => {
-          if (PendingTx.tx.toHash() === tx.toHash()) {
-            throw new Error('Transaction already registered');
-          }
-         })
-
-      this.pendingTxs.push({tx:tx, signatures:{}})
-      
-      }catch(e){
-        console.log(e)
-        throw new Error('Transaction already registered');
-      }
-    }
 
     async createStakeUnregistrationTx(signers){
       const curentDelegation = await this.getDelegation()
@@ -486,29 +452,24 @@ setPendingTxs(pendingTxs){
 
     async createDelegationTx(pool){ 
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.StakingScript)
-
+      const rewardAddress = this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential) 
+      console.log(curentDelegation)
       const lucid = await this.newLucidInstance(this.settings);
       lucid.selectWallet( this.api)
     
+      const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
+
       const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
       const signersTx = lucid.newTx().addSigner(hostUtxo.address)
       const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom( this.getUtxos() , Data.void())
 
       const delegationTx =  lucid.newTx()
-      .delegateTo(rewardAddress,pool)
-      .attachWithdrawalValidator(this.StakingScript)
+      .delegateTo(rewardAddress,pool, Data.void())
       .attachCertificateValidator(this.StakingScript)
+      .attachWithdrawalValidator(this.StakingScript)
      
       
       const finaltx = lucid.newTx()
-      .compose(TokenHostTx)
-      .compose(delegationTx)
-      .compose(signersTx)
-      .compose(inputsTx)
-
-
-
 
       if (curentDelegation.poolId === pool){
         throw new Error('Already delegated to this pool');
@@ -517,14 +478,16 @@ setPendingTxs(pendingTxs){
         finaltx.compose(tx) 
       }
 
+      finaltx.compose(TokenHostTx)
+      .compose(delegationTx)
+      .compose(signersTx)
+      .compose(inputsTx)
 
       const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
       // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
       console.log(completedTx.toString())
       return completedTx
 
-      this.pendingTxs.push({tx:completedTx, signatures:{}})
-      return "Sucsess"
     }
 
     isAddressMine(address){
@@ -574,7 +537,6 @@ setPendingTxs(pendingTxs){
         if (!valid){
           throw new Error('Invalid Signature');
         }
-
     }
 
     getSignature(index,keyHash){
