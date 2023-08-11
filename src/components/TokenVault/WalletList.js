@@ -7,7 +7,7 @@ import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 function WalletList (props) {
     const [tokens, setTokens] = useState({})
     const [collateralUtxo, setCollateralUtxo] = useState(undefined)
-    const [expanded, setExpanded] = useState(true)
+    const [expanded, setExpanded] = useState(false)
     const [loading, setLoading] = useState(true)
 
     async function getTokens ()  {
@@ -68,9 +68,9 @@ function WalletList (props) {
         
         }
         </div>
-        {loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> : 
+        {( loading && !props.selected)  ? <LoadingIcon className="loadingIcon"> </LoadingIcon> : 
         <div>
-        {Object.keys(tokens).length === 0 ? "No tokenized wallets found, Please visit TODO to get one" :
+        {(Object.keys(tokens).length === 0 && !props.selected )? "No tokenized wallets found, Please visit TODO to get one" :
         (expanded || !props.selected) &&   <div className='tokenWalletList' > {Object.keys(tokens).map( (item, index) => (
                  <TokenThumbnail tokenId={item} f={selectWallet} key={item}/>
                  
