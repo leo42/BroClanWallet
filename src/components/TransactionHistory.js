@@ -40,14 +40,17 @@ function TransactionHistory (props) {
         const BalancesOut = {}
         transaction.utxos.inputs.map( (input, index) => {
            if ( input.address === address) {
-            input.amount.map( (asset) => 
+               console.log("input",address ,input,transaction.hash)
+               input.amount.map( (asset) => 
                 asset.unit in BalancesOut ? BalancesOut[asset.unit] -= parseInt(asset.quantity) :  BalancesOut[asset.unit] = -parseInt(asset.quantity)
             )}})
         transaction.utxos.outputs.map( (input, index) => {
             if ( input.address === address) {
+            console.log("output",input)
              input.amount.map( (asset) => 
                  asset.unit in BalancesOut ? BalancesOut[asset.unit] += parseInt(asset.quantity) : BalancesOut[asset.unit] = parseInt(asset.quantity)
              )}})
+         console.log(BalancesOut)           
         const lovelace = BalancesOut.lovelace
         delete BalancesOut["lovelace"]
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })

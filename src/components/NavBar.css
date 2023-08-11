@@ -1,10 +1,11 @@
 .NavBarWrapper{
     width: 100%;
-    position: fixed;
+    position: absolute;
     top: 0px;
     left: 0px;
     height: 100px;
     border-bottom: var(--clrorange) solid 1px;
+    z-index: 100;
 }
 
 .settingsButton{
