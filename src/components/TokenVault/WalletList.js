@@ -69,13 +69,14 @@ function WalletList (props) {
         }
         </div>
         {( loading && !props.selected)  ? <LoadingIcon className="loadingIcon"> </LoadingIcon> : 
-        <div>
+        <div >
         {(Object.keys(tokens).length === 0 && !props.selected )? "No tokenized wallets found, Please visit TODO to get one" :
-        (expanded || !props.selected) &&   <div className='tokenWalletList' > {Object.keys(tokens).map( (item, index) => (
+        (expanded || !props.selected) &&  <div className='tokenWalletListContainer'> <div className='tokenWalletList' > {Object.keys(tokens).map( (item, index) => (
                  <TokenThumbnail tokenId={item} f={selectWallet} key={item}/>
                  
         )) }
         <div className='Overlay' onClick={() => setExpanded(false)} />
+        </div>
         </div>}
        </div>
         
