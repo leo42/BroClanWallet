@@ -36,9 +36,9 @@ class TokenVaultsContainer extends React.Component {
       await wallet.initialize(this.props.root.state.settings)
       localStorage.setItem("TokenVaultsSelectedWallet", JSON.stringify(token))
       this.setState({wallet: wallet})
-      
+      this.loadAddress()
      }
-
+ 
    async connectWallet(walletName){
     try{
       console.log(window.cardano)
@@ -50,6 +50,27 @@ class TokenVaultsContainer extends React.Component {
     }catch(e){
       console.log(e)
     }
+    }
+
+    storeAddress()  {
+      if (this.state.loading) return
+      const addressDataPack = JSON.parse(localStorage.getItem("tokenWalletAddressDataPack")) ?JSON.parse(localStorage.getItem("tokenWalletAddressDataPack")) : {}
+      const wallet = this.state.wallet
+      addressDataPack[wallet.getToken()] =  {  defaultAddress: wallet.getDefaultAddress(),
+                                               addressNames: wallet.getAddressNames()                                                              
+                                          }
+      localStorage.setItem("tokenWalletAddressDataPack", JSON.stringify(addressDataPack))
+    }
+
+    loadAddress() {
+      const addressDataPack = JSON.parse(localStorage.getItem("tokenWalletAddressDataPack"))  ? JSON.parse(localStorage.getItem("tokenWalletAddressDataPack")) : undefined
+      
+      if (addressDataPack && addressDataPack[this.state.wallet.getToken()]) {
+        const wallet = this.state.wallet
+        wallet.setDefaultAddress(addressDataPack[this.state.wallet.getToken()].defaultAddress)
+        wallet.setAddressNames(addressDataPack[this.state.wallet.getToken()].addressNames)
+        this.setState({wallet: wallet})
+      }
     }
 
     disconnectWallet(){
@@ -114,6 +135,20 @@ class TokenVaultsContainer extends React.Component {
         toast.error(e)
       }
 
+    }
+
+    changeAddressName (address, name) {
+      const wallet = this.state.wallet
+      this.state.wallet.changeAddressName(address, name)
+      this.setState({wallet: wallet})
+      this.storeAddress() 
+    }
+
+    setDefaultAddress (address) {
+      const wallet = this.state.wallet
+      this.state.wallet.setDefaultAddress(address)
+      this.setState({wallet: wallet})
+      this.storeAddress() 
     }
 
     reloadUtXOs(){

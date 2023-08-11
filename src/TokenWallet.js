@@ -553,10 +553,10 @@ setPendingTxs(pendingTxs){
       this.defaultAddress = address
     }
     
-    setAddressNamess(names){
+    setAddressNames(names){
       this.addressNames = names
-
     }
+    
     setName(name){
       this.name = name
     }
