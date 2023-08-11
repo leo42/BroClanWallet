@@ -485,7 +485,7 @@ setPendingTxs(pendingTxs){
 
     isAddressValid(address){
       try {
-      return  this.lucid.utils.getAddressDetails(address) ? true : false
+          return  this.lucid.utils.getAddressDetails(address) ? true : false
       }catch(e){
         return false
       }
@@ -556,7 +556,7 @@ setPendingTxs(pendingTxs){
     setAddressNames(names){
       this.addressNames = names
     }
-    
+
     setName(name){
       this.name = name
     }
