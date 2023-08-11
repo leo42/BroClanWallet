@@ -64,7 +64,93 @@
 }
   
     
+.Overlay{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: -1;
+}
+
+.tokenWalletList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 450px;
+    background-color: rgb(255, 255, 255);
+    border: 1px double var(--clrorange);
+    /* 3 items per row */
+
+}
+
+.TokenThumbnailElement {
+    height: 140px;
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px outset var(--clrorange);
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.tokenWalletSelected .TokenThumbnail{
+    height: 100px;
+    width: 100px;
+    margin: 10px;
+    border-radius: 10px;
+    
+}
+
+.tokenWalletList .TokenThumbnail{
+    height: 100px;
+    width: 100px;
+    margin: 10px;
+    border-radius: 10px;
+    
+}
+.tokenWalletSelected .TokenThumbnailName{
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 10px;
+    width: 100px;
+    max-width: 100px;
+    overflow: hidden;
+}
 
 
+.tokenWalletList .TokenThumbnailName{
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 10px;
+    width: 100px;
+    max-width: 100px;
+    overflow: hidden;
+}
 
+@media only screen and (max-width: 767px) {
 
+    .tokenWalletList{
+        max-width: 90vw;
+    }
+    .TokenThumbnailElement {
+        height: 80px;
+        width: 70px;
+        font-size: 10px;
+        
+    }
+    .tokenWalletList .TokenThumbnailName{
+        font-size: 10px;
+        font-weight: 200;
+        top: 0px;
+    }
+    
+.tokenWalletList .TokenThumbnail{
+    height: 50px;
+    width: 50px;
+}
+
+}

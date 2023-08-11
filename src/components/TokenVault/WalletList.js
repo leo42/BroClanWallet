@@ -1,10 +1,13 @@
 import React from 'react';
 import {useState , useEffect} from 'react';
 import "./WalletList.css"
+import TokenThumbnail from '../TokenThumbnail'; 
+
 
 function WalletList (props) {
     const [tokens, setTokens] = useState({})
     const [collateralUtxo, setCollateralUtxo] = useState(undefined)
+    const [expanded, setExpanded] = useState(true)
 
     async function getTokens ()  {
         const lucid = await props.moduleRoot.state.connectedWallet.lucid
@@ -12,6 +15,11 @@ function WalletList (props) {
         console.log(utxos)
         setTokens(getUtxoTokens(utxos))
        
+    }
+
+    function selectWallet(token) {
+        props.moduleRoot.selectWallet(token)
+        setExpanded(false)
     }
 
     function getUtxoTokens(utxos) {
@@ -52,12 +60,19 @@ function WalletList (props) {
     
     return (
     <div className='WalletListContainer'>
-
-        <select className="MWalletList" onChange={(event) => props.moduleRoot.selectWallet(event.target.value,  tokens[event.target.value] , collateralUtxo)} value={props.selected}>
-        {Object.keys(tokens).map( (item, index) => (
-               <option key={index} value={item}> {item}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  } </option>
-        ))}
-</select>
+        <div className="tokenWalletSelected" onClick={() => setExpanded(!expanded)}> {props.selected && <TokenThumbnail tokenId={props.selected} f={selectWallet} key={props.selected}/> }
+        
+        </div>
+        
+        {expanded &&  <div className='tokenWalletList' > {Object.keys(tokens).map( (item, index) => (
+                 <TokenThumbnail tokenId={item} f={selectWallet} key={item}/>
+                 
+        )) }
+        <div className='Overlay' onClick={() => setExpanded(false)} />
+       </div>
+        
+        
+        }
     </div>
     );
     

@@ -27,6 +27,7 @@ function TokenElement(props){
         props.f(props.tokenId)
       }
     }
+    
     React.useEffect(() => {
       if (tokenInfo && tokenInfo.fingerprint === ""  ){
         //set 10 sec timeout to prevent too many requests
