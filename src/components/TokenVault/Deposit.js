@@ -12,6 +12,7 @@ function Deposit(props) {
     const [fullBalance, setFullBalance] = useState({})
     const api = props.moduleRoot.state.connectedWallet.api
     const lucid = props.moduleRoot.state.connectedWallet.lucid
+    const activeToken = props.moduleRoot.state.wallet.getToken()
     console.log(props)
 
 
@@ -44,13 +45,13 @@ function Deposit(props) {
         let fullBalance = {}
         for(const utxo of UTxOs) {
             for(const token of Object.keys(utxo.assets)) {
-               
+                if (activeToken !== token){ 
                     if (token in fullBalance) {
                         fullBalance[token] += utxo.assets[token]
                     } else {
                         fullBalance[token] = utxo.assets[token]
                     }
-               
+                }
             }
         }
 
