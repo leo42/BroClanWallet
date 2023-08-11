@@ -262,11 +262,12 @@ class WalletCreateTx extends React.Component {
         {  <label className='iconLabel'>Add Recipient</label> }
         < br/>   
       </div>
-      <div className='SignersSelect' ><h2> Signers:</h2>
+      {this.props.wallet.getSigners().length !== 0 && <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
       { this.SignersSelect()}
       </div>
       </div>
+  }
       { this.props.wallet.getFundedAddress().length > 1 ? this.AccountSelect(): ""}
       <br/>
 

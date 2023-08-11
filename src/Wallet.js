@@ -489,8 +489,8 @@ setPendingTxs(pendingTxs){
 
 
         tx.attachSpendingValidator(this.lucidNativeScript)
-        
-        const completedTx = sendAll === null ? await tx.complete() : await tx.complete({ change :{address :recipients[sendAll].address }}) 
+        const returnAddress = sendFrom==="" ? this.getAddress() : sendFrom 
+        const completedTx = sendAll === null ? await tx.complete({ change :{address : returnAddress }}) : await tx.complete({ change :{address :recipients[sendAll].address }}) 
 
         
         this.pendingTxs.map( (PendingTx) => {

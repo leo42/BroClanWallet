@@ -10,11 +10,42 @@ function Deposit(props) {
     const [amount, setAmount] = useState({ lovelace: 10000000})
     const [tokenData, setTokenData] = useState({})
     const [fullBalance, setFullBalance] = useState({})
+    const [options, setOptions] = React.useState([])
+    const [newStake, setNewStake] = React.useState(false)
+    const [optionsNames, setOptionsNames] = React.useState({})
+    const [address, setAddress] = React.useState( props.wallet.getAddress() )
+
+    const donationAddress = "addr1q9jae9tlky2gw97hxqkrdm5lu0qlasrzw5u5ju9acpazk3ev94h8gqswgsgfp59e4v0z2dapyamyctfeyzykr97pajdq0nanuq"
+
     const api = props.moduleRoot.state.connectedWallet.api
     const lucid = props.moduleRoot.state.connectedWallet.lucid
     const activeToken = props.moduleRoot.state.wallet.getToken()
     console.log(props)
 
+    useEffect(() => {
+        const options =  props.wallet.getFundedAddress()
+        const optionsNames = {}
+
+        options.map( option => { optionsNames[option] = props.wallet.getAddressName(option) })
+        
+        // add the unstaked address only if it is not already in the list of funded addresses 
+        
+        options.includes( props.wallet.getAddress())?   "" :  options.push(props.wallet.getAddress())
+        props.wallet.getAddress() in optionsNames && optionsNames[props.wallet.getAddress()] !== props.wallet.getAddress() ?  "" :  optionsNames[props.wallet.getAddress()] = "Regular Address" 
+    
+
+
+        options.includes(props.wallet.getAddress(donationAddress))  ? "" : options.push(props.wallet.getAddress(donationAddress))
+        props.wallet.getAddress(donationAddress) in optionsNames && optionsNames[props.wallet.getAddress(donationAddress)] !== props.wallet.getAddress(donationAddress) ?  "" :  optionsNames[props.wallet.getAddress(donationAddress)] = "Donate rewards" 
+
+    
+    
+    
+        options.push("new")
+        optionsNames["new"] = "New Externaly Staked Address"
+        setOptions(options)
+        setOptionsNames(optionsNames)
+}, [props.wallet])
 
     useEffect(() => {
         async function getUtxos() {
@@ -32,7 +63,7 @@ function Deposit(props) {
         console.log("performing deposit", props.moduleRoot.state.connectedWallet.lucid)
         const lucid = await props.moduleRoot.state.wallet.newLucidInstance(props.root.state.settings)
         lucid.selectWallet(props.moduleRoot.state.connectedWallet.api)
-        const tx = await lucid.newTx().payToContract(props.moduleRoot.state.wallet.getAddress() ,{ inline : Data.void()}, amount).complete()
+        const tx = await lucid.newTx().payToContract(address ,{ inline : Data.void()}, amount).complete()
         const signedTx = await tx.sign().complete()
         const txHash = await signedTx.submit()
     } catch (error) {
@@ -106,6 +137,23 @@ function Deposit(props) {
         
         setAmount(localAmount)
     }
+    const handleNewAddressChange = (event) => {
+        if(props.wallet.isAddressValid(event.target.value)){
+            setAddress(props.wallet.getAddress(event.target.value))
+        }else{
+            setAddress("Invalid Stake Address: " + event.target.value )
+        }
+    }
+
+    const handleStakingChange = (event) => {
+        if (event.target.value === "new" ){
+            setNewStake(true)
+            setAddress("")
+        }else{
+            setNewStake(false)
+            setAddress(props.wallet.getAddress(event.target.value))
+        }
+    }
 
 
     const RecipientJSX = () => (
@@ -157,6 +205,14 @@ function Deposit(props) {
     return(
         <div>
             <h1>Deposit</h1>
+            <select onChange={handleStakingChange} className="addressSelect" defaultValue={props.wallet.getDefaultAddress()}>
+            {options.map( (item, index) => (
+                  <option key={index} value={item} >{optionsNames[item]}</option>
+         ))}
+        </select>
+        { newStake ? <input type="text" onChange={handleNewAddressChange}></input> : ""}
+        { props.wallet.getAddress(donationAddress) === address ? <div className="donationMessage">By using this address your Staking rewards will support the development of this software! </div> : ""}
+       
             <p>Deposit your tokens to the vault</p>
             {RecipientJSX()}
             <button className='commonBtn' onClick={() => { performDeposit() }}>Deposit</button>

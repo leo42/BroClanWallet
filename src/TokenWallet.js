@@ -392,9 +392,14 @@ setPendingTxs(pendingTxs){
         .compose(OutputTx)
         .compose(signersTx)
         .compose(inputsTx)
-                        
-      const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
-       // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
+      const returnAddress = sendAll !== null ? recipients[sendAll].address : sendFrom!=="" ? sendFrom : this.getAddress()
+      const completedTx = await finaltx.complete({ change :
+                                                      {
+                                                        address : returnAddress , 
+                                                        outputData : {inline : Data.void()}
+                                                      }, 
+                                                    coinSelection : false})
+
         console.log(completedTx.toString())
         return completedTx
 
@@ -479,7 +484,11 @@ setPendingTxs(pendingTxs){
     }
 
     isAddressValid(address){
+      try {
       return  this.lucid.utils.getAddressDetails(address) ? true : false
+      }catch(e){
+        return false
+      }
     }
     
     decodeSignature(signature){

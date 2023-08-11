@@ -126,11 +126,12 @@ function WalletDelegation(props) {
           </div>
         )
       )}
+      {wallet.getSigners().length !== 0 && (
       <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
       { SignersSelect}
       </div>
-      </div>
+      </div>)}
      {pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
     </form>
     </div>

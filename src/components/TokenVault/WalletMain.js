@@ -8,7 +8,7 @@ import './WalletMain.css';
 
 class WalletMain extends React.Component {
     state = {
-        showing: "delegation"
+        showing: "receive"
     }
 
 

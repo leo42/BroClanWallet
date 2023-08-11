@@ -9,12 +9,13 @@ function Receive(props){
     const [options, setOptions] = React.useState([])
     const [optionsNames, setOptionsNames] = React.useState({})
 
-    const donationAddress = "addr1q8epdka8rjmemmzem63hqs3f02d3jxm5l0yym2zgvdh5jn3v94h8gqswgsgfp59e4v0z2dapyamyctfeyzykr97pajdqnv72cr"
+    const donationAddress = "addr1q9jae9tlky2gw97hxqkrdm5lu0qlasrzw5u5ju9acpazk3ev94h8gqswgsgfp59e4v0z2dapyamyctfeyzykr97pajdq0nanuq"
 
     function handleClick(value){
         copyTextToClipboard(value)
         toast.info("Address copied to clipboard!")
     }
+    
     const canvasRef = React.useRef();
 
     React.useEffect(() => {
@@ -77,7 +78,7 @@ function Receive(props){
     
 
     return <div className="receiveTab">    
-        <select onChange={handleStakingChange} className="addressSelect" defaultValue={props.wallet.getDefaultAddress()}>
+        <select onChange={handleStakingChange} className="addressSelect" defaultValue={props.wallet.getAddress()}>
             {options.map( (item, index) => (
                   <option key={index} value={item} >{optionsNames[item]}</option>
          ))}
