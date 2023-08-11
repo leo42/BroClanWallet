@@ -2,19 +2,21 @@ import React from 'react';
 import {useState , useEffect} from 'react';
 import "./WalletList.css"
 import TokenThumbnail from '../TokenThumbnail'; 
-
+import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 
 function WalletList (props) {
     const [tokens, setTokens] = useState({})
     const [collateralUtxo, setCollateralUtxo] = useState(undefined)
     const [expanded, setExpanded] = useState(true)
+    const [loading, setLoading] = useState(true)
 
     async function getTokens ()  {
+        
         const lucid = await props.moduleRoot.state.connectedWallet.lucid
         const utxos = await lucid.wallet.getUtxos()
         console.log(utxos)
         setTokens(getUtxoTokens(utxos))
-       
+        setLoading(false)
     }
 
     function selectWallet(token) {
@@ -60,19 +62,26 @@ function WalletList (props) {
     
     return (
     <div className='WalletListContainer'>
-        <div className="tokenWalletSelected" onClick={() => setExpanded(!expanded)}> {props.selected && <TokenThumbnail tokenId={props.selected} f={selectWallet} key={props.selected}/> }
+              
+        <div className="tokenWalletSelected" onClick={() => setExpanded(!expanded)}> 
+        {props.selected ? <TokenThumbnail tokenId={props.selected} f={selectWallet} key={props.selected}/> : <div className="tokenWalletSelectedEmpty" >Select a token</div>
         
+        }
         </div>
-        
-        {expanded &&  <div className='tokenWalletList' > {Object.keys(tokens).map( (item, index) => (
+        {loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> : 
+        <div>
+        {Object.keys(tokens).length === 0 ? "No tokenized wallets found, Please visit TODO to get one" :
+        (expanded || !props.selected) &&   <div className='tokenWalletList' > {Object.keys(tokens).map( (item, index) => (
                  <TokenThumbnail tokenId={item} f={selectWallet} key={item}/>
                  
         )) }
         <div className='Overlay' onClick={() => setExpanded(false)} />
+        </div>}
        </div>
         
         
         }
+         
     </div>
     );
     

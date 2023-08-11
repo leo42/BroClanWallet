@@ -159,7 +159,7 @@ function Deposit(props) {
             <h1>Deposit</h1>
             <p>Deposit your tokens to the vault</p>
             {RecipientJSX()}
-            <button onClick={() => { performDeposit() }}>Deposit</button>
+            <button className='commonBtn' onClick={() => { performDeposit() }}>Deposit</button>
             <p> </p>
             </div>
             )

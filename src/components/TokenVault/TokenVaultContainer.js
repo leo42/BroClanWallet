@@ -125,7 +125,7 @@ class TokenVaultsContainer extends React.Component {
 
 render() {  
     return(
-      <div className={ this.state.wallet  ? "TokenVaultsContainer TokenVaultsContainerActive" :  "TokenVaultsContainer"} >
+      <div className={ this.state.connectedWallet !== "none" ? "TokenVaultsContainer TokenVaultsContainerActive" :  "TokenVaultsContainer"} >
           <React.StrictMode>
           {this.state.connectedWallet !== "none" && <MWalletList wallet={this.state.connectedWallet} root={this.props.root} moduleRoot={this}  selected={this.state.wallet ? this.state.wallet.getToken(): undefined}></MWalletList> }
   

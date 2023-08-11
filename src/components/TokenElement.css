@@ -51,6 +51,8 @@
     overflow: hidden;
     white-space: nowrap;
     width: 120px;
+    position: relative;
+    z-index: -1;
   }
   
   .scroll-container > span {
