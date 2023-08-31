@@ -81,6 +81,7 @@
     overflow-y: scroll;
     border: 1px double var(--clrorange);
     max-height: 70vh;
+    background: white;
     &::-webkit-scrollbar {
         width: 10px; /* Width of the scrollbar */
       }

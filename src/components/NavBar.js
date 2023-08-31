@@ -32,6 +32,7 @@ function NavBar(props){
             <div className="navMenu"> 
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("multisig")}>Multisig</div>
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("tokenVault")}>TokenVaults</div>
+                <div className="navMenuOption" onClick={() =>  props.root.setModule("minting")}>Minting</div>
                 <div className="navMenuOption" onClick={() => props.root.showModal("settings")}>Settings</div>
             </div>
             </div>

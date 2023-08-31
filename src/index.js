@@ -120,6 +120,7 @@ class App extends React.Component {
         <br/>
      {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "tokenVault" &&  <TokenVaultsContainer root={this} settings={this.state.settings} /> }
+     {this.state.module === "minting" &&  <div> Minting </div>}
       <TermsAndConditionsBanner key={this.state.settings} root={this}/>
    </div>
     );

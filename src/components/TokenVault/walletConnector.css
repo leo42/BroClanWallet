@@ -12,16 +12,6 @@
     position: fixed;
 }
 
-.WalletConnector{
-
-    top: 110px;
-    right: 0px;
-    margin: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    z-index: 1;
-}
 
 .connectorSettings{
     display: flex;
@@ -31,18 +21,6 @@
     margin: 10px;
 }
 
-.connectedWalletImg{
-    width: 30px;
-    height: 30px;
-    margin: 10px;
-    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
-    border: 0;
-    border-radius: 5px;
-    padding: 5px 10px;
-    transition: transform 0.3s ease-in-out;
-    cursor: pointer;
-    z-index: 10;
-}
 @media only screen and (max-width: 767px) {
     .connectedWalletImg{
         transform: scale(1.2);
