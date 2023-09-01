@@ -17,10 +17,6 @@ class Minting extends React.Component {
           TokenName
         )
     
-    struct Redeemer {
-           referrer: PubKeyHash 
-    }     
-    
     
     func paymentMade (ctx: ScriptContext , amount : Int ) -> Bool {
     
@@ -35,10 +31,34 @@ class Minting extends React.Component {
                                                          });
     
       
-        paymentUtxo.value.get_lovelace() == adminDatum.get("paymentAmount") * amount
+        paymentUtxo.value.get_lovelace() == adminDatum.get("mintPrice") * amount
     
     }
     
+    func afilatePaymentMade (ctx: ScriptContext ,  referer: PubKeyHash, amount : Int ) -> Bool {
+    
+        adminUtxo: TxInput = ctx.tx.ref_inputs.find((input: TxInput) -> Bool { 
+                                                               input.value.get_safe(AdminToken) == 1
+     });
+        
+        adminDatum : Map[String]Int = Map[String]Int::from_data(adminUtxo.datum.get_inline_data()); 
+    
+        paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
+                                                        output.address == adminUtxo.address
+                                                         });
+        
+        afiliatePaymentUtxo :  TxOutput  = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
+                                                        output.address.credential.switch{ 
+                                                                pubKey: PubKey => pubKey.hash == 
+    referer,
+                                                                _  => false 
+                                                              }
+                                                         });
+          
+        paymentUtxo.value.get_lovelace() == (adminDatum.get("mintPrice") - adminDatum.get("afiliateBounty") ) * amount && 
+        afiliatePaymentUtxo.value.get_lovelace() ==  adminDatum.get("afiliateBounty") * amount
+        
+    }
     
     func mintCorrect(ctx: ScriptContext ) -> Bool {
         mintingAssets : Map[ByteArray]Int = ctx.tx.minted.to_map().get(ctx.get_current_minting_policy_hash());
@@ -56,10 +76,14 @@ class Minting extends React.Component {
         mintingAssets.length 
     }
     
-    func main( _ , ctx: ScriptContext) -> Bool {
-         paymentMade(ctx , mintAmount(ctx)) && mintCorrect(ctx )
+    func main( afiliate: Data , ctx: ScriptContext) -> Bool {
+         mintCorrect(ctx) && afiliate.switch{
+            referer: ByteArray => afilatePaymentMade(ctx , PubKeyHash::new(referer) , mintAmount(ctx)),
+            _  => paymentMade(ctx , mintAmount(ctx))
+        }
+         
+         
     }
-    
     `      
 
     render() {
