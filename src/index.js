@@ -10,6 +10,7 @@ import NavBar from './components/NavBar';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import SettingsModal from "./components/SettingsModal";
 import TokenVaultsContainer from './components/TokenVault/TokenVaultContainer';
+import Minting from './components/Minting/minting';
 
 class App extends React.Component {
   state= {
@@ -120,7 +121,7 @@ class App extends React.Component {
         <br/>
      {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "tokenVault" &&  <TokenVaultsContainer root={this} settings={this.state.settings} /> }
-     {this.state.module === "minting" &&  <div> Minting </div>}
+     {this.state.module === "minting" &&  <Minting root={this} settings={this.state.settings} /> }
       <TermsAndConditionsBanner key={this.state.settings} root={this}/>
    </div>
     );
