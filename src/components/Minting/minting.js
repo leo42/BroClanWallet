@@ -1,97 +1,90 @@
 import React from "react";
 import "./minting.css"
+
 class Minting extends React.Component {
     state = {
-        showing: "overview"
+         mintingSettings : [{name: "Name" , description: "", amount : 1, image: ""}]
     }
 
+    setName = (name, index) => {
+        console.log(name, index)
+        let mintingSettings = [...this.state.mintingSettings];
+        mintingSettings[index].name = name;
+        this.setState({mintingSettings});
+    }
 
-    mintingSrc =     `
-    minting TokenKey
-    
-    const  MintingPolicy: ByteArray = #4190b2941d9be04acc69c39739bd5acc66d60ccab480d8e20bc87e37
-    const TokenName: ByteArray = #57696e67526964657273
-             
-    const  AdminToken : AssetClass = AssetClass::new(
-          MintingPolicyHash::new(MintingPolicy),
-          TokenName
-        )
-    
-    
-    func paymentMade (ctx: ScriptContext , amount : Int ) -> Bool {
-    
-        adminUtxo: TxInput = ctx.tx.ref_inputs.find((input: TxInput) -> Bool { 
-                                                               input.value.get_safe(AdminToken) == 1
-     });
-        
-        adminDatum : Map[String]Int = Map[String]Int::from_data(adminUtxo.datum.get_inline_data()); 
-    
-        paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
-                                                        output.address == adminUtxo.address
-                                                         });
-    
-      
-        paymentUtxo.value.get_lovelace() == adminDatum.get("mintPrice") * amount
-    
+    setDescription = (description, index) => {
+        let mintingSettings = [...this.state.mintingSettings];
+        mintingSettings[index].description = description;
+        this.setState({mintingSettings});
     }
     
-    func afilatePaymentMade (ctx: ScriptContext ,  referer: PubKeyHash, amount : Int ) -> Bool {
-    
-        adminUtxo: TxInput = ctx.tx.ref_inputs.find((input: TxInput) -> Bool { 
-                                                               input.value.get_safe(AdminToken) == 1
-     });
-        
-        adminDatum : Map[String]Int = Map[String]Int::from_data(adminUtxo.datum.get_inline_data()); 
-    
-        paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
-                                                        output.address == adminUtxo.address
-                                                         });
-        
-        afiliatePaymentUtxo :  TxOutput  = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
-                                                        output.address.credential.switch{ 
-                                                                pubKey: PubKey => pubKey.hash == 
-    referer,
-                                                                _  => false 
-                                                              }
-                                                         });
-          
-        paymentUtxo.value.get_lovelace() == (adminDatum.get("mintPrice") - adminDatum.get("afiliateBounty") ) * amount && 
-        afiliatePaymentUtxo.value.get_lovelace() ==  adminDatum.get("afiliateBounty") * amount
-        
+    changeImage = (value, index) => {
+        let mintingSettings = [...this.state.mintingSettings];
+        mintingSettings[index].image = value;
+        this.setState({mintingSettings});
     }
-    
-    func mintCorrect(ctx: ScriptContext ) -> Bool {
-        mintingAssets : Map[ByteArray]Int = ctx.tx.minted.to_map().get(ctx.get_current_minting_policy_hash());
-        
-     
-         mintingAssets.all( ( mintedToken : ByteArray, _)  -> Bool { 
-                                    ctx.tx.inputs.any((input : TxInput) -> Bool {  input.output_id == TxOutputId::new(TxId::new(mintedToken), 0)}
-                    )})   
-       
+
+    uploadImage = (value, index) => {
+        console.log(value, index)
     }
-    
-    
-    func mintAmount(ctx: ScriptContext) -> Int {
-        mintingAssets : Map[ByteArray]Int = ctx.tx.minted.to_map().get(ctx.get_current_minting_policy_hash());
-        mintingAssets.length 
+
+    setAmount = (amount, index) => {
+        let mintingSettings = [...this.state.mintingSettings];
+        mintingSettings[index].amount = amount;
+        this.setState({mintingSettings});
     }
-    
-    func main( afiliate: Data , ctx: ScriptContext) -> Bool {
-         mintCorrect(ctx) && afiliate.switch{
-            referer: ByteArray => afilatePaymentMade(ctx , PubKeyHash::new(referer) , mintAmount(ctx)),
-            _  => paymentMade(ctx , mintAmount(ctx))
-        }
-         
-         
+
+    addMintingSetting = () => {
+        let mintingSettings = [...this.state.mintingSettings];
+        mintingSettings.push({name: "Name" , description: "", amount : 1, image: ""});
+        this.setState({mintingSettings});
     }
-    `      
+
+    removeMintingSetting = (index) => { 
+        let mintingSettings = [...this.state.mintingSettings];
+        mintingSettings.splice(index, 1);
+        this.setState({mintingSettings});
+    }
+
+    description = <div name="mintingDescription"><h1>Here you can mint your Tokenized Wallet</h1><br/>
+            <h3>This process uses a plutus script to mint a Uniqe token for you that will unlock your token-wallet</h3><br/>
+            <h4>You can select any metadata you want for your token, this metadata will help you to identify your token in the future for a better user experience<br/>
+            The default image is a generated image based on the content of your token-wallet, generated centraly and served from the BroClan server<br/> 
+            You can use a Custom image if you want, but you will have to host it yourself on IPFS<br/>
+            Important to note that minting a token with the same name will NOT unlock the same token-wallet<br/>
+
+            When tokenized Multisig is released for BroClan, you will be able to reuse this tokens in that setting</h4></div>
+
+   
 
     render() {
         return (
             <div className='MintingModule'>
-
-                
-                Minting Module
+                    {this.description}
+                    <div key={this.state.mintingSettings}> 
+                {this.state.mintingSettings.map((mintingSetting, index) => 
+                    <div key={index}>
+                        {index > 0 && <button onClick={() => this.removeMintingSetting(index)}>Remove</button> }
+                        Name:<input type="text" value={mintingSetting.name} onChange={(event) => this.setName(event.target.value, index) }/> 
+                        <br/>
+                        Description:<input type="text"   value={mintingSetting.description} onChange={(event) => this.setDescription(event.target.value, index)} /> 
+                        <br/>
+                        Copies:<input type="number"   value={mintingSetting.amount}  onChange={(event) => this.setAmount(event.target.value, index)}/>
+                        <br/>
+                        Image:
+                            <select  value={mintingSetting.image}  onChange={(event) => this.changeImage(event.target.value, index) } > 
+                                <option value="">default</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            {mintingSetting.image === "custom" && <input type="file"  onChange={(event)=> this.uploadImage(event.target.value, index)}/>}
+                            <br/>
+                            <button onClick={() => this.addMintingSetting()}>Add Mint</button>
+                            <br/>
+                            <button onClick={() => this.mint()}>Mint Now</button>
+                    </div>
+                    )}
+              </div>
 
                 <br />
             </div>
