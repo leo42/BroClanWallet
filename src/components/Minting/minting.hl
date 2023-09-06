@@ -1,12 +1,18 @@
+    
     minting TokenKey
     
-    const  MintingPolicy: ByteArray = #4190b2941d9be04acc69c39739bd5acc66d60ccab480d8e20bc87e37
-    const TokenName: ByteArray = #57696e67526964657273
+    const  MintingPolicy: ByteArray = #72ff4773518459890ea5224018c10f7487a339ea0a9e42ac6826f829
+    const TokenName: ByteArray = #41646d696e4b6579
              
     const  AdminToken : AssetClass = AssetClass::new(
           MintingPolicyHash::new(MintingPolicy),
           TokenName
         )
+    
+    struct AdminDatum {
+        mintAmount: Int
+        afiliateBounty: Int
+    }
     
     
     func paymentMade (ctx: ScriptContext , amount : Int ) -> Bool {
@@ -15,15 +21,15 @@
                                                                input.value.get_safe(AdminToken) == 1
      });
         
-        adminDatum : Map[String]Int = Map[String]Int::from_data(adminUtxo.datum.get_inline_data()); 
+        adminDatum : AdminDatum  = AdminDatum::from_data(adminUtxo.datum.get_inline_data()); 
     
         paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
                                                         output.address == adminUtxo.address
                                                          });
     
-      
-        paymentUtxo.value.get_lovelace() == adminDatum.get("mintPrice") * amount
-    
+        
+        paymentUtxo.value.get_lovelace() == adminDatum.mintAmount * amount
+
     }
     
     func afilatePaymentMade (ctx: ScriptContext ,  referer: PubKeyHash, amount : Int ) -> Bool {
@@ -32,7 +38,7 @@
                                                                input.value.get_safe(AdminToken) == 1
      });
         
-        adminDatum : Map[String]Int = Map[String]Int::from_data(adminUtxo.datum.get_inline_data()); 
+        adminDatum : []Int  = []Int::from_data(adminUtxo.datum.get_inline_data()); 
     
         paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
                                                         output.address == adminUtxo.address
@@ -45,8 +51,8 @@
                                                               }
                                                          });
           
-        paymentUtxo.value.get_lovelace() == ((adminDatum.get("mintPrice") - adminDatum.get("afiliateBounty") ) * amount) && 
-        afiliatePaymentUtxo.value.get_lovelace() == ( adminDatum.get("afiliateBounty") * amount )
+        paymentUtxo.value.get_lovelace() == ((adminDatum.get(0) - adminDatum.get(1) ) * amount) && 
+        afiliatePaymentUtxo.value.get_lovelace() == ( adminDatum.get(1) * amount )
         
     }
     
@@ -66,11 +72,6 @@
         mintingAssets.length 
     }
     
-    func main( afiliate: Data , ctx: ScriptContext) -> Bool {
-         mintCorrect(ctx) && afiliate.switch{
-            referer: ByteArray => afilatePaymentMade(ctx , PubKeyHash::new(referer) , mintAmount(ctx)),
-            _  => paymentMade(ctx , mintAmount(ctx))
-        }
-         
-         
+    func main( _ , ctx: ScriptContext) -> Bool {
+         mintCorrect(ctx) && paymentMade(ctx , mintAmount(ctx)) 
     }

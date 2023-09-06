@@ -1,6 +1,6 @@
 import React from "react";
 import "./minting.css"
-import { Lucid , Blockfrost, Kupmios } from "lucid-cardano";
+import { Lucid , Blockfrost, Kupmios, Data } from "lucid-cardano";
 import WalletPicker from "../WalletPicker";
 import { Program } from "@hyperionbt/helios"
 import mintingScript from '!!raw-loader!./minting.hl';
@@ -85,20 +85,54 @@ class Minting extends React.Component {
 
     mintWithWallet = (wallet) =>{
         const mintingSettings = this.state.mintingSettings;
-        const api = window.cardano[wallet].enable();
-        const lucid = new Lucid(  api);
-        this.mint(mintingSettings, api , this.props.root.state.settings)
+        this.mint(mintingSettings, wallet , this.props.root.state.settings)
     }
 
-    async mint(mintingSettings, api , settings){
+    async mint(mintingSettings, wallet , settings){
+        const api = await window.cardano[wallet].enable();
+        const lucid = await this.newLucidInstance(settings)
+        lucid.selectWallet(api)
         const program = Program.new(mintingScript)
         const simplify = true
         const myUplcProgram = program.compile(simplify)
         const mintingRawScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
-        console.log(mintingRawScript)
-        const lucid = await this.newLucidInstance(settings)
-        lucid.setWallet(api)
+        const policyId = lucid.utils.mintingPolicyToId(mintingRawScript)
+    
+        const adminKey = "72ff4773518459890ea5224018c10f7487a339ea0a9e42ac6826f82941646d696e4b6579"
+        const adminUtxo = await lucid.provider.getUtxoByUnit(adminKey)
+        const adminDatum =  Data.from(adminUtxo.datum)
+        const mintPrice = adminDatum.fields[0]
+        const afiliateBounty = adminDatum.fields[1]
+        const utxos = await lucid.wallet.getUtxos()
+        const validUtxos =  utxos.filter(utxo =>  utxo.outputIndex === 0)
+        const assets = {  }
+        const consumingTxs = []
+        const metadata =  {}
+        mintingSettings.forEach((mintingSetting, index) => { 
+             assets[policyId+validUtxos[index].txHash] =  mintingSetting.amount;
+             consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
+             metadata[validUtxos[index].txHash] =  {name: mintingSetting.name, description: mintingSetting.description, image: mintingSetting.image}
+    }) 
+        
 
+        console.log(adminUtxo)
+        console.log(mintPrice, afiliateBounty)
+        const tx = lucid.newTx()
+                   .mintAssets(assets, Data.void())
+                   .attachMintingPolicy(mintingRawScript )
+                   .payToAddress(adminUtxo.address, {lovelace : mintPrice})
+                   .attachMetadata( 721 , metadata )
+                   .readFrom([adminUtxo])
+        
+        consumingTxs.map(consumingTx => {tx.compose(consumingTx)})
+        console.log(await tx.toString())
+        const completedTx = await tx.complete()
+        console.log(completedTx)
+        const signature = await completedTx.sign().complete();
+          
+        const txHash = await signature.submit();
+        console.log(txHash)
+        console.log(adminDatum,mintPrice,afiliateBounty)
     }
 
     async newLucidInstance(settings) {
