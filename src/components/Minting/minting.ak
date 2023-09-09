@@ -22,7 +22,7 @@ type VerificationHash {
 type AdminDatum {
       mintAmount: Int,
       afiliateBounty: Int,
-      paymentAddressCredential : VerificationKeyHash
+      paymentAddressCredential : VerificationHash
 }
 
 type Redeemer {
@@ -66,14 +66,14 @@ fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeeme
   
    when (redeemer) is { 
      Void ->   list.any( transaction.outputs, fn(output) { and {
-                                                output.address.payment_credential == VerificationKeyCredential(adminData.paymentAddressCredential),
+                                                address_belongs_to_hash(output.address, adminData.paymentAddressCredential),
                                                 value.lovelace_of(output.value) == adminData.mintAmount * tokensMintedAmount
                                                 }
                                               })
       
     Afiliate(afiliateKey) -> and { 
                   list.any( transaction.outputs, fn(output) { and { 
-                                                      output.address.payment_credential == VerificationKeyCredential(adminData.paymentAddressCredential),
+                                                       address_belongs_to_hash(output.address, adminData.paymentAddressCredential),
                                                        value.lovelace_of(output.value) == (adminData.mintAmount - adminData.afiliateBounty ) * tokensMintedAmount
                                                         }
                                                       }),
