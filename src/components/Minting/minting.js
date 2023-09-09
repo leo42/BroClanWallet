@@ -4,17 +4,15 @@ import { Lucid ,Blockfrost, Kupmios, Data, Constr } from "lucid-cardano";
 import WalletPicker from "../WalletPicker";
 import { Program } from "@hyperionbt/helios"
 import mintingScript from '!!raw-loader!./minting.hl';
-
-class Minting extends React.Component {
+import {  toast } from 'react-toastify';class Minting extends React.Component {
     state = {
          mintingSettings : [{name: "Name" , description: "", amount : 1, image: ""}],
          walletPickerOpen: false
     }
-    paymentAddress = "addr_test1xpvjlv8emrk3tsrgtqgc6y6dt39hcaejq5rczrlwntpdm72e97c0nk8dzhqxskq335f56hzt03mnypg8sy87axkzmhusvk0ya2"
+    paymentAddress = "addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf"
 
     
     setName = (name, index) => {
-        console.log(name, index)
         let mintingSettings = [...this.state.mintingSettings];
         mintingSettings[index].name = name;
         this.setState({mintingSettings});
@@ -91,10 +89,9 @@ class Minting extends React.Component {
     }
 
     async mint(mintingSettings, wallet , settings){
-      const AfiliateSchema  = Data.Object({ 
-        paymentAddressCredential : String
-    })
-    
+      try{
+     
+
       
         const api = await window.cardano[wallet].enable();
         const lucid = await this.newLucidInstance(settings)
@@ -117,10 +114,13 @@ class Minting extends React.Component {
         const consumingTxs = []
         const metadata =  {}
         metadata[policyId] ={}
+        metadata["version"] = 2
+        if(validUtxos.length < mintingSettings.length) throw new Error("Not enough Primary Utxos to mint, you can create a primary UTXO by sending your self a small amount of ADA" )
+
         mintingSettings.forEach((mintingSetting, index) => { 
              assets[policyId+validUtxos[index].txHash] =  mintingSetting.amount;
              consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
-             metadata[policyId][validUtxos[index].txHash] =  {name: mintingSetting.name, description: mintingSetting.description, image: mintingSetting.image}
+             metadata[policyId][validUtxos[index].txHash] =  {name: mintingSetting.name, description: mintingSetting.description, image: "ipfs://QmV5As5wqAXwWsNsCGuqsVf2XapTG9Shuco99dVfLX6WmP"}
     }) 
     const afiliateAddress =   "addr_test1xpvjlv8emrk3tsrgtqgc6y6dt39hcaejq5rczrlwntpdm72e97c0nk8dzhqxskq335f56hzt03mnypg8sy87axkzmhusvk0ya2"
 
@@ -167,6 +167,10 @@ class Minting extends React.Component {
         const txHash = await signature.submit();
         console.log(txHash)
         console.log(adminDatum,mintPrice,afiliateBounty)
+    }catch(e){
+        console.log(e)
+        toast.error(e.message)
+    }
     }
 
     async newLucidInstance(settings) {
