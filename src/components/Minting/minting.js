@@ -88,6 +88,17 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         this.mint(mintingSettings, wallet , this.props.root.state.settings)
     }
 
+    addressIsValid = (affiliate, getAddressDetails) => {
+        try {
+          console.log(affiliate)
+            const addressDetails = getAddressDetails(affiliate.affiliate)
+            return true
+            
+        } catch (error) {
+            return false
+        }
+    }
+
     async mint(mintingSettings, wallet , settings){
       try{
      
@@ -107,7 +118,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         const adminUtxo = await lucid.provider.getUtxoByUnit(adminKey)
         const adminDatum =  Data.from(adminUtxo.datum)
         const mintPrice = adminDatum.fields[0]
-        const afiliateBounty = adminDatum.fields[1]
+        const affiliateBounty = adminDatum.fields[1]
         const utxos = await lucid.wallet.getUtxos()
         const validUtxos =  utxos.filter(utxo =>  utxo.outputIndex === 0)
         const assets = {  }
@@ -122,21 +133,24 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
              consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
              metadata[policyId][validUtxos[index].txHash] =  {name: mintingSetting.name, description: mintingSetting.description, image: "ipfs://QmV5As5wqAXwWsNsCGuqsVf2XapTG9Shuco99dVfLX6WmP"}
     }) 
-    const afiliateAddress =   "addr_test1xpvjlv8emrk3tsrgtqgc6y6dt39hcaejq5rczrlwntpdm72e97c0nk8dzhqxskq335f56hzt03mnypg8sy87axkzmhusvk0ya2"
-
+    let affiliate =  localStorage.getItem("affiliate") ? JSON.parse(localStorage.getItem("affiliate")) : undefined
+    if (affiliate && affiliate.time < Date.now() - 2592000000) {
+        affiliate = undefined
+        localStorage.removeItem("affiliate")
+    }
 
       const paymentTx = lucid.newTx()
-      
-      if (afiliateAddress ){  
+      const affiliateValid = this.addressIsValid(affiliate, lucid.utils.getAddressDetails)
+      if (affiliateValid ){  
           if(lucid.utils.getAddressDetails(this.paymentAddress).paymentCredential.type === "Key" )
-                paymentTx.payToAddress(this.paymentAddress, {lovelace : mintPrice - afiliateBounty  }) 
+                paymentTx.payToAddress(this.paymentAddress, {lovelace : mintPrice - affiliateBounty  }) 
           else     
-                paymentTx.payToAddressWithData(this.paymentAddress, {inline :Data.void()}, {lovelace : mintPrice - afiliateBounty  })
+                paymentTx.payToAddressWithData(this.paymentAddress, {inline :Data.void()}, {lovelace : mintPrice - affiliateBounty  })
           
-          if(lucid.utils.getAddressDetails(afiliateAddress).paymentCredential.type === "Key" )
-                paymentTx.payToAddress(afiliateAddress, {lovelace : afiliateBounty  }) 
+          if(lucid.utils.getAddressDetails(affiliate.affiliate).paymentCredential.type === "Key" )
+                paymentTx.payToAddress(affiliate.affiliate, {lovelace : affiliateBounty  }) 
           else     
-                paymentTx.payToAddressWithData(afiliateAddress, {inline :Data.void()}, {lovelace : afiliateBounty  })
+                paymentTx.payToAddressWithData(affiliate.affiliate, {inline :Data.void()}, {lovelace : affiliateBounty  })
       }else {
         if(lucid.utils.getAddressDetails(this.paymentAddress).paymentCredential.type === "Key" )
                 paymentTx.payToAddress(this.paymentAddress, {lovelace : mintPrice   })
@@ -145,12 +159,12 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
       }
 
        
-       const redeemer   = afiliateAddress ?  
-                 Data.to(new Constr(1, [new Constr( lucid.utils.getAddressDetails(afiliateAddress).paymentCredential.type === "Key" ? 0 : 1, [ lucid.utils.getAddressDetails(afiliateAddress).paymentCredential.hash])])) :
+       const redeemer  = affiliateValid ?  
+                 Data.to(new Constr(1, [new Constr( lucid.utils.getAddressDetails(affiliate.affiliate).paymentCredential.type === "Key" ? 0 : 1, [ lucid.utils.getAddressDetails(affiliate.affiliate).paymentCredential.hash])])) :
                  Data.void()
       
         console.log(adminUtxo)
-        console.log(mintPrice, afiliateBounty, lucid.utils.getAddressDetails(this.paymentAddress), adminDatum , redeemer)
+        console.log(mintPrice, affiliateBounty, lucid.utils.getAddressDetails(this.paymentAddress), adminDatum , redeemer)
         const tx = lucid.newTx()
                    .mintAssets(assets, redeemer)
                    .attachMintingPolicy(mintingRawScript )
@@ -166,7 +180,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
           
         const txHash = await signature.submit();
         console.log(txHash)
-        console.log(adminDatum,mintPrice,afiliateBounty)
+        console.log(adminDatum,mintPrice,affiliateBounty)
     }catch(e){
         console.log(e)
         toast.error(e.message)

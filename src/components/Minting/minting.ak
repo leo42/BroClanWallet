@@ -21,13 +21,13 @@ type VerificationHash {
 
 type AdminDatum {
       mintAmount: Int,
-      afiliateBounty: Int,
+      affiliateBounty: Int,
       paymentAddressCredential : VerificationHash
 }
 
 type Redeemer {
     Void
-    Afiliate { paymentAddressCredential : VerificationHash}
+    Affiliate { paymentAddressCredential : VerificationHash}
 }
 
 validator {
@@ -71,15 +71,15 @@ fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeeme
                                                 }
                                               })
       
-    Afiliate(afiliateKey) -> and { 
+    Affiliate(affiliateKey) -> and { 
                   list.any( transaction.outputs, fn(output) { and { 
                                                        address_belongs_to_hash(output, adminData.paymentAddressCredential),
-                                                       value.lovelace_of(output.value) == (adminData.mintAmount - adminData.afiliateBounty ) * tokensMintedAmount
+                                                       value.lovelace_of(output.value) == (adminData.mintAmount - adminData.affiliateBounty ) * tokensMintedAmount
                                                         }
                                                       }),
                   list.any( transaction.outputs, fn(output) { and {
-                                                        address_belongs_to_hash(output, afiliateKey),
-                                                        value.lovelace_of(output.value) == adminData.afiliateBounty * tokensMintedAmount
+                                                        address_belongs_to_hash(output, affiliateKey),
+                                                        value.lovelace_of(output.value) == adminData.affiliateBounty * tokensMintedAmount
                                                         }
                                                       })
                               }

@@ -26,7 +26,7 @@ class App extends React.Component {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
                 }
   }
-
+  1
    setState(state){
     super.setState(state)
     console.log(state)
@@ -40,8 +40,18 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.loadState()
+    const queryParameters = new URLSearchParams(window.location.search)
+    const affiliate = queryParameters.get("affiliate")
+    if (affiliate){
+      const affiliateOld = localStorage.getItem("affiliate") ? JSON.parse(localStorage.getItem("affiliate")) : undefined
+      // 30 days
+      if(!affiliateOld || (affiliateOld && affiliateOld.time < Date.now() - 2592000000)){
+      localStorage.setItem("affiliate", JSON.stringify({affiliate , time: Date.now()}))
+      console.log(`Welcome to Broclan!`, affiliate)
+    }
   }
+  this.loadState()
+}
 
   loadState(){
     const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
