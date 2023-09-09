@@ -2,11 +2,11 @@
 use aiken/list
 use aiken/option
 use aiken/dict
-use aiken/transaction/credential.{VerificationKeyCredential , ScriptCredential ,VerificationKey, Script, Address}
+use aiken/transaction/credential.{VerificationKeyCredential , ScriptCredential ,VerificationKey, Script}
 use aiken/hash.{Blake2b_224, Hash}
-use aiken/transaction/value.{ PolicyId , AssetName }
+use aiken/transaction/value.{ PolicyId , AssetName  }
 
-use aiken/transaction.{Transaction, ScriptContext, Mint   , InlineDatum }
+use aiken/transaction.{Transaction, ScriptContext, Mint, Output, InlineDatum }
 
 type VerificationKeyHash =
   Hash<Blake2b_224, VerificationKey>
@@ -66,19 +66,19 @@ fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeeme
   
    when (redeemer) is { 
      Void ->   list.any( transaction.outputs, fn(output) { and {
-                                                address_belongs_to_hash(output.address, adminData.paymentAddressCredential),
+                                                address_belongs_to_hash(output, adminData.paymentAddressCredential),
                                                 value.lovelace_of(output.value) == adminData.mintAmount * tokensMintedAmount
                                                 }
                                               })
       
     Afiliate(afiliateKey) -> and { 
                   list.any( transaction.outputs, fn(output) { and { 
-                                                       address_belongs_to_hash(output.address, adminData.paymentAddressCredential),
+                                                       address_belongs_to_hash(output, adminData.paymentAddressCredential),
                                                        value.lovelace_of(output.value) == (adminData.mintAmount - adminData.afiliateBounty ) * tokensMintedAmount
                                                         }
                                                       }),
                   list.any( transaction.outputs, fn(output) { and {
-                                                        address_belongs_to_hash(output.address, afiliateKey),
+                                                        address_belongs_to_hash(output, afiliateKey),
                                                         value.lovelace_of(output.value) == adminData.afiliateBounty * tokensMintedAmount
                                                         }
                                                       })
@@ -103,10 +103,16 @@ fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeeme
 }
 
 
-fn address_belongs_to_hash( address : Address , hash : VerificationHash  )  {
+fn address_belongs_to_hash( output : Output , hash : VerificationHash  )  {
   when( hash) is {
-    VerificationKeyHash(paymentAddressCredential) -> address.payment_credential == VerificationKeyCredential(paymentAddressCredential)
-    ScriptHash(paymentAddressCredential  ) -> address.payment_credential ==  ScriptCredential(paymentAddressCredential)
+    VerificationKeyHash(paymentAddressCredential) -> output.address.payment_credential == VerificationKeyCredential(paymentAddressCredential)
+    ScriptHash(paymentAddressCredential  ) -> and {
+               output.address.payment_credential ==  ScriptCredential(paymentAddressCredential),
+               when (output.datum) is {
+                 InlineDatum(_) -> True
+                 _ -> False
+               }
+               }
   }
   
 }
