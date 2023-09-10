@@ -57,9 +57,8 @@ async function getTokenInfo(tokenId){
               function splitTokenId(tokenId){
                 const splitLength = 56
                 const splitTokenId = []
-                for (let i = 0; i < tokenId.length; i += splitLength) {
-                  splitTokenId.push(tokenId.substring(i, i + splitLength))
-                }
+                splitTokenId.push(tokenId.substring(0, 56))
+                splitTokenId.push(tokenId.substring(56, tokenId.length))
                 return splitTokenId
               }
 
