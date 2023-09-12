@@ -1,7 +1,7 @@
 
 import React from 'react';
 import WalletConnector from './walletConnector';
-import Wallet from "../../TokenWallet.js"
+import Wallet from "../../wallets/TokenWallet.js"
 import "./TokenVaultContainer.css"
 import MWalletList from './WalletList';
 import WalletMain from './WalletMain';

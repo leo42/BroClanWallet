@@ -1,0 +1,8 @@
+{
+    "type": "module",
+    "dependencies": {
+        "lucid-cardano": "^0.10.7",
+        "mongodb": "^6.0.0",
+        "ws": "^8.14.1"
+    }
+}

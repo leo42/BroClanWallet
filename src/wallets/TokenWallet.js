@@ -84,6 +84,7 @@ func main(_ ,ctx: ScriptContext) -> Bool {
     } 
 
   async newLucidInstance(settings) {
+
     if (settings.provider === "Blockfrost") {
       return await Lucid.new(
         new Blockfrost(settings.api.url, settings.api.projectId),
@@ -97,6 +98,12 @@ func main(_ ,ctx: ScriptContext) -> Bool {
     } else if (settings.provider === "MWallet") {
       return await Lucid.new(
         new Blockfrost(settings.api.url, settings.api.projectId),
+        settings.network
+      );
+    }
+    else if (settings.provider === undefined) {
+      return await Lucid.new(
+        undefined,
         settings.network
       );
     }
@@ -204,6 +211,10 @@ setPendingTxs(pendingTxs){
         return this.lucid.utils.validatorToAddress(this.ValidatorScript, {type:"Script", hash: rewardAddress} )
     }
 
+    getPaymentCredential() {
+      return this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential
+    }
+
     getStakingAddress() {
       return this.lucid.utils.validatorToRewardAddress(this.ValidatorScript)
     }
@@ -260,7 +271,7 @@ setPendingTxs(pendingTxs){
         this.getDelegation()
         this.utxos = utxos
     }catch(e){
-      console.log("Error loading utxos", e)
+       
     }
     }
 
