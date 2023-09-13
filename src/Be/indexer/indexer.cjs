@@ -5,14 +5,7 @@ let Lucid = import("lucid-cardano")
 let Wallet = import("../../wallets/TokenWallet.js")
 const client = new WebSocket("ws://194.163.159.42:1337");
 
-const config = {
-    mongoUri : "mongodb://127.0.0.1:27017",
-    startPoint: {slot: 38816109 , id : "8ba800989285545bd547c1817f936639265fa6b9b6b2d95e158bdeeb5f2ee755" },
-    ogmiosConnection : { host: "194.163.159.42" },
-    policyId : "64b87bcae32aed7e122db37e202b014d55bbe739e0cdef4b317695b4",
-    settings: {               network: "Preprod"
-                }
-}
+
 
 function rpc(method, params, id) {
     client.send(JSON.stringify({
@@ -23,8 +16,8 @@ function rpc(method, params, id) {
     }));
 }
 
-const mongoClient = new MongoClient(config.mongoUri);
-
+let mongoClient 
+let config 
 let lucid 
 let tokens
 
@@ -51,7 +44,11 @@ async function checkTransaction(tx, slot){
     //console.log(tx)
     if(tx.outputs){
         tx.outputs.map( async (output, index) => {
-            const outputCred = await lucid.utils.getAddressDetails(output.address).paymentCredential
+            let outputCred
+            try{
+            outputCred = await lucid.utils.getAddressDetails(output.address).paymentCredential
+            }catch(e){
+            }
             if(outputCred.type === "Script"){
                 if(await tokens.findOne({paymentCredential: outputCred.hash})){
                     const utxoData = output
@@ -87,11 +84,13 @@ async function cleanUtxos(){
     // remove utxos that are spent more than 36 hours ago
     const current = await mongoClient.db("TokenVaults").collection("syncStatus").findOne({flag: "preprod"})
     tokens.updateMany({utxos: {$elemMatch: {spenttime: {$lte: current.slot - 129600000}}}}, {$pull: {utxos: {spenttime: {$lte: current.slot - 129600000}}}})
-    
-
 }
 
 async function main(){
+    config = await import("./config.js")
+    config = ({ ...config }).default;
+    console.log(config)
+    mongoClient = new MongoClient(config.mongoUri);
     Lucid = await Promise.resolve(Lucid)
     lucid = await Lucid.Lucid.new(
         undefined,
