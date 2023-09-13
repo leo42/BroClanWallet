@@ -46,9 +46,8 @@ async function checkTransaction(tx, slot){
         tx.outputs.map( async (output, index) => {
             let outputCred
             try{
-            outputCred = await lucid.utils.getAddressDetails(output.address).paymentCredential
-            }catch(e){
-            }
+                outputCred = await lucid.utils.getAddressDetails(output.address).paymentCredential
+        
             if(outputCred.type === "Script"){
                 if(await tokens.findOne({paymentCredential: outputCred.hash})){
                     const utxoData = output
@@ -57,9 +56,13 @@ async function checkTransaction(tx, slot){
                     utxoData["createdtime"] = slot
                     utxoData["id"] = tx.id
                     utxoData["index"] = index
-                    tokens.updateOne({paymentCredential: outputCred.hash}, {$push: {utxos: output }})
+                    tokens.updateOne({paymentCredential: outputCred.hash}, {$push: {utxos: output }, $set: {imageUpdate: true}})
               
                 }
+            }
+        }
+            catch(e){
+                
             }
         })
 
@@ -67,7 +70,7 @@ async function checkTransaction(tx, slot){
     if(tx.inputs){
         tx.inputs.map( async (input) => {
            if((await tokens.findOne({utxos: {$elemMatch: {id: input.transaction.id , index: input.index } }})) !== null){
-                tokens.updateOne({utxos: {$elemMatch: {id: input.transaction.id, index: input.index }}}, {$set: {"utxos.$.spent": true, "utxos.$.spenttime": slot}})
+                tokens.updateOne({utxos: {$elemMatch: {id: input.transaction.id, index: input.index }}}, {$set: {"utxos.$.spent": true, "utxos.$.spenttime": slot, imageUpdate: true}})
             }
         })
     }
@@ -116,7 +119,6 @@ client.once('open', () => {
 
 client.on('message', async function(msg) {
     const response = JSON.parse(msg);
-
     switch (response.id) {
         case "find-intersection":
             if (!response.result.intersection) { throw "Whoops? Last Byron block disappeared?" }
@@ -133,14 +135,12 @@ client.on('message', async function(msg) {
                 });
             }else if (response.result.direction === "backward"){
                 console.log(response.result);
-               tokens.deleteMany({slot: {$gte: response.result.slot}})
+                await rollBack(response.result.point);
+               
             }
             //console.log(response)
             if (response.result.block) await mongoClient.db("TokenVaults").collection("syncStatus").updateOne({flag: "preprod"}, {$set: {slot: response.result.block.slot, id: response.result.block.id}}, {upsert: true})
-            rpc("nextBlock", {}, response.id );
-        
-               
-            
+            rpc("nextBlock", {}, response.id );            
             break;
     }
 });

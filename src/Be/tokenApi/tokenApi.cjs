@@ -23,15 +23,17 @@ async function main() {
 
 
 async function getTokens(tokenVault) {
-    console.log(tokenVault)
     const result = await tokens.findOne({id : tokenVault})
-    console.log(result)
+   
+    if (result === null) {
+        return {error: "no such token vault"}
+    }
     const utxos = result.utxos.filter((utxo) => {
         return utxo.spent === false;
     });
 
     const tokenList = {};
-    result.utxos.map((utxo) => {
+    utxos.map((utxo) => {
         if (tokenList["lovelace"] === undefined) {
             tokenList["lovelace"] = 0;
         }
