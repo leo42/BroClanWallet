@@ -7,6 +7,6 @@ COPY package.json ./
 RUN npm ci --only=production
 
 copy ./config.json ./
-COPY  ./indexer.cjs ./
+COPY  ./tokenApi.cjs ./
 
 CMD [ "node", "indexer.js" ]
