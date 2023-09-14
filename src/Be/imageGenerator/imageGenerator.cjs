@@ -3,7 +3,9 @@ const sharp = require('sharp');
 const { MongoClient } = require('mongodb');
 
 async function CombineImages(sourceImages) {
-
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
   sourceImages = sourceImages.filter((image) => {return image !== undefined})
 
   sourceImages = sourceImages.map((image) => {
@@ -14,44 +16,57 @@ async function CombineImages(sourceImages) {
       return Buffer.from(image)
     }
   })
-
+  const predefinedLocations = sourceImages.length < config.posittioning.length
+  
+  const componentSize = predefinedLocations ? config.posittioning[sourceImages.length].size : Math.floor(config.canvas.width / sourceImages.length);
+  const randomLocation = ( () =>  config.margin + getRandomInt(config.canvas.width - config.margin*2 - componentSize))
   // Resize images to a common size (adjust dimensions as needed)
   const resizedImages = await Promise.all(sourceImages.map(imgBuffer =>
     sharp(imgBuffer)
-      .resize(200, 200) // Adjust the size as needed
+      .resize(componentSize, componentSize) // Adjust the size as needed
       .toBuffer()
   ));
 
+  
+  const composite = resizedImages.map((imgBuffer, index) => ({
+    input: imgBuffer,
+    left: predefinedLocations ? config.posittioning[sourceImages.length].positions[index].left : randomLocation(), 
+    top: predefinedLocations ? config.posittioning[sourceImages.length].positions[index].top : randomLocation(),
+  }))
+
+  // composite.push({
+  //   input: Buffer.from(`<svg height="20"  width="500"><text x="20" y="20" font-family="Arial" font-size="${ 24}" fill="${ 'black'}">TESTING TEXT</text></svg>`),
+  //   left: 350,
+  //   top: 50,
+  // })
   // Combine resized images horizontally
   const collageImageBuffer = await sharp({
     create: {
-      width:  600, // Adjust the width based on the number of images
-      height: 200, // Adjust the height as needed
-      channels: 4, // 4 channels for RGBA
-      background: { r: 255, g: 255, b: 255, alpha: 1 }, // Background color
+      width:  config.canvas.width, 
+      height: config.canvas.height,
+      channels: 4, 
+      background: { r: 255, g: 255, b: 255, alpha: 1 }, 
     }
   })
 
-    .composite(resizedImages.map((imgBuffer, index) => ({
-      input: imgBuffer,
-      left: index * 200, // Adjust the positioning
-      top: 0,
-    })))
-    .png() // You can change the format as needed (e.g., jpeg)
+
+    .composite(composite)
+    .png() 
     .toBuffer()
-    
     return collageImageBuffer
 }
+
 fetchImage = async function(url){
   //if start with ipfs get from ipfs
   if(url.startsWith("ipfs://")){
-    const res = await fetch("https://ipfs.blockfrost.dev/ipfs/"+url.slice(7))
+    const res = await fetch("https://ipfs.blockfrost.dev/ipfs/"+url.slice(7).replace("ipfs/", ""))
     return await res.arrayBuffer()
   }else{
     const res = await fetch(url)
     return await res.arrayBuffer()
   }
 }
+
 
 getSourceImages = async function(tokenList){ 
   const tokenListKeys = Object.keys(tokenList)
