@@ -124,14 +124,14 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         const assets = {  }
         const consumingTxs = []
         const metadata =  {}
-        metadata[policyId] ={}
+        metadata[`0x${policyId}`] ={}
         metadata["version"] = 2
         if(validUtxos.length < mintingSettings.length) throw new Error("Not enough Primary Utxos to mint, you can create a primary UTXO by sending your self a small amount of ADA" )
 
         mintingSettings.forEach((mintingSetting, index) => { 
              assets[policyId+validUtxos[index].txHash] =  mintingSetting.amount;
              consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
-             metadata[policyId][validUtxos[index].txHash] =  {name: mintingSetting.name, description: mintingSetting.description, image: "ipfs://QmV5As5wqAXwWsNsCGuqsVf2XapTG9Shuco99dVfLX6WmP"}
+             metadata[`0x${policyId}`][`0x${validUtxos[index].txHash}`] =  {name: mintingSetting.name, description: mintingSetting.description, image: "ipfs://QmV5As5wqAXwWsNsCGuqsVf2XapTG9Shuco99dVfLX6WmP"}
     }) 
     let affiliate =  localStorage.getItem("affiliate") ? JSON.parse(localStorage.getItem("affiliate")) : undefined
     if (affiliate && affiliate.time < Date.now() - 2592000000) {
@@ -168,7 +168,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         const tx = lucid.newTx()
                    .mintAssets(assets, redeemer)
                    .attachMintingPolicy(mintingRawScript )
-                   .attachMetadata( 721 , metadata )
+                   .attachMetadataWithConversion( 721 , metadata )
                    .readFrom([adminUtxo])
                    .compose(paymentTx)
         
