@@ -9,3 +9,15 @@
     max-height: 200px;
     max-width: 200px;
 }
+
+.affiliateLink{
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    color: rgb(81, 83, 83);
+    cursor: pointer;
+}
+
+.affiliateLink:hover{
+    color: rgb(28, 27, 78);
+}

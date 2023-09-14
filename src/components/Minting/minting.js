@@ -253,6 +253,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
               </div>
 
                 <br />
+                <span className="affiliateLink" onClick={() => window.location.href = 'affiliates.html'}> affiliate </span>
             </div>
         );
     }

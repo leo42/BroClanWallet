@@ -12,7 +12,7 @@ const config = {
                     { positions: [{top: 20, left: 20}, {top: 350, left: 350}, {top: 690, left: 690}] , size: 300},
                     { positions: [{top: 40, left: 40}, {top: 690, left: 40}, {top: 40, left: 690}, {top: 690, left: 690}] , size: 300},
                     { positions: [{top: 40, left: 40}, {top: 690, left: 40}, {top: 40, left: 690}, {top: 690, left: 690}, {top: 350, left: 350}] , size: 300},
-                    { positions: [{top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}] , size: 1000},]
+                    { positions: [{top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}] , size: 250},]
 }
 
 export default config
