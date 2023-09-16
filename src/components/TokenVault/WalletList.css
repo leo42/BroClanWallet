@@ -67,10 +67,12 @@
 .Overlay{
     width: 100vw;
     height: 100vh;
-    position: fixed;
+    position: absolute;
     left: 0px;
-    z-index: -1;
+    top: 0px;
+    z-index: -1000;
 }
+
 
 .tokenWalletSelectedEmpty{
     height: 100px;

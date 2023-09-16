@@ -9,6 +9,7 @@
 
 .App {
   text-align: center;
+  height: 0px;
   font-family: 'Roboto', sans-serif;
   /* height: 87vh; */
 }

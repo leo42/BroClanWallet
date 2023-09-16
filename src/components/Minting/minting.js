@@ -4,10 +4,12 @@ import { Lucid ,Blockfrost, Kupmios, Data, Constr } from "lucid-cardano";
 import WalletPicker from "../WalletPicker";
 import { Program } from "@hyperionbt/helios"
 import mintingScript from '!!raw-loader!./minting.hl';
+import AffiliateModal from "./affiliateModal";
 import {  toast } from 'react-toastify';class Minting extends React.Component {
     state = {
          mintingSettings : [{name: "Name" , description: "", amount : 1, image: ""}],
-         walletPickerOpen: false
+         walletPickerOpen: false,
+         affiliateModalOpen: true,
     }
     paymentAddress = "addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf"
 
@@ -219,10 +221,14 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
             When tokenized Multisig is released for BroClan, you will be able to reuse this tokens in that setting</h4></div>
 
    
-
+    toggleAfiliateModal = () => {
+      console.log("toggle") 
+        this.setState({affiliateModalOpen: !this.state.affiliateModalOpen})
+    }
     render() {
         return (
             <div className='MintingModule'>
+                {this.state.affiliateModalOpen && <AffiliateModal setOpenModal={this.toggleAfiliateModal} />}
                  {this.state.walletPickerOpen && <WalletPicker setOpenModal={this.setWalletPickerOpen} operation={this.mintWithWallet} />}
                     {this.description}
                     <div key={this.state.mintingSettings}> 
@@ -253,7 +259,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
               </div>
 
                 <br />
-                <span className="affiliateLink" onClick={() => window.location.href = 'affiliates.html'}> affiliate </span>
+                <span className="affiliateLink" onClick={() => this.toggleAfiliateModal() }> affiliate </span>
             </div>
         );
     }

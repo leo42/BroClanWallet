@@ -8,6 +8,24 @@
     z-index: -1;
 }
 
+
+.tokenWalletConnector{
+    margin: 10px;
+    z-index: 0;
+    align-items: end;
+    z-index: -1;
+}
+
+.tokenWalletConnectorWrapper{
+    display: flex;
+    flex-direction: column;
+    align-self: end;
+    position: relative;
+    top: -120px; 
+    z-index: -5;
+
+}
+
 .TokenVaultsContainerActive .WalletConnector{
     position: fixed;
 }

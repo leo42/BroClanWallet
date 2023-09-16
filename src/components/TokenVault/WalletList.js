@@ -75,7 +75,7 @@ function WalletList (props) {
                  <TokenThumbnail tokenId={item} f={selectWallet} key={item}/>
                  
         )) }
-        <div className='Overlay' onClick={() => setExpanded(false)} />
+            { props.moduleRoot.state.wallet && <div className='Overlay' onClick={() => setExpanded(false)} /> }
         </div>
         </div>}
        </div>

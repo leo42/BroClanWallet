@@ -1,0 +1,40 @@
+.affiliateDisclaimers{
+    margin: 10px;
+    width: 80vw;
+    display: flex;
+    flex-direction: column;
+}
+
+.affiliateDisclaimer{
+    text-align: left;
+    color: red;
+    margin: 4px;
+    width: 80vw;
+}
+
+.affiliateLinkReady{
+    margin: 15px;
+    display: flex;
+    align-self: center;
+    width: 80vw;
+    /* hide text when it is to large */
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.affiliateLinkReadyWrapper{
+    display: flex;
+    margin-top: 15px;
+    flex-direction: row;
+    align-items: center;
+    justify-content:space-evenly;
+    width: 100%;
+}
+
+.affiliateLinkReadyWrapper2{
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90vw;
+}
