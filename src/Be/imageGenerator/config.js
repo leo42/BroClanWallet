@@ -1,5 +1,3 @@
-import { Block } from "@dcspark/cardano-multiplatform-lib-nodejs"
-
 const config = {
     mongoUri : "mongodb://127.0.0.1:27017",
     // blockfrostKey : "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp",

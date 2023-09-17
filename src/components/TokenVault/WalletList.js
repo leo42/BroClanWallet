@@ -3,6 +3,9 @@ import {useState , useEffect} from 'react';
 import "./WalletList.css"
 import TokenThumbnail from '../TokenThumbnail'; 
 import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
+const policies = {
+    Preprod : "64b87bcae32aed7e122db37e202b014d55bbe739e0cdef4b317695b4"
+}
 
 function WalletList (props) {
     const [tokens, setTokens] = useState({})
@@ -24,6 +27,14 @@ function WalletList (props) {
         setExpanded(false)
     }
 
+    function isValidToken(token) {
+        console.log(token)
+        if (token.substring(0, 56) === policies[props.root.state.settings.network]) {
+           return true
+        }else {
+            return false
+        }
+}
     function getUtxoTokens(utxos) {
         const tokens = {}
         console.log(utxos)
@@ -37,13 +48,13 @@ function WalletList (props) {
              Object.keys(utxo.assets).map(asset => {
                 if (asset !== "lovelace") {
                  console.log(utxo.assets[asset])
-                 if (!( asset in tokens)) 
+                 if (!( asset in tokens) && isValidToken(asset)) {
                     {
                         tokens[asset] = utxo
                     }
                 }
                 
-            })
+       }})
         }   )
     
        setCollateralUtxo(localCollateralUtxo)

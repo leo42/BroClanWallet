@@ -20,8 +20,7 @@ function Deposit(props) {
     const api = props.moduleRoot.state.connectedWallet.api
     const lucid = props.moduleRoot.state.connectedWallet.lucid
     const activeToken = props.moduleRoot.state.wallet.getToken()
-    console.log(props)
-
+    
     useEffect(() => {
         const options =  props.wallet.getFundedAddress()
         const optionsNames = {}
@@ -87,12 +86,10 @@ function Deposit(props) {
         }
 
         setFullBalance(fullBalance)
-        console.log(fullBalance)
     }
 
     async function getAllTokenInfo() {
         for(const token of Object.keys(fullBalance)) {
-            console.log(token)
           if (token !== "lovelace") {
             const data = await getTokenInfo(token)
               const tokenData = {...tokenData}

@@ -9,7 +9,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
     state = {
          mintingSettings : [{name: "Name" , description: "", amount : 1, image: ""}],
          walletPickerOpen: false,
-         affiliateModalOpen: true,
+         affiliateModalOpen: false,
     }
     paymentAddress = "addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf"
 
