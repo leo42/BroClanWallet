@@ -24,7 +24,6 @@ state= {
 }
 
 componentDidUpdate(prevProps) {
-  console.log("settings", prevProps)
 
   if (this.props.settings !== prevProps.settings) {
     this.newSettings(this.props.root.state.settings)

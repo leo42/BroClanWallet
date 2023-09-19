@@ -8,12 +8,14 @@ import { toast } from "react-toastify";
 
 function AffiliateModal({ setOpenModal, operation }) {
     
-    const disclaimerTexts = [ "I undestand that this are not investment products, and do not hold any promice of profit.",
-    "I undestand that BroClan maintains the right to alter the price for minting and the amount payed to affiliates.",
-    "BroClan cannot guaranty that they affiliate payment will happen, users can circomvent the system if they have the required knowlage",
-    "By using this link I will promote BroClan truthfully and attemt to assist my audience get a good undestanding of the product"]
- 
-
+  const disclaimerTexts = [
+    "I understand that these materials are provided for informational purposes only and do not constitute legal, financial, or professional advice. Users should seek independent professional advice as needed.",
+    "I understand that these are not investment products and do not hold any promise of profit. Users should carefully assess the risks associated with any actions they take and consult with a financial advisor if necessary.",
+    "I understand that BroClan maintains the right to alter the price for minting and the amount paid to affiliates. Users participating in affiliate programs should disclose their relationship with BroClan and be aware that they may earn commissions for referrals.",
+    "BroClan cannot guarantee that the affiliate payment will happen; users can circumvent the system if they have the required knowledge. Users should act in accordance with ethical standards and guidelines when promoting BroClan.",
+    "By using this link, I will promote BroClan truthfully and attempt to assist my audience in getting a good understanding of the product. I agree to abide by the Terms and Conditions and Privacy Policy of BroClan's website, and I understand that these terms may change over time."
+  ];
+  
     const [disclaimer, setDisclaimer] = useState(disclaimerTexts.map(() => false))
     const [affiliateAddress, setAffiliateAddress] = useState("")
     const [lucid, setLucid] = useState(undefined)
@@ -66,9 +68,9 @@ function AffiliateModal({ setOpenModal, operation }) {
               <br/>
 
 
-               Hello, on this menu you can generate an affiliate link.
-            <br/>
-                You will get a 5ADA reward for each that mints a  token, who found out about BroClan from your link.
+              Hello, on this menu, you can generate an affiliate link.
+<br/>
+You will receive a 5 ADA reward for each person who mints a token after discovering BroClan through your link
              <br/>
 
                 <div className="affiliateDisclaimers">

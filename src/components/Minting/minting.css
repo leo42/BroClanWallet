@@ -3,6 +3,9 @@
     top: 150px;
     width: 100%;
     margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     z-index: -4;
 }
 
@@ -21,4 +24,55 @@
 
 .affiliateLink:hover{
     color: rgb(28, 27, 78);
+}
+
+.mintCopies{
+    margin: 10px;
+    width: 25px;
+}
+
+.mintingTerms{
+    margin: 10px;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+}
+
+.mintingTerm{
+    align-self: start;
+
+}
+
+.mintingName{
+}
+
+.invalidTerm{
+    color: red;
+    margin: 0px;
+    padding: 0px;
+    margin-left: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+.invalidInput{
+    border: 1px solid red;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px red;
+}
+.mintButton{
+    background-color: rgba(255, 153, 0, 0.8);
+    margin: 10px;
+    height: 40px;
+    width: 140px;
+    font-size: larger;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.mintButton:hover{
+    background-color: rgba(255, 153, 0, 0.3)  ;
+    background-blend-mode: 0.2;
 }

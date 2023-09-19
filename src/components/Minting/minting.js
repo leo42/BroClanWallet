@@ -6,14 +6,22 @@ import { Program } from "@hyperionbt/helios"
 import mintingScript from '!!raw-loader!./minting.hl';
 import AffiliateModal from "./affiliateModal";
 import {  toast } from 'react-toastify';class Minting extends React.Component {
-    state = {
-         mintingSettings : [{name: "Name" , description: "", amount : 1, image: ""}],
+  
+  terms = [ <span>I read and understood the <a href="https://raw.githubusercontent.com/leo42/BroClanWallet/main/LICENSE" target="blank">Opensource License </a> </span>, 
+            <span>I read and understood the <a href="https://broclan.io/faq.html" target="blank">FAQ</a> </span>]
+  
+  mintingInfo = ["This token represents a tokenized Wallet", "the holder of this token can access the funds of the wallet", "access your tokenized wallet or mint your own", "at broclan.io"]
+
+  state = {
+         mintingSettings : [{name: "" , description: "", amount : 1, image: ""}],
          walletPickerOpen: false,
          affiliateModalOpen: false,
+         termsAccepted: (this.terms.map(() => false))
+
     }
     paymentAddress = "addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf"
 
-    
+
     setName = (name, index) => {
         let mintingSettings = [...this.state.mintingSettings];
         mintingSettings[index].name = name;
@@ -81,8 +89,35 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         this.setState({mintingSettings});
     }
 
+
+    inputCheck = () => {
+      let allOk = true
+        const mintingSettings = this.state.mintingSettings;
+        
+        for (let i = 0; i < mintingSettings.length; i++) {
+            if (mintingSettings[i].name === ""  || mintingSettings[i].amount === 0) {
+                //add invalidInput class to input field by id ``mintingName${i}``
+              document.getElementById(`mintingName${i}`).classList.add("invalidInput") 
+              allOk = false;
+            }else{
+              document.getElementById(`mintingName${i}`).classList.remove("invalidInput")  
+            }
+        }
+        for(let i = 0; i < this.state.termsAccepted.length; i++){
+          if(!this.state.termsAccepted[i]){
+            allOk = false
+            document.getElementById(`mintingTerm${i}`).classList.add("invalidTerm") 
+          }else{  
+            document.getElementById(`mintingTerm${i}`).classList.remove("invalidTerm")
+          }
+        }
+
+        return allOk;
+    }
     startMint = () => {
-        this.setState({walletPickerOpen: true})
+        if(this.inputCheck()){
+          this.setState({walletPickerOpen: true})
+        }
     }
 
     mintWithWallet = (wallet) =>{
@@ -102,10 +137,8 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
     }
 
     async mint(mintingSettings, wallet , settings){
-      try{
-     
-
-      
+      try{      
+        console.log(settings)
         const api = await window.cardano[wallet].enable();
         const lucid = await this.newLucidInstance(settings)
         lucid.selectWallet(api)
@@ -133,7 +166,10 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         mintingSettings.forEach((mintingSetting, index) => { 
              assets[policyId+validUtxos[index].txHash] =  mintingSetting.amount;
              consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
-             metadata[`0x${policyId}`][`0x${validUtxos[index].txHash}`] =  {name: mintingSetting.name, description: mintingSetting.description, image: "ipfs://QmV5As5wqAXwWsNsCGuqsVf2XapTG9Shuco99dVfLX6WmP"}
+             metadata[`0x${policyId}`][`0x${validUtxos[index].txHash}`] =  {name: mintingSetting.name, 
+                                                                            description: mintingSetting.description, 
+                                                                            image: [`https://${settings.network === "Mainnet" ? "" : "preprod."}tokenvaults.broclan.io/api/`,`${validUtxos[index].txHash}`,`/image.png`],
+                                                                            information: this.mintingInfo }
     }) 
     let affiliate =  localStorage.getItem("affiliate") ? JSON.parse(localStorage.getItem("affiliate")) : undefined
     if (affiliate && affiliate.time < Date.now() - 2592000000) {
@@ -207,20 +243,20 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
           );
         }
       }
+
     setWalletPickerOpen = (value) => {
         this.setState({walletPickerOpen: value})
     }
 
-    description = <div name="mintingDescription"><h1>Here you can mint your Tokenized Wallet</h1><br/>
-            <h3>This process uses a plutus script to mint a Uniqe token for you that will unlock your token-wallet</h3><br/>
-            <h4>You can select any metadata you want for your token, this metadata will help you to identify your token in the future for a better user experience<br/>
-            The default image is a generated image based on the content of your token-wallet, generated centraly and served from the BroClan server<br/> 
-            You can use a Custom image if you want, but you will have to host it yourself on IPFS<br/>
-            Important to note that minting a token with the same name will NOT unlock the same token-wallet<br/>
+    description = <div name="mintingDescription"><h1>Mint your Tokenized Wallet</h1><br/>
+            </div>
 
-            When tokenized Multisig is released for BroClan, you will be able to reuse this tokens in that setting</h4></div>
+    acceptTerm = (index) => { 
+        let termsAccepted = [...this.state.termsAccepted];
+        termsAccepted[index] = !termsAccepted[index];
+        this.setState({termsAccepted});
+    }    
 
-   
     toggleAfiliateModal = () => {
       console.log("toggle") 
         this.setState({affiliateModalOpen: !this.state.affiliateModalOpen})
@@ -235,13 +271,13 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
                 {this.state.mintingSettings.map((mintingSetting, index) => 
                     <div key={index}>
                         {index > 0 && <button onClick={() => this.removeMintingSetting(index)}>x</button> }
-                        Name:<input type="text" value={mintingSetting.name} onChange={(event) => this.setName(event.target.value, index) }/> 
+                        <input type="text" className="mintingName"  value={mintingSetting.name} id={`mintingName${index}`} placeholder="Name" onChange={(event) => this.setName(event.target.value, index) }/> 
                         <br/>
-                        Description:<input type="text"   value={mintingSetting.description} onChange={(event) => this.setDescription(event.target.value, index)} /> 
+                        <input type="text"   value={mintingSetting.description} placeholder="Description" onChange={(event) => this.setDescription(event.target.value, index)} /> 
                         <br/>
-                        Copies:<input type="number"   value={mintingSetting.amount}  onChange={(event) => this.setAmount(event.target.value, index)}/>
+                        Copies:<input type="number"  className="mintCopies"  value={mintingSetting.amount}  onChange={(event) => this.setAmount(event.target.value, index)}/>
                         <br/>
-                        Image:
+                        {/* Image:
                             <select  value={mintingSetting.image}  onChange={(event) => this.changeImage(event.target.value, index) } > 
                                 <option value="">default</option>
                                 <option value="custom">Custom</option>
@@ -250,10 +286,13 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
                                <div> <input type="file"  onChange={(event)=> this.uploadImage(event, index)}/> 
                                     {mintingSetting.CustomImage && <img className="CustomImageSelection" src={URL.createObjectURL(new Blob([mintingSetting.CustomImage]))} alt="custom" />}
                                </div>}
-                            <br/>
+                            <br/> */}
                             {/* <button onClick={() => this.addMintingSetting()}>Mint More</button> */}
                             <br/>
-                            <button onClick={() => this.startMint()}>Mint Now</button>
+                            <div className="mintingTerms">
+                            {this.terms.map((term, index) => <div key={index} className="mintingTerm" id={`mintingTerm${index}`}><input type="checkbox" value={this.state.termsAccepted[index]} onChange={() => this.acceptTerm(index)} ></input> {term} </div>)}
+                             </div>
+                              <button className="mintButton" onClick={() => this.startMint()}>Mint Now</button>
                     </div>
                     )}
               </div>

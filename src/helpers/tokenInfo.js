@@ -90,16 +90,18 @@ async function getTokenInfo(tokenId){
                   tokenInfo["image"] = "data:image/jpeg;base64," +koiosTokenInfo[0].token_registry_metadata.logo.replace(/\s/g, ';')}
                 else if (koiosTokenInfo[0].minting_tx_metadata){
                   const mintingTxMetadata = koiosTokenInfo[0].minting_tx_metadata["721"] ? koiosTokenInfo[0].minting_tx_metadata["721"] : koiosTokenInfo[0].minting_tx_metadata["20"]
-
-                  if(mintingTxMetadata[splitTokenName[0]][splitTokenName[1]]){
+                  if(mintingTxMetadata[splitTokenName[0]] && mintingTxMetadata[splitTokenName[0]][splitTokenName[1]]){
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].name ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].name : mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].ticker
-                    tokenInfo["image"] = (mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image  :mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].icon ).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
-                  }else if(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])]){
+                    tokenInfo["image"] = (mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image ? mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].image  :mintingTxMetadata[splitTokenName[0]][splitTokenName[1]].icon )
+                  }else if(mintingTxMetadata[splitTokenName[0]] && mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])]){
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].name ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].name : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].ticker
-                    tokenInfo["image"] = (typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "string" ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image : typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "object" ?  mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image.join("") : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].icon ).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
+                    tokenInfo["image"] = (typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "string" ? mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image : typeof(mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image) === "object" ?  mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].image.join("") : mintingTxMetadata[splitTokenName[0]][hex2a(splitTokenName[1])].icon )
+                  }else if(mintingTxMetadata[`0x${splitTokenName[0]}`] && mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`] ){
+                    tokenInfo["name"] =  mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].name ? mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].name : mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].ticker
+                    tokenInfo["image"] = (typeof(mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].image) === "string" ? mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].image : typeof(mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].image) === "object" ?  mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].image.join("") : mintingTxMetadata[`0x${splitTokenName[0]}`][`0x${splitTokenName[1]}`].icon )
                   }else{
                     tokenInfo["name"] = mintingTxMetadata[splitTokenName[0]].name
-                    tokenInfo["image"] =(  mintingTxMetadata[splitTokenName[0]].image ? mintingTxMetadata[splitTokenName[0]].image : mintingTxMetadata[splitTokenName[0]].icon).replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
+                    tokenInfo["image"] =(  mintingTxMetadata[splitTokenName[0]].image ? mintingTxMetadata[splitTokenName[0]].image : mintingTxMetadata[splitTokenName[0]].icon)
                   }
                 }else if(koiosTokenInfo[0].asset_name_ascii){
                   tokenInfo["name"] = koiosTokenInfo[0].asset_name_ascii
@@ -115,7 +117,8 @@ async function getTokenInfo(tokenId){
 
                 tokenInfo["provider"] = "Koios"
                 tokenInfo["fingerprint"] = koiosTokenInfo[0].fingerprint
-      
+                tokenInfo["image"] = typeof  tokenInfo["image"] === "object" ?  tokenInfo["image"].join('') : tokenInfo["image"]
+                tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
 
@@ -132,7 +135,7 @@ async function getTokenInfo(tokenId){
                     tokenInfo["decimals"] = BlockfrostTokenInfo.metadata.decimals
                   }else if (BlockfrostTokenInfo.onchain_metadata){
                     tokenInfo["name"] = BlockfrostTokenInfo.onchain_metadata.name
-                    tokenInfo["image"] = BlockfrostTokenInfo.onchain_metadata.image.replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
+                    tokenInfo["image"] = BlockfrostTokenInfo.onchain_metadata.image
                   }else{
                     tokenInfo["name"] = hex2a(BlockfrostTokenInfo.asset_name)
                     
@@ -142,6 +145,8 @@ async function getTokenInfo(tokenId){
                     tokenInfo["provider"] = "Blockfrost"
                     tokenInfo["fingerprint"] = BlockfrostTokenInfo.fingerprint
                     tokenInfo["isNft"] =  (BlockfrostTokenInfo.quantity) === "1"
+                    tokenInfo["image"] = typeof  tokenInfo["image"] === "object" ?  tokenInfo["image"].join('') : tokenInfo["image"]
+                    tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
               }

@@ -26,10 +26,9 @@ class App extends React.Component {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
                 }
   }
-  1
+  
    setState(state){
     super.setState(state)
-    console.log(state)
     if (state.settings){
       localStorage.setItem("settings", JSON.stringify(state.settings))
     } 
