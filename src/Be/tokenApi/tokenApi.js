@@ -1,11 +1,10 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
+const config = require('./config.js');
 
 var  tokens
 
 async function main() { 
-    config = await import("./config.js")
-    config = ({ ...config }).default;
     const app = express();
     const client = new MongoClient(config.mongoUri);
     await client.connect();

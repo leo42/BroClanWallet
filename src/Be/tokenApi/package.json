@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "description": "API for BroClan TokenValuts",
     "main": "index.js",
-    "type": "module",
     "scripts": {
         "start": "node index.js"
     },

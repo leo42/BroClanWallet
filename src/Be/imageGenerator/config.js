@@ -13,4 +13,5 @@ const config = {
                     { positions: [{top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}, {top: 10, left: 10}] , size: 250},]
 }
 
-export default config
+
+module.exports = config

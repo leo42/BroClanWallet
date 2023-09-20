@@ -6,4 +6,4 @@ const config = {
     settings: {               network: "Preprod"
                 }
 }
-export default config
+module.exports = config

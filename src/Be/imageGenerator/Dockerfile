@@ -7,6 +7,6 @@ COPY package.json ./
 RUN npm ci --only=production
 
 copy ./config.json ./
-COPY  ./indexer.js ./
+COPY  ./imageGenerator.js ./
 
-CMD [ "node", "indexer.js" ]
+CMD [ "node", "imageGenerator.js" ]

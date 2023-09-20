@@ -1,7 +1,7 @@
 
 const sharp = require('sharp');
 const { MongoClient } = require('mongodb');
-
+const config = require('./config.js');
 async function CombineImages(sourceImages) {
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -125,8 +125,7 @@ function utxosToTokenMap(utxos){
 
 } 
 async function main(){
-  config = await import("./config.js")
-  config = ({ ...config }).default;
+ // config = ({ ...config }).default;
   console.log(config)
   mongoClient = new MongoClient(config.mongoUri);
   await mongoClient.connect();

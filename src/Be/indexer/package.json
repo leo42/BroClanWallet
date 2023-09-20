@@ -1,5 +1,4 @@
 {
-    "type": "module",
     "dependencies": {
         "lucid-cardano": "^0.10.7",
         "mongodb": "^6.0.0",
