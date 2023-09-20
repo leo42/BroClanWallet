@@ -8,7 +8,7 @@ RUN npm ci --only=production
 
 RUN npm install cbor
 
-COPY  src/Be/passtrough.js ./
+COPY  ./passtrough.js ./
 
 EXPOSE 3002
 

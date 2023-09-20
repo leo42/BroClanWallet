@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const { MongoClient } = require("mongodb");
 let Lucid = import("lucid-cardano")
 
-let Wallet = import("../../wallets/TokenWallet.js")
+let Wallet = import("../../shared/wallets/TokenWallet.js")
 const client = new WebSocket("ws://194.163.159.42:1337");
 
 

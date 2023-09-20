@@ -48,6 +48,9 @@ module.exports = {
 		
     ],
 	devtool : 'source-map',
+	optimization: {
+		usedExports: true,
+	  },
 	experiments: {
 		asyncWebAssembly: true,
 		topLevelAwait: true,
