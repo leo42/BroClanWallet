@@ -7,7 +7,7 @@ async function  connectSocket(wallet , root){
     const lucid = await Lucid.new();
         lucid.selectWallet(api);
         const address = await lucid.wallet.address();
-        const socket = io(window.location.origin);
+        const socket = io(root.props.root.state.syncService);
         
         
         socket.on('disconnect', () => {
@@ -22,7 +22,7 @@ async function  connectSocket(wallet , root){
         });
 
         socket.on('connect_error', (error) => {
-            root.disconnectWallet("Backend is not available")
+            root.disconnectWallet("Backend is not available" + error)
             socket.close()
           });
 

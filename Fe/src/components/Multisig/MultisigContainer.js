@@ -20,7 +20,7 @@ state= {
     pendingWallets: {},
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
-    loading : true
+    loading : true,
 }
 
 componentDidUpdate(prevProps) {
@@ -391,7 +391,7 @@ async setState(state){
 
   transmitTransaction(transaction, sigAdded) {
     if(this.props.root.state.settings.disableSync) return
-    fetch('/api/transaction', {
+    fetch(this.props.root.state.syncService+'/api/transaction', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -403,7 +403,7 @@ async setState(state){
 
   transmitWallet(script) {
     if(this.props.root.state.settings.disableSync) return
-    fetch('/api/wallet', {
+    fetch(this.props.root.state.syncService+'/api/wallet', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

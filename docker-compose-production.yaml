@@ -4,13 +4,13 @@ services:
   walletserver:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Fe/Dockerfile
     networks:
       web:
         aliases:
           - walletserver
     ports:
-      - "3001"
+      - "80:3001"
     volumes:
       - ../secrets:/usr/src/app/secrets:ro
     restart: always

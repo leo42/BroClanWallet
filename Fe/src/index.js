@@ -24,7 +24,9 @@ class App extends React.Component {
                 disableSync: false,
                 termsAccepted: "NotAccepted",
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
-                }
+                },
+                
+    syncService: "http://localhost:3001"
   }
   
    setState(state){

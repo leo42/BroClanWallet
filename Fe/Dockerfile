@@ -1,4 +1,4 @@
-FROM node:16 as builder
+FROM node:latest as builder
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -12,16 +12,13 @@ COPY . .
 RUN npm run build
 
 
-FROM node:16
 
-WORKDIR /usr/src/app
- 
-COPY package*.json ./ 
+FROM nginx:latest
 
-RUN npm ci --only=production
+COPY --from=builder /usr/src/app/build/public /usr/share/nginx/html
 
-COPY --from=builder /usr/src/app/build ./
+# Expose port 80 so that it can be accessed from outside the container
+EXPOSE 80
 
-EXPOSE 3001
-
-CMD [ "node", "server.js" ]
+# Start the Nginx server when the container starts
+CMD ["nginx", "-g", "daemon off;"]

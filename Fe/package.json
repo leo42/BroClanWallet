@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "BroClan is a multisig and exotic wallet software for the Cardano blockchain.",
   "main": "index.js",
-  "sideEffects": false,
   "scripts": {
     "build": "webpack --mode=production",
     "start": "webpack  serve --mode=development",
