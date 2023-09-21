@@ -26,7 +26,7 @@ class App extends React.Component {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
                 },
                 
-    syncService: "http://localhost:3001"
+    syncService: "https://sync.broclan.io"
   }
   
    setState(state){

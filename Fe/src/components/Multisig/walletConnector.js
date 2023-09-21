@@ -47,7 +47,7 @@ function WalletConnector(props){
         <div className="connectorSettings">
 
         {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
-        <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.disconnectWallet()} className='iconWraper disconnectButton'>
+        <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.disconnectWallet()} className='iconWraper disconnectButton'>
         <DisconnectIcon className="icon" alt="disconnectIcon" />
         { ( hovering === "disconnect"|| isMobile)   &&  <label className='iconLabel'>Disconnect</label> }
         < br/>   
