@@ -134,7 +134,34 @@ async function main(){
   imageDb = mongoClient.db("TokenVaults").collection("Images")
   const needImageUpdate = await tokens.find({imageUpdate: true}).toArray()
   updateImages(needImageUpdate)
+  watchTransactions()
   }
+
+
+  
+async function watchTransactions() {
+  // membersToUpdate is a list of members that need to be updated with the new transaction
+
+  const pipeline = [
+    {
+      $match: {
+        operationType: { $in: ["update"] },
+        "fullDocument.imageUpdate": true      
+      }
+    }
+  ];
+  
+  const options = { fullDocument: "updateLookup" };
+  const changeStream = tokens.watch( pipeline , options );
+
+  changeStream.on('change', async (change) => {
+    const transaction = await tokens.findOne({ _id: change.documentKey._id });
+    console.log("updating: "+transaction)
+    updateImages([transaction])
+  });
+
+
+}
 
 //fetchAndCombineImages([image, image, image]);
 

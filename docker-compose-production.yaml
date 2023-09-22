@@ -11,8 +11,6 @@ services:
           - walletserver
     ports:
       - "3001"
-    volumes:
-      - ../secrets:/usr/src/app/secrets:ro
     restart: always
   passthrough:
     build:
