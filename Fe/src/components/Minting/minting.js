@@ -2,7 +2,6 @@ import React from "react";
 import "./minting.css"
 import { Lucid ,Blockfrost, Kupmios, Data, Constr } from "lucid-cardano";
 import WalletPicker from "../WalletPicker";
-import { Program } from "@hyperionbt/helios"
 import AffiliateModal from "./affiliateModal";
 import {  toast } from 'react-toastify';class Minting extends React.Component {
   
@@ -231,7 +230,11 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
 
     }catch(e){
         console.log(e)
-        toast.error(e.message)
+        if(e === "Missing input or output for some native asset"){
+          toast.error("Insuffucient funds")
+        } else {
+          toast.error(e.message ? e.message : e)
+        }
     }
 
       async function getValidUtxos(lucid) {
