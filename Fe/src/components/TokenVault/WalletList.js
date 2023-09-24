@@ -4,7 +4,7 @@ import "./WalletList.css"
 import TokenThumbnail from '../TokenThumbnail'; 
 import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 const policies = {
-    Preprod : "64b87bcae32aed7e122db37e202b014d55bbe739e0cdef4b317695b4"
+    Preprod : "abe45e53eddc87ce371e8164681173952560249d44f03973fdf426da"
 }
 
 function WalletList (props) {

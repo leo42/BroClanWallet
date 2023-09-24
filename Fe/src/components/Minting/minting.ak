@@ -46,8 +46,8 @@ validator {
 }
  
 fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeemer ) {
-  let adminTokenPolicy : PolicyId = #"72ff4773518459890ea5224018c10f7487a339ea0a9e42ac6826f829" 
-  let adminTokenName : AssetName  = #"41646d696e4b6579"
+  let adminTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
+  let adminTokenName : AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
 
   let tokensMintedAmount = value.tokens( value.from_minted_value(transaction.mint), policyId)
                           |> dict.size()
