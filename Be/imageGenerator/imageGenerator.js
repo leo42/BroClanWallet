@@ -2,11 +2,29 @@
 const sharp = require('sharp');
 const { MongoClient } = require('mongodb');
 const config = require('./config.js');
+
+
+const baseImagePath = './BaseImages/closedSafe.png';
+const openSafeImagePath = './BaseImages/openSafe.png';
+const shelfImagePath = './BaseImages/shelf.png';
+
+const resizeOptions = {// Prevents enlargement/cropping
+  fit: 'fill', // Fits the image inside the specified dimensions
+}
+
 async function CombineImages(sourceImages) {
+  
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
   }
   sourceImages = sourceImages.filter((image) => {return image !== undefined})
+
+  if (sourceImages.length === 0) {
+    return await sharp(baseImagePath)
+    .png() 
+    .toBuffer()
+  }
+  const layers = Math.ceil(Math.sqrt(sourceImages.length))
 
   sourceImages = sourceImages.map((image) => {
     console.log(image)
@@ -16,23 +34,62 @@ async function CombineImages(sourceImages) {
       return Buffer.from(image)
     }
   })
-  const predefinedLocations = sourceImages.length < config.posittioning.length
-  
-  const componentSize = predefinedLocations ? config.posittioning[sourceImages.length].size : Math.floor(config.canvas.width / sourceImages.length);
-  const randomLocation = ( () =>  config.margin + getRandomInt(config.canvas.width - config.margin*2 - componentSize))
-  // Resize images to a common size (adjust dimensions as needed)
-  const resizedImages = await Promise.all(sourceImages.map(imgBuffer =>
-    sharp(imgBuffer)
-      .resize(componentSize, componentSize) // Adjust the size as needed
-      .toBuffer()
-  ));
 
   
-  const composite = resizedImages.map((imgBuffer, index) => ({
-    input: imgBuffer,
-    left: predefinedLocations ? config.posittioning[sourceImages.length].positions[index].left : randomLocation(), 
-    top: predefinedLocations ? config.posittioning[sourceImages.length].positions[index].top : randomLocation(),
+  
+  
+  const shelfHight =  Math.max( Math.floor( config.shelf.base / layers) ,1)
+  const shelfImage = await sharp(shelfImagePath).resize(config.canvas.width,(shelfHight*config.shelf.ratio),resizeOptions).toBuffer()
+  const composite = []
+  const layerFreeSpace =(config.canvas.height  - (shelfHight * (layers-1)) -  config.margin*2)/layers
+  const componentSize = Math.floor( (layerFreeSpace * 0.85 ) - (shelfHight*config.shelf.offset)) ;
+  
+  const shelfLocation = (index) =>  Math.floor( config.margin + (index*(layerFreeSpace)) + ((index-1) * shelfHight) - shelfHight*config.shelf.offset - shelfHight)  
+  const componentTopLocation = (index) =>  Math.floor( shelfLocation(index) - (componentSize) + (shelfHight*config.shelf.offset/2)   )
+  const componentLeftLocation = (index) =>  Math.floor( config.margin*1.8 + (index*(layerFreeSpace)))
+
+// Create the nftFrame with a specific size and background color
+const nftFrame = sharp({
+  create: {
+    width: componentSize,
+    height: componentSize,
+    channels: 4, // 4 channels for RGBA
+    background: { r: 0, g: 0, b: 0, alpha: 1 },
+  },
+}).resize(componentSize, componentSize).png();
+
+  const frameThickness = 10
+
+  const resizedImages = await Promise.all(sourceImages.map(imgBuffer =>
+    sharp(imgBuffer)
+    .resize(componentSize-(frameThickness*2), componentSize-(frameThickness*2)) // Adjust the size as needed
+    .toBuffer()
+    ));
+    
+  const nftImages = await Promise.all(resizedImages.map(async (imgBuffer, index) => {
+    console.log(imgBuffer)
+    //make clone of nftFrame
+    const nftFrameClone = nftFrame.clone()
+    const framedImage = await nftFrameClone.composite([{ input: imgBuffer, top: frameThickness, left: frameThickness }])
+    return await framedImage.toBuffer()
   }))
+    
+    
+  for(let i = 1; i < layers; i++){ 
+    composite.push( {
+      input: shelfImage,
+      left: 0, 
+      top:  shelfLocation(i),
+   })
+  }
+
+  nftImages.map((imgBuffer, index) => (
+    composite.push({
+    input: imgBuffer,
+    left:  componentLeftLocation(  index% layers), 
+    top:  componentTopLocation(Math.ceil( (index+1)/layers) ),
+  })))
+
 
   // composite.push({
   //   input: Buffer.from(`<svg height="20"  width="500"><text x="20" y="20" font-family="Arial" font-size="${ 24}" fill="${ 'black'}">TESTING TEXT</text></svg>`),
@@ -40,21 +97,14 @@ async function CombineImages(sourceImages) {
   //   top: 50,
   // })
   // Combine resized images horizontally
-  const collageImageBuffer = await sharp({
-    create: {
-      width:  config.canvas.width, 
-      height: config.canvas.height,
-      channels: 4, 
-      background: { r: 255, g: 255, b: 255, alpha: 1 }, 
-    }
-  })
-
-
+  const collageImageBuffer = await sharp(openSafeImagePath).resize(config.canvas.width,config.canvas.height)
     .composite(composite)
     .png() 
     .toBuffer()
+
+
     return collageImageBuffer
-}
+  }
 
 fetchImage = async function(url){
   //if start with ipfs get from ipfs
@@ -75,8 +125,12 @@ getSourceImages = async function(tokenList){
     console.log("Gathering for" +key)
 
           const tokenInfo = await  getTokenInfo(key)
+        //  console.log(tokenInfo)
+          if(tokenInfo.quantity === "1"){
+            console.log("NFT")
+          }
           if(tokenInfo.metadata){
-            return   Buffer.from(tokenInfo.metadata.logo, 'base64'); t
+            return   Buffer.from(tokenInfo.metadata.logo, 'base64'); 
           }else if(tokenInfo.onchain_metadata){
             return await fetchImage(tokenInfo.onchain_metadata.image)
           }})   
@@ -134,7 +188,7 @@ async function main(){
   imageDb = mongoClient.db("TokenVaults").collection("Images")
   const needImageUpdate = await tokens.find({imageUpdate: true}).toArray()
   updateImages(needImageUpdate)
-  watchTransactions()
+//  watchTransactions()
   }
 
 
