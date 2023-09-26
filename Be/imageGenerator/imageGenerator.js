@@ -130,20 +130,28 @@ async function CombineImages(sourceImages) {
    })
   }
 
+
+
   nftImages.map((imgBuffer, index) => (
     composite.push({
     input: imgBuffer,
     left:  componentLeftLocation( index% layers), 
     top:  componentTopLocation(Math.ceil( (index+1)/layers) ),
   })))
-
-  tokenSourceImages.map((imgBuffer, index) => (
+  if (layers === 1  ){
     composite.push({
-    input: imgBuffer,
-    left:  componentLeftLocation( layers - ( index  % layers) - 1 ) ,
-    top:  componentTopLocation( layers - Math.ceil( (index+1)/layers) + 1 ),
-  })))
-
+      input: tokenSourceImages[0],
+      left: Math.round( config.canvas.width/2 - componentSize/2) ,
+      top:  Math.round( config.canvas.width/2 - componentSize/2.8),
+    })
+  }else{   
+    tokenSourceImages.map((imgBuffer, index) => (
+      composite.push({
+      input: imgBuffer,
+      left:  componentLeftLocation( layers - ( index  % layers) - 1 ) ,
+      top:  componentTopLocation( layers - Math.ceil( (index+1)/layers) + 1 ),
+    })))
+    }
   const collageImageBuffer = await sharp(openSafeImagePath).resize(config.canvas.width,config.canvas.height)
     .composite(composite)
     .png() 
