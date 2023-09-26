@@ -7,27 +7,34 @@ const config = require('./config.js');
 const baseImagePath = './BaseImages/closedSafe.png';
 const openSafeImagePath = './BaseImages/openSafe.png';
 const shelfImagePath = './BaseImages/shelf.png';
-
+const smallCoinsImagePath = './BaseImages/coinsS.png';
+const mediumCoinsImagePath = './BaseImages/coinsM.png';
+const largeCoinsImagePath = './BaseImages/coinsL.png';
+const adaImagePath = './BaseImages/ada.png';
 const resizeOptions = {// Prevents enlargement/cropping
   fit: 'fill', // Fits the image inside the specified dimensions
 }
 
-async function CombineImages(sourceImages) {
-  
-  function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
-  sourceImages = sourceImages.filter((image) => {return image !== undefined})
 
+
+
+async function CombineImages(sourceImages) {
+
+  sourceImages = sourceImages.filter((image) => {return image !== undefined})
   if (sourceImages.length === 0) {
     return await sharp(baseImagePath)
     .png() 
     .toBuffer()
   }
-  const layers = Math.ceil(Math.sqrt(sourceImages.length))
+ 
 
-  sourceImages = sourceImages.map((image) => {
-    console.log(image)
+  let nftSourceImages = sourceImages.filter((image) => {return image.nft === true}).map((image) => {return image.image} )
+  let tokenSourceImages = sourceImages.filter((image) => {return image.nft === false}).map((image) => {return image.image} )
+  let tokenSourceAmounts = sourceImages.filter((image) => {return image.nft === false}).map((image) => {return image.quantity} )
+
+  const layers =  Math.ceil(Math.sqrt(nftSourceImages.length + tokenSourceImages.length))
+
+  nftSourceImages = nftSourceImages.map((image) => {
     if(image instanceof Buffer){
       return image
     }else{
@@ -35,8 +42,14 @@ async function CombineImages(sourceImages) {
     }
   })
 
-  
-  
+  tokenSourceImages = tokenSourceImages.map((image) => {
+    if(image instanceof Buffer){
+      return image
+    }else{
+      return Buffer.from(image)
+    }
+  })
+ 
   
   const shelfHight =  Math.max( Math.floor( config.shelf.base / layers) ,1)
   const shelfImage = await sharp(shelfImagePath).resize(config.canvas.width,(shelfHight*config.shelf.ratio),resizeOptions).toBuffer()
@@ -45,36 +58,70 @@ async function CombineImages(sourceImages) {
   const componentSize = Math.floor( (layerFreeSpace * 0.85 ) - (shelfHight*config.shelf.offset)) ;
   
   const shelfLocation = (index) =>  Math.floor( config.margin + (index*(layerFreeSpace)) + ((index-1) * shelfHight) - shelfHight*config.shelf.offset - shelfHight)  
-  const componentTopLocation = (index) =>  Math.floor( shelfLocation(index) - (componentSize) + (shelfHight*config.shelf.offset/2)   )
-  const componentLeftLocation = (index) =>  Math.floor( config.margin*1.8 + (index*(layerFreeSpace)))
+  const componentTopLocation = (index) =>  Math.floor( shelfLocation(index) - (componentSize) + (shelfHight*config.shelf.offset)   )
+  const componentLeftLocation = (index) =>  Math.floor( config.margin + layerFreeSpace* 0.25 + (index*(layerFreeSpace)) + ((index-1) * shelfHight) )
 
-// Create the nftFrame with a specific size and background color
-const nftFrame = sharp({
-  create: {
-    width: componentSize,
-    height: componentSize,
-    channels: 4, // 4 channels for RGBA
-    background: { r: 0, g: 0, b: 0, alpha: 1 },
-  },
-}).resize(componentSize, componentSize).png();
-
-  const frameThickness = 10
-
-  const resizedImages = await Promise.all(sourceImages.map(imgBuffer =>
+  // Create the nftFrame with a specific size and background color
+  const nftFrame = sharp({
+    create: {
+      width: componentSize,
+      height: componentSize,
+      channels: 4, // 4 channels for RGBA
+      background: { r: 0, g: 0, b: 0, alpha: 1 },
+    },
+  }).resize(componentSize, componentSize).png();
+  
+  const frameThickness = Math.floor(50/layers)
+  
+  const resizedImages = await Promise.all(nftSourceImages.map(imgBuffer =>
     sharp(imgBuffer)
     .resize(componentSize-(frameThickness*2), componentSize-(frameThickness*2)) // Adjust the size as needed
     .toBuffer()
     ));
+
+  const logoSize = Math.floor(componentSize*config.tokens.logoRatio)
+  const mask = [  { input: Buffer.from(`<svg width="${logoSize}" height="${logoSize}"><circle cx="${logoSize/2}" cy="${logoSize/2}" r="${logoSize/1.75}" fill="black" /></svg>`
+        ), blend: 'dest-in'}   ]
+
+  tokenSourceImages = await Promise.all( tokenSourceImages.map((image) => { return sharp(image)
+                                                  .resize(logoSize,logoSize)
+                                                  .composite(mask , { raw: true })
+                                                  .toBuffer()} ))
+  
+                            
+  tokenSourceImages = await Promise.all(tokenSourceImages.map(( imgBuffer,index) => { 
+      console.log("tokens " + tokenSourceAmounts[index] )
+
+    if(tokenSourceAmounts[index] < config.tokens.smallLimit){     
+      return sharp(smallCoinsImagePath).resize(componentSize,componentSize ).composite([{
+        input: imgBuffer,
+        left:  Math.round(config.tokens.offsetSLeft*componentSize) ,
+        top: Math.round( config.tokens.offsetSTop*componentSize) ,
+      }]).png().toBuffer() 
+    }
+    if(tokenSourceAmounts[index] < config.tokens.mediumLimit){
+      return sharp(mediumCoinsImagePath).resize(componentSize,componentSize ).composite([{
+        input: imgBuffer,
+        left:  Math.round(config.tokens.offsetSLeft*componentSize) ,
+        top: Math.round( config.tokens.offsetSTop*componentSize) ,
+      }]).png().toBuffer() 
+    }
+      return sharp(largeCoinsImagePath).resize(componentSize,componentSize ).composite([{
+        input: imgBuffer,
+        left:  Math.round(config.tokens.offsetLLeft*componentSize) ,
+        top: Math.round( config.tokens.offsetLTop*componentSize) ,
+      }]).png().toBuffer() 
+      
+      }));
     
   const nftImages = await Promise.all(resizedImages.map(async (imgBuffer, index) => {
-    console.log(imgBuffer)
     //make clone of nftFrame
     const nftFrameClone = nftFrame.clone()
     const framedImage = await nftFrameClone.composite([{ input: imgBuffer, top: frameThickness, left: frameThickness }])
     return await framedImage.toBuffer()
   }))
-    
-    
+        
+
   for(let i = 1; i < layers; i++){ 
     composite.push( {
       input: shelfImage,
@@ -86,17 +133,17 @@ const nftFrame = sharp({
   nftImages.map((imgBuffer, index) => (
     composite.push({
     input: imgBuffer,
-    left:  componentLeftLocation(  index% layers), 
+    left:  componentLeftLocation( index% layers), 
     top:  componentTopLocation(Math.ceil( (index+1)/layers) ),
   })))
 
+  tokenSourceImages.map((imgBuffer, index) => (
+    composite.push({
+    input: imgBuffer,
+    left:  componentLeftLocation( layers - ( index  % layers) - 1 ) ,
+    top:  componentTopLocation( layers - Math.ceil( (index+1)/layers) + 1 ),
+  })))
 
-  // composite.push({
-  //   input: Buffer.from(`<svg height="20"  width="500"><text x="20" y="20" font-family="Arial" font-size="${ 24}" fill="${ 'black'}">TESTING TEXT</text></svg>`),
-  //   left: 350,
-  //   top: 50,
-  // })
-  // Combine resized images horizontally
   const collageImageBuffer = await sharp(openSafeImagePath).resize(config.canvas.width,config.canvas.height)
     .composite(composite)
     .png() 
@@ -121,22 +168,30 @@ fetchImage = async function(url){
 getSourceImages = async function(tokenList){ 
   const tokenListKeys = Object.keys(tokenList)
 
-  const sourceImages = await tokenListKeys.map(async (key) => { 
+  const sourceImages =  tokenListKeys.map(async (key) => { 
     console.log("Gathering for" +key)
-
+          if (key === "lovelace") {
+            return { image: await sharp(adaImagePath).toBuffer() , nft: false , quantity : tokenList[key]  }
+          }
           const tokenInfo = await  getTokenInfo(key)
         //  console.log(tokenInfo)
-          if(tokenInfo.quantity === "1"){
+          if(tokenInfo.quantity === "1" ){
             console.log("NFT")
           }
           if(tokenInfo.metadata){
-            return   Buffer.from(tokenInfo.metadata.logo, 'base64'); 
+            return { image: Buffer.from(tokenInfo.metadata.logo, 'base64') , nft: false , quantity : tokenList[key]  }
           }else if(tokenInfo.onchain_metadata){
-            return await fetchImage(tokenInfo.onchain_metadata.image)
+            const image = await  fetchImage(tokenInfo.onchain_metadata.image)
+            if (tokenInfo.quantity === "1" ){
+              return { image , nft: true  } 
+            }else{
+              return { image , nft: false, quantity : tokenList[key]  }
+            }
+
           }})   
   //resolve all promises
   
-  return await Promise.all(sourceImages)
+  return (await Promise.all(sourceImages)).filter((image) => {return image !== undefined})
 
 
 }
@@ -188,7 +243,7 @@ async function main(){
   imageDb = mongoClient.db("TokenVaults").collection("Images")
   const needImageUpdate = await tokens.find({imageUpdate: true}).toArray()
   updateImages(needImageUpdate)
-//  watchTransactions()
+  watchTransactions()
   }
 
 

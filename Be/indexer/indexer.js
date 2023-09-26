@@ -33,6 +33,7 @@ async function checkMint(tx, slot){
             key["utxos"] = []
             const paymentCredential = wallet.getPaymentCredential()
             key["paymentCredential"] = paymentCredential.hash
+            key["imageUpdate"] = true
             await tokens.insertOne(key)
         })
         
