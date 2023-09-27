@@ -1,5 +1,6 @@
 const config = {
     mongoUri : "mongodb://127.0.0.1:27017",
+    dbName: "TokenVaults",
     // blockfrostKey : "preprodLZ9dHVU61qVg6DSoYjxAUmIsIMRycaZp",
     blockfrostKey : "preprod",
     blockfrostUrl : "https://passthrough.broclan.io",

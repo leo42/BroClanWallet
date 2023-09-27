@@ -216,7 +216,7 @@ async function updateImages(needImageUpdate){
   needImageUpdate.map(async (token) => {
    const sourceImages = await getSourceImages(utxosToTokenMap(token.utxos))
    const image = await CombineImages(sourceImages)
-   tokens.updateOne({id: token.id}, {$set: {image: image, imageUpdate: true}})
+   tokens.updateOne({id: token.id}, {$set: {image: image, imageUpdate: false}})
  // console.log(sourceImages)
   })
 }
@@ -246,9 +246,9 @@ async function main(){
   console.log(config)
   mongoClient = new MongoClient(config.mongoUri);
   await mongoClient.connect();
-  tokens = mongoClient.db("TokenVaults").collection("Tokens")
+  tokens = mongoClient.db(config.dbName).collection("Tokens")
 
-  imageDb = mongoClient.db("TokenVaults").collection("Images")
+  imageDb = mongoClient.db(config.dbName).collection("Images")
   const needImageUpdate = await tokens.find({imageUpdate: true}).toArray()
   updateImages(needImageUpdate)
   watchTransactions()
@@ -262,7 +262,7 @@ async function watchTransactions() {
   const pipeline = [
     {
       $match: {
-        operationType: { $in: ["update"] },
+        operationType: { $in: ["update", "insert"] },
         "fullDocument.imageUpdate": true      
       }
     }

@@ -2,11 +2,12 @@ FROM node:16
 
 WORKDIR /usr/src/app
  
-COPY package.json ./ 
+COPY Be/indexer/package*.json ./ 
 
 RUN npm ci --only=production
 
-copy ./config.json ./
-COPY  ./indexer.js ./
+COPY  Be/indexer/indexer.js Be/indexer/indexer.js
 
-CMD [ "node", "indexer.js" ]
+COPY shared ./shared
+
+CMD [ "node", "Be/indexer/indexer.js" ]

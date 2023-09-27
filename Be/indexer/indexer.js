@@ -3,7 +3,7 @@ const { MongoClient } = require("mongodb");
 let Lucid = import("lucid-cardano")
 
 let Wallet = import("../../shared/wallets/TokenWallet.js")
-const client = new WebSocket("ws://194.163.159.42:1337");
+let client 
 
 
 
@@ -86,7 +86,7 @@ async function rollBack(intersection){
 
 async function cleanUtxos(){
     // remove utxos that are spent more than 36 hours ago
-    const current = await mongoClient.db("TokenVaults").collection("syncStatus").findOne({flag: "preprod"})
+    const current = await mongoClient.db(config.dbName).collection("syncStatus").findOne({flag: config.settings.network.toLowerCase()})
     tokens.updateMany({utxos: {$elemMatch: {spenttime: {$lte: current.slot - 129600000}}}}, {$pull: {utxos: {spenttime: {$lte: current.slot - 129600000}}}})
 }
 
@@ -95,53 +95,60 @@ async function main(){
     config = ({ ...config }).default;
     console.log(config)
     mongoClient = new MongoClient(config.mongoUri);
+    client =  new WebSocket(config.ogmiosConnection);
     Lucid = await Promise.resolve(Lucid)
+    
     lucid = await Lucid.Lucid.new(
         undefined,
         config.settings.network
       );
     await mongoClient.connect();
-    tokens = mongoClient.db("TokenVaults").collection("Tokens")
+    tokens = mongoClient.db(config.dbName).collection("Tokens")
     Wallet = await Promise.resolve(Wallet)
-    const startpoint = await mongoClient.db("TokenVaults").collection("syncStatus").findOne({flag: "preprod"})
+    let startpoint = await mongoClient.db(config.dbName).collection("syncStatus").findOne({flag: config.settings.network.toLowerCase()})
     console.log(startpoint)
+    if( !startpoint ){
+       startpoint = config.startPoint 
+         await mongoClient.db(config.dbName).collection("syncStatus").insertOne({slot: startpoint.slot, id: startpoint.id , flag: config.settings.network.toLowerCase() })
+    }
     //clean utxos every 30 minutes
     setInterval(cleanUtxos, 1800000)  
     rpc("findIntersection", { points: [{slot: startpoint.slot, id : startpoint.id }] }, "find-intersection");
+    
+    client.on('message', async function(msg) {
+        const response = JSON.parse(msg);
+        switch (response.id) {
+            case "find-intersection":
+                if (!response.result.intersection) { throw "Whoops? Last Byron block disappeared?" }
+                
+                await rollBack(response.result.intersection);
+                rpc("nextBlock", {}, "main" );
+                break;
+    
+            default:
+                if (response.result.direction === "forward") {
+                    response.result.block.transactions.map(async (tx) => {
+                      await checkTransaction(tx, response.result.block.slot)
+                      await checkMint(tx, response.result.block.slot)
+                    });
+                }else if (response.result.direction === "backward"){
+                    console.log(response.result);
+                    await rollBack(response.result.point);
+                   
+                }
+                //console.log(response)
+                if (response.result.block) await mongoClient.db(config.dbName).collection("syncStatus").updateOne({flag: config.settings.network.toLowerCase()}, {$set: {slot: response.result.block.slot, id: response.result.block.id , flag: config.settings.network.toLowerCase() }}, {upsert: true})
+                rpc("nextBlock", {}, response.id );            
+                break;
+        }
+    });
+
 }
 
 
 
-client.once('open', () => {
-    main()
+main()
     
     
-});
 
-client.on('message', async function(msg) {
-    const response = JSON.parse(msg);
-    switch (response.id) {
-        case "find-intersection":
-            if (!response.result.intersection) { throw "Whoops? Last Byron block disappeared?" }
-            
-            await rollBack(response.result.intersection);
-            rpc("nextBlock", {}, "main" );
-            break;
 
-        default:
-            if (response.result.direction === "forward") {
-                response.result.block.transactions.map(async (tx) => {
-                  await checkTransaction(tx, response.result.block.slot)
-                  await checkMint(tx, response.result.block.slot)
-                });
-            }else if (response.result.direction === "backward"){
-                console.log(response.result);
-                await rollBack(response.result.point);
-               
-            }
-            //console.log(response)
-            if (response.result.block) await mongoClient.db("TokenVaults").collection("syncStatus").updateOne({flag: "preprod"}, {$set: {slot: response.result.block.slot, id: response.result.block.id}}, {upsert: true})
-            rpc("nextBlock", {}, response.id );            
-            break;
-    }
-});

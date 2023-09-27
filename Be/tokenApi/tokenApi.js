@@ -1,6 +1,8 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
 const config = require('./config.js');
+const cors = require('cors');
+
 
 var  tokens
 
@@ -8,7 +10,8 @@ async function main() {
     const app = express();
     const client = new MongoClient(config.mongoUri);
     await client.connect();
-    const db = client.db("TokenVaults");
+    app.use(cors());
+    const db = client.db(config.dbName);
     tokens = db.collection("Tokens");
     app.get("/api/:tokenVault/tokens", async (req, res) => {
         const resault = await getTokens(req.params.tokenVault);
@@ -21,6 +24,8 @@ async function main() {
             res.json({error: "no such token vault"})
         }else{
         //image is buffer type I want to send it as png to load in the browser
+
+        
 
 
         res.set('Content-Type', 'image/png');
