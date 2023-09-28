@@ -1,5 +1,4 @@
 .pedningTx{
-  width: 85vw; 
   background-color: rgba(134, 134, 134, 0.027);
   border: #7e7e7e ;
   border-style: outset;
@@ -43,7 +42,6 @@
 }
 
 .txDetailsInput{
-  width: 100%;
   /* add a light boarder */
   border-bottom: 1px solid #000000;
   border-top: 1px solid #000000;
@@ -72,7 +70,6 @@
 
 .txDetailsOutput{
   margin-bottom: 5px;
-  width: 100%;
   /* add a light boarder */
   border-bottom: 1px solid #000000;
   border-top: 1px solid #000000;

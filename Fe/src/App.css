@@ -37,10 +37,13 @@
 
 .WalletInner{
   display: flex;
-  height: 100%;
-  width: 100%;
-  flex-direction: row;
+  width: 99vw;
+  flex-direction: column;
   justify-content: center;
+  margin: 0px;
+  position: absolute;
+  top: 200px;
+  z-index: -1000;
 }
 
 .WalletMain{

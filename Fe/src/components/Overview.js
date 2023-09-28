@@ -2,7 +2,7 @@ import React, { useState , useRef, useEffect } from 'react';
 import TokenElement from './TokenElement';
 import "./Overview.css";
 import { ReactComponent as DownloadIcon } from '../html/assets/download.svg';
-import { ReactComponent as ExpandIcon } from '../html/assets/expand.svg';
+import { ReactComponent as ExpandIcon } from '../html/assets/settings.svg';
 import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
 import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 
@@ -148,7 +148,7 @@ function Overview(props) {
     <div>
       <label>
       <div>
-      Overview:
+      Overview
       <ExpandIcon className="expandButton" alt="expandIcon" onClick={() =>setWalletSettingsOpen(!walletSettingsOpen)}/>
     < br/>  </div> 
     </label>

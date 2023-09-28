@@ -50,7 +50,6 @@ async function getImage(tokenVault) {
             }
             
         }
-        console.log(Object.keys(imageBuffer).length)
         return imageBuffer[tokenVault].image.buffer
     }
 }

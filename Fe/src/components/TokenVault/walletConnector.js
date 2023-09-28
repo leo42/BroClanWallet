@@ -54,17 +54,14 @@ function walletConnector(props){
         </div>
         </div>  
 
-    let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
-                {/* <div className="WalletConnector"> */}
-                
-                {/* </div>  */}
-
+    let  content = <div> {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> }
         </div>
         
 
     if(props.moduleRoot.state.connectedWallet === "none") {
         return (
-        <div className="tokenWalletConnectorWrapper">
+          
+        <div className="tokenWalletConnectorWrapperInitial">
         <div className="tokenWalletConnector">
             {/* <div>
              <ConnectIcon className="connectButton" data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)} alt="connectIcon" />

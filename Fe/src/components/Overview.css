@@ -6,7 +6,6 @@
 .overviewTokensContainer {
     margin: 8px;
     padding: 21px 10px;
-    width: 80vw;
     border: 1px;
     border-radius: 10px;
     border-color: var(--clrorange);

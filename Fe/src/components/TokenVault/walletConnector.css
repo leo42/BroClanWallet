@@ -10,8 +10,9 @@
 
 
 .tokenWalletConnector{
+    display: flex;
     margin: 10px;
-    z-index: 0;
+    flex-direction: column;
     align-items: end;
     z-index: -1;
 }
@@ -19,9 +20,8 @@
 .tokenWalletConnectorWrapper{
     display: flex;
     flex-direction: column;
-    align-self: end;
-    position: relative;
-    top: -120px; 
+    top: -80px; 
+    align-self: start;
     z-index: -5;
 
 }
@@ -30,6 +30,17 @@
     position: fixed;
 }
 
+.tokenWalletConnectorWrapperInitial{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    align-content: center;
+    width: 100%;
+    height: 70%;
+    position: fixed;
+    justify-content: center;
+
+}
 
 .connectorSettings{
     display: flex;

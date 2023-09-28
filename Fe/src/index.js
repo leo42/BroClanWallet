@@ -118,7 +118,7 @@ class App extends React.Component {
 
         <TestnetBanner />
         <ToastContainer
-          position="top-right"
+          position="top-left"
           autoClose={5000}
           hideProgressBar={false}
           newestOnTop={false}

@@ -1,9 +1,3 @@
-.WalletListContainer{
-    position: fixed;
-    top: 108px;
-    left: 16px;
-    font-size: 18px;
-}
 
 .MWalletList{
     margin: 10px;
@@ -63,7 +57,12 @@
     transform: scale(1.5);
 }
   
-    
+.walletListNotFound href{
+    color: blue;
+    cursor: pointer;
+
+}
+
 .Overlay{
     width: 100vw;
     height: 100vh;

@@ -5,7 +5,7 @@ import "./WalletList.css"
 function WalletList (props) {
 
     return (
-            <div className='WalletListContainer'>
+    <div className='WalletListContainer multisigWalletListContainer'>
         <select className="MWalletList" onChange={(event) => props.moduleRoot.selectWallet(event.target.value)}>
 
         {props.moduleRoot.state.wallets.map( (item, index) => (

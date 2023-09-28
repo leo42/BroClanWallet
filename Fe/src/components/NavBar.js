@@ -1,6 +1,6 @@
 import React from "react";
 import "./NavBar.css"
-import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
+import { ReactComponent as SettingsIcon } from '../html/assets/menu.svg';
 import { useState , useEffect} from "react";
 function NavBar(props){
     const [hovering, setHovering] = React.useState("");
@@ -25,7 +25,7 @@ function NavBar(props){
         
         <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className='iconWraper settingsButton'>
             <SettingsIcon className="icon" alt="settingsIcon" />
-            {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'>Settings</label> }
+            {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'></label> }
             </div>
             {navOpen && 
             <div className="navMenuBackground" onClick={() => setNavOpen(false)}>

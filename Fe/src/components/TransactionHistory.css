@@ -3,8 +3,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
     background-color: rgb(255, 255, 255);
     padding: 10px;
     word-break: break-word;
@@ -39,7 +37,6 @@
 }
 
 .transactionHistoryTokenBalance{
-    width: 100%;
     display: flex;
     align-content: center;
     border: 1px solid rgb(8, 8, 8);

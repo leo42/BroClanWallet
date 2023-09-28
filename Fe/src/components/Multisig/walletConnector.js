@@ -93,7 +93,7 @@ function WalletConnector(props){
             < br/>  </div>  */}
             <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)}  className='iconWraper connectButton'>
              <ConnectIcon className="icon"  alt="connectIcon" />
-             { ( hovering === "connect"  || isMobile) &&   <label className='iconLabel'>Connect</label> }
+             { ( hovering === "connect"  ) &&   <label className='iconLabel'>Connect</label> }
             < br/>   
           </div>
 

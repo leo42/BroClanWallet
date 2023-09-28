@@ -1,8 +1,17 @@
 .WalletListContainer{
-    position: fixed;
-    top: 108px;
-    left: 16px;
+    align-self: flex-start;
     font-size: 18px;
+}
+
+.multisigWalletListContainer{
+    position: relative;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 18px;
+    z-index: -15;
+    width: 150px;
 }
 
 .MWalletList{

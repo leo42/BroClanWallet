@@ -162,9 +162,10 @@ render() {
     return(
       <div className={ this.state.connectedWallet !== "none" ? "TokenVaultsContainer TokenVaultsContainerActive" :  "TokenVaultsContainer"} >
           <React.StrictMode>
+            <div className="TokenVaultsContainerHeader">
           {this.state.connectedWallet !== "none" && <MWalletList wallet={this.state.connectedWallet} root={this.props.root} moduleRoot={this}  selected={this.state.wallet ? this.state.wallet.getToken(): undefined}></MWalletList> }
-  
           <WalletConnector  moduleRoot={this}   key={this.state.connectedWallet}></WalletConnector>
+          </div>
           <div className='WalletInner'>
 
           {this.state.wallet  && <WalletMain key={this.state.wallet} wallet={this.state.wallet} root={this.props.root} moduleRoot={this}  ></WalletMain>}
