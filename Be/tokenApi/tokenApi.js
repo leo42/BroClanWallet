@@ -3,6 +3,7 @@ const { MongoClient } = require("mongodb");
 const config = require('./config.js');
 const cors = require('cors');
 
+const imageBuffer = {}
 
 var  tokens
 
@@ -19,19 +20,9 @@ async function main() {
     });
 
     app.get("/api/:tokenVault/image.png", async (req, res) => {
-        const result = await tokens.findOne({id : req.params.tokenVault})
-        if (result === null) {
-            res.json({error: "no such token vault"})
-        }else{
-        //image is buffer type I want to send it as png to load in the browser
-
-        
-
-
         res.set('Content-Type', 'image/png');
-        res.send(result.image.buffer);
-        console.log(typeof(result.image))
-    }
+        res.send(await getImage(req.params.tokenVault))
+    
     });
 
     app.listen(config.port, () => {
@@ -40,8 +31,34 @@ async function main() {
 }
 
 
+async function getImage(tokenVault) {
+    const tokenInfo = await tokens.findOne({id : tokenVault}, { projection: { imageVersion: 1  } }) 
+    if (tokenInfo === null) {
+        return({error: "no such token vault"})
+    }else{
+        if (imageBuffer[tokenVault] === undefined || imageBuffer[tokenVault].version !== tokenInfo.imageVersion) {
+            imageBuffer[tokenVault] = await tokens.findOne({id : tokenVault}, { projection: { image: 1 , imageVersion: 1 } })
+            imageBuffer[tokenVault].time = Date.now()
+            if (Object.keys(imageBuffer).length > config.bufferSize) {
+                console.log("in prune")
+                let oldest = {time : Date.now()}
+                Object.keys(imageBuffer).map((key) => {
+                    if (imageBuffer[key].time < oldest.time) {
+                        console.log("in prune, found oldest", key)
+                        oldest = key
+                    }
+                })
+                delete imageBuffer[oldest]
+            }
+            
+        }
+        console.log(Object.keys(imageBuffer).length)
+        return imageBuffer[tokenVault].image.buffer
+    }
+}
+
 async function getTokens(tokenVault) {
-    const result = await tokens.findOne({id : tokenVault})
+    const result = await tokens.findOne({id : tokenVault} ,  { projection: { utxos: 1 } } )
    
     if (result === null) {
         return {error: "no such token vault"}

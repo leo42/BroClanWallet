@@ -20,7 +20,7 @@ const resizeOptions = {// Prevents enlargement/cropping
 
 async function CombineImages(sourceImages) {
 
-  sourceImages = sourceImages.filter((image) => {return image !== undefined})
+  sourceImages = sourceImages.filter((image) => {  return (image !== undefined) && (image.image !== undefined)})
   if (sourceImages.length === 0) {
     return await sharp(baseImagePath)
     .png() 
@@ -163,11 +163,15 @@ async function CombineImages(sourceImages) {
 
 fetchImage = async function(url){
   //if start with ipfs get from ipfs
+  url = Array.isArray(url) ? url.join("") : url
   if(url.startsWith("ipfs://")){
     const res = await fetch("https://ipfs.blockfrost.dev/ipfs/"+url.slice(7).replace("ipfs/", ""))
     return await res.arrayBuffer()
   }else{
     const res = await fetch(url)
+    if(res.status !== 200){
+      return undefined
+    }
     return await res.arrayBuffer()
   }
 }
@@ -179,7 +183,7 @@ getSourceImages = async function(tokenList){
   const sourceImages =  tokenListKeys.map(async (key) => { 
     console.log("Gathering for" +key)
           if (key === "lovelace") {
-            return { image: await sharp(adaImagePath).toBuffer() , nft: false , quantity : tokenList[key]  }
+            return { image: await sharp(adaImagePath).toBuffer() , nft: false , quantity : tokenList[key]/1_000_000  }
           }
           const tokenInfo = await  getTokenInfo(key)
         //  console.log(tokenInfo)
@@ -187,7 +191,7 @@ getSourceImages = async function(tokenList){
             console.log("NFT")
           }
           if(tokenInfo.metadata){
-            return { image: Buffer.from(tokenInfo.metadata.logo, 'base64') , nft: false , quantity : tokenList[key]  }
+            return { image: Buffer.from(tokenInfo.metadata.logo, 'base64') , nft: false , quantity : tokenList[key]/tokenInfo.metadata.decimals  }
           }else if(tokenInfo.onchain_metadata){
             const image = await  fetchImage(tokenInfo.onchain_metadata.image)
             if (tokenInfo.quantity === "1" ){

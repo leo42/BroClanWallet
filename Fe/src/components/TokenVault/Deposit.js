@@ -107,7 +107,7 @@ function Deposit(props) {
 
     const addToken = (tokenId) => {
         const localAmount = {...amount}
-        localAmount[tokenId] = 0
+        localAmount[tokenId] = tokenData[tokenId].isNft ?  1 : 0
         setAmount(localAmount)
     }
 
