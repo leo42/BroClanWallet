@@ -65,6 +65,11 @@ function Deposit(props) {
         const tx = await lucid.newTx().payToContract(address ,{ inline : Data.void()}, amount).complete()
         const signedTx = await tx.sign().complete()
         const txHash = await signedTx.submit()
+        toast.promise(lucid.provider.awaitTx(txHash), {
+            pending: 'Depositing into TokenVault',
+            success:  'Deposit successful!',
+            error:  'Deposit failed!'
+            })
     } catch (error) {
         toast.error(error.message)
        }

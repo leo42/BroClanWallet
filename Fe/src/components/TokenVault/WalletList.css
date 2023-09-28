@@ -64,8 +64,8 @@
 }
 
 .Overlay{
-    width: 100vw;
-    height: 100vh;
+    width: 99vw;
+    height: 90vh;
     position: absolute;
     left: 0px;
     top: 0px;
