@@ -36,15 +36,13 @@ async function getImage(tokenVault) {
     if (tokenInfo === null) {
         return({error: "no such token vault"})
     }else{
-        if (imageBuffer[tokenVault] === undefined || imageBuffer[tokenVault].version !== tokenInfo.imageVersion) {
+        if (imageBuffer[tokenVault] === undefined || imageBuffer[tokenVault].imageVersion !== tokenInfo.imageVersion) {
             imageBuffer[tokenVault] = await tokens.findOne({id : tokenVault}, { projection: { image: 1 , imageVersion: 1 } })
             imageBuffer[tokenVault].time = Date.now()
             if (Object.keys(imageBuffer).length > config.bufferSize) {
-                console.log("in prune")
                 let oldest = {time : Date.now()}
                 Object.keys(imageBuffer).map((key) => {
                     if (imageBuffer[key].time < oldest.time) {
-                        console.log("in prune, found oldest", key)
                         oldest = key
                     }
                 })

@@ -220,7 +220,9 @@ async function updateImages(needImageUpdate){
   needImageUpdate.map(async (token) => {
    const sourceImages = await getSourceImages(utxosToTokenMap(token.utxos))
    const image = await CombineImages(sourceImages)
-   tokens.updateOne({id: token.id}, {$set: {image: image, imageUpdate: false}})
+   //increase image version number 
+   console.log(token)
+   tokens.updateOne({id: token.id}, {$set: {image: image, imageUpdate: false }, $inc: {imageVersion: 1 }})
  // console.log(sourceImages)
   })
 }
@@ -253,7 +255,7 @@ async function main(){
   tokens = mongoClient.db(config.dbName).collection("Tokens")
 
   imageDb = mongoClient.db(config.dbName).collection("Images")
-  const needImageUpdate = await tokens.find({imageUpdate: true}).toArray()
+  const needImageUpdate = await tokens.find({imageUpdate: true},{ projection: { id: 1, utxos: 1 , imageVersion: 1 } }).toArray()
   updateImages(needImageUpdate)
   watchTransactions()
   }
@@ -276,7 +278,7 @@ async function watchTransactions() {
   const changeStream = tokens.watch( pipeline , options );
 
   changeStream.on('change', async (change) => {
-    const transaction = await tokens.findOne({ _id: change.documentKey._id });
+    const transaction = await tokens.findOne({ _id: change.documentKey._id }, { projection: {id: 1 ,utxos: 1 , imageVersion: 1 } });
     console.log("updating: "+transaction)
     updateImages([transaction])
   });
