@@ -254,7 +254,7 @@ class WalletCreateTx extends React.Component {
 
   return (
     <div className='CreateTransactionContainer'>
-      <div> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} {this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </div>
+      <div className='CreateTransactionContainerBalance'> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} {this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </div>
       { this.RecipientJSX()}
 
       <div onMouseEnter={() => this.setHovering("recipient")} onMouseLeave={() => this.setHovering("") } onClick={() => this.addRecipient()} className='addRecipientWraper recipientButton'>

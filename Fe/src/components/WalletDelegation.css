@@ -16,6 +16,19 @@
     }
   }
 
+  .currentDelegation{
+    margin-top: 50px;
+    margin-bottom: 20px;
+    border: var(--clrorange) 1px solid;
+    border-radius: 15px;
+    padding: 15px;
+
+  }
+
+  .currentDelegation .PoolElementWrapper{
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
 .loadingIcon {
     width: 200px;
     height: 200px;

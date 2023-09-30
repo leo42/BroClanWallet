@@ -4,7 +4,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--clrorange);
     border-radius: 5px;
     padding: 10px;
     height: 100%;
@@ -109,11 +109,11 @@
     margin: 10px;
     padding: 5px;
     
-    border: #cecccc;
+    border: var(--clrorange) dotted 1px ;
     border-radius: 5px;
     border-width: 2px;
     border-style: outset;
-    box-shadow: 5px 5px 5px 5px #b89d82;
+    box-shadow: 5px 5px 5px 5px #000000;
 
 }
 .CreateTxSelectedToken .TokenThumbnail{
@@ -165,6 +165,11 @@
     width: 100%;
 
 }
+
+.CreateTransactionContainerBalance{
+  margin: 40px;
+  font-size: 1.5vw;
+}
 .deleteRecipient{
     /* move to upper right corner */
     align-self: flex-end;
@@ -198,8 +203,8 @@
 
 .deleteTokenButton{
     border: none;
-    background-color: #ffffff;
     cursor: pointer;
+    background-color: transparent;
     transition: transform 0.3s ease-in-out;
 }
   .createTxSelectedTokenList{
@@ -229,8 +234,8 @@
   
   .maxButton {
     border: none;
-    background-color: #ffffff;
     cursor: pointer;
+    background-color: transparent;
     color: rgb(1, 173, 173);
     transition: transform 0.3s ease-in-out;
     width: 50px;

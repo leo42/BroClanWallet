@@ -1,10 +1,11 @@
 .TokenListTokenContainer .TokenElementWrapper{
     width: 40vw;
-    border-bottom: #000000;
-    border-radius: 1px;
+    border-radius: 10px;
     padding: 10px;
     margin: 10px;
-    border-style:outset
+    border-style:outset;
+    border: var(--clrorange);
+    box-shadow: 3px 3px 7px 3px #000000;
 }
 
 .TokenListTokenContainer .TokenElement{

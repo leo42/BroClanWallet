@@ -70,7 +70,7 @@ function WalletDelegation(props) {
     if (delegation.poolId === null) {
       return <div> No Delegation </div>
     } else {
-      return <div> 
+      return <div className='currentDelegation'> 
         Delegated to  <br />
         {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
 
@@ -120,8 +120,8 @@ function WalletDelegation(props) {
       </label>
       {searching ? searchingAnimation() : pools.map( (pool) => (
           <div key={pool}>
-            <PoolElement key={pool.pool_id_bech32} root={props.root} poolId={pool.pool_id_bech32} />
-            {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
+            <PoolElement  key={pool.pool_id_bech32} root={props.root} poolId={pool.pool_id_bech32} />
+             {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
             <br/>
           </div>
         )
