@@ -6,15 +6,13 @@
     margin-bottom: 10px;
     border: 1px solid var(--clrorange);
     border-radius: 5px;
+    width: 90vw;
     padding: 10px;
     height: 100%;
 }
 
 .ADAAmountContainer{
   margin-top: 20px;
-}
-.addressWrap label{
-    font-size: 25px;
 }
 
 .addressWrap input[type="text"] {
@@ -147,7 +145,7 @@
     flex-direction: row;
     justify-content:center;
     align-items: center;
-    width: 90%;
+    width: 90vw;
     height: 50px;
     margin: 10px;
     padding: 12px;
@@ -170,6 +168,7 @@
   margin: 40px;
   font-size: 1.5vw;
 }
+
 .deleteRecipient{
     /* move to upper right corner */
     align-self: flex-end;
@@ -197,8 +196,8 @@
 }
 
 .addRecipientWraper:hover{
-    transform: scale(1.1);
-    background-color: #faf4ee46;
+    transform: scale(1.01);
+    background-color: #ffffff2d;
 }
 
 .deleteTokenButton{

@@ -164,11 +164,11 @@ class WalletCreateTx extends React.Component {
        { index > 0 ?<div   > <button className='deleteRecipient' type="submit" onClick={ () =>  this.deleteRecipient(index)}>x</button> </div>: ""}
       </div>
       <div className="addressWrap">
-        <label>Address:</label>
       <div className={"address_wrap "  + ( this.isAddressValid(recipient.address) ? "sendInputValidAddress" : "sendInputInvalidValidAddress")} >
         <input className='createTxAddressInputField' 
           type="text"
           name="cardano_address"
+          placeholder='Address'
           value={recipient.address}
           onChange={event => this.setAddress(event.target.value,index)}
         />
@@ -177,9 +177,10 @@ class WalletCreateTx extends React.Component {
 
   <div className="addressWrap ADAAmountContainer">
   <div className="address_wrap">
-  <span className="overVeiwTokenSearch">ADA: <input className='createTxADAInputField'
+  <span className="overVeiwTokenSearch"> <input className='createTxADAInputField'
       type="number"
       name="amount"
+      placeholder='ADA'
       value={this.state.recipients[index].amount.lovelace === 0 ? "" :this.state.recipients[index].amount.lovelace/1_000_000 }
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     /> </span>
@@ -254,7 +255,7 @@ class WalletCreateTx extends React.Component {
 
   return (
     <div className='CreateTransactionContainer'>
-      <div className='CreateTransactionContainerBalance'> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} {this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </div>
+      <h1> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} {this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </h1>
       { this.RecipientJSX()}
 
       <div onMouseEnter={() => this.setHovering("recipient")} onMouseLeave={() => this.setHovering("") } onClick={() => this.addRecipient()} className='addRecipientWraper recipientButton'>

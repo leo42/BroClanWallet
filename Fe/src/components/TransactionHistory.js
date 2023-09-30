@@ -99,7 +99,7 @@ function TransactionHistory (props) {
 
     return (
        <div className="TransactionHistory"> 
-        {props.wallet.getFundedAddress().length === 0 && <div className="TransactionHistoryNoFunds">No funds in this wallet</div>}
+        {props.wallet.getFundedAddress().length === 0 && <h1>No funds in this wallet</h1>}
         {props.wallet.getFundedAddress().length > 1 && <div className="TransactionHistorySelectAddress">
       <select className="addressSelect" defaultValue={props.wallet.getDefaultAddress()} onChange={handleChangeFrom} >
                  {props.wallet.getFundedAddress().map( (item, index) => (

@@ -1,18 +1,18 @@
 
 
-.darkMode{
-  --clrorange:rgba(255, 153, 0, 1);
+.darkMode {
+  --clrorange: rgba(255, 153, 0, 1);
   --clrgreen: rgba(22, 217, 0, 1);
   --clrred: #ff0000;
-  --clrNav: gray; 
-  --clrBackground: rgb(53, 53, 53); 
+  --clrNav: rgb(39 39 39);
+  --clrBackground: rgb(39 39 39);
   --clrModal: rgb(53, 53, 53);
-  --clrInputs: rgb(78, 78, 78);
+  --clrInputs: rgb(105 105 105);
   --clrNavText: white;
-  --clrPlaceholder: rgb(230, 230, 230);  
-  --clrWalletCreate1 : rgba(240, 142, 50, 0.164);
-  --clrWalletCreate2 : rgba(240, 142, 50, 0.164);
-  --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --clrPlaceholder: rgb(230, 230, 230);
+  --clrWalletCreate1: rgb(240 240 240 / 16%);
+  --clrWalletCreate2: rgb(255 255 255 / 16%);
+  --shadowclr: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   --angle: 0deg;
   --opacity: 0.5;
 }
@@ -36,16 +36,21 @@
 
 .appBackground{
   position: fixed;
-  overflow: scroll;
   z-index: -100000;
   top: 0px;
   left: 0px;
-
+  overflow-x: hidden;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  overflow-y: scroll;
   min-width: 100vw;
   min-height: 100vh;
   background-color: var(--clrBackground)
 }
 
+.appBackground::-webkit-scrollbar {
+  display: none;
+}
 
 body {
   scroll-behavior: smooth;

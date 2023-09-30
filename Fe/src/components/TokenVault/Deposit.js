@@ -7,7 +7,7 @@ import TokenElement from "../TokenElement";
 
 function Deposit(props) {
     const [utxos, setUtxos] = useState([])
-    const [amount, setAmount] = useState({ lovelace: 10000000})
+    const [amount, setAmount] = useState({})
     const [tokenData, setTokenData] = useState({})
     const [fullBalance, setFullBalance] = useState({})
     const [options, setOptions] = React.useState([])
@@ -166,9 +166,10 @@ function Deposit(props) {
         
       <div className="addressWrap ADAAmountContainer">
       <div className="address_wrap">
-      <span className="overVeiwTokenSearch">ADA: <input className='createTxADAInputField'
+      <span className="overVeiwTokenSearch"><input className='createTxADAInputField'
           type="number"
           name="amount"
+          placeholder='ADA'
           value={amount.lovelace === 0 ? "" : amount.lovelace/1_000_000 }
           onChange={event => updateAmount(event.target.value,"lovelace")}
         /> </span>

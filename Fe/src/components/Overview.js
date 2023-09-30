@@ -147,10 +147,10 @@ function Overview(props) {
     
     <div>
       <label>
-      <div>
+      <h1>
       Overview
-      <ExpandIcon className="expandButton" alt="expandIcon" onClick={() =>setWalletSettingsOpen(!walletSettingsOpen)}/>
-    < br/>  </div> 
+      { props.moduleRoot.modalType() !== "tokenVault" && <ExpandIcon className="expandButton" alt="expandIcon" onClick={() =>setWalletSettingsOpen(!walletSettingsOpen)}/> }
+    < br/>  </h1> 
     </label>
 { walletSettingsOpen ?  settingsMenu(showingAddress) : "" }
       { props.wallet.getFundedAddress().length > 1 ? AccountSelect(): ""}

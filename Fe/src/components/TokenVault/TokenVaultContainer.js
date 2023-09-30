@@ -137,6 +137,10 @@ class TokenVaultsContainer extends React.Component {
 
     }
 
+    modalType(){
+      return "tokenVault"
+    }
+
     changeAddressName (address, name) {
       const wallet = this.state.wallet
       this.state.wallet.changeAddressName(address, name)

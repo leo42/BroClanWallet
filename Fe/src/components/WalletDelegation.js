@@ -68,7 +68,7 @@ function WalletDelegation(props) {
 
   const delegationInfo = () => {
     if (delegation.poolId === null) {
-      return <div> No Delegation </div>
+      return <h1> No Delegation </h1>
     } else {
       return <div className='currentDelegation'> 
         Delegated to  <br />

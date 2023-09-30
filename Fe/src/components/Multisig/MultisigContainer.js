@@ -177,7 +177,10 @@ async setState(state){
     super.setState(state) 
     this.setState({loading : false})
   }
- 
+  
+  modalType(){
+    return "multisig"
+  }
 
   async createTx(recipients,signers,sendFrom, sendAll=null){
     try{
