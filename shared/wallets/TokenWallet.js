@@ -251,7 +251,6 @@ setPendingTxs(pendingTxs){
     }
     
     filterUtxos(utxos){ 
-      console.log(utxos)
       return utxos.filter(utxo => utxo.datum !== undefined )
     }
 
@@ -329,12 +328,7 @@ setPendingTxs(pendingTxs){
       )) : []
       return txDetails
     }
-
-    checkSigners(signers){
-      return true
-      }
-
-      
+     
     
     
     async createTx( recipients, signers,sendFrom="" , sendAll=null , withdraw=true ) { 
@@ -376,7 +370,9 @@ setPendingTxs(pendingTxs){
         }
         lucid.selectWallet(this.api)
         const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
-
+        if (hostUtxo === undefined){
+          throw new Error('tokenVault not found in connected wallet');
+        }
         const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
@@ -386,12 +382,11 @@ setPendingTxs(pendingTxs){
         ))
 
         const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
-        console.log(utxos, hostUtxo, this.collateralUtxo)
      //   const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
         
-        // if(withdraw && Number(this.delegation.rewards) > 0 ){
-        //   tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards).collectFrom( this.collateralUtxo)
-        // }
+        if(withdraw && Number(this.delegation.rewards) > 0 ){
+          tx.withdraw(this.lucid.utils.validatorToRewardAddress(this.ValidatorScript), this.delegation.rewards)
+        }
 
         const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom(utxos , Data.void())
 
@@ -425,7 +420,9 @@ setPendingTxs(pendingTxs){
       lucid.selectWallet( this.api)
     
       const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
-
+      if (hostUtxo === undefined){
+        throw new Error('tokenVault not found in connected wallet');
+      }
       const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
       const signersTx = lucid.newTx().addSigner(hostUtxo.address)
       const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom( this.getUtxos() , Data.void())
@@ -457,7 +454,9 @@ setPendingTxs(pendingTxs){
       lucid.selectWallet( this.api)
     
       const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
-
+      if (hostUtxo === undefined){
+        throw new Error('tokenVault not found in connected wallet');
+      }
       const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
       const signersTx = lucid.newTx().addSigner(hostUtxo.address)
       const inputsTx = lucid.newTx().attachSpendingValidator(this.ValidatorScript).collectFrom( this.getUtxos() , Data.void())

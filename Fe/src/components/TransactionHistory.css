@@ -3,7 +3,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgb(255, 255, 255);
     padding: 10px;
     word-break: break-word;
 
@@ -41,7 +40,7 @@
     align-content: center;
     border: 1px solid rgb(8, 8, 8);
     justify-content: center;
-    background-color: rgb(241, 241, 241);
+    background-color: rgba(241, 241, 241, 0.116);
     margin: 3px;
 }
 

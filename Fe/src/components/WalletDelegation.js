@@ -121,8 +121,8 @@ function WalletDelegation(props) {
       {searching ? searchingAnimation() : pools.map( (pool) => (
           <div key={pool}>
             <PoolElement key={pool.pool_id_bech32} root={props.root} poolId={pool.pool_id_bech32} />
-            <br/>
             {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
+            <br/>
           </div>
         )
       )}

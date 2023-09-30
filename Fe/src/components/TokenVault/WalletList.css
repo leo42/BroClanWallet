@@ -107,7 +107,7 @@
     flex-wrap: wrap;
     width: 450px;
     height: fit-content;
-    background-color: rgb(255, 255, 255);
+    background-color: var(--clrModal);
    
     justify-content: space-between;
     /* 3 items per row */
@@ -126,6 +126,7 @@
     border: 1px outset var(--clrorange);
     border-radius: 10px;
     margin: 10px;
+    background-color: #0000003d;
     overflow: hidden;
 }
 
@@ -141,7 +142,6 @@
 .tokenWalletSelected .TokenThumbnailElement{
     height: 100px;
     width: 80px;
-    background-color: rgba(255, 255, 255, 0.7);
 }
 
 
@@ -196,11 +196,8 @@
 .tokenWalletSelected .TokenThumbnail{
     height: 30px;
     width: 30px;}
-    .tokenWalletSelected .TokenThumbnailElement{
-        height: 65px;
-        width: 50px;
-        background-color: rgba(255, 255, 255, 0.7);
-    }
+
+   
     .tokenWalletSelected .TokenThumbnailName{
         font-size: 10px;
         font-weight: 200;

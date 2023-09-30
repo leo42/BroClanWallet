@@ -30,7 +30,7 @@ function TokenThumbnail(props) {
 
     return (
         <div className="TokenThumbnailElement" onClick={() => props.f(props.tokenId)}> 
-        <img className="TokenThumbnail" src={tokenInfo.image } />
+        <img className="TokenThumbnail" src={tokenInfo.image } loading="lazy" />
         <span className="TokenThumbnailName">{tokenInfo.name}</span></div>
     );
 }

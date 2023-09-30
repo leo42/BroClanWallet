@@ -171,14 +171,14 @@
     border: none;
     width: 20px;
     height: 20px;
-    background-color: #ffffff;
+    background-color: var(--clrBackground);
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
 }
 
 .addRecipientWraper{
     box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.123);
     border: 0;
     
     height: 30px;
@@ -193,7 +193,7 @@
 
 .addRecipientWraper:hover{
     transform: scale(1.1);
-    background-color: #faf4ee;
+    background-color: #faf4ee46;
 }
 
 .deleteTokenButton{

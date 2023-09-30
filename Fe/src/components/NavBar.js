@@ -1,6 +1,8 @@
 import React from "react";
 import "./NavBar.css"
 import { ReactComponent as SettingsIcon } from '../html/assets/menu.svg';
+import { ReactComponent as SunIcon } from '../html/assets/sun.svg';
+import { ReactComponent as MoonIcon } from '../html/assets/moon.svg';
 import { useState , useEffect} from "react";
 function NavBar(props){
     const [hovering, setHovering] = React.useState("");
@@ -21,8 +23,10 @@ function NavBar(props){
   
     return (
         <div className="NavBarWrapper"   >
+        <div className="modeToggle" onClick={() => props.root.toggleMode()}> 
+            {props.root.state.mode === "lightMode" ? <MoonIcon className="modeIcon nightIcon" alt="sunIcon" /> : <SunIcon className="modeIcon dayIcon" alt="moonIcon" /> }
+        </div>
             <img src={"./assets/logoFull.png"} alt="Logo" className='MainAppLogo' />
-        
         <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className='iconWraper settingsButton'>
             <SettingsIcon className="icon" alt="settingsIcon" />
             {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'></label> }

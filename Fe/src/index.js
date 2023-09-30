@@ -5,7 +5,6 @@ import MultisigContainer from './components/Multisig/MultisigContainer';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import TermsAndConditionsBanner from './components/TermsBanner';
-import TestnetBanner from './components/TestnetBanner';
 import NavBar from './components/NavBar';
 import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import SettingsModal from "./components/SettingsModal";
@@ -25,7 +24,7 @@ class App extends React.Component {
                 termsAccepted: "NotAccepted",
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
                 },
-                
+    mode: "darkMode",
     syncService: "https://sync.broclan.io"
   }
   
@@ -36,6 +35,9 @@ class App extends React.Component {
     } 
     if (state.module){
       localStorage.setItem("module", state.module)
+    }
+    if(state.mode){
+      localStorage.setItem("mode", state.mode)
     }
 
   }
@@ -55,6 +57,8 @@ class App extends React.Component {
 }
 
   loadState(){
+    const mode = localStorage.getItem("mode") ? localStorage.getItem("mode") : this.state.mode
+    this.setState({mode})
     const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     this.setState({settings})
     const module = localStorage.getItem("module") ? localStorage.getItem("module") : this.state.module
@@ -110,13 +114,23 @@ class App extends React.Component {
     this.setState({settings})
   }
 
+  async setMode(mode){  
+    this.setState({mode})
+  }
+
+  async toggleMode(){
+    const mode = this.state.mode === "lightMode" ? "darkMode" : "lightMode"
+    this.setState({mode})
+  }
+
+
 
   render() {
     return (
-      <div className='App'>
+      <div className={`App ${this.state.mode}`}>
+        <div className="appBackground">
        { this.state.modal === "settings" ? <SettingsModal setOpenModal={() => this.showModal()} root={this} /> : "" }
 
-        <TestnetBanner />
         <ToastContainer
           position="top-left"
           autoClose={5000}
@@ -134,6 +148,7 @@ class App extends React.Component {
      {this.state.module === "tokenVault" &&  <TokenVaultsContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "minting" &&  <Minting root={this} settings={this.state.settings} /> }
       <TermsAndConditionsBanner key={this.state.settings} root={this}/>
+      </div>
    </div>
     );
     }

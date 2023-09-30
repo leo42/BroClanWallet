@@ -92,8 +92,8 @@ class TokenVaultsContainer extends React.Component {
           error: 'Transaction failed',
         })
       }catch(e){
+        toast.error(e.message ? e.message : e)
         console.log(e)
-        toast.error(e)
       }
     }
 
@@ -111,8 +111,8 @@ class TokenVaultsContainer extends React.Component {
           error: 'Delegation failed',
         })
       }catch(e){
+        toast.error(e.message ? e.message : e)
         console.log(e)
-        toast.error(e)
       }
       
     }
@@ -131,8 +131,8 @@ class TokenVaultsContainer extends React.Component {
           error: 'Undelegation failed',
         })
       }catch(e){
+        toast.error(e.message ? e.message : e)
         console.log(e)
-        toast.error(e)
       }
 
     }

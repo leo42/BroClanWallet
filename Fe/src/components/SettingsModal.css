@@ -1,0 +1,14 @@
+.warning{
+    color: red;
+    overflow: break-word;
+    width: 400px;
+    margin: 15px;
+}
+
+.settingsModal span{
+    margin-top: 10px;
+}
+
+.sendAll{
+    margin-top: 20px;
+}

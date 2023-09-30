@@ -1,19 +1,77 @@
-:root {
-  --clrorange: rgba(255, 153, 0, 1);
+
+
+.darkMode{
+  --clrorange:rgba(255, 153, 0, 1);
   --clrgreen: rgba(22, 217, 0, 1);
   --clrred: #ff0000;
+  --clrNav: gray; 
+  --clrBackground: rgb(53, 53, 53); 
+  --clrModal: rgb(53, 53, 53);
+  --clrInputs: rgb(78, 78, 78);
+  --clrNavText: white;
+  --clrPlaceholder: rgb(230, 230, 230);  
+  --clrWalletCreate1 : rgba(240, 142, 50, 0.164);
+  --clrWalletCreate2 : rgba(240, 142, 50, 0.164);
   --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
   --angle: 0deg;
   --opacity: 0.5;
 }
 
+.lightMode{
+  --clrorange: rgba(255, 153, 0, 1);
+  --clrgreen: rgba(22, 217, 0, 1);
+  --clrred: #ff0000;
+  --clrNav: rgb(255, 255, 255); 
+  --clrBackground: rgb(255, 255, 255);
+  --clrModal: rgb(255, 255, 255);
+  --clrInputs: rgb(255, 255, 255);
+  --clrNavText: black;
+  --clrPlaceholder: rgba(0, 0, 0, 0.322);
+  --clrWalletCreate1 : rgb(236, 236, 236);
+  --clrWalletCreate2 : rgb(255, 242, 222);
+  --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --angle: 0deg;
+  --opacity: 0.5;
+}
+
+.appBackground{
+  position: fixed;
+  overflow: scroll;
+  z-index: -100000;
+  top: 0px;
+  left: 0px;
+
+  min-width: 100vw;
+  min-height: 100vh;
+  background-color: var(--clrBackground)
+}
+
+
+body {
+  scroll-behavior: smooth;
+}
+
 .App {
   text-align: center;
-  height: 0px;
+  height: 0;
   font-family: 'Roboto', sans-serif;
+  color: var(--clrNavText);
   /* height: 87vh; */
 }
 
+.App button{
+  color: var(--clrNavText);
+} 
+
+.App input{
+  color: var(--clrNavText);
+  background-color: var(--clrInputs);
+}
+
+.App input::placeholder {
+  color: var(--clrPlaceholder);
+  opacity: 1; /* Firefox */
+}
 .Json_input_box{
   height: 700px;
   width: 550px;
@@ -85,7 +143,7 @@ select{
   margin: 26px 60px 2px;
   border: rgb(59, 59, 59) solid 1px;
   background-color: transparent;
-  color: rgb(59, 59, 59);
+  color: var(--clrNavText);
   border-radius: 20px;
   font-size: 17px;
   cursor: pointer;

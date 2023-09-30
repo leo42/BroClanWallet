@@ -7,7 +7,6 @@
   bottom: 0;
   background-color: rgba(200, 200, 200, 0.438);
   position:fixed;
-  overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -23,7 +22,7 @@
   width: max-content;
   height: max-content;
   border-radius: 1vw;
-  background-color: white;
+  background-color: var(--clrModal);
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   display: flex;
   flex-direction: column;
@@ -47,7 +46,7 @@
   }
   
 .titleCloseBtn button {
-  background-color: transparent;
+  background-color: var(--clrBackground);
   border: none;
   font-size: 25px;
   cursor: pointer;
@@ -59,6 +58,7 @@
   padding: 7px;
   margin: 6px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  
   }
 
 .cardSelect {
@@ -102,7 +102,7 @@ input:focus + label, input:valid + label{
   color: #777777;
   top: 8px;
   left:1px;
-  background: #ffffff;
+  background: var(--clrInput);
   padding: 0px 5px 0px 5px;
 }
 
@@ -199,11 +199,11 @@ input[type="text"]:focus {
 
 .btn {
   border: var(--clrorange) solid 1px;
-  background-color: rgba(255, 255, 255, 0.7);
   box-shadow: var(--clrorange) 0px 0px 5px 0px;
   border-radius: 20px;
   width: fit-content;
   color: var(--clrorange);
+  background-color: var(--clrBackground);
   padding:3px 9px;
   font-size: 12px;
   transition: 0.5s;
@@ -212,7 +212,7 @@ input[type="text"]:focus {
 
 .btn:hover{
   letter-spacing: 0.25em;
-  background-color: rgba(255, 255, 255, 1);
+  background-color: var(--clrorange);
 }
 
 .modalContainer .body {
@@ -233,17 +233,18 @@ input[type="text"]:focus {
 
 
 .WalletCreateColor1{
-  background-color: rgb(236, 236, 236);
+  
+  background-color: var(--clrWalletCreate1)
 }
 
 .WalletCreateColor0{
-  background-color: rgb(255, 242, 222);
+  background-color: var(--clrWalletCreate2)
 }
 
 .WalletCreateTypesig,
 .WalletCreateTypebefore,
 .WalletCreateTypeafter{
-  background-color: white;
+  background-color: var(--clrBackground);
 }
 
 @media (max-width: 768px) { 

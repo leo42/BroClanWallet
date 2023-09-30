@@ -161,9 +161,9 @@ function SettingsModal(props) {
           </button>
         </div>
   
- 
-        <div className="body">
-          <h1>Network Settings</h1>
+     
+        <div className="body settingsModal">
+          <h1>Settings</h1>
           <span> Network</span>   
         <select onChange={(event) => networkChange(event.target.value)} value={network} defaultValue={network}>
           <option value="Preprod">Preprod</option>
@@ -171,6 +171,8 @@ function SettingsModal(props) {
           <option value="Mainnet">Mainnet</option>
           { provider !== "MWallet" ? <option value="Custom">Custom</option>  : ""   }
         </select>
+          {  network === "Mainnet" && ["alpha.broclan.io","beta.broclan.io","testnet.broclan.io"].includes(window.location.hostname)   && 
+          <span className="warning">WARNING: This is a testnet deployment, make sure you understand the risks before using it on the mainnet.</span>   }
 
         <span> Provider</span>   
         <select onChange={(event) => changeProvider(event.target.value)} value={provider} defaultValue={provider}>
@@ -187,7 +189,15 @@ function SettingsModal(props) {
 
             {providerSettings()}
 
-           
+            <div className="sendAll">
+          <label htmlFor="sendAll">Enable Send All</label>
+           <input type="checkbox" id="sendAll" name="sendAll" checked={props.root.state.settings.sendAll} value={props.root.state.settings.sendAll} onChange={ () => props.root.toggleSendAll()} />
+        </div>
+        <div className="DisableSync">
+          <label htmlFor="DisableSync">Disable All Sync</label>
+           <input type="checkbox"  name="EnableSync" checked={props.root.state.settings.disableSync} value={props.root.state.settings.disableSync} onChange={ () => props.root.toggleDisableSync()} />
+        </div>
+
         <div className="footer">
          <button
             onClick={() => {
@@ -207,15 +217,7 @@ function SettingsModal(props) {
             Reset
           </button>
           </div> 
-        <div className="sendAll">
-          <label htmlFor="sendAll">Enable Send All</label>
-           <input type="checkbox" id="sendAll" name="sendAll" checked={props.root.state.settings.sendAll} value={props.root.state.settings.sendAll} onChange={ () => props.root.toggleSendAll()} />
-        </div>
-        <div className="DisableSync">
-          <label htmlFor="DisableSync">Disable All Sync</label>
-           <input type="checkbox"  name="EnableSync" checked={props.root.state.settings.disableSync} value={props.root.state.settings.disableSync} onChange={ () => props.root.toggleDisableSync()} />
-        </div>
-
+        
         </div>
       </div>
     </div>
