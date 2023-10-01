@@ -50,6 +50,9 @@
   background-color: var(--clrBackground)
 }
 
+.appBackground::-webkit-scrollbar {
+  display: none;
+}
 
 body {
   scroll-behavior: smooth;
@@ -63,12 +66,7 @@ select{
   border-bottom: var(--clrorange) solid 1px;
 }
 
-select option:hover {
-  background-color: yellow;
-}
-select option:hover {
-  box-shadow: 0 0 10px 100px orange inset;
-}
+
 
 .App {
   text-align: center;
@@ -114,7 +112,7 @@ select option:hover {
 
 .WalletInner{
   display: flex;
-  width: 99vw;
+  width: 100vw;
   flex-direction: column;
   justify-content: center;
   margin: 0px;
