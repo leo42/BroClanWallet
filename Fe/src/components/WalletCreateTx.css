@@ -1,6 +1,5 @@
 .createTxRecipientContainer{
     display: flex;
-    width: 91vw;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
@@ -11,6 +10,9 @@
     height: 100%;
 }
 
+.createTxRecipientContainerSend{
+  width: 90vw;
+}
 .ADAAmountContainer{
   margin-top: 20px;
 }

@@ -159,7 +159,7 @@ class WalletCreateTx extends React.Component {
   }
 
   RecipientJSX = () => this.state.recipients.map( (recipient, index) => (
-    <div className='createTxRecipientContainer' key={index}>
+    <div className='createTxRecipientContainer createTxRecipientContainerSend' key={index}>
       <div className='deleteRecipientWrapper'>
        { index > 0 ?<div   > <button className='deleteRecipient' type="submit" onClick={ () =>  this.deleteRecipient(index)}>x</button> </div>: ""}
       </div>

@@ -58,6 +58,11 @@ body {
   scroll-behavior: smooth;
 }
 
+a{
+  text-decoration: none;
+  color: var(--clrorange);
+}
+
 select{
   color: black;
   background-color: var(--clrSelect);
