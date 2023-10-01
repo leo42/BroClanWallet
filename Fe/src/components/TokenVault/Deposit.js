@@ -4,7 +4,7 @@ import {  toast } from 'react-toastify';
 import getTokenInfo from "../../helpers/tokenInfo.js"
 import TokenDropdownMenu from '../TokenDropdownList.js';
 import TokenElement from "../TokenElement";
-
+import "./Deposit.css"
 function Deposit(props) {
     const [utxos, setUtxos] = useState([])
     const [amount, setAmount] = useState({})
@@ -206,7 +206,7 @@ function Deposit(props) {
       )
 
     return(
-        <div>
+        <div className='DepositWrapper'>
             <h1>Deposit</h1>
             <select onChange={handleStakingChange} className="addressSelect" defaultValue={props.wallet.getDefaultAddress()}>
             {options.map( (item, index) => (

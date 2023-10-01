@@ -110,10 +110,11 @@ function WalletDelegation(props) {
     <form onSubmit={handleSubmit}>
 
       <label>
-        Search:
+       
         <input
           type="text"
           name="amount"
+          placeholder='Search for a pool'
           value={pool}
           onChange={event => setPool(event.target.value)}
         />

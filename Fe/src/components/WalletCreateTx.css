@@ -1,12 +1,12 @@
 .createTxRecipientContainer{
     display: flex;
+    width: 91vw;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
     border: 1px solid var(--clrorange);
     border-radius: 5px;
-    width: 90vw;
     padding: 10px;
     height: 100%;
 }
@@ -111,7 +111,7 @@
     border-radius: 5px;
     border-width: 2px;
     border-style: outset;
-    box-shadow: 5px 5px 5px 5px #000000;
+    box-shadow: 3px 3px 7px 3px #1010107d;
 
 }
 .CreateTxSelectedToken .TokenThumbnail{
@@ -128,7 +128,6 @@
 
 .sendInputValidAddress{
     border: none;
-    border: 1px solid green;
     border-radius: 0px;
   }
 

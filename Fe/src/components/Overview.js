@@ -6,6 +6,7 @@ import { ReactComponent as ExpandIcon } from '../html/assets/settings.svg';
 import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
 import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 
+
 function Overview(props) {
   const linkRef = useRef(null);
   const wallet = props.wallet
@@ -150,7 +151,7 @@ function Overview(props) {
       <h1>
       Overview
       { props.moduleRoot.modalType() !== "tokenVault" && <ExpandIcon className="expandButton" alt="expandIcon" onClick={() =>setWalletSettingsOpen(!walletSettingsOpen)}/> }
-    < br/>  </h1> 
+     </h1> 
     </label>
 { walletSettingsOpen ?  settingsMenu(showingAddress) : "" }
       { props.wallet.getFundedAddress().length > 1 ? AccountSelect(): ""}
@@ -159,13 +160,15 @@ function Overview(props) {
       <button className={`overviewTab` + ( showing === "FTs" ? " overviewTabSelected" : " " )}  value="FTs" onClick={(event) => setShowing(event.target.value )}>FTs</button>
       <button className={`overviewTab` + ( showing === "NFTs" ? " overviewTabSelected" : " " )}  value="NFTs" onClick={(event) => setShowing(event.target.value )}>NFTs</button>        
       <br />
-      <span className="overVeiwTokenSearch">Search:<input type="text"  defaultValue={search} onChange={(event) => setSearch(event.target.value)} />  </span>
+      <span className="overVeiwTokenSearch"><input type="text"  placeholder='Search' defaultValue={search} onChange={(event) => setSearch(event.target.value)} />  </span>
+      {Object.keys(wallet.getBalanceFull(showingAddress)).length > 1 &&
       <div className='overviewTokensContainer'>
       {Object.keys(wallet.getBalanceFull(showingAddress)).map((asset, index) => (
           <div className='overviewTokenContainer' key={index+showingAddress}><TokenElement tokenId={asset} expanded={false}  amount={wallet.getBalanceFull(showingAddress)[asset]} filter={showing} search={search} /></div>
         ))}
 
     </div>
+      }
     </div>
   );
 }

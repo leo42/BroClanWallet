@@ -9,6 +9,7 @@
   --clrModal: rgb(53, 53, 53);
   --clrInputs: rgb(105 105 105);
   --clrNavText: white;
+  --clrSelect: gray;
   --clrPlaceholder: rgb(230, 230, 230);
   --clrWalletCreate1: rgb(240 240 240 / 16%);
   --clrWalletCreate2: rgb(255 255 255 / 16%);
@@ -26,6 +27,7 @@
   --clrModal: rgb(255, 255, 255);
   --clrInputs: rgb(255, 255, 255);
   --clrNavText: black;
+  --clrSelect: white;
   --clrPlaceholder: rgba(0, 0, 0, 0.322);
   --clrWalletCreate1 : rgb(236, 236, 236);
   --clrWalletCreate2 : rgb(255, 242, 222);
@@ -48,12 +50,24 @@
   background-color: var(--clrBackground)
 }
 
-.appBackground::-webkit-scrollbar {
-  display: none;
-}
 
 body {
   scroll-behavior: smooth;
+}
+
+select{
+  color: black;
+  background-color: var(--clrSelect);
+  border:var(--clrorange) solid 1px;
+  border-radius: 5px;
+  border-bottom: var(--clrorange) solid 1px;
+}
+
+select option:hover {
+  background-color: yellow;
+}
+select option:hover {
+  box-shadow: 0 0 10px 100px orange inset;
 }
 
 .App {

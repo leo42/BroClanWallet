@@ -326,7 +326,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
                             <div className="mintingTerms">
                             {this.terms.map((term, index) => <div key={index} className="mintingTerm" id={`mintingTerm${index}`}><input type="checkbox" value={this.state.termsAccepted[index]} onChange={() => this.acceptTerm(index)} ></input> {term} </div>)}
                              </div>
-                              <button className="mintButton" onClick={() => this.startMint()}>Mint Now</button>
+                              <button className="commonBtn" onClick={() => this.startMint()}>Mint Now</button>
                     </div>
                     )}
               </div>

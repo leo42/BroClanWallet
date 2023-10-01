@@ -5,7 +5,8 @@
 }
 
 .overviewTokensContainer {
-    margin: 8px;
+    
+    margin-top: 25px;
     padding: 21px 10px;
     border: 1px;
     border-radius: 10px;
@@ -83,7 +84,6 @@
     border: 0;
     border-radius: 5px;
     padding: 5px 10px;
-    margin-top: 22px;
     margin-bottom: -11px;
     margin-left: -1px;
     height: 20px;

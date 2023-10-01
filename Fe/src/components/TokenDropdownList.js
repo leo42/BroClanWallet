@@ -23,7 +23,7 @@ function TokenDropdownMenu(props) {
           </div>
             {isOpen && (
                 <div>
-                    <span className="overVeiwTokenSearch">Search:<input type="text"  defaultValue={search} onChange={(event) => setSearch(event.target.value)} /></span>
+                    <span className="overVeiwTokenSearch"><input type="text"  defaultValue={search} placeholder="Search" onChange={(event) => setSearch(event.target.value)} /></span>
                     <br/>
                 <div  className="TokenList">
                     {Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 

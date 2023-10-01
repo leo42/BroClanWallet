@@ -23,7 +23,7 @@ class WalletCreateTx extends React.Component {
 
       try{
         
-        return this.props.wallet.isAddressValid( address);
+        return address === ""? true : this.props.wallet.isAddressValid(address);
       }catch(e  )
       { 
         return false;

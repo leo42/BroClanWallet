@@ -1,12 +1,8 @@
 .pedningTx{
   background-color: rgba(134, 134, 134, 0.027);
-  border: #7e7e7e ;
-  border-style: outset;
+  border: 1px solid var(--clrorange);
+  border-radius: 5px;
   /* throw a light shadow */
-  box-shadow: 0 0 10px #8a8278;
-
-  border-width: 1px;
-  border-radius: 10px;
   padding: 10px;
   margin: 10px;
   word-break: break-all;
