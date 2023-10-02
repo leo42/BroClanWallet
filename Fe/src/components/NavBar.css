@@ -99,10 +99,9 @@
     fill: white;
     background-color: var(--clrNav);
     
-    border-width: 2px;
     border-radius: 50%;
     break-inside: avoid;
-    border-style:ridge;
+   
     margin: 10px;
     height: 20px;
     width: 20px;

@@ -13,7 +13,7 @@
 .TokenVaultsContainerHeader{
     display: flex;
     justify-content: space-between;
-    width: 99vw;
+    width: 100vw;
     flex-direction: row;
     position: absolute;
     top: 100px;
