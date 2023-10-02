@@ -11,7 +11,7 @@ import SettingsModal from "./components/SettingsModal";
 import TokenVaultsContainer from './components/TokenVault/TokenVaultContainer';
 import Minting from './components/Minting/minting';
 import WalletPicker from "./components/WalletPicker"
-import AffiliateModal from "./components/minting/affiliateModal";
+import AffiliateModal from "./components/Minting/affiliateModal";
 
 class App extends React.Component {
   state= {
