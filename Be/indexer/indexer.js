@@ -43,7 +43,6 @@ async function checkMint(tx, slot){
 }
 async function checkTransaction(tx, slot){
     //console.log(tx)
-    const needImageUpdate = []
     if(tx.outputs){
         tx.outputs.map( async (output, index) => {
             let outputCred
@@ -58,8 +57,8 @@ async function checkTransaction(tx, slot){
                     utxoData["createdtime"] = slot
                     utxoData["id"] = tx.id
                     utxoData["index"] = index
-                    await tokens.updateOne({paymentCredential: outputCred.hash}, {$push: {utxos: output }})
-                    needImageUpdate.includes(outputCred.hash) ? null : needImageUpdate.push(outputCred.hash)
+                    await tokens.updateOne({paymentCredential: outputCred.hash}, {$push: {utxos: output }, $set: {imageUpdate: true}})
+              
                 }
             }
         }
@@ -71,17 +70,11 @@ async function checkTransaction(tx, slot){
     }
     if(tx.inputs){
         tx.inputs.map( async (input) => {
-            const token = await tokens.findOne({utxos: {$elemMatch: {id: input.transaction.id , index: input.index } }})
            if((await tokens.findOne({utxos: {$elemMatch: {id: input.transaction.id , index: input.index } }})) !== null){
-                await tokens.updateOne({utxos: {$elemMatch: {id: input.transaction.id, index: input.index }}}, {$set: {"utxos.$.spent": true, "utxos.$.spenttime": slot}})
-                needImageUpdate.includes(token.paymentCredential) ? null : needImageUpdate.push(token.paymentCredential)
+               await tokens.updateOne({utxos: {$elemMatch: {id: input.transaction.id, index: input.index }}}, {$set: {"utxos.$.spent": true, "utxos.$.spenttime": slot, imageUpdate: true}})
             }
         })
     }
-
-    needImageUpdate.map( async (paymentCredential) => {
-       await tokens.updateOne({paymentCredential: paymentCredential}, { $set: {imageUpdate: true}})
-    })
 
 }   
 
