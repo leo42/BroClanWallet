@@ -104,9 +104,8 @@ class AddWalletModal extends React.Component {
 
 
 
-  handleSubmit(event){
+  handleSubmit(){
     if(this.checkAllAddresses(this.state.json.scripts)){
-    event.preventDefault();
     this.props.moduleRoot.addWallet(this.state.json,this.state.WName)
     this.props.setOpenModal(false)
     this.props.hostModal(false)
@@ -487,15 +486,8 @@ class AddWalletModal extends React.Component {
             </div>
         </div>
         <div className="footer">
-      <button onClick={(event) => this.handleSubmit(event)}>Create</button>
-          <button
-            onClick={() => {
-              this.props.setOpenModal(false);
-              
-            }}
-            id="cancelBtn">
-            Cancel
-          </button>
+      <button onClick={() => this.handleSubmit()}>Create</button>
+     <button onClick={() => {this.props.setOpenModal(false);}}id="cancelBtn">Cancel</button>
         </div>
       </div>
     </div>

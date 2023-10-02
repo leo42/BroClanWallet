@@ -90,7 +90,6 @@ async function CombineImages(sourceImages) {
   
                             
   tokenSourceImages = await Promise.all(tokenSourceImages.map(( imgBuffer,index) => { 
-      console.log("tokens " + tokenSourceAmounts[index] )
 
     if(tokenSourceAmounts[index] < config.tokens.smallLimit){     
       return sharp(smallCoinsImagePath).resize(componentSize,componentSize ).composite([{
@@ -186,10 +185,8 @@ getSourceImages = async function(tokenList){
             return { image: await sharp(adaImagePath).toBuffer() , nft: false , quantity : tokenList[key]/1_000_000  }
           }
           const tokenInfo = await  getTokenInfo(key)
-        //  console.log(tokenInfo)
-          if(tokenInfo.quantity === "1" ){
-            console.log("NFT")
-          }
+
+         
           if(tokenInfo.metadata){
             return { image: Buffer.from(tokenInfo.metadata.logo, 'base64') , nft: false , quantity : tokenList[key]/tokenInfo.metadata.decimals  }
           }else if(tokenInfo.onchain_metadata){
@@ -221,7 +218,6 @@ async function updateImages(needImageUpdate){
    const sourceImages = await getSourceImages(utxosToTokenMap(token.utxos))
    const image = await CombineImages(sourceImages)
    //increase image version number 
-   console.log(token)
    tokens.updateOne({id: token.id}, {$set: {image: image, imageUpdate: false }, $inc: {imageVersion: 1 }})
  // console.log(sourceImages)
   })
@@ -244,6 +240,7 @@ function utxosToTokenMap(utxos){
           });
   });
   });
+  console.log(tokenList)
   return tokenList;
 
 } 
@@ -279,7 +276,7 @@ async function watchTransactions() {
 
   changeStream.on('change', async (change) => {
     const transaction = await tokens.findOne({ _id: change.documentKey._id }, { projection: {id: 1 ,utxos: 1 , imageVersion: 1 } });
-    console.log("updating: "+transaction)
+
     updateImages([transaction])
   });
 
