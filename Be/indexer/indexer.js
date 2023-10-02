@@ -50,7 +50,7 @@ async function checkTransaction(tx, slot){
                 outputCred = await lucid.utils.getAddressDetails(output.address).paymentCredential
         
             if(outputCred.type === "Script"){
-                if(await tokens.findOne({paymentCredential: outputCred.hash})){
+                if(await tokens.findOne({paymentCredential: outputCred.hash}, { projection: {id: 1 ,utxos: 1 , imageVersion: 1 } })){
                     const utxoData = output
                     utxoData["spent"] = false
                     utxoData["spenttime"] = 0
@@ -70,8 +70,8 @@ async function checkTransaction(tx, slot){
     }
     if(tx.inputs){
         tx.inputs.map( async (input) => {
-           if((await tokens.findOne({utxos: {$elemMatch: {id: input.transaction.id , index: input.index } }})) !== null){
-               await tokens.updateOne({utxos: {$elemMatch: {id: input.transaction.id, index: input.index }}}, {$set: {"utxos.$.spent": true, "utxos.$.spenttime": slot, imageUpdate: true}})
+           if((await tokens.findOne({utxos: {$elemMatch: {id: input.transaction.id , index: input.index } }}, { projection: {id: 1 ,utxos: 1 , imageVersion: 1 } })) !== null){
+               await tokens.updateOne({utxos: {$elemMatch: {id: input.transaction.id, index: input.index }}} , {$set: {"utxos.$.spent": true, "utxos.$.spenttime": slot, imageUpdate: true}})
             }
         })
     }
