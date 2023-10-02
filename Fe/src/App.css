@@ -104,7 +104,9 @@ select{
   height: 70px;
   width: 300px;
   margin: 30px;
+  z-index: 2;
 }
+
 @media (max-width: 768px) { 
   .MainAppLogo{
     position: relative;

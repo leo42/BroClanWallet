@@ -62,10 +62,10 @@ function WalletConnector(props){
         {  (hovering === "load" || isMobile)  &&  <label className='iconLabel'>Load</label> }
         < br/>   
         </div>
-        { props.root.state.pendingWallets && Object.keys(props.root.state.pendingWallets).length > 0  && 
-                <div  onMouseEnter={() => setHovering("walletsFound")} onMouseLeave={() => setHovering("") } onClick={() => props.root.showModal("pendingWallets")}  className='iconWraper walletsFoundIcon'>
+        { props.moduleRoot.state.pendingWallets && Object.keys(props.moduleRoot.state.pendingWallets).length > 0  && 
+                <div  onMouseEnter={() => setHovering("walletsFound")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.showModal("pendingWallets")}  className='iconWraper walletsFoundIcon'>
                     <WalletsFoundIcon className="icon"  alt="connectIcon" />
-                    <label className='walletsFoundAmountLabel'>{Object.keys(props.root.state.pendingWallets).length}</label>
+                    <label className='walletsFoundAmountLabel'>{Object.keys(props.moduleRoot.state.pendingWallets).length}</label>
                     {/* {  hovering === "walletsFound" &&   <label className='iconLabel'>Wallets Found</label> } */}
                 < br/>   
                 </div>

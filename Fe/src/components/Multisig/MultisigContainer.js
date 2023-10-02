@@ -341,7 +341,7 @@ async setState(state){
       const res = await Promise.all(walletsHashes)
       if (! res.includes(walletHash)) {
         const myWallet = new Wallet(pendingWallet.json,"Imported Wallet");
-        await myWallet.initialize(this.props.root.settings);
+        await myWallet.initialize(this.props.root.state.settings);
         wallets.push(myWallet)
         this.setState({wallets})
         //remove pending wallet
@@ -349,8 +349,8 @@ async setState(state){
         
         this.setState({pendingWallets})
         if (this.state.connectedWallet.socket) {
-          this.state.connectedWallet.socket.emit('subscribe' , pendingWallet.script)}
-            
+          this.state.connectedWallet.socket.emit('subscribe' , pendingWallet.json)}
+          
         toast.success("Wallet Imported");
       }else{
         toast.error("Wallet already exists")

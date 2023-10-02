@@ -53,7 +53,7 @@
   }
   
 .titleCloseBtn button {
-  background-color: var(--clrBackground);
+  background-color: var(--clrModal);
   border: none;
   font-size: 25px;
   cursor: pointer;

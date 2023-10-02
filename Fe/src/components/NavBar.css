@@ -12,7 +12,9 @@
 .settingsButton{
     position: absolute;
     top: 15px;
-    right: 15px;
+    background-color: #F27B87;
+    border-radius: 10px;
+    right: 0px;
     margin: 10px;
     cursor: pointer;
     padding: 10px;
@@ -20,8 +22,12 @@
 }
 .settingsButton label{
     top: -11px;
+    
     left: 0px;
     position: relative;
+}
+.settingsButton:hover{
+    transform: scale(1);
 }
 
 .moduleOption{
@@ -39,66 +45,50 @@
         cursor: pointer;
         transition: 0.5s;
 }
+
 .menuIconOpen{
-    transform: rotate(-90deg);
     
-    background-color: var(--clrInputs);
+    background-color: #F27B87;
     border-bottom: var(--clrInputs);
-    border-radius: 20px;
-    margin-top: 25px;
-    margin-right: 0px;
-    padding-right: 20px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    margin-top: 30px;
-    top: 10px;
+    border-radius: 10px;
+    padding-bottom: 55px;
     margin-bottom: 20px;
-    padding-left: 55px;
 }
+
 .navMenuPop{
-    width: 90px;
+    width: 82px;
     position: absolute;
-    border-top-left-radius: 50% 100% ;
-    border-top-right-radius: 50% 100% ;
-    right: 22px;
-    top: -22px;
-    height: 20px;
+    right: -0px;
+    top: -30px;
+    height: 32px;
     padding-top: 10px;
-    background-color: var(--clrInputs);
+    /* background-color: red; */
+    background-image: linear-gradient(30deg, #EF4A42 0%,  #F27B87 70%);
 }
 
 
-/* .navMenuCarveLeft{
-    width: 40px;
-    height: 40px;
+.navMenuCarveLeft{
+    width: 60px;
+    height: 60px;
     background-color: var(--clrBackground);
-    border-radius: 20px;
+    border-radius: 50%;
     position: absolute;
-    right: 102px;
-    top: -40px;
+    right: 52px;
+    top: -60px;
     z-index: 1;
 }
 
 
-.navMenuCarveRight{
-    width: 40px;
-    height: 40px;
-    background-color: var(--clrBackground);
-    border-radius: 20px;
-    position: absolute;
-    right: -8px;
-    top: -40px;
-    z-index: 1;
-} */ 
 
 .navMenu {
     position: absolute;
     top: 100px;
-    right: 0px;
+    right: 10px;
     width: fit-content;
     padding: 10px;
-    background-color: var(--clrInputs);
+    background-image:  linear-gradient(30deg, #F68F42 0%, #F48037 10% , #EF4A42 80%, #F27B87 100% );
     border-radius: 25px;
+    border-top-right-radius: 0px;
     height: fit-content;
     display: flex;
     flex-direction: column;
@@ -107,9 +97,17 @@
     z-index: 1;
 }
 
+.navMenuBar{
+    position: absolute;
+    width: 100%;
+    top: 100px;
+    background-image:linear-gradient(  30deg , #F68F42, #F48037 , #EF4A42, #F27B87 );
+    height: 10px;
+}
+
 
 .navMenuOption{
-    color: white;
+    color: var(--clrNavText);
     font-size: 20px;
     cursor: pointer;
     border-radius: 25px;
@@ -119,17 +117,16 @@
     align-items: center;
     
 
-    background-color: var(--clrorange);
-    border: gold solid 1px;
-    width: 270px;
+    background-color: var(--clrBackground);
+    width: 200px;
     height: 40px;
     margin: 2px;
     transition: 0.5s;
 }
 
 .navMenuOption:hover{
-    background-color: aliceblue;
-    color: #000000;
+    background-color: var(--clrNavText);
+    color: var(--clrNav);
 }
 
 .navMenuBackground{
