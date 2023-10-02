@@ -27,7 +27,7 @@ function TokenDropdownMenu(props) {
                     <br/>
                 <div  className="TokenList">
                     {Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 
-                    <div className="TokenListTokenContainer" key={index+props.index} > <div ><TokenElement tokenId={token} f={handleClick} search={search} amount={props.ballances[token]}  expanded={true}/></div> </div>
+                     <TokenElement tokenId={token} f={handleClick} className="TokenListTokenContainer" key={index+props.index}  search={search} amount={props.ballances[token]}  expanded={true}/>
 
                     )}
                 </div>

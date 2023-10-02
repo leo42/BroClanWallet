@@ -164,7 +164,7 @@ function Overview(props) {
       {Object.keys(wallet.getBalanceFull(showingAddress)).length > 1 &&
       <div className='overviewTokensContainer'>
       {Object.keys(wallet.getBalanceFull(showingAddress)).map((asset, index) => (
-          <div className='overviewTokenContainer' key={index+showingAddress}><TokenElement tokenId={asset} expanded={false}  amount={wallet.getBalanceFull(showingAddress)[asset]} filter={showing} search={search} /></div>
+          <TokenElement tokenId={asset} className='overviewTokenContainer' key={index+showingAddress} expanded={false}  amount={wallet.getBalanceFull(showingAddress)[asset]} filter={showing} search={search} />
         ))}
 
     </div>

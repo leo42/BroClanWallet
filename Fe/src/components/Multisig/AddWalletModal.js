@@ -2,6 +2,8 @@ import React from "react";
 import "./AddWalletModal.css";
 import { Lucid, C  } from "lucid-cardano";
 import { toast } from "react-toastify";
+import { ReactComponent as CorrectIcon } from '../../html/assets/correct.svg';
+import { ReactComponent as WrongIcon } from '../../html/assets/incorrect.svg';
 
 
 
@@ -245,24 +247,27 @@ class AddWalletModal extends React.Component {
               className="createWalletName"
               required
               type="text"
+              placeholder="Nickname"
               name="amount"
               value={json.name}
               onChange={event => this.handleSignatoryNameChange(event.target.value, coordinates)}
             />
-            <label>Nickname</label>
           </div>
           
-         <div className={"input_wrap " + ( this.isAddressValid(json.keyHash) ? "inputValidAddress" : "inputInvalidValidAddress")}>
+         <div className={"input_wrap " }>
             <input
             className="createWalletAddress"
               required
+              placeholder="Address/ KeyHash"
               type="text"
               name="amount"
               value={json.keyHash}
               
               onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
             />
-            <label>Address/ KeyHash</label>
+            {   ( this.isAddressValid(json.keyHash) ? <CorrectIcon className="noticeIcon"  alt="sunIcon" /> 
+                                                    : <WrongIcon className={ json.keyHash === "" ? "invisibleIcon": "noticeIcon" } alt="moonIcon" />) }
+           
           </div>
         
         </div>
@@ -277,6 +282,7 @@ class AddWalletModal extends React.Component {
               <input
              required
                type="text"
+               placeholder="Before Slot"
                name="amount"
                value={json.slot}
                onChange={event => this.handleSlotChange(event.target.value, coordinates)}
@@ -288,7 +294,6 @@ class AddWalletModal extends React.Component {
                value={ new Date(this.lucid.utils.slotToUnixTime(json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
                onChange={event => this.handleSlotChange( this.lucid.utils.unixTimeToSlot(new Date( new Date(event.target.value) )), coordinates)}
              />
-             <label >Before Slot</label>
              </div>
              <p> <span>Warning:</span> Using the "Before" type could result in a permanently locked wallet! You need to withdraw your money <span>before</span> the above date!</p>
          </div>
@@ -307,6 +312,7 @@ class AddWalletModal extends React.Component {
                type="text"
                name="amount"
                value={json.slot}
+               placeholder="After Slot"
                onChange={event => this.handleSlotChange(event.target.value, coordinates)}
              />
               <input
@@ -315,7 +321,7 @@ class AddWalletModal extends React.Component {
                 value={ new Date(this.lucid.utils.slotToUnixTime(json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
                 onChange={event => this.handleSlotChange( this.lucid.utils.unixTimeToSlot(new Date( new Date(event.target.value) )), coordinates)}
               />
-              <label> After Slot</label>
+
          </div>
         
          </React.Fragment>
@@ -368,14 +374,14 @@ class AddWalletModal extends React.Component {
              delete current.keyHash
              break;     
       case "before":
-            current.slot="0"
+            current.slot=""
             delete current.name
             delete current.required
             delete current.keyHash
             delete current.scripts
             break;
       case "after":
-            current.slot="0"
+            current.slot=""
             delete current.name
             delete current.keyHash
             delete current.scripts  

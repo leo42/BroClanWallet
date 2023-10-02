@@ -194,7 +194,7 @@ class WalletCreateTx extends React.Component {
     
   <div className="addressWrap">
      <div className="CreateTxSelectedToken">
-     <div key={item+this.state.sendFrom} className='CreateTxTokenContainer'> <TokenElement tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/></div>
+      <TokenElement key={item+this.state.sendFrom} className='CreateTxTokenContainer' tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/>
        {!this.state.tokenData[item].isNft && <div className='tokenAmount'> <input
           type="number"
           name="amount"

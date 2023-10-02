@@ -53,7 +53,7 @@ function TokenElement(props){
     // Search filter look for props.search in tokenId, name and fingerprint
     // make name case insensitive
     if(props.search !== "" && props.search !== undefined) {
-      if (tokenInfo && tokenInfo !== {}) 
+      if (tokenInfo && Object.keys(tokenInfo).length !== 0) 
        if (!props.tokenId.toLowerCase().includes(props.search.toLowerCase()) && tokenInfo.name !== undefined && !tokenInfo.name.toLowerCase().includes(props.search.toLowerCase())  )
           if( tokenInfo.fingerprint !== undefined){
             if ( !tokenInfo.fingerprint.toLowerCase().includes(props.search.toLowerCase()))
@@ -70,7 +70,7 @@ function TokenElement(props){
     } else if (props.filter === "FTs" && tokenInfo.isNft){
       return ""
     }else  return (
-    
+    <div className={ props.className ? props.className : " "}>
     <div className="TokenElementWrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}> 
     <div  className="TokenElement" onClick={handleClick} > 
        <img className="TokenThumbnail" src={tokenInfo.image } />
@@ -82,7 +82,9 @@ function TokenElement(props){
      </div>
       </div>
        {( showTooltip || props.expanded === true ) && props.expanded !== false && <div className="tokenElementtooltip">{tooltipinfo}</div>}
-     </div>)
+     </div>
+     </div>
+     )
 }
 
 

@@ -183,8 +183,8 @@ function Deposit(props) {
         
       <div className="addressWrap">
          <div className="CreateTxSelectedToken">
-         <div key={item} className='CreateTxTokenContainer'> 
-         <TokenElement tokenId={item} amount={fullBalance[item]}/></div>
+     
+         <TokenElement key={item} className='CreateTxTokenContainer' tokenId={item} amount={fullBalance[item]}/>
            {!tokenData[item].isNft && <div className='tokenAmount'> <input
               type="number"
               name="amount"

@@ -142,12 +142,12 @@ class App extends React.Component {
           pauseOnHover
           theme="dark"
           />
-        <NavBar root={this} />
         <br/>
      {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "tokenVault" &&  <TokenVaultsContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "minting" &&  <Minting root={this} settings={this.state.settings} /> }
       <TermsAndConditionsBanner key={this.state.settings} root={this}/>
+        <NavBar root={this} />
       </div>
    </div>
     );

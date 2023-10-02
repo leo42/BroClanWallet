@@ -90,9 +90,9 @@ function WalletPendingTx(props) {
         delete BalancesOut["lovelace"]
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0n) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
-            <div key={index} className="transactionHistoryTokenBalance">
-                <TokenElement key={index} tokenId={key} amount={Number(BalancesOut[key])}  />
-             </div>
+       
+                <TokenElement  key={index} className="transactionHistoryTokenBalance"  tokenId={key} amount={Number(BalancesOut[key])}  />
+          
             ) );
 
         
@@ -112,7 +112,7 @@ function WalletPendingTx(props) {
 <div key={input.txHash+input.outputIndex} className="txDetailsInput">
                          <p > <span className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}> {input.address ? input.address : "None" }</span> <br/>
                           Transaction ID: {input.txHash} | Index: {input.outputIndex}</p>
-                    {Object.keys( input.assets).map( (asset,index) => <div className="pendingTxTokenContainer"  key={index}> <TokenElement key={input} tokenId={asset} amount={input.assets[asset]}/></div> )}
+                    {Object.keys( input.assets).map( (asset,index) =><TokenElement className="pendingTxTokenContainer"  key={index} tokenId={asset} amount={input.assets[asset]}/> )}
                         
                         {input.datumHash &&  <div className="pendingTxData"> <div > <h4>Datum Hash:</h4><span >  {input.datumHash}</span> </div> </div>}
                          { input.datum &&<div className="pendingTxData"> <div > <h4>Datum:</h4> <span > {JSON.stringify(input.datum,null,2) }</span> </div> </div>}
@@ -128,10 +128,8 @@ function WalletPendingTx(props) {
                     <div key={JSON.stringify(output)} className="txDetailsOutput">
                         <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>{output.address}</p>
                         {Object.keys(amount).map((key, index) => (
-                            <div className="pendingTxTokenContainer" key={index}>
-                               <TokenElement tokenId={key} amount={amount[key]}/>
-                            </div>
-                        ))}
+                                        <TokenElement className="pendingTxTokenContainer" key={index} tokenId={key} amount={amount[key]}/>
+                       ))}
                        {output.datum && <div className="pendingTxData"> <div > <h4>Datum:</h4> <span>{JSON.stringify(output.datum, null, 2)} </span> </div></div>  }
                         {output.script_ref &&<div className="pendingTxData">  <div>  <h4>Script Ref:</h4> <span>{JSON.stringify( output.script_ref, null, 2)}</span> </div></div>}
                     </div>
@@ -219,7 +217,7 @@ function WalletPendingTx(props) {
                     )} </span></div> </div>}
             {transaction.required_signers &&  <div className="pendingTxData"> <div > <h4>Required Signers: </h4> <span className="pendingTxsDetailsSigners">   {transaction.required_signers.map((signer => <div key={signer}>{signer} </div>))} </span></div> </div>}
             {transaction.mint && <div > <div > <h4> Mint/Burn: </h4>                
-                    {Object.keys(mintAssets).map( (asset) => <div  key={asset}> <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/></div> ) } </div> </div>}
+                    {Object.keys(mintAssets).map( (asset) => <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]}/>) } </div> </div>}
                     
        
             </div>
