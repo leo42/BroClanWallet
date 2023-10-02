@@ -30,9 +30,8 @@
     border-radius: 10px;
     border-style:outset;
     border-color: var(--clrorange);
-    box-shadow: 3px 3px 7px 3px #7c7c7c;
-    /* add blur to box shadow */
-    
+    box-shadow: 3px 3px 7px 3px #1010107d;
+   
     overflow: hidden;
     display: grid;
 } 

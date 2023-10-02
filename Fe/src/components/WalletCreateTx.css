@@ -242,11 +242,11 @@
   }
 
   .SignersSelect{
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--clrorange);
     border-radius: 5px;
     padding: 10px;
     margin-top: 25px;
-    width: 90%;
+    width: 90vw;
     height: 100%;
 
   }
