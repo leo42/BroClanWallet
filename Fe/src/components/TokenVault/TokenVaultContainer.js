@@ -168,7 +168,7 @@ render() {
           <React.StrictMode>
             <div className="TokenVaultsContainerHeader">
           {this.state.connectedWallet !== "none" && <MWalletList wallet={this.state.connectedWallet} root={this.props.root} moduleRoot={this}  selected={this.state.wallet ? this.state.wallet.getToken(): undefined}></MWalletList> }
-          <WalletConnector  moduleRoot={this}   key={this.state.connectedWallet}></WalletConnector>
+          <WalletConnector  moduleRoot={this} root={this.props.root}   key={this.state.connectedWallet}></WalletConnector>
           </div>
           <div className='WalletInner'>
 

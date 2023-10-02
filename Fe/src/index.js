@@ -10,6 +10,8 @@ import {  Blockfrost ,Kupmios} from "lucid-cardano";
 import SettingsModal from "./components/SettingsModal";
 import TokenVaultsContainer from './components/TokenVault/TokenVaultContainer';
 import Minting from './components/Minting/minting';
+import WalletPicker from "./components/WalletPicker"
+import AffiliateModal from "./components/minting/affiliateModal";
 
 class App extends React.Component {
   state= {
@@ -25,7 +27,8 @@ class App extends React.Component {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
                 },
     mode: "darkMode",
-    syncService: "https://sync.broclan.io"
+    syncService: "https://sync.broclan.io",
+    walletPicker: undefined
   }
   
    setState(state){
@@ -123,13 +126,22 @@ class App extends React.Component {
     this.setState({mode})
   }
 
+  openWalletPicker(operation){
+    this.setState({walletPicker: operation})
+    this.showModal("walletPicker")
+  }
+
+
+
 
 
   render() {
     return (
       <div className={`App ${this.state.mode}`}>
         <div className="appBackground">
-       { this.state.modal === "settings" ? <SettingsModal setOpenModal={() => this.showModal()} root={this} /> : "" }
+        { this.state.modal === "walletPicker"  && <WalletPicker setOpenModal={() => this.showModal()} operation={this.state.walletPicker} /> }
+        {this.state.modal === "affiliate" &&  <AffiliateModal setOpenModal={() => this.showModal()} />}
+        { this.state.modal === "settings" ? <SettingsModal setOpenModal={() => this.showModal()} root={this} /> : "" }
 
         <ToastContainer
           position="top-left"

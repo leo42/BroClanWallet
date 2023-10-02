@@ -10,8 +10,8 @@ import { ReactComponent as WalletsFoundIcon } from '../../html/assets/walletsFou
 
 
 function WalletConnector(props){
-    const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
-    const [configMenu, openConfigMenu] = React.useState(false);
+
+  const [configMenu, openConfigMenu] = React.useState(false);
     const [hovering, setHovering] = React.useState("");
     const [isMobile, setIsMobile] = useState(false);
 
@@ -46,14 +46,12 @@ function WalletConnector(props){
     <div>
         <div className="connectorSettings">
 
-        {/* { <button onClick={() => props.root.disconnectWallet()}> disconnect</button> } */
         <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.disconnectWallet()} className='iconWraper disconnectButton'>
         <DisconnectIcon className="icon" alt="disconnectIcon" />
         { ( hovering === "disconnect"|| isMobile)   &&  <label className='iconLabel'>Disconnect</label> }
         < br/>   
-        </div>}
-        {/* <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button> */}
-        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)} className='iconWraper changeButton'>
+        </div>
+        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() =>  props.root.openWalletPicker(connectWallet)} className='iconWraper changeButton'>
         <ChangeIcon className="icon" alt="changeIcon" />
         {  (hovering === "change"  || isMobile) &&  <label className='iconLabel'>Change</label> }
         < br/>   
@@ -78,26 +76,19 @@ function WalletConnector(props){
         </div>
         </div>  
 
-    let  content = <div> {walletPickerOpen ? <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> : "" }
-                {/* <div className="WalletConnector"> */}
-                
-                {/* </div>  */}
-
-        </div>
-        
+          
 
     if(props.moduleRoot.state.connectedWallet.socket === null) {
         return (<div className="WalletConnector">
             {/* <div>
-             <ConnectIcon className="connectButton" data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)} alt="connectIcon" />
-            < br/>  </div>  */}
-            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)}  className='iconWraper connectButton'>
+
+< br/>  </div>  */}
+            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.openWalletPicker(connectWallet)}  className='iconWraper connectButton'>
              <ConnectIcon className="icon"  alt="connectIcon" />
              { ( hovering === "connect"  ) &&   <label className='iconLabel'>Connect</label> }
             < br/>   
           </div>
 
-                {content}
             </div>)
     }else{   
         return (<div className="WalletConnector">
@@ -106,7 +97,6 @@ function WalletConnector(props){
             
             {configMenu ? connectorSettings() : ""}
 
-            {content}
         </div>)
     }
 

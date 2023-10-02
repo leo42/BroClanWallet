@@ -1,8 +1,7 @@
 import React from "react";
 import "./minting.css"
 import { Lucid ,Blockfrost, Kupmios, Data, Constr } from "lucid-cardano";
-import WalletPicker from "../WalletPicker";
-import AffiliateModal from "./affiliateModal";
+
 import {  toast } from 'react-toastify';class Minting extends React.Component {
   
   terms = [ <span>I read and understood the <a href="https://raw.githubusercontent.com/leo42/BroClanWallet/main/LICENSE" target="blank">Opensource License </a> </span>, 
@@ -12,7 +11,6 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
 
   state = {
          mintingSettings : [{name: "" , description: "", amount : 1, image: ""}],
-         walletPickerOpen: false,
          affiliateModalOpen: false,
          termsAccepted: (this.terms.map(() => false))
 
@@ -116,7 +114,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
     }
     startMint = () => {
         if(this.inputCheck()){
-          this.setState({walletPickerOpen: true})
+          this.props.root.openWalletPicker(this.mintWithWallet)
         }
     }
 
@@ -278,9 +276,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         }
       }
 
-    setWalletPickerOpen = (value) => {
-        this.setState({walletPickerOpen: value})
-    }
+
 
     description = <div name="mintingDescription"><h1>Mint your Tokenized Wallet</h1><br/>
             </div>
@@ -293,13 +289,12 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
 
     toggleAfiliateModal = () => {
       console.log("toggle") 
-        this.setState({affiliateModalOpen: !this.state.affiliateModalOpen})
+        this.props.root.showModal("affiliate")
     }
+
     render() {
         return (
             <div className='MintingModule'>
-                {this.state.affiliateModalOpen && <AffiliateModal setOpenModal={this.toggleAfiliateModal} />}
-                 {this.state.walletPickerOpen && <WalletPicker setOpenModal={this.setWalletPickerOpen} operation={this.mintWithWallet} />}
                     {this.description}
                     <div key={this.state.mintingSettings}> 
                 {this.state.mintingSettings.map((mintingSetting, index) => 

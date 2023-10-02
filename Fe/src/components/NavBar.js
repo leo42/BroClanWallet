@@ -27,13 +27,16 @@ function NavBar(props){
             {props.root.state.mode === "lightMode" ? <MoonIcon className="modeIcon nightIcon" alt="sunIcon" /> : <SunIcon className="modeIcon dayIcon" alt="moonIcon" /> }
         </div>
             <img src={"./assets/logoFull.png"} alt="Logo" className='MainAppLogo' />
-        <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className='iconWraper settingsButton'>
-            <SettingsIcon className="icon" alt="settingsIcon" />
+        <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className={ "iconWraper settingsButton menuIcon " + (navOpen ? "menuIconOpen" : "" )}>
+            <SettingsIcon  alt="settingsIcon" />
             {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'></label> }
             </div>
             {navOpen && 
             <div className="navMenuBackground" onClick={() => setNavOpen(false)}>
             <div className="navMenu"> 
+                
+
+                <div className="navMenuPop" ></div>
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("multisig")}>Multisig</div>
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("tokenVault")}>TokenVaults</div>
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("minting")}>Minting</div>

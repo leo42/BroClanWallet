@@ -41,8 +41,7 @@ function walletConnector(props){
         { ( hovering === "disconnect"|| isMobile)   &&  <label className='iconLabel'>Disconnect</label> }
         < br/>   
         </div>}
-        {/* <button onClick={() => setWalletPickerOpen(true)}>Change Wallet</button> */}
-        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)} className='iconWraper changeButton'>
+        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() => props.root.openWalletPicker(connectWallet)} className='iconWraper changeButton'>
         <ChangeIcon className="icon" alt="changeIcon" />
         {  (hovering === "change"  || isMobile) &&  <label className='iconLabel'>Change</label> }
 
@@ -54,8 +53,7 @@ function walletConnector(props){
         </div>
         </div>  
 
-    let  content = <div> {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={connectWallet} tx={props.tx}/> }
-        </div>
+
         
 
     if(props.moduleRoot.state.connectedWallet === "none") {
@@ -63,16 +61,13 @@ function walletConnector(props){
           
         <div className="tokenWalletConnectorWrapperInitial">
         <div className="tokenWalletConnector">
-            {/* <div>
-             <ConnectIcon className="connectButton" data-tooltip-id="my-tooltip"  data-tooltip-content="Connect your local wallet to enable Syncing of Transactions, Signitures and Wallets" onClick={() => setWalletPickerOpen(true)} alt="connectIcon" />
-            < br/>  </div>  */}
-            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => setWalletPickerOpen(true)}  className='iconWraper connectButton'>
+
+            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.openWalletPicker(connectWallet)}  className='iconWraper connectButton'>
              <ConnectIcon className="icon"  alt="connectIcon" />
              { ( hovering === "connect"  || isMobile) &&   <label className='iconLabel'>Connect</label> }
             < br/>   
           </div>
 
-                {content}
             </div>
             </div>)
     }else{   
@@ -85,7 +80,6 @@ function walletConnector(props){
             
             {configMenu ? connectorSettings() : ""}
 
-            {content}
             </div>
         </div>)
     }

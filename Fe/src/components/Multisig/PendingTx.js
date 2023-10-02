@@ -1,5 +1,4 @@
 import React, { useEffect }     from "react";
-import WalletPicker from "../WalletPicker"
 import TokenElement from "../TokenElement";
 import {  toast } from 'react-toastify';
 import { ReactComponent as SignIcon } from "../../html/assets/sign.svg";
@@ -10,7 +9,6 @@ import "./PendingTx.css"
 
 function WalletPendingTx(props) {
     const [ hovering, setHovering] = React.useState("");
-    const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [importSig, setImportSig] = React.useState(false);
     const [importedTx, setImportedTx] = React.useState("");
     const [showDetails, setShowDetails] = React.useState(false);
@@ -256,10 +254,9 @@ function WalletPendingTx(props) {
 
     function signTransaction(){
       if( props.moduleRoot.state.connectedWallet.name === "" ) 
-        setWalletPickerOpen(true) 
-    else
+        props.root.openWalletPicker(signWithLocalWallet)
+      else
         signWithLocalWallet(props.moduleRoot.state.connectedWallet.name)
-
     }
 
     return (
@@ -274,7 +271,6 @@ function WalletPendingTx(props) {
              
              <br/>
             {inputUtxos.length !== 0 ? transactionBalance(txDetails) : ""}
-             {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={signWithLocalWallet} tx={props.tx}/>}
 
             <div className="pendingTx_signers">
             <h4 >Signatures:</h4>

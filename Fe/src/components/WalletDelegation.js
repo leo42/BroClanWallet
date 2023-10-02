@@ -20,6 +20,7 @@ function WalletDelegation(props) {
   useEffect(() => {
     wallet.getDelegation().then( (delegation) => {;
       setDelegation(delegation);
+      
     })
   }, [wallet])
 
@@ -67,6 +68,10 @@ function WalletDelegation(props) {
 
 
   const delegationInfo = () => {
+    if (Object.keys(delegation).length === 0) {
+      return <h1> Loading </h1>
+    }
+
     if (delegation.poolId === null) {
       return <h1> No Delegation </h1>
     } else {
@@ -106,6 +111,7 @@ function WalletDelegation(props) {
 
   return (
     <div className="DelegationCenter">
+
       {delegationInfo()}
     <form onSubmit={handleSubmit}>
 

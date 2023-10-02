@@ -39,12 +39,66 @@
         cursor: pointer;
         transition: 0.5s;
 }
+.menuIconOpen{
+    transform: rotate(-90deg);
+    
+    background-color: var(--clrInputs);
+    border-bottom: var(--clrInputs);
+    border-radius: 20px;
+    margin-top: 25px;
+    margin-right: 0px;
+    padding-right: 20px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-top: 30px;
+    top: 10px;
+    margin-bottom: 20px;
+    padding-left: 55px;
+}
+.navMenuPop{
+    width: 90px;
+    position: absolute;
+    border-top-left-radius: 50% 100% ;
+    border-top-right-radius: 50% 100% ;
+    right: 22px;
+    top: -22px;
+    height: 20px;
+    padding-top: 10px;
+    background-color: var(--clrInputs);
+}
+
+
+/* .navMenuCarveLeft{
+    width: 40px;
+    height: 40px;
+    background-color: var(--clrBackground);
+    border-radius: 20px;
+    position: absolute;
+    right: 102px;
+    top: -40px;
+    z-index: 1;
+}
+
+
+.navMenuCarveRight{
+    width: 40px;
+    height: 40px;
+    background-color: var(--clrBackground);
+    border-radius: 20px;
+    position: absolute;
+    right: -8px;
+    top: -40px;
+    z-index: 1;
+} */ 
 
 .navMenu {
     position: absolute;
     top: 100px;
-    left: 0px;
-    width: 100%;
+    right: 0px;
+    width: fit-content;
+    padding: 10px;
+    background-color: var(--clrInputs);
+    border-radius: 25px;
     height: fit-content;
     display: flex;
     flex-direction: column;
@@ -58,6 +112,7 @@
     color: white;
     font-size: 20px;
     cursor: pointer;
+    border-radius: 25px;
     /* put text in the middle  */
     display: flex;
     justify-content: center;
