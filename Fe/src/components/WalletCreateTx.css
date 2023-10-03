@@ -246,7 +246,8 @@
     border-radius: 5px;
     padding: 10px;
     margin-top: 25px;
-    width: 90vw;
+    max-width: 90vw;
+    min-width: 30vw;
     height: 100%;
 
   }
