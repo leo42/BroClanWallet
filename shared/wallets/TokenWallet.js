@@ -377,9 +377,10 @@ setPendingTxs(pendingTxs){
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
         const OutputTx = lucid.newTx()
-        recipients.map( (recipient,index) => (
-          sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) : OutputTx.payToAddress(recipient.address,recipient.amount)
-        ))
+        recipients.map( (recipient,index) => {
+          if( sendAll !== index) 
+            this.isAddressScript(recipient.address) ? OutputTx.payToAddressWithData(recipient.address, {inline : Data.void()},localAmount) : OutputTx.payToAddress(recipient.address,localAmount)
+        })
 
         const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
      //   const collateralTx = lucid.newTx().payToAddress(this.collateralUtxo.address, this.collateralUtxo.assets).collectFrom([this.collateralUtxo])
@@ -398,11 +399,10 @@ setPendingTxs(pendingTxs){
         .compose(signersTx)
         .compose(inputsTx)
       const returnAddress = sendAll !== null ? recipients[sendAll].address : sendFrom!=="" ? sendFrom : this.getAddress()
-      const completedTx = await finaltx.complete({ change :
-                                                      {
-                                                        address : returnAddress , 
-                                                        outputData : {inline : Data.void()}
-                                                      }, 
+
+      const changeObject = this.isAddressScript(returnAddress) ? {address : returnAddress ,  outputData : {inline : Data.void()}} : {address : returnAddress}
+
+      const completedTx = await finaltx.complete({ change :changeObject , 
                                                     coinSelection : false})
 
         console.log(completedTx.toString())
@@ -411,7 +411,7 @@ setPendingTxs(pendingTxs){
     }
 
 
-
+    
     async createStakeUnregistrationTx(){
       const curentDelegation = await this.getDelegation()
       const rewardAddress = this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential) 
@@ -498,6 +498,10 @@ setPendingTxs(pendingTxs){
       }catch(e){
         return false
       }
+    }
+
+    isAddressScript(address){
+      return this.lucid.utils.getAddressDetails(address).paymentCredential.type === "Script"
     }
     
     decodeSignature(signature){

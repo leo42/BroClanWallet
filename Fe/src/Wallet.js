@@ -1,4 +1,4 @@
-import {   C , Lucid, Blockfrost , TxComplete ,Kupmios} from "lucid-cardano";
+import {   C , Lucid, Blockfrost , TxComplete ,Kupmios, Data} from "lucid-cardano";
 const { Transaction} = C;
 import {  toast } from 'react-toastify';
 
@@ -465,9 +465,12 @@ setPendingTxs(pendingTxs){
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
         const tx = this.lucid.newTx()
-        recipients.map( (recipient,index) => (
-          sendAll === index ? tx.payToAddress(recipient.address,  sendAllAmount ) : tx.payToAddress(recipient.address,recipient.amount)
-        ))
+        console.log(sendAllAmount)
+        recipients.map( (recipient,index) => {
+          // sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) :
+          const localAmount = sendAll === index ? sendAllAmount : recipient.amount
+          this.isAddressScript(recipient.address) ? tx.payToAddressWithData(recipient.address, {inline : Data.void()},localAmount) : tx.payToAddress(recipient.address,localAmount)
+      })
 
 
         if(withdraw && Number(this.delegation.rewards) > 0 ){
@@ -489,8 +492,10 @@ setPendingTxs(pendingTxs){
 
 
         tx.attachSpendingValidator(this.lucidNativeScript)
-        const returnAddress = sendFrom==="" ? this.getAddress() : sendFrom 
-        const completedTx = sendAll === null ? await tx.complete({ change :{address : returnAddress }}) : await tx.complete({ change :{address :recipients[sendAll].address }}) 
+        let returnAddress = sendFrom==="" ? this.getAddress() : sendFrom 
+        returnAddress = sendAll === null ? returnAddress : recipients[sendAll].address
+        const changeObject = this.isAddressScript(returnAddress) ? {address : returnAddress ,  outputData : {inline : Data.void()}} : {address : returnAddress}
+        const completedTx = await tx.complete({ change :changeObject}) 
 
         
         this.pendingTxs.map( (PendingTx) => {
@@ -644,6 +649,10 @@ setPendingTxs(pendingTxs){
 
     isAddressValid(address){
       return  this.lucid.utils.getAddressDetails(address) ? true : false
+    }
+    
+    isAddressScript(address){
+      return this.lucid.utils.getAddressDetails(address).paymentCredential.type === "Script"
     }
     
     decodeSignature(signature){
