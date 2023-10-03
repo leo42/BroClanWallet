@@ -1,0 +1,86 @@
+.TransactionHistory{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+
+}
+
+.TransactionHistoryList{ 
+    margin-top: 20px;
+}
+
+.transactionHistoryAdaBalance{
+    color: rgb(0, 175, 0);
+    font-weight: bold;
+}
+
+.transactionHistoryAdaBalanceNegative{
+    color: red;
+    font-weight: bold;
+}
+
+.transactionHistoryTokenBalancePositive{
+    color: rgb(0, 175, 0);
+    font-weight: bold;
+}
+
+.transactionHistoryTokenBalanceNegative{
+    color: red;
+    
+}
+
+.transactionHistoryItem{
+    margin: 10px;
+    border: 2px;
+    border-style: groove;
+    border-radius: 6px;
+}
+
+.transactionHistoryTokenBalance{
+    display: flex;
+    align-content: center;
+    border: 1px solid rgb(8, 8, 8);
+    justify-content: center;
+    background-color: rgba(241, 241, 241, 0.116);
+    margin: 3px;
+}
+
+.transactionHistoryTokenBalance .TokenElement{
+    min-width: 20vw;
+
+ }
+
+.transactionHistoryTokenBalance .tokenElementAmountPositive{
+    font-weight: lighter;
+    font-size: 20px;
+    color: green;
+}
+ 
+.transactionHistoryTokenBalance .tokenElementAmountNegative{
+    font-weight: lighter;
+    font-size: 20px;
+    color: red;
+}
+.transactionHistoryTokenBalance .TokenToolTip{
+    width: 40vw;
+    
+}
+.TransactionHistoryLoadMore{
+
+    padding: 5px 15px;
+    margin: 26px 60px 2px;
+    border: rgb(59, 59, 59) solid 1px;
+    background-color: transparent;
+    color: rgb(59, 59, 59);
+    border-radius: 20px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.TransactionHistoryLoadMore:hover{
+    background-color: rgb(59, 59, 59);
+    color: white;
+}

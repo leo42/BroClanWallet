@@ -1,0 +1,77 @@
+
+.PoolElementWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    margin: 100px 0px 0px 0px;
+    max-width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+    /* stop pool element from shwoing up when modals are open */
+    z-index: 1;
+
+    
+
+}
+
+.PoolElement {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 0px 0px 10px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    width: 100%;
+    margin: 10px 0;
+    /* keep PoolElement centered */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.PoolThumbnail{
+    width: 70px;
+    height: 70px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.PoolElementText   {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 5px;
+    overflow: hidden;
+}
+
+.PoolElementNotFound{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    overflow: hidden;
+}
+
+.PoolElementAtribution{
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+}
+
+.PoolElementAtributionImg{
+    width: 80px;
+    height: 20px;
+    z-index: 100;
+    cursor: pointer;
+
+}

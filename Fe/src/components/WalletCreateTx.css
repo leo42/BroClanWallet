@@ -1,0 +1,307 @@
+.createTxRecipientContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border: 1px solid var(--clrorange);
+    border-radius: 5px;
+    padding: 10px;
+    height: 100%;
+}
+
+.createTxRecipientContainerSend{
+  width: 90vw;
+}
+.ADAAmountContainer{
+  margin-top: 20px;
+}
+
+.addressWrap input[type="text"] {
+    margin: 10px;
+  }
+
+.CreateTransactionContainer{
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    align-self: center;
+    margin-bottom: 10px;
+
+}
+
+.CreateTxTokenContainer .TokenElement {
+    display: flex;
+    flex-direction: row;
+    height: 70px;
+}
+
+.CreateTxTokenContainer .scroll-container{
+  max-width: 80px;
+}
+
+.CreateTxTokenContainer .tokenElementAmount{
+    /* hide */
+    display: none;
+}
+
+.CreateTxTokenContainer .tokenElementtooltip{
+    /* hide */
+    display: none;
+}
+
+.CreateTxTokenContainer .TokenThumbnail{
+    /* hide */
+    height: 100%;
+    width: auto;
+}
+
+.createTxADAInputlabel{
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10px;
+}
+
+.createTxADAInputField input{
+    height: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;    
+}
+
+
+
+.createTxAddressInputField{
+    width: 80vw;
+    height: 100%;
+    margin-bottom: 8px;
+    /* remove line under input */
+ 
+    
+}
+
+.address_wrap {
+    width:auto; 
+    height:auto;
+  }
+  
+  .address_wrap label {
+    font-family:arial;
+    font-size:20px;
+    color: #777777;
+    transition:0.2s ease all; 
+    -moz-transition:0.2s ease all; 
+    -webkit-transition:0.2s ease all;
+    pointer-events: none;
+  }
+
+.CreateTxSelectedToken{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 440px;
+    height: 80px;
+    margin: 10px;
+    padding: 5px;
+    
+    border: var(--clrorange) dotted 1px ;
+    border-radius: 5px;
+    border-width: 2px;
+    border-style: outset;
+    box-shadow: 3px 3px 7px 3px #1010107d;
+
+}
+.CreateTxSelectedToken .TokenThumbnail{
+    height: 100%;
+    margin: 10px;
+    width: auto;
+}
+
+.sendInputInvalidValidAddress {
+  border: none;
+  border: 1px solid red;
+  border-radius: 0px;
+}
+
+.sendInputValidAddress{
+    border: none;
+    border-radius: 0px;
+  }
+
+.recipientButton label{
+        top: 10px;
+        left: 10px;
+        font-size: 19px;
+        white-space: nowrap;
+        cursor: pointer;
+}
+
+.recipientButton{
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items: center;
+    width: 90vw;
+    height: 50px;
+    margin: 10px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.deleteRecipientWrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: right;
+    width: 100%;
+
+}
+
+.CreateTransactionContainerBalance{
+  margin: 40px;
+  font-size: 1.5vw;
+}
+
+.deleteRecipient{
+    /* move to upper right corner */
+    align-self: flex-end;
+    border: none;
+    width: 20px;
+    height: 20px;
+    background-color: var(--clrBackground);
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.addRecipientWraper{
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.123);
+    border: 0;
+    
+    height: 30px;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    align-self: center;
+    
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.addRecipientWraper:hover{
+    transform: scale(1.01);
+    background-color: #ffffff2d;
+}
+
+.deleteTokenButton{
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    transition: transform 0.3s ease-in-out;
+}
+  .createTxSelectedTokenList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 90%;
+    height: 100%;
+    margin-bottom: 10px;
+  }
+
+  .tokenAmount {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .tokenAmount input {
+    flex: 1;
+    border: none;
+    outline: none;
+  }
+  
+  .maxButton {
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    color: rgb(1, 173, 173);
+    transition: transform 0.3s ease-in-out;
+    width: 50px;
+  }
+
+  .SignersSelect{
+    border: 1px solid var(--clrorange);
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 25px;
+    max-width: 90vw;
+    min-width: 30vw;
+    height: 100%;
+
+  }
+
+  .signerCheckbox{
+    cursor: pointer;
+  }
+
+  .SignersSelectList{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10px;
+  }
+
+  
+@media only screen and (max-width: 767px) {
+  .CreateTxSelectedToken{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 90%;
+    height: 80px;
+    
+    
+
+}
+.CreateTxSelectedToken .TokenThumbnail{
+    height: 40px;
+    margin: 10px;
+    width: auto;
+}
+
+.CreateTxSelectedToken .tokenAmount{
+    height: 20px;
+    margin: 0px;
+    width: auto;
+}
+
+.CreateTxSelectedToken input {
+    height: 20px;
+
+    padding: 10px;    
+    width: 70px;
+}
+
+.CreateTxSelectedToken .TokenElement{
+    height: 20px;
+    margin: 0px;
+    min-width: none;
+}
+
+}

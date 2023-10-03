@@ -1,0 +1,21 @@
+.TokenVaultsContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 0px;
+    margin-top: 115px;
+    margin-bottom: 20px;
+}
+
+
+.TokenVaultsContainerHeader{
+    display: flex;
+    justify-content: space-between;
+    width: 100vw;
+    flex-direction: row;
+    position: absolute;
+    top: 115px;
+    z-index: -10;
+}

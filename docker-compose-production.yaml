@@ -11,8 +11,6 @@ services:
           - walletserver
     ports:
       - "3001"
-    volumes:
-      - ../secrets:/usr/src/app/secrets:ro
     restart: always
   passthrough:
     build:
@@ -23,11 +21,25 @@ services:
         aliases:
           - passthrough
     ports:
-      - "3002:3002"
+      - "3002"
     volumes:
       - ../blockfrostApiKeys.json:/usr/src/app/blockfrostApiKeys.json:ro
     restart: always
-
+  syncservice:
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb+srv://cluster0.9drtorw.mongodb.net/test?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=secrets/mongo.pem
+    build:
+      context: ../../cardanoMultisigSyncService
+      dockerfile: Dockerfile
+    networks:
+      web:
+        aliases:
+          - syncservice
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../secrets:/usr/src/app/secrets:ro
+    restart: always
   nginx:
     image: nginx:latest
     ports:
@@ -35,8 +47,9 @@ services:
       - "443:443"
     volumes:
       - ../nginx.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt:/etc/letsencrypt
+      -  /etc/letsencrypt:/etc/letsencrypt
       - ../certbot/www:/var/www/certbot
+      - ../BroClanWebsite/public/:/var/www/BroClanWebsite
     depends_on:
       - walletserver
       - passthrough

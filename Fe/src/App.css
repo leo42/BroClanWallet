@@ -1,0 +1,227 @@
+
+
+.darkMode {
+  --clrorange: rgba(255, 153, 0, 1);
+  --clrgreen: rgba(22, 217, 0, 1);
+  --clrred: #ff0000;
+  --clrNav: rgb(39 39 39);
+  --clrBackground: rgb(39 39 39);
+  --clrModal: rgb(53, 53, 53);
+  --clrInputs: rgb(105 105 105);
+  --clrNavText: white;
+  --clrSelect: gray;
+  --clrPlaceholder: rgb(230, 230, 230);
+  --clrWalletCreate1: rgb(240 240 240 / 16%);
+  --clrWalletCreate2: rgb(255 255 255 / 16%);
+  --shadowclr: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --angle: 0deg;
+  --opacity: 0.5;
+}
+
+.lightMode{
+  --clrorange: rgba(255, 153, 0, 1);
+  --clrgreen: rgba(22, 217, 0, 1);
+  --clrred: #ff0000;
+  --clrNav: rgb(255, 255, 255); 
+  --clrBackground: rgb(255, 255, 255);
+  --clrModal: rgb(255, 255, 255);
+  --clrInputs: rgb(255, 255, 255);
+  --clrNavText: black;
+  --clrSelect: white;
+  --clrPlaceholder: rgba(0, 0, 0, 0.322);
+  --clrWalletCreate1 : rgb(236, 236, 236);
+  --clrWalletCreate2 : rgb(255, 242, 222);
+  --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --angle: 0deg;
+  --opacity: 0.5;
+}
+
+.appBackground{
+  position: fixed;
+  z-index: -100000;
+  top: 0px;
+  left: 0px;
+  overflow-x: hidden;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  overflow-y: scroll;
+  min-width: 100vw;
+  min-height: 100vh;
+  background-color: var(--clrBackground)
+}
+
+.appBackground::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  scroll-behavior: smooth;
+}
+
+a{
+  text-decoration: none;
+  color: var(--clrorange);
+}
+
+select{
+  color: black;
+  background-color: var(--clrSelect);
+  border:var(--clrorange) solid 1px;
+  border-radius: 5px;
+  border-bottom: var(--clrorange) solid 1px;
+}
+
+
+
+.App {
+  text-align: center;
+  height: 0;
+  font-family: 'Roboto', sans-serif;
+  color: var(--clrNavText);
+  /* height: 87vh; */
+}
+
+.App button{
+  color: var(--clrNavText);
+} 
+
+.App input{
+  color: var(--clrNavText);
+  background-color: var(--clrInputs);
+}
+
+.App input::placeholder {
+  color: var(--clrPlaceholder);
+  opacity: 1; /* Firefox */
+}
+.Json_input_box{
+  height: 700px;
+  width: 550px;
+}
+
+
+.MainAppLogo{
+  height: 70px;
+  width: 300px;
+  margin: 30px;
+  z-index: 2;
+}
+
+@media (max-width: 768px) { 
+  .MainAppLogo{
+    position: relative;
+    height: 50px;
+    width: 160px;
+    margin: 10px;
+    top: 30px;
+  }
+}
+
+.WalletInner{
+  display: flex;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0px;
+  position: absolute;
+  top: 200px;
+  z-index: -1000;
+}
+
+.WalletMain{
+  align-items: center;
+  margin: 20px;
+}
+
+.tooltip:hover::after{
+  content: attr(data-tooltip);
+  position:absolute;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.116);
+}
+
+.deleteBtn{
+  display: flex;
+  justify-content: flex-end;
+
+  }
+
+.deleteBtn button {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color:rgb(92, 92, 92);
+  z-index:1;
+  }
+
+select{
+  color: black;
+  border:var(--clrorange) solid 1px;
+  border-radius: 5px;
+  border-bottom: var(--clrorange) solid 1px;
+}
+
+
+.modalContainer .footer button {
+  padding: 5px 15px;
+  margin: 26px 60px 2px;
+  border: rgb(59, 59, 59) solid 1px;
+  background-color: transparent;
+  color: var(--clrNavText);
+  border-radius: 20px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.5s;
+  position:relative;
+}
+
+.modalContainer .footer button:hover{
+  color: var(--clrgreen);
+  letter-spacing: 0.25em;
+  box-shadow: 0 0 13px var(--clrgreen);
+  border: var(--clrgreen) solid 1px;
+}
+
+.modalContainer .footer button:active,
+#cancelBtn:active,
+.btn:active {
+  transition: none;
+  background-color: #ececec;
+}
+
+#cancelBtn:hover {
+  color:var(--clrred);
+  box-shadow: 0 0 13px var(--clrred);
+  border: var(--clrred) solid 1px;
+}
+
+.commonBtn{
+  padding: 5px 15px;
+  margin: 26px 60px 2px;
+  border: rgb(59, 59, 59) solid 1px;
+  background-color: transparent;
+  color: rgb(59, 59, 59);
+  border-radius: 20px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: 0.5s;
+} 
+
+.commonBtn:hover{
+  color: var(--clrorange);
+  letter-spacing: 0.25em;
+  box-shadow: 0 0 13px var(--clrorange);
+  border: var(--clrorange) solid 1px;
+}
+
+
+
+/* .pendingTx_signer{
+  color:rgb(131, 60, 107);
+  margin: 20px;
+}
+
+.pendingTx_signer_signed{
+  color: rgb(15, 158, 15);
+} */
+

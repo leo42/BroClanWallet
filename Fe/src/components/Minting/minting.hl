@@ -1,0 +1,77 @@
+    
+    minting TokenKey
+    
+    const  MintingPolicy: ByteArray = #72ff4773518459890ea5224018c10f7487a339ea0a9e42ac6826f829
+    const TokenName: ByteArray = #41646d696e4b6579
+             
+    const  AdminToken : AssetClass = AssetClass::new(
+          MintingPolicyHash::new(MintingPolicy),
+          TokenName
+        )
+    
+    struct AdminDatum {
+        mintAmount: Int
+        afiliateBounty: Int
+    }
+    
+    
+    func paymentMade (ctx: ScriptContext , amount : Int ) -> Bool {
+    
+        adminUtxo: TxInput = ctx.tx.ref_inputs.find((input: TxInput) -> Bool { 
+                                                               input.value.get_safe(AdminToken) == 1
+     });
+        
+        adminDatum : AdminDatum  = AdminDatum::from_data(adminUtxo.datum.get_inline_data()); 
+    
+        paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
+                                                        output.address == adminUtxo.address
+                                                         });
+    
+        
+        paymentUtxo.value.get_lovelace() == adminDatum.mintAmount * amount
+
+    }
+    
+    func afilatePaymentMade (ctx: ScriptContext ,  referer: PubKeyHash, amount : Int ) -> Bool {
+    
+        adminUtxo: TxInput = ctx.tx.ref_inputs.find((input: TxInput) -> Bool { 
+                                                               input.value.get_safe(AdminToken) == 1
+     });
+        
+        adminDatum : []Int  = []Int::from_data(adminUtxo.datum.get_inline_data()); 
+    
+        paymentUtxo: TxOutput = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
+                                                        output.address == adminUtxo.address
+                                                         });
+        
+        afiliatePaymentUtxo :  TxOutput  = ctx.tx.outputs.find(( output: TxOutput) -> Bool {
+                                                        output.address.credential.switch{ 
+                                                                pubKey: PubKey => pubKey.hash == referer,
+                                                                _  => false 
+                                                              }
+                                                         });
+          
+        paymentUtxo.value.get_lovelace() == ((adminDatum.get(0) - adminDatum.get(1) ) * amount) && 
+        afiliatePaymentUtxo.value.get_lovelace() == ( adminDatum.get(1) * amount )
+        
+    }
+    
+    func mintCorrect(ctx: ScriptContext ) -> Bool {
+        mintingAssets : Map[ByteArray]Int = ctx.tx.minted.to_map().get(ctx.get_current_minting_policy_hash());
+        
+     
+         mintingAssets.all( ( mintedToken : ByteArray, _)  -> Bool { 
+                                    ctx.tx.inputs.any((input : TxInput) -> Bool {  input.output_id == TxOutputId::new(TxId::new(mintedToken), 0)}
+                    )})   
+       
+    }
+    
+    
+    func mintAmount(ctx: ScriptContext) -> Int {
+        mintingAssets : Map[ByteArray]Int = ctx.tx.minted.to_map().get(ctx.get_current_minting_policy_hash());
+        mintingAssets.length 
+    }
+    
+    func main( _ , ctx: ScriptContext) -> Bool {
+         mintCorrect(ctx) && paymentMade(ctx , mintAmount(ctx)) 
+    }

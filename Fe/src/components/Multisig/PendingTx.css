@@ -1,0 +1,196 @@
+.pedningTx{
+  background-color: rgba(134, 134, 134, 0.027);
+  border: 1px solid var(--clrorange);
+  border-radius: 5px;
+  /* throw a light shadow */
+  padding: 10px;
+  margin: 10px;
+  word-break: break-all;
+}
+
+
+.txDetailsInputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  margin: 10px;
+}
+
+.pendingTxTokenContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.pendingTx_submit{
+  scale: 1.5;
+  margin-bottom: 20px;
+}
+
+.txDetailsInput p{
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 5px;
+}
+
+.txDetailsInput{
+  /* add a light boarder */
+  border-bottom: 1px solid #000000;
+  border-top: 1px solid #000000;
+  padding: 5px;
+  margin: 5px;
+}
+
+.txDetailsOutputs{
+
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  align-items: center;
+}
+/* if on mobile flex-direction: collum */
+
+
+.txDetailsInputsOutputs{
+  display: flex;
+  flex-direction: row;
+  justify-content:space-evenly;
+  align-items: start;
+  width: 100%;
+  margin-right: 100px;
+}
+
+.txDetailsOutput{
+  margin-bottom: 5px;
+  /* add a light boarder */
+  border-bottom: 1px solid #000000;
+  border-top: 1px solid #000000;
+  padding: 5px;
+  margin: 5px;
+}
+
+@media only screen and (max-width: 767px) {
+  /* Enter your custom CSS code here */
+  .txDetailsInputsOutputs {
+    flex-direction: column;  
+  }
+}
+
+
+.txDetailsOutput p {
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 5px;
+}
+.txDetailsAddressMine{
+  color: #00a100;
+}
+
+.txDetailsAddressNotMine{
+  color: #da0000;
+}
+
+.txDetailsButton label {
+  font-size: 8px;
+  font-weight: bold;
+  top: -12px ;
+  left: -7px;
+  position: relative;
+  /* keep content in the same line */
+    white-space: nowrap;
+
+}
+
+.importSigButton label{
+  font-size: 9px;
+  font-weight: bold;
+  top: -12px ;
+  left: -5px;
+  position: relative;
+  /* keep content in the same line */
+    white-space: nowrap;
+}
+
+.pendingTx_buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: center; 
+  margin-top: 10px;
+  /* border-bottom: 5px double var(--clrorange); */
+  padding:10px;
+}
+
+.txDetailsMain{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.txDetailsSmall{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.pendingTxData{
+  width: 100%;
+}
+
+.pendingTxData h4{
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 5px;
+}
+
+.pendingTxData span{
+  /* a span containing data, give it a custom background and  boarder, content must fit in width or wrap around to the next line */
+  display: block;
+  align-content: start;
+  font-size: 13px;
+  background-color: #f2f2f238;
+  border: 1px solid #000000;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+
+}
+
+.pendingTxReferenceInputs{
+  border: #7e7e7e;
+  border-style: dotted;
+  /* throw a light shadow */
+  border-width: 1px;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px;
+  width: 80vw;
+}
+
+.pendingTxCompletedSig{
+  color: #00a100;
+}
+
+.pendingTxMissingSig{
+  color: #da0000;
+}
+
+.copyIcon{
+  cursor: pointer;
+}
+
+.pendingTxsDetailsSigners{
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  width: 100%;
+}

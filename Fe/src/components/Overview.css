@@ -1,0 +1,325 @@
+.addressSelect{
+    margin-top: 40px;
+    max-width: 80vw;
+
+}
+
+.overviewTokensContainer {
+    
+    margin-top: 25px;
+    padding: 21px 10px;
+    border: 1px;
+    border-radius: 10px;
+    border-color: var(--clrorange);
+    /* box-shadow: #ff8c002f 1px 1px 1px 1px; */
+    border-style: solid;
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+
+}
+
+.overviewTokenContainer .TokenElement {
+    min-width: 250px;
+    max-width: 250px;
+    height: 80px;
+    margin: 10px;
+    border: 1px;
+    border-radius: 10px;
+    border-style:outset;
+    border-color: var(--clrorange);
+    box-shadow: 3px 3px 7px 3px #1010107d;
+   
+    overflow: hidden;
+    display: grid;
+} 
+
+.overviewTokenContainer .TokenElement img{
+    size: 15px;
+    
+} 
+
+.st0{fill:#000000;}
+
+.settingsIcon{
+    height: 25px;
+    width: 25px;
+}
+
+
+.overviewTab{
+    border: 0;
+    background-color: transparent;
+    border-bottom: 3px solid rgb(171, 171, 171, 0.5) ;
+    cursor: pointer;
+    margin: 5px 0px;
+    padding: 2px 15px;
+    font-size: 18px;
+}
+
+.overviewTabSelected{
+    border-bottom: 3px solid var(--clrorange);
+}
+
+.overviewTokenContainer .tokenElementtooltip{
+
+    word-wrap: break-word;
+    overflow-wrap: break-word; 
+}
+
+.overviewButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items: center;
+    margin: 10px;
+}
+
+.expandButton{
+    background-color: transparent;
+    color: var(--clrwhite);
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-bottom: -11px;
+    margin-left: -1px;
+    height: 20px;
+    width: 20px;
+    cursor: pointer;
+}
+
+.overviewTokenContainer .TokenThumbnail{
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    /* align-content: center; */
+    align-self: center;
+    justify-self: center;
+    grid-row: 1 / span 2;
+    
+    
+}
+
+.overviewTokenContainer .tokenElementName{
+    font-weight: bold;
+    margin-left: 10px;
+    text-align: left;
+    align-self: center;
+    justify-self: start;
+    grid-row: 1;
+    grid-column: 2;
+}
+
+.overviewTokenContainer .tokenElementAmount{
+    font-weight: bold;
+    text-align: right;
+    align-self: center;
+    justify-self: end;
+    grid-row: 1;
+    grid-column: 3;
+}
+
+/* .overviewTokenContainer .tooltip {
+
+} */
+
+
+@media (max-width: 768px) {
+    
+    .overviewTokenContainer{
+        width: 100%;
+        display: flex;
+        flex-flow: column nowrap;
+        padding: 10px;
+        align-items: center;
+    }
+    
+    .overviewTokenContainer .TokenElement{
+        display: flex;
+        flex-flow: column nowrap;
+
+    }
+
+    .overviewTokenContainer .TokenThumbnail{
+        border-radius: 50%;
+        height: 70px;
+        width: 50px;
+        position: relative;
+        width: 69px;
+    }
+    
+    .overviewTokenContainer .tokenElementName{
+        position: relative;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .overviewTokenContainer .tokenElementAmount{
+        
+        font-weight: bold;
+        text-align: left;
+    }
+  }
+
+
+  .overviewTokenContainer img{
+    width: 66px;
+    height: auto;
+    
+}
+
+
+.overviewTokenContainer .TokenToolTip{
+    position: relative;
+    display: inline-block;
+    font-size: small;
+     white-space: nowrap;
+    
+}
+
+.overviewTokenContainer .TokenElement{
+    flex: 1;
+    width: 250px;
+    display: grid;
+    grid-template-columns: 110px 1fr min-content;
+    grid-template-rows: 50% 1fr;
+    gap: 10px; 
+    align-self: center;
+    margin: 15px;
+}
+
+.overviewTokenContainer .TokenElementText{
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.overviewTokenContainer .TokenElement:hover{
+    background-color: var(--clrblue);
+    color: var(--clrwhite); 
+}
+
+
+
+.iconWraper svg{
+    fill: var(--clrNavText);
+
+} 
+.iconWraper{
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.486);
+    color: var(--clrNavText);
+    border: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+}
+
+
+.icon {
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    align-self: center;
+    
+}
+
+
+@media (min-width: 768px) { 
+.iconWraper:hover{
+    transform: scale(1.7);
+    box-shadow: 0 0 8px var(--clrorange);
+}
+
+}
+@media (max-width: 768px) { 
+.iconWraper{
+
+    box-shadow: 0 0 8px var(--clrorange);
+}
+
+}
+
+.iconWraper label{
+    font-size: 8px;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    align-self: center;
+    text-align: center;
+}
+
+.downloadButton label{
+    top: -11px;
+    left: -2px;
+    position: relative;
+}
+
+.deleteButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.connectButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+
+
+.disconnectButton label{
+    top: -11px;
+    left: -3px;
+    position: relative;
+}
+
+.changeButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.loadButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.importButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+.detailsButton label{
+    top: -11px;
+    left: 0px;
+    position: relative;
+}
+
+
+
+/* .iconLabel{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+} */
+
+
+
+

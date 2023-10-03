@@ -1,0 +1,23 @@
+.copyIcon{
+    height: 15px;
+    width: 15px;
+}
+
+.receiveTab{
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    word-break: break-word;
+    width: 100%;
+}
+
+.ReseiveAddress{
+    margin-top: 50px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    }
+
+.ReseiveAddress:hover{
+    cursor: pointer;
+}

@@ -1,0 +1,90 @@
+version: "3"
+
+services:
+  walletserver:
+    build:
+      context: .
+      dockerfile: Fe/Dockerfile
+    networks:
+      web:
+        aliases:
+          - walletserver
+    restart: always
+  ogmios: 
+    image: cardanosolutions/cardano-node-ogmios:latest-preprod
+    networks:
+      web:
+        aliases:
+          - ogmios
+    volumes:
+      - ../cardano-node-ogmios-preprod-db:/db
+    environment:
+      - NETWORK=preprod
+    ports:
+      - "1337:1337"
+  indexer:
+    build:
+      context: .
+      dockerfile: Be/indexer/Dockerfile
+    volumes:
+      - ../configs/preprodIndexer.js:/usr/src/app/Be/indexer/config.js:ro
+      - ../secrets:/usr/src/app/secrets:ro
+    restart: always
+    networks:
+      web:
+  image_generator:
+    build:
+      context: Be/imageGenerator
+      dockerfile: Dockerfile
+    volumes:
+      - ../configs/preprodImageGen.js:/usr/src/app/config.js:ro
+      - ../secrets:/usr/src/app/secrets:ro
+    restart: always
+    networks:
+      web:
+  tokenapi:
+    build:
+      context: Be/tokenApi
+      dockerfile: Dockerfile
+    volumes:
+      - ../configs/preprodApi.js:/usr/src/app/config.js:ro
+      - ../secrets:/usr/src/app/secrets:ro
+    restart: always
+    networks:
+      web:
+        aliases:
+          - tokenapi
+  syncservice:
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb+srv://cluster0.9drtorw.mongodb.net/test?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCertificateKeyFile=secrets/mongo.pem
+    build:
+      context: ../cardanoMultisigSyncService
+      dockerfile: Dockerfile
+    networks:
+      web:
+        aliases:
+          - syncservice
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../secrets:/usr/src/app/secrets:ro
+    restart: always
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx.conf:/etc/nginx/nginx.conf
+      -  /etc/letsencrypt:/etc/letsencrypt
+      - ../certbot/www:/var/www/certbot
+      - ../BroClanWebsite/public/:/var/www/BroClanWebsite
+    depends_on:
+      - walletserver
+    networks:
+      - web
+    restart: always
+
+networks:
+  web:
+
