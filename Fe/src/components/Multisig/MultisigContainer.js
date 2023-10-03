@@ -39,7 +39,6 @@ async newSettings(newSettings){
     try{
      await wallets[index].changeSettings(newSettings)
     }catch(e){
-      console.log(e)
     }
   }
   this.reloadBalance()
@@ -176,7 +175,6 @@ async setState(state){
 
     state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet"))
     
-    console.log(localStorage.getItem("selectedMultisigWallet"))
     super.setState(state) 
     this.setState({loading : false})
 

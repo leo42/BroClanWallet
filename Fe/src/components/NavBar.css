@@ -139,12 +139,13 @@
 
 .modeToggle{
     position: absolute;
+    border-radius: 50%;
     top: 10px;
     left: 10px;
-    margin: 10px;
+    width: 35px;
+    height: 35px;
+    margin: 20px;
     cursor: pointer;
-    height: fit-content;
-    width: fit-content;
 }
 
 .modeIcon{
@@ -154,11 +155,9 @@
     border-radius: 50%;
     break-inside: avoid;
    
-    margin: 10px;
     height: 35px;
     width: 35px;
     cursor: pointer;
-    padding: 4px;
     transition: transform 0.3s ease-in-out;
 }
 

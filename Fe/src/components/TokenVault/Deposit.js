@@ -59,7 +59,6 @@ function Deposit(props) {
 
     async function performDeposit() {
     try {
-        console.log("performing deposit", props.moduleRoot.state.connectedWallet.lucid)
         const lucid = await props.moduleRoot.state.wallet.newLucidInstance(props.root.state.settings)
         lucid.selectWallet(props.moduleRoot.state.connectedWallet.api)
         const tx = await lucid.newTx().payToContract(address ,{ inline : Data.void()}, amount).complete()

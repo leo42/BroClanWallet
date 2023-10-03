@@ -27,7 +27,7 @@ class TokenVaultsContainer extends React.Component {
       setInterval(() => {
         this.reloadUtXOs()
       }
-      , 15000);
+      , 5000);
     }
 
     async selectWallet(token){
@@ -155,8 +155,10 @@ class TokenVaultsContainer extends React.Component {
       this.storeAddress() 
     }
 
+  
     reloadUtXOs(){
       if(!this.state.wallet) return
+      console.log("reloading utxos")
       const wallet = this.state.wallet
       wallet.loadUtxos()
       this.setState({wallet: wallet})

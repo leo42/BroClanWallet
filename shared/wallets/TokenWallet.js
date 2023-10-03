@@ -71,15 +71,8 @@ func main(_ ,ctx: ScriptContext) -> Bool {
     async initialize (settings){
       this.settings = settings
       this.lucid = await this.newLucidInstance(settings);
-      
-
-     
-      
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
       await this.loadUtxos()
-      // reload utxos every 15 seconds
-
-
     } 
 
   async newLucidInstance(settings) {
