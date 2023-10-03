@@ -161,8 +161,6 @@ async setState(state){
     super.setState(state) 
 
     if (wallets) for(let index = 0 ; index < wallets.length ; index++){
-      
-    
       const myWallet = wallets[index].json.type === "tokenVault" ? new TokenWallet(wallets[index].json.token,wallets[index].name) : new Wallet(wallets[index].json,wallets[index].name);
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.props.root.state.settings  );
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
@@ -171,11 +169,17 @@ async setState(state){
       await myWallet.checkTransactions()
       state.wallets.push(myWallet)
     }
+    
     if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
+
+    state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet"))
+    
+    console.log(localStorage.getItem("selectedMultisigWallet"))
     super.setState(state) 
     this.setState({loading : false})
+
   }
   
   modalType(){
@@ -423,6 +427,7 @@ async setState(state){
 
   selectWallet(key){
     const selectedWallet = key
+    localStorage.setItem("selectedMultisigWallet", selectedWallet)
     this.setState( { selectedWallet})
     this.reloadBalance()
   }
@@ -499,13 +504,13 @@ async setState(state){
     <div className="MultisigContainer">
         <React.StrictMode>
         <ModalsContainer moduleRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
-        <div className="TokenVaultsContainerHeader">
+        <div className="TokenVaultsContainerHeader" >
           <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
           <WalletConnector  moduleRoot={this} root={this.props.root}  key={this.state.connectedWallet}></WalletConnector>
          </div>
 
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
-        <div className='WalletInner'>
+        <div className='WalletInner' >
           { this.state.wallets.length === 0 ?  this.walletsEmpty()  : <MWalletMain root={this.props.root} moduleRoot={this}  wallet={this.state.wallets[this.state.selectedWallet]}></MWalletMain> }
         </div>
     }

@@ -6,7 +6,7 @@ function WalletList (props) {
 
     return (
     <div className='WalletListContainer multisigWalletListContainer'>
-        <select className="MWalletList" onChange={(event) => props.moduleRoot.selectWallet(event.target.value)}>
+        <select className="MWalletList" value={props.moduleRoot.state.selectedWallet} onChange={(event) => props.moduleRoot.selectWallet(event.target.value)}>
 
         {props.moduleRoot.state.wallets.map( (item, index) => (
                <option key={index} value={index}> {item.getName()}-{String((item.getBalance()/1000000).toFixed(2))}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  } </option>
