@@ -8,6 +8,7 @@ function TokenDropdownMenu(props) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [hovering, setHovering] = useState("");
+    
     function handleClick(token ){ 
         props.f(token)
         setIsOpen(!isOpen)
@@ -26,8 +27,8 @@ function TokenDropdownMenu(props) {
                     <span className="overVeiwTokenSearch"><input type="text"  defaultValue={search} placeholder="Search" onChange={(event) => setSearch(event.target.value)} /></span>
                     <br/>
                 <div  className="TokenList">
-                    {Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 
-                     <TokenElement tokenId={token} f={handleClick} className="TokenListTokenContainer" key={index+props.index}  search={search} amount={props.ballances[token]}  expanded={true}/>
+                { Object.keys(props.ballances).filter((token => token!=="lovelace")).map( (token,index) => 
+                     <TokenElement tokenId={token} f={handleClick} className="TokenListTokenContainer" key={index} index={index} search={search} amount={props.ballances[token]}  expanded={true}/>
 
                     )}
                 </div>

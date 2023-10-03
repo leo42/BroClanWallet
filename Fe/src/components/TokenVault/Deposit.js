@@ -6,8 +6,7 @@ import TokenDropdownMenu from '../TokenDropdownList.js';
 import TokenElement from "../TokenElement";
 import "./Deposit.css"
 function Deposit(props) {
-    const [utxos, setUtxos] = useState([])
-    const [amount, setAmount] = useState({})
+    const [amount, setAmount] = useState({"lovelace": 0})
     const [tokenData, setTokenData] = useState({})
     const [fullBalance, setFullBalance] = useState({})
     const [options, setOptions] = React.useState([])
@@ -47,13 +46,6 @@ function Deposit(props) {
 }, [props.wallet])
 
     useEffect(() => {
-        async function getUtxos() {
-            if (lucid){
-                const utxos = await lucid.wallet.getUtxos()
-               setUtxos(utxos)
-            }
-        }
-        getUtxos()
         getFullBalance()
     }, [lucid, api])
 
@@ -183,7 +175,7 @@ function Deposit(props) {
       <div className="addressWrap">
          <div className="CreateTxSelectedToken">
      
-         <TokenElement key={item} className='CreateTxTokenContainer' tokenId={item} amount={fullBalance[item]}/>
+         <TokenElement key={item} className='CreateTxTokenContainer' tokenId={item} amount={fullBalance[item]} />
            {!tokenData[item].isNft && <div className='tokenAmount'> <input
               type="number"
               name="amount"

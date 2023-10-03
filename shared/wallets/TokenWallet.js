@@ -249,19 +249,23 @@ setPendingTxs(pendingTxs){
 
     async loadUtxos() {
       try{
-      const utxos = this.filterUtxos (await this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential))
+      this.lucid.provider.getUtxos(this.lucid.utils.getAddressDetails(this.getAddress()).paymentCredential).then( utxos => {
+
       
         
-      if(this.delegation === undefined){
-        this.getDelegation()
-      }
-      if (this.utxos !== undefined){
-        if (this.compareUtxos( utxos, this.utxos)){
-          return
-      }}
-        this.getDelegation()
-        this.utxos = utxos
-    }catch(e){
+        if(this.delegation === undefined){
+          this.getDelegation()
+        }
+        if (this.utxos !== undefined){
+          if (this.compareUtxos( utxos, this.utxos)){
+            return
+        }}
+          this.getDelegation()
+          this.utxos = utxos
+      }).catch( e => {
+      })
+        }
+    catch(e){
        
     }
     }

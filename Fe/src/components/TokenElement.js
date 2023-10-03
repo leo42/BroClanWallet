@@ -70,7 +70,7 @@ function TokenElement(props){
     } else if (props.filter === "FTs" && tokenInfo.isNft){
       return ""
     }else  return (
-    <div className={ props.className ? props.className : " "}>
+    <div className={ props.className ? props.className : " "} key={props.index}>
     <div className="TokenElementWrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}> 
     <div  className="TokenElement" onClick={handleClick} > 
        <img className="TokenThumbnail" src={tokenInfo.image } />
