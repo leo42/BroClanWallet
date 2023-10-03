@@ -63,6 +63,10 @@ a{
   color: var(--clrorange);
 }
 
+href{
+  color: var(--clrorange);
+}
+
 select{
   color: black;
   background-color: var(--clrSelect);
