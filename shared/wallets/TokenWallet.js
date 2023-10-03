@@ -333,53 +333,25 @@ setPendingTxs(pendingTxs){
     
     async createTx( recipients, signers,sendFrom="" , sendAll=null , withdraw=true ) { 
       const lucid = await this.newLucidInstance(this.settings);
-      var sumOfRecipientsMinusSendAll = {}
-      recipients.map( (recipient,index) => {
-        if (index !== sendAll){
-          Object.keys(recipient.amount).map( (key,index) => {
-            
-            
-            if (key in sumOfRecipientsMinusSendAll){
-              sumOfRecipientsMinusSendAll[key] += recipient.amount[key]
-            }else{
-              sumOfRecipientsMinusSendAll[key] = recipient.amount[key]
-            }
-          } ) 
-        }})
-        //check if there is enough funds in the wallet
-        const balance = this.getBalanceFull()
-        
+          
         console.log("createTx")
         
-        for (const [key, value] of Object.entries(sumOfRecipientsMinusSendAll)) {
-          if (key in balance){
-            if (balance[key] < value){
-                throw new Error('Not enough funds');
-              }
-            }else{
-              throw new Error('Not enough funds');
-            }
-          }
-    
-          let utxos = this.utxos
+        let utxos = this.utxos
         if(sendFrom!==""){ 
           utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-        //  lucid.selectWalletFrom(  { "address":sendFrom, "utxos": []})
-       }else{
-       //   lucid.selectWalletFrom(  { "address":this.getAddress(), "utxos": []})
-        }
+       }
+
         lucid.selectWallet(this.api)
         const hostUtxo = (await lucid.wallet.getUtxos()).find(utxo => Object.keys(utxo.assets).includes(this.token)) 
         if (hostUtxo === undefined){
           throw new Error('tokenVault not found in connected wallet');
         }
-        const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
-        sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
+        
 
         const OutputTx = lucid.newTx()
         recipients.map( (recipient,index) => {
           if( sendAll !== index) 
-            this.isAddressScript(recipient.address) ? OutputTx.payToAddressWithData(recipient.address, {inline : Data.void()},localAmount) : OutputTx.payToAddress(recipient.address,localAmount)
+            this.isAddressScript(recipient.address) ? OutputTx.payToAddressWithData(recipient.address, {inline : Data.void()},recipient.amount) : OutputTx.payToAddress(recipient.address,recipient.amount)
         })
 
         const TokenHostTx = lucid.newTx().payToAddress(hostUtxo.address, hostUtxo.assets).collectFrom([hostUtxo])
