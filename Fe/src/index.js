@@ -53,7 +53,6 @@ class App extends React.Component {
       // 30 days
       if(!affiliateOld || (affiliateOld && affiliateOld.time < Date.now() - 2592000000)){
       localStorage.setItem("affiliate", JSON.stringify({affiliate , time: Date.now()}))
-      console.log(`Welcome to Broclan!`, affiliate)
     }
   }
   this.loadState()

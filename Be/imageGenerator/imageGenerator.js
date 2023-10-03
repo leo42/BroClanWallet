@@ -180,7 +180,6 @@ getSourceImages = async function(tokenList){
   const tokenListKeys = Object.keys(tokenList)
 
   const sourceImages =  tokenListKeys.map(async (key) => { 
-    console.log("Gathering for" +key)
           if (key === "lovelace") {
             return { image: await sharp(adaImagePath).toBuffer() , nft: false , quantity : tokenList[key]/1_000_000  }
           }
@@ -219,7 +218,6 @@ async function updateImages(needImageUpdate){
    const image = await CombineImages(sourceImages)
    //increase image version number 
    tokens.updateOne({id: token.id}, {$set: {image: image, imageUpdate: false }, $inc: {imageVersion: 1 }})
- // console.log(sourceImages)
   })
 }
 
@@ -240,13 +238,11 @@ function utxosToTokenMap(utxos){
           });
   });
   });
-  console.log(tokenList)
   return tokenList;
 
 } 
 async function main(){
  // config = ({ ...config }).default;
-  console.log(config)
   mongoClient = new MongoClient(config.mongoUri);
   await mongoClient.connect();
   tokens = mongoClient.db(config.dbName).collection("Tokens")

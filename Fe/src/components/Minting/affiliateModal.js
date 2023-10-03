@@ -37,7 +37,6 @@ function AffiliateModal({ setOpenModal, operation }) {
 
     function isAddressValid(address) {
         try{
-            console.log(lucid)
         return lucid.utils.getAddressDetails(address)
         }catch(e){
             console.log(e)

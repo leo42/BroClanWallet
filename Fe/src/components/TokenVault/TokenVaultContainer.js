@@ -16,7 +16,6 @@ class TokenVaultsContainer extends React.Component {
 
     async componentDidMount(){
       const connectedWallet = JSON.parse( localStorage.getItem("TokenVaultsConnectedWallet") )
-      console.log(connectedWallet)
       if(connectedWallet){
         await  this.connectWallet(connectedWallet)
         const selectedWallet = JSON.parse( localStorage.getItem("TokenVaultsSelectedWallet") )
@@ -31,7 +30,6 @@ class TokenVaultsContainer extends React.Component {
     }
 
     async selectWallet(token){
-      console.log("selecting wallet")
       const wallet = new Wallet(token, this.state.connectedWallet.api)    
       await wallet.initialize(this.props.root.state.settings)
       localStorage.setItem("TokenVaultsSelectedWallet", JSON.stringify(token))
@@ -41,7 +39,6 @@ class TokenVaultsContainer extends React.Component {
  
    async connectWallet(walletName){
     try{
-      console.log(window.cardano)
       const connection =  await window.cardano[walletName].enable();
       const lucid = await Lucid.new( );
       lucid.selectWallet(connection)
@@ -100,7 +97,6 @@ class TokenVaultsContainer extends React.Component {
     async createDelegationTx(poolId){
       try{
         const tx = await this.state.wallet.createDelegationTx(poolId)
-        console.log(tx)
 
         const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
         const signedTx = await tx.assemble([signature]).complete()
@@ -119,9 +115,7 @@ class TokenVaultsContainer extends React.Component {
 
     async createStakeUnregistrationTx(){
       try{
-        const tx = await this.state.wallet.createStakeUnregistrationTx()
-        console.log(tx)
-        
+        const tx = await this.state.wallet.createStakeUnregistrationTx()        
         const signature = await this.state.connectedWallet.api.signTx(tx.toString(), true)
         const signedTx = await tx.assemble([signature]).complete()
         const submiting =  this.state.wallet.submitTransaction(signedTx)

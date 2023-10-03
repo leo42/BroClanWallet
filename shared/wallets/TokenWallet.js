@@ -331,7 +331,6 @@ setPendingTxs(pendingTxs){
     async createTx( recipients, signers,sendFrom="" , sendAll=null , withdraw=true ) { 
       const lucid = await this.newLucidInstance(this.settings);
           
-        console.log("createTx")
         
         let utxos = this.utxos
         if(sendFrom!==""){ 
@@ -374,7 +373,6 @@ setPendingTxs(pendingTxs){
       const completedTx = await finaltx.complete({ change :changeObject , 
                                                     coinSelection : false})
 
-        console.log(completedTx.toString())
         return completedTx
 
     }
@@ -384,7 +382,6 @@ setPendingTxs(pendingTxs){
     async createStakeUnregistrationTx(){
       const curentDelegation = await this.getDelegation()
       const rewardAddress = this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential) 
-      console.log(curentDelegation)
       const lucid = await this.newLucidInstance(this.settings);
       lucid.selectWallet( this.api)
     
@@ -410,7 +407,6 @@ setPendingTxs(pendingTxs){
 
       const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
       // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
-      console.log(completedTx.toString())
       return completedTx
 
     }
@@ -418,7 +414,6 @@ setPendingTxs(pendingTxs){
     async createDelegationTx(pool){ 
       const curentDelegation = await this.getDelegation()
       const rewardAddress = this.lucid.utils.credentialToRewardAddress(this.lucid.utils.getAddressDetails(this.getAddress()).stakeCredential) 
-      console.log(curentDelegation)
       const lucid = await this.newLucidInstance(this.settings);
       lucid.selectWallet( this.api)
     
@@ -452,9 +447,7 @@ setPendingTxs(pendingTxs){
 
       const completedTx = await finaltx.complete({ change :{address : this.getAddress() , outputData : {inline : Data.void()}}, coinSelection : false})
       // const completedTx = sendAll === null ? await finaltx.complete( ) : await finaltx.complete({ change :{address :recipients[sendAll].address }}) 
-      console.log(completedTx.toString())
       return completedTx
-
     }
 
     isAddressMine(address){

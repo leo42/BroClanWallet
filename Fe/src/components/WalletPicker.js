@@ -3,7 +3,6 @@ import "./WalletPicker.css";
 import { useState} from 'react';
 
 function WalletPicker({ setOpenModal, operation }) {
-console.log(window.cardano)
 let Wallets = []
    if (window.cardano) for (const [key, value] of Object.entries(window.cardano)) {
         if (value.icon && key !== "ccvault" && key !== "typhoncip30" ){

@@ -27,8 +27,6 @@ componentDidUpdate(prevProps) {
 
   if (this.props.settings !== prevProps.settings) {
     this.newSettings(this.props.root.state.settings)
-    console.log("settings changed")
-    
     
   }
 }
@@ -367,7 +365,6 @@ async setState(state){
   async addWallet(script,name){
     const wallets = this.state.wallets
     const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
-    console.log(script)
     const res = await Promise.all(walletsHashes)
     const myWallet = new Wallet(script,name);
     await myWallet.initialize(this.props.root.state.settings);

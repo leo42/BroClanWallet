@@ -144,7 +144,6 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         return chunks
       }
       try{      
-        console.log(settings)
         const api = await window.cardano[wallet].enable();
         const lucid = await this.newLucidInstance(settings)
         lucid.selectWallet(api)
@@ -224,7 +223,6 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
           success: 'Transaction confirmed',
           error: 'Something went wrong',
         });
-          console.log(adminDatum,mintPrice,affiliateBounty)
 
     }catch(e){
         console.log(e)
@@ -288,7 +286,6 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
     }    
 
     toggleAfiliateModal = () => {
-      console.log("toggle") 
         this.props.root.showModal("affiliate")
     }
 

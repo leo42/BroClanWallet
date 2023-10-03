@@ -262,7 +262,6 @@ setPendingTxs(pendingTxs){
       for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
         const isValid = await this.checkTransaction(this.pendingTxs[i].tx)
         if (!isValid){
-          console.log("Remove Pending Tx")
           this.removePendingTx(i)
         }
       }
@@ -465,7 +464,6 @@ setPendingTxs(pendingTxs){
         sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
 
         const tx = this.lucid.newTx()
-        console.log(sendAllAmount)
         recipients.map( (recipient,index) => {
           // sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) :
           const localAmount = sendAll === index ? sendAllAmount : recipient.amount

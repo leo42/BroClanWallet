@@ -42,7 +42,6 @@ async function checkMint(tx, slot){
     }
 }
 async function checkTransaction(tx, slot){
-    //console.log(tx)
     if(tx.outputs){
         tx.outputs.map( async (output, index) => {
             let outputCred
@@ -93,7 +92,6 @@ async function cleanUtxos(){
 async function main(){
     config = await import("./config.js")
     config = ({ ...config }).default;
-    console.log(config)
     mongoClient = new MongoClient(config.mongoUri);
     client =  new WebSocket(config.ogmiosConnection);
     Lucid = await Promise.resolve(Lucid)
@@ -106,7 +104,6 @@ async function main(){
     tokens = mongoClient.db(config.dbName).collection("Tokens")
     Wallet = await Promise.resolve(Wallet)
     let startpoint = await mongoClient.db(config.dbName).collection("syncStatus").findOne({flag: config.settings.network.toLowerCase()})
-    console.log(startpoint)
     if( !startpoint ){
        startpoint = config.startPoint 
          await mongoClient.db(config.dbName).collection("syncStatus").insertOne({slot: startpoint.slot, id: startpoint.id , flag: config.settings.network.toLowerCase() })
@@ -136,7 +133,6 @@ async function main(){
                     await rollBack(response.result.point);
                    
                 }
-                //console.log(response)
                 if (response.result.block) await mongoClient.db(config.dbName).collection("syncStatus").updateOne({flag: config.settings.network.toLowerCase()}, {$set: {slot: response.result.block.slot, id: response.result.block.id , flag: config.settings.network.toLowerCase() }}, {upsert: true})
                 rpc("nextBlock", {}, response.id );            
                 break;
