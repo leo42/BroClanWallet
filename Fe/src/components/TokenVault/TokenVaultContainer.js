@@ -34,7 +34,6 @@ class TokenVaultsContainer extends React.Component {
       await wallet.initialize(this.props.root.state.settings)
       localStorage.setItem("TokenVaultsSelectedWallet", JSON.stringify(token))
       this.setState({wallet: wallet})
-      this.loadAddress()
      }
  
    async connectWallet(walletName){

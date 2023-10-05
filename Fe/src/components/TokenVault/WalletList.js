@@ -68,7 +68,7 @@ function WalletList (props) {
     <div className='WalletListContainer'>
               
         <div className="tokenWalletSelected" onClick={() => setExpanded(!expanded)}> 
-        {props.selected ? <TokenThumbnail tokenId={props.selected} f={selectWallet} key={props.selected}/> : <div className="tokenWalletSelectedEmpty" >Select a token</div>
+        {props.selected ? <TokenThumbnail tokenId={props.selected} f={() => {}} key={props.selected}/> : <div className="tokenWalletSelectedEmpty" >Select a token</div>
         
         }
         </div>
