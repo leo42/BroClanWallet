@@ -68,7 +68,7 @@ jobs:
         name: Build and push token_api 
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}/Be/tokenApi"
+          context: "/Be/tokenApi"
           push: true
           tags:  leo42/token_api:latest
   passthrough:
@@ -84,6 +84,6 @@ jobs:
         name: Build and push Blockfrost passthrough
         uses: docker/build-push-action@v5
         with:
-          context:  "{{defaultContext}}/Be/passthrough"
+          context:  "Be/passthrough"
           push: true
           tags:  leo42/passthrough:latest
