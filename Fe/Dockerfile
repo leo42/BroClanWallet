@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN cd npm ci --only=production 
+RUN  npm ci --only=production 
 
 RUN cd shared/wallets && npm ci --only=production
 
