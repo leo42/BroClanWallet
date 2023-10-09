@@ -21,4 +21,4 @@ jobs:
         with:
           file: ./Fe/Dockerfile
           push: true
-          tags:  ${{ secrets.BroClan }}/app:latest 
+          tags:  leo42/BroClan:latest 
