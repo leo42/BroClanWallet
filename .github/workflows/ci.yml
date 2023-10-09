@@ -84,6 +84,6 @@ jobs:
         name: Build and push Blockfrost passthrough
         uses: docker/build-push-action@v5
         with:
-          context:  "Be/passthrough"
+          context:  "${pwd}/Be/passthrough"
           push: true
           tags:  leo42/passthrough:latest
