@@ -16,9 +16,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Build and push Fe
         uses: docker/build-push-action@v5
         with:
           file: ./Fe/Dockerfile
           push: true
           tags:  leo42/broclan:latest 
+      
