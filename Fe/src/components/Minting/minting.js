@@ -226,7 +226,9 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
 
     }catch(e){
         console.log(e)
-        console.log(e)
+        if (e.message === "Unit not found."){
+          toast.error("TokenVaults not supported on this network.")
+        } else
         if(e.message === "Could not fetch UTxOs from Blockfrost. Try again."){
           toast.error("Your wallet seems to be empty")
         }else  if(e === "Missing input or output for some native asset"){
