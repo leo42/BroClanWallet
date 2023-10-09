@@ -226,7 +226,10 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
 
     }catch(e){
         console.log(e)
-        if(e === "Missing input or output for some native asset"){
+        console.log(e)
+        if(e.message === "Could not fetch UTxOs from Blockfrost. Try again."){
+          toast.error("Your wallet seems to be empty")
+        }else  if(e === "Missing input or output for some native asset"){
           toast.error("Insuffucient funds")
         } else {
           toast.error(e.message ? e.message : e)
