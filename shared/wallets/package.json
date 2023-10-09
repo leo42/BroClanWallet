@@ -1,4 +1,7 @@
 {
     "type": "module",
-    "sideEffects": false
+    "sideEffects": false,
+    "dependencies": {
+        "@hyperionbt/helios": "^0.15.13"
+    }
 }
