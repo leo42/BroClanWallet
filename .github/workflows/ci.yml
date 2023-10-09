@@ -26,7 +26,7 @@ jobs:
         name: Build and push ImageGenerator
         uses: docker/build-push-action@v5
         with:
-          context: Be/imageGenerator
+          context: ./Be/imageGenerator
           push: true
           tags:  leo42/image_generator:latest
       -
