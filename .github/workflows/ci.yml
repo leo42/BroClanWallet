@@ -22,4 +22,31 @@ jobs:
           file: ./Fe/Dockerfile
           push: true
           tags:  leo42/broclan:latest 
-      
+      - 
+        name: Build and push ImageGenerator
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Be/imageGenerator
+          push: true
+          tags:  leo42/image_generator:latest
+      -
+        name: Build and push Indexer 
+        uses: docker/build-push-action@v5
+        with:
+          file: ./Be/indexer/Dockerfile
+          push: true
+          tags:  leo42/indexer:latest
+      - 
+        name: Build and push token_api 
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Be/tokenApi
+          push: true
+          tags:  leo42/token_api:latest
+      - 
+        name: Build and push Blockfrost passthrough
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Be/passthrough
+          push: true
+          tags:  leo42/passthrough:latest
