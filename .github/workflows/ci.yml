@@ -35,7 +35,7 @@ jobs:
         name: Build and push ImageGenerator
         uses: docker/build-push-action@v5
         with:
-          context: ./Be/imageGenerator
+          context: "{{defaultContext}}/Be/imageGenerator"
           push: true
           tags:  leo42/image_generator:latest
   Indexer:
@@ -68,7 +68,7 @@ jobs:
         name: Build and push token_api 
         uses: docker/build-push-action@v5
         with:
-          context: ./Be/tokenApi
+          context: "{{defaultContext}}/Be/tokenApi"
           push: true
           tags:  leo42/token_api:latest
   passthrough:
@@ -84,6 +84,6 @@ jobs:
         name: Build and push Blockfrost passthrough
         uses: docker/build-push-action@v5
         with:
-          context: ./Be/passthrough
+          context:  "{{defaultContext}}/Be/passthrough"
           push: true
           tags:  leo42/passthrough:latest
