@@ -1,17 +1,14 @@
 FROM node:latest as builder
 WORKDIR /usr/src/app
 
-COPY Fe/package*.json ./
-
-RUN npm ci --only=production 
-
-RUN npm install typescript --save-dev
 
 COPY . .
 
+RUN cd Fe && npm ci --only=production 
+
+RUN cd shared/wallets && npm ci --only=production
+
 RUN cd Fe && npm run build
-
-
 
 FROM nginx:latest
 
