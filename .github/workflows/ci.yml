@@ -82,4 +82,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - 
         name: Build and push Blockfrost passthrough
-        run: ls && cd ./Be/indexer && docker build -t  leo42/passthrough:latest  && docker push leo42/passthrough:latest
+        run: ls && cd ../Be/indexer && docker build -t  leo42/passthrough:latest  && docker push leo42/passthrough:latest
