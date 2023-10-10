@@ -1,8 +1,7 @@
-name: docker-ci
 on:
   push:
-    branches:
-      - 'GitActions'
+    tags:
+      - 'v*'
 
 jobs:
   Frontend:
@@ -20,7 +19,7 @@ jobs:
         with:
           file: ./Fe/Dockerfile
           push: true
-          tags:  leo42/broclan:latest 
+          tags:  leo42/broclan:${{ env.RELEASE_TAG }} 
   ImageGenerator:
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +35,7 @@ jobs:
         with:
           file: ./Be/imageGenerator/Dockerfile
           push: true
-          tags:  leo42/image_generator:latest
+          tags:  leo42/image_generator:${{ env.RELEASE_TAG }}
   Indexer:
     runs-on: ubuntu-latest
     steps:
@@ -53,7 +52,7 @@ jobs:
         with:
           file: ./Be/indexer/Dockerfile
           push: true
-          tags:  leo42/indexer:latest
+          tags:  leo42/indexer:${{ env.RELEASE_TAG }}
   tokenApi:
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +68,7 @@ jobs:
         with:
           file: "./Be/tokenApi/Dockerfile"
           push: true
-          tags:  leo42/token_api:latest
+          tags:  leo42/token_api:${{ env.RELEASE_TAG }}
   passthrough:
     runs-on: ubuntu-latest
     steps:
@@ -85,4 +84,4 @@ jobs:
         with:
           file: ./Be/passthrough/Dockerfile
           push: true
-          tags:  leo42/passthrough:latest
+          tags:  leo42/passthrough:${{ env.RELEASE_TAG }}
