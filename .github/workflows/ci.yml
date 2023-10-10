@@ -6,7 +6,7 @@ on:
       - 'GitActions'
 
 jobs:
-  Forontend:
+  Frontend:
     runs-on: ubuntu-latest
     steps:
       -
@@ -82,4 +82,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - 
         name: Build and push Blockfrost passthrough
-        run: ls && cd ../../Be/indexer && docker build -t  leo42/passthrough:latest  && docker push leo42/passthrough:latest
+        uses: docker/build-push-action@v5
+        with:
+          file: ./Be/passthrough/Dockerfile
+          push: true
+          tags:  leo42/passthrough:latest
