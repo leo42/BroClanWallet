@@ -82,9 +82,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - 
         name: Build and push Blockfrost passthrough
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags:  leo42/passthrough:latest
-          context: Be/passthrough 
-          file: Be/passthrough/Dockerfile
+        run: cd Be/indexer && docker build -t  leo42/passthrough:latest  && docker push leo42/passthrough:latest
