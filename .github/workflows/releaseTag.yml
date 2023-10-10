@@ -19,7 +19,7 @@ jobs:
         with:
           file: ./Fe/Dockerfile
           push: true
-          tags:  leo42/broclan:${{ env.RELEASE_TAG }} 
+          tags:  leo42/broclan${{ steps.meta.outputs.tags }} 
   ImageGenerator:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
         with:
           file: ./Be/imageGenerator/Dockerfile
           push: true
-          tags:  leo42/image_generator:${{ env.RELEASE_TAG }}
+          tags:  leo42/image_generator${{ steps.meta.outputs.tags }}
   Indexer:
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,7 @@ jobs:
         with:
           file: ./Be/indexer/Dockerfile
           push: true
-          tags:  leo42/indexer:${{ env.RELEASE_TAG }}
+          tags:  leo42/indexer${{ steps.meta.outputs.tags }}
   tokenApi:
     runs-on: ubuntu-latest
     steps:
@@ -68,7 +68,7 @@ jobs:
         with:
           file: "./Be/tokenApi/Dockerfile"
           push: true
-          tags:  leo42/token_api:${{ env.RELEASE_TAG }}
+          tags:  leo42/token_api${{ steps.meta.outputs.tags }}
   passthrough:
     runs-on: ubuntu-latest
     steps:
@@ -84,4 +84,4 @@ jobs:
         with:
           file: ./Be/passthrough/Dockerfile
           push: true
-          tags:  leo42/passthrough:${{ env.RELEASE_TAG }}
+          tags:  leo42/passthrough${{ steps.meta.outputs.tags }}
