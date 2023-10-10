@@ -15,7 +15,7 @@ services:
   passthrough:
     build:
       context: .
-      dockerfile: DockerfilePassthrough
+      dockerfile: Be/passthrough/Dockerfile
     networks:
        web:
         aliases:

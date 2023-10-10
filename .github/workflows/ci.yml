@@ -35,7 +35,7 @@ jobs:
         name: Build and push ImageGenerator
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}/Be/imageGenerator"
+          file: ./Be/imageGenerator/Dockerfile
           push: true
           tags:  leo42/image_generator:latest
   Indexer:
@@ -68,7 +68,7 @@ jobs:
         name: Build and push token_api 
         uses: docker/build-push-action@v5
         with:
-          context: "/Be/tokenApi"
+          file: "./Be/tokenApi/Dockerfile"
           push: true
           tags:  leo42/token_api:latest
   passthrough:

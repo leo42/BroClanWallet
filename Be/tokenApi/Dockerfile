@@ -2,10 +2,10 @@ FROM node:16
 
 WORKDIR /usr/src/app
  
-COPY package*.json ./ 
+COPY ./Be/tokenApi/package*.json ./ 
 
 RUN npm ci --only=production
 
-COPY  ./tokenApi.js ./
+COPY  ./Be/tokenApi/tokenApi.js ./
 
 CMD [ "node", "tokenApi.js" ]
