@@ -2,13 +2,13 @@ FROM node:latest
 
 WORKDIR /usr/src/app
  
-COPY package*.json ./ 
+COPY Be/passthrough/package*.json ./ 
 
 RUN npm ci --only=production
 
 RUN npm install cbor
 
-COPY  ./passtrough.js ./
+COPY Be/passthrough/passtrough.js ./
 
 EXPOSE 3002
 

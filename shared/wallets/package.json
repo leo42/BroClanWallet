@@ -1,4 +1,8 @@
 {
     "type": "module",
-    "sideEffects": false
+    "sideEffects": false,
+    "dependencies": {
+        "@hyperionbt/helios": "^0.15.13",
+        "lucid-cardano": "^0.10.7"
+    }
 }

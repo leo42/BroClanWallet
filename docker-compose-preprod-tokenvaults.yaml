@@ -34,8 +34,8 @@ services:
       web:
   image_generator:
     build:
-      context: Be/imageGenerator
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Be/imageGenerator/Dockerfile
     volumes:
       - ../configs/preprodImageGen.js:/usr/src/app/config.js:ro
       - ../secrets:/usr/src/app/secrets:ro
@@ -44,8 +44,8 @@ services:
       web:
   tokenapi:
     build:
-      context: Be/tokenApi
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Be/tokenApi/Dockerfile
     volumes:
       - ../configs/preprodApi.js:/usr/src/app/config.js:ro
       - ../secrets:/usr/src/app/secrets:ro
