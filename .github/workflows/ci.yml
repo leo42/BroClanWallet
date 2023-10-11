@@ -2,7 +2,7 @@ name: docker-ci
 on:
   push:
     branches:
-      - 'GitActions'
+      - 'main'
 
 jobs:
   Frontend:
