@@ -9,7 +9,7 @@ jobs:
     steps:
       - 
         name: Debug RELEASE_TAG
-        run: echo "github.ref= ${{ github.ref }}"
+        run: echo "github.ref= ${{ github.ref_name }}"
       -
         name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -22,7 +22,7 @@ jobs:
         with:
           file: ./Fe/Dockerfile
           push: true
-          tags:  leo42/broclan:${{ steps.meta.outputs.tags }} 
+          tags:  leo42/broclan:${{ github.ref_name }}
   ImageGenerator:
     runs-on: ubuntu-latest
     steps:
@@ -38,7 +38,7 @@ jobs:
         with:
           file: ./Be/imageGenerator/Dockerfile
           push: true
-          tags:  leo42/image_generator:${{ steps.meta.outputs.tags }}
+          tags:  leo42/image_generator:${{ github.ref_name }}
   Indexer:
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +55,7 @@ jobs:
         with:
           file: ./Be/indexer/Dockerfile
           push: true
-          tags:  leo42/indexer:${{ steps.meta.outputs.tags }}
+          tags:  leo42/indexer:${{ github.ref_name }}
   tokenApi:
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +71,7 @@ jobs:
         with:
           file: "./Be/tokenApi/Dockerfile"
           push: true
-          tags:  leo42/token_api:${{ steps.meta.outputs.tags }}
+          tags:  leo42/token_api:${{ github.ref_name }}
   passthrough:
     runs-on: ubuntu-latest
     steps:
@@ -87,4 +87,4 @@ jobs:
         with:
           file: ./Be/passthrough/Dockerfile
           push: true
-          tags:  leo42/passthrough:${{ env.RELEASE_TAG }}
+          tags:  leo42/passthrough:${{ github.ref_name }}
