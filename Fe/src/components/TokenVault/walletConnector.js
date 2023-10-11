@@ -8,7 +8,6 @@ import { ReactComponent as ChangeIcon } from '../../html/assets/change.svg';
 
 
 function walletConnector(props){
-    const [walletPickerOpen, setWalletPickerOpen] = React.useState(false);
     const [configMenu, openConfigMenu] = React.useState(false);
     const [hovering, setHovering] = React.useState("");
     const [isMobile, setIsMobile] = useState(false);

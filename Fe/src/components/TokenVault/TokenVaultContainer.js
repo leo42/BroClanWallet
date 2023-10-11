@@ -30,11 +30,13 @@ class TokenVaultsContainer extends React.Component {
     }
 
     async selectWallet(token){
+      if(!((await this.state.connectedWallet.lucid.wallet.getUtxos() ).map(utxo =>  Object.keys(utxo.assets).map (asset => asset))).flat(1).includes(token)) return
+
       const wallet = new Wallet(token, this.state.connectedWallet.api)    
       await wallet.initialize(this.props.root.state.settings)
-      localStorage.setItem("TokenVaultsSelectedWallet", JSON.stringify(token))
+      localStorage.setItem("TokenVaultsSelectedWallet"+this.state.connectedWallet.name, JSON.stringify(token))
       this.setState({wallet: wallet})
-     }
+    }
  
    async connectWallet(walletName){
     try{
@@ -43,31 +45,34 @@ class TokenVaultsContainer extends React.Component {
       lucid.selectWallet(connection)
       localStorage.setItem("TokenVaultsConnectedWallet", JSON.stringify(walletName))
       this.setState({connectedWallet: { name: walletName, api : connection , lucid : lucid}})
+      this.listenforAddressChange()
+      this.setState({wallet: undefined})
     }catch(e){
       console.log(e)
     }
     }
 
-    storeAddress()  {
-      if (this.state.loading) return
-      const addressDataPack = JSON.parse(localStorage.getItem("tokenWalletAddressDataPack")) ?JSON.parse(localStorage.getItem("tokenWalletAddressDataPack")) : {}
-      const wallet = this.state.wallet
-      addressDataPack[wallet.getToken()] =  {  defaultAddress: wallet.getDefaultAddress(),
-                                               addressNames: wallet.getAddressNames()                                                              
-                                          }
-      localStorage.setItem("tokenWalletAddressDataPack", JSON.stringify(addressDataPack))
+    listenforAddressChange(){
+      this.state.connectedWallet.lucid.wallet.address().then((ogAddress) => {
+        //loop every 5 seconds to check if address has changed
+        var id = setInterval((interval) => {
+          this.state.connectedWallet.lucid.wallet.address().then((address) => {
+            if(ogAddress !== address){
+              clearInterval(id)
+              this.connectWallet(this.state.connectedWallet.name)
+              
+              return
+              
+            }
+          })
+        }
+        , 1000);
+
+      })
+      
     }
 
-    loadAddress() {
-      const addressDataPack = JSON.parse(localStorage.getItem("tokenWalletAddressDataPack"))  ? JSON.parse(localStorage.getItem("tokenWalletAddressDataPack")) : undefined
-      
-      if (addressDataPack && addressDataPack[this.state.wallet.getToken()]) {
-        const wallet = this.state.wallet
-        wallet.setDefaultAddress(addressDataPack[this.state.wallet.getToken()].defaultAddress)
-        wallet.setAddressNames(addressDataPack[this.state.wallet.getToken()].addressNames)
-        this.setState({wallet: wallet})
-      }
-    }
+
 
     disconnectWallet(){
       this.setState({connectedWallet: "none"})
