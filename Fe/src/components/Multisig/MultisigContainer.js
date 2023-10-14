@@ -486,9 +486,9 @@ async setState(state){
    walletsEmpty = () => {
     return (
       <div className="walletsEmpty">
-        <h2>No Wallets Found</h2>
-        <p>Create a new wallet to start using this APP.</p>
-        <button className="commonBtn" onClick={() => this.setState({modal: "newWallet"})}>Add Wallet</button>
+        <h2>No Multisig Wallets Found</h2>
+        <p>Create a new multisig wallet to start using this APP.</p>
+        <button className="commonBtn" onClick={() => this.setState({modal: "newWallet"})}>Add Multisig Wallet</button>
       </div>
     )
   }
