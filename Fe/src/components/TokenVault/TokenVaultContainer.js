@@ -18,7 +18,7 @@ class TokenVaultsContainer extends React.Component {
       const connectedWallet = JSON.parse( localStorage.getItem("TokenVaultsConnectedWallet") )
       if(connectedWallet){
         await  this.connectWallet(connectedWallet)
-        const selectedWallet = JSON.parse( localStorage.getItem("TokenVaultsSelectedWallet") )
+        const selectedWallet = JSON.parse( localStorage.getItem("TokenVaultsSelectedWallet"+this.state.connectedWallet.name) )
         if(selectedWallet){
           await this.selectWallet(selectedWallet )
         }
@@ -31,9 +31,9 @@ class TokenVaultsContainer extends React.Component {
 
     async selectWallet(token){
       if(!((await this.state.connectedWallet.lucid.wallet.getUtxos() ).map(utxo =>  Object.keys(utxo.assets).map (asset => asset))).flat(1).includes(token)) return
-
       const wallet = new Wallet(token, this.state.connectedWallet.api)    
       await wallet.initialize(this.props.root.state.settings)
+      
       localStorage.setItem("TokenVaultsSelectedWallet"+this.state.connectedWallet.name, JSON.stringify(token))
       this.setState({wallet: wallet})
     }
