@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "start": "webpack  serve --mode=development",
-    "dev": "concurrently \"webpack --mode=development --watch\" \"tsc -w  --module amd  src/Be/server.ts  --outFile build/server.js \" \"cd build && node --trace-uncaught --watch server.js \"",
+    "dev": "concurrently \"webpack  --mode=development --watch\" \"webpack  serve --mode=development\"",
     "Uidev": "concurrently \"webpack  --mode=development --watch\"  \"cd build && node --trace-uncaught server.js \""
   },
   "keywords": [],

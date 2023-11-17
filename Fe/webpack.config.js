@@ -7,7 +7,7 @@ const isProduction = argv.mode === 'production';
 
 
 
-module.exports = {
+var webAppConfig = {
     entry: './src/index.js',
     output: {
 		crossOriginLoading: 'anonymous',
@@ -58,20 +58,82 @@ module.exports = {
 		}
 };
 
+
+var extensionConfig = {
+	entry:  './src/extension/extension.js',
+	  output: {
+		filename: 'extension.js',
+		path: path.resolve(__dirname, 'build/extension'),
+		// Specify the folder name for the extension output
+	  },
+	  mode: 'development',
+	  devtool: 'source-map',
+	  experiments: {
+		asyncWebAssembly: false,
+		topLevelAwait: false,
+		layers: true // optional, with some bundlers/frameworks it doesn't work without
+		},
+	  module: {
+		rules: [
+			{
+			loader: 'babel-loader',
+			test: /\.js$/,
+			exclude: /node_modules/
+		}, {
+			test: /\.css$/i,
+			use: ["style-loader", "css-loader"],
+		  },
+	]
+},
+	  plugins: [
+		new CopyWebpackPlugin({
+			patterns: [
+				{ from: path.join(__dirname, 'src/extension/static'), to: path.join(__dirname, 'build/extension') },
+			],
+		}),
+],
+
+	};
+	
+var workerConfig = {
+	entry:  './src/extension/worker.js',
+	  output: {
+		filename: 'worker.js',
+		path: path.resolve(__dirname, 'build/extension'),
+		// Specify the folder name for the extension output
+	  },
+	  mode: 'development',
+	  devtool: 'source-map',
+	  experiments: {
+		asyncWebAssembly: false,
+		topLevelAwait: false,
+		layers: true // optional, with some bundlers/frameworks it doesn't work without
+		},
+		module: {
+			rules: [
+				{
+				loader: 'babel-loader',
+				test: /\.js$/,
+				exclude: /node_modules/
+			}]
+		},
+	};
+
+module.exports = [webAppConfig, extensionConfig , workerConfig]
 if(isProduction) {
-	module.exports.plugins.push(new HtmlWebpackPlugin({
+	module.exports[0].plugins.push(new HtmlWebpackPlugin({
 		template: 'src/index.html' ,
 		hash: true, // Add a hash to the injected script tag
 		inject: 'body', // Inject the script tag in the body of the HTML file
 	  }))
 
-	module.exports.plugins.push(new  SubresourceIntegrityPlugin({
+	module.exports[0].plugins.push(new  SubresourceIntegrityPlugin({
 	hashFuncNames: ['sha256', 'sha384'], // Hash algorithms to use for SRI
 	enabled: true, // Enable SRI generation
   })) 
 
 }else{
-	module.exports.plugins.push(new CopyWebpackPlugin({
+	module.exports[0].plugins.push(new CopyWebpackPlugin({
 		patterns: [
 			{ from: 'src/index.dev.html', to: 'index.html' },
 		],
