@@ -16,24 +16,28 @@
     "tabs"],
     "content_scripts": [
       {
-        "matches": ["*://*/*"], 
-        "js": ["extension.js"]
+        "matches": ["http://*/*", "https://*/*", "<all_urls>"], 
+        "js": ["BroClanInjection.js"],
+        "run_at": "document_start"
+
       }
     ],
   "background": {
-    "service_worker": "worker.js"
-  },
-  "devtools": {
-    "panels": [{
-      "name": "My DevTools Panel",
-      "page": "devtools.html"
-    }]
+    "service_worker": "background.js"
   },
   "action":{
     "default_title": "Bro Clan",
     "default_popup": "popup.html"
 },
   "host_permissions": ["<all_urls>"],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "injected.js"
+      ],
+      "matches": ["http://*/*", "https://*/*", "file://*/*"]
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';",
     "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self'; child-src 'self';"

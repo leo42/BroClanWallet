@@ -54,7 +54,7 @@ class App extends React.Component {
 
 
     render() {
-        return (<h1>You are viewing: {this.state.title}{this.state.data ? this.state.data : ""}  Leo</h1>);
+        return (<h1>You are viewing: {this.state.title}{this.state.data ? this.state.data : ""}  Leo2</h1>);
     }
 
 }

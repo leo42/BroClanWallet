@@ -119,7 +119,31 @@ var workerConfig = {
 		},
 	};
 
-module.exports = [webAppConfig, extensionConfig , workerConfig]
+	var injectionConfig = {
+		entry:  './src/extension/BroClanInjection.js',
+		  output: {
+			filename: 'BroClanInjection.js',
+			path: path.resolve(__dirname, 'build/extension'),
+			// Specify the folder name for the extension output
+		  },
+		  mode: 'development',
+		  devtool: 'source-map',
+		  experiments: {
+			asyncWebAssembly: false,
+			topLevelAwait: false,
+			layers: true // optional, with some bundlers/frameworks it doesn't work without
+			},
+			module: {
+				rules: [
+					{
+					loader: 'babel-loader',
+					test: /\.js$/,
+					exclude: /node_modules/
+				}]
+			},
+		};
+
+module.exports = [webAppConfig, extensionConfig , workerConfig, injectionConfig]
 if(isProduction) {
 	module.exports[0].plugins.push(new HtmlWebpackPlugin({
 		template: 'src/index.html' ,
