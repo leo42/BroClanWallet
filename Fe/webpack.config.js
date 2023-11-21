@@ -20,8 +20,8 @@ var webAppConfig = {
 		},
 		compress: true,
 		port: 8080,
+		allowedHosts : ["localhost" , "test.broclan.io"]
 	  },
-	
     module: {
 			rules: [
 				{
