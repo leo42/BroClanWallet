@@ -96,9 +96,9 @@ var extensionConfig = {
 	};
 	
 var workerConfig = {
-	entry:  './src/extension/worker.js',
+	entry:  './src/extension/background.js',
 	  output: {
-		filename: 'worker.js',
+		filename: 'background.js',
 		path: path.resolve(__dirname, 'build/extension'),
 		// Specify the folder name for the extension output
 	  },
@@ -120,9 +120,9 @@ var workerConfig = {
 	};
 
 	var injectionConfig = {
-		entry:  './src/extension/BroClanInjection.js',
+		entry:  './src/extension/injected.js',
 		  output: {
-			filename: 'BroClanInjection.js',
+			filename: 'injected.js',
 			path: path.resolve(__dirname, 'build/extension'),
 			// Specify the folder name for the extension output
 		  },

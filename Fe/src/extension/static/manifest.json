@@ -10,21 +10,23 @@
     "storage",
     "activeTab",
     "scripting", 
-    "webRequest",
     "devtools",
     "<all_urls>",
-    "tabs"],
+    "nativeMessaging"],
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*", "<all_urls>"], 
-        "js": ["BroClanInjection.js"],
+        "js": ["content.js"],
         "run_at": "document_start"
 
       }
     ],
+    "externally_connectable": {
+      "matches": [ "<all_urls>"]
+  },
   "background": {
     "service_worker": "background.js"
-  },
+    },
   "action":{
     "default_title": "Bro Clan",
     "default_popup": "popup.html"
