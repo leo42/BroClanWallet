@@ -3,11 +3,43 @@ const BROCLAN_PORT =  ":8080"
 const BROCLAN_URL = "http://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
 const approvedUrls = [ "http://localhost:8081/"];
 
+let BroPort = null;
+
+chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
+    console.log("Received message from webpage:", request);
+    if (request.fromWebpage) {
+        // Process the message and send a response if needed
+        // ...
+        sendResponse({ response: "Message processed in the background script!" });
+    } else {
+        sendResponse({ error: "Invalid request" });
+    }
+});
+
 
 chrome.runtime.onConnectExternal.addListener(function(port) {
     console.log("Connected to webpage:", port.sender.url);
     // reject if url is not in approved list
     //check open tabs 
+    if (port.sender.url === BROCLAN_URL) {
+        console.log("Connected to BroClan");
+        
+        port.onDisconnect.addListener(function() {
+            console.log('Port disconnected');
+            BroPort = null;
+          });
+        // check if BroPort is alive 
+
+        if(BroPort !== null){
+            console.log("BroClan already connected");
+            BroPort.disconnect();
+            return
+        }
+        
+        BroPort = port; 
+        
+        return
+    }
 
     chrome.tabs.query({}, function(tabs) {
         let tabIds = [];
@@ -21,8 +53,10 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
 
         if (tabIds.length === 0) {
             // If no tabs are open, open one but don't focus it
-            chrome.tabs.create({ url: BROCLAN_URL, active: false });
+            tabIds.push(chrome.tabs.create({ url: BROCLAN_URL, active: false }));
+            
         } else {
+
             // If multiple tabs are open, close all but one
             if (tabIds.length > 1) {
                 // Remove the first tab ID from the array and close the rest
@@ -31,28 +65,18 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
             }
 
             // Send a message to the remaining open tab
-            chrome.tabs.sendMessage(tabIds[0], { message: 'Hello from the background script!' });
         }
+
+        if(BroPort === null){
+            //refresh the page
+            chrome.tabs.reload(tabIds[0]);
+            
+        }
+        console.log("Sending message to tab:", tabIds[0]);
+        BroPort.postMessage({ fromBackground: "Message from background script!" });    
     });
     
 
-     if (!approvedUrls.includes(port.sender.url)) {
-         port.disconnect();
-         return false;
-     }
-    port.onMessage.addListener(function(request) {
-        return new Promise((resolve, reject) => {
-            if (request.fromWebpage) {
-                console.log("Received message from webpage:", request.fromWebpage);
-                // Process the message and send a response if needed
-                // ...
-                port.postMessage({ response: "Message processed in the background script!" });
-                resolve();
-            } else {
-                reject("Invalid request");
-            }
-        });
-    });
 });
 
 console.log("Background script loaded");

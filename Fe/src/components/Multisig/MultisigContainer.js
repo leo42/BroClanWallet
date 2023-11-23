@@ -10,7 +10,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import "./MultisigContainer.css"
 import ModalsContainer from './ModalsContainer';
-
+import Messaging from '../../helpers/Messaging';
 
 
 class MultisigContainer extends React.Component {
@@ -21,6 +21,7 @@ state= {
     selectedWallet: 0,
     connectedWallet: {name: "", socket: null},
     loading : true,
+    dAppConnector: null,
 }
 
 componentDidUpdate(prevProps) {
@@ -56,6 +57,15 @@ async setState(state){
 
   componentDidMount() {
     this.loadState()
+    console.log(this.state.wallets[this.state.selectedWallet])
+
+  //  let port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
+  //  port.onMessage.addListener((message) => {
+  //      console.log("Received message from background script:", message);
+  //  }
+  //  );
+ //  this.setState({port})
+
     this.interval = setInterval(() => {
         this.reloadBalance()
     }, 15000);
@@ -64,6 +74,9 @@ async setState(state){
   
 
   componentWillUnmount() {
+    console.log("unmounting", this.state.dAppConnector)
+    this.state.dAppConnector ? this.state.dAppConnector.disconnect() : null
+    this.setState({dAppConnector: null})
     clearInterval(this.interval);
   }
   
@@ -174,6 +187,8 @@ async setState(state){
     state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet"))
     
     super.setState(state) 
+    const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet])
+    this.setState({dAppConnector})
     this.setState({loading : false})
 
   }
