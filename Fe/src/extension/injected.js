@@ -6,7 +6,7 @@ console.log("BroClan, injected script loaded, test again 4", document.currentScr
 async function enable(extensions = null) {
 
     // Establish a connection to the background script
-    let port = chrome.runtime.connect(EXTENSION_ID);
+    let port = chrome.runtime.sendMessage(EXTENSION_ID, extensions);
     
     const api = { 
         getBalance: () => port.postMessage({ type: 'getBalance' }),
