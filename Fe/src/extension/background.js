@@ -1,18 +1,35 @@
 const BROCLAN_DOMAIN = "test.broclan.io"
 const BROCLAN_PORT =  ":8080"
 const BROCLAN_URL = "http://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
-const approvedUrls = [ "http://localhost:8081/"];
+const approvedUrls = [ "http://localhost:8081"];
 
 let BroPort = null;
 
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
-    console.log("Received message from webpage:", request);
-    if (request.fromWebpage) {
+    console.log("Received message from webpage:", sender);
+    if (approvedUrls.includes(sender.origin)) {
+        if(request && request.action){
+            if(BroPort === null){
+                connectBroClan();
+            }
+            switch (request.action) {
+            
+                case "getBalance": 
+                BroPort.postMessage({ request: "getBalance" });
+                BroPort.onMessage.addListener((message) => {
+                    console.log("Received message from BroClan:", message);
+                    sendResponse( message.response );
+                });
+                break;
+            }
+
+            return
+        }
         // Process the message and send a response if needed
         // ...
         sendResponse({ response: "Message processed in the background script!" });
     } else {
-        sendResponse({ error: "Invalid request" });
+        sendResponse({ error: "User Rejected" });
     }
 });
 
@@ -41,6 +58,12 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         return
     }
 
+
+    
+
+});
+
+function connectBroClan(){
     chrome.tabs.query({}, function(tabs) {
         let tabIds = [];
 
@@ -75,8 +98,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         console.log("Sending message to tab:", tabIds[0]);
         BroPort.postMessage({ fromBackground: "Message from background script!" });    
     });
-    
 
-});
+}
 
 console.log("Background script loaded");
