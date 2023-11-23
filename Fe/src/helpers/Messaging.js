@@ -15,9 +15,18 @@ class Messaging {
         this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
         this.port.onMessage.addListener((message) => {
             console.log("Received message from background script:", message);
-            if(message.request === "getBalance"){
-                this.port.postMessage({ response: this.wallet.getBalance() });
-            }
+            if(message.request){
+                switch (message.request) {
+                
+                    case "getBalance": 
+                        this.port.postMessage({ response: this.wallet.getBalance() });
+                        break;
+                    case "getUtxos":
+                        
+                        this.port.postMessage({ response: JSON.stringify(this.wallet.getUtxos().length) });
+                        break;    
+                }
+             }
             else{
                 console.log("Received message from background script:", message);
                 console.log(this.wallet.getUtxos());
@@ -26,6 +35,9 @@ class Messaging {
         );
     }
     
+    changeWallet(wallet){
+        this.wallet = wallet;
+    }
     disconnect() {
         this.port.disconnect();
     }   

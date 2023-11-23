@@ -7,22 +7,17 @@ let BroPort = null;
 
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
     console.log("Received message from webpage:", sender);
+    if(BroPort === null){
+        connectBroClan();
+    }
     if (approvedUrls.includes(sender.origin)) {
         if(request && request.action){
-            if(BroPort === null){
-                connectBroClan();
-            }
-            switch (request.action) {
-            
-                case "getBalance": 
-                BroPort.postMessage({ request: "getBalance" });
+               BroPort.postMessage({ request: request.action });
                 BroPort.onMessage.addListener((message) => {
                     console.log("Received message from BroClan:", message);
-                    sendResponse( message.response );
+                    sendResponse( message.response);
                 });
-                break;
-            }
-
+           
             return
         }
         // Process the message and send a response if needed

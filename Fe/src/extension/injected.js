@@ -17,6 +17,7 @@ async function enable(extensions = null) {
 
     return { 
         getBalance: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getBalance' }),
+        getUtxos: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUtxos' }),
     }
     
 }

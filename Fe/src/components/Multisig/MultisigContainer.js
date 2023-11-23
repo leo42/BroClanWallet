@@ -436,6 +436,11 @@ async setState(state){
   }
 
   selectWallet(key){
+    if(this.state.connectedWallet) {
+      const dAppConnector = this.state.dAppConnector
+      dAppConnector.changeWallet(this.state.wallets[key])
+      this.setState({dAppConnector})
+    }
     const selectedWallet = key
     localStorage.setItem("selectedMultisigWallet", selectedWallet)
     this.setState( { selectedWallet})
