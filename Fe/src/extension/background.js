@@ -14,8 +14,9 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
         if(request && request.action){
                BroPort.postMessage({ request: request.action });
                 BroPort.onMessage.addListener((message) => {
-                    console.log("Received message from BroClan:", message);
-                    sendResponse( message.response);
+                   if( request.action === message.method){
+                       sendResponse( message.response);
+                   }
                 });
            
             return

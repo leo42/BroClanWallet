@@ -508,12 +508,12 @@ setPendingTxs(pendingTxs){
 
     async importTransaction(transaction)
     { 
+      try{
       if (!await this.checkTransaction(transaction)){
         throw new Error("Transaction invalid")
       }
       let uint8Array , tx
 
-      try{
         //if transaction type is string
 
 
@@ -699,6 +699,17 @@ setPendingTxs(pendingTxs){
       return this.pendingTxs[index].signatures[keyHash]
     }
 
+    async submitTx(tx){
+      try{
+        const txHash = await this.lucid.provider.submitTx(tx);
+        return txHash
+      }catch(e){
+        console.log(e)
+        const errorMessage = e.message ? e.message : JSON.stringify(e) 
+        return errorMessage;
+      }
+    }
+    
     async submitTransaction(index){
       try{
        const tx = this.pendingTxs[index]

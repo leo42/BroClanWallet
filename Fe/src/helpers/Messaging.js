@@ -18,6 +18,19 @@ class Messaging {
 
     }
 
+    // getUtxos: (amount = undefined, paginate= undefined) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUtxos' , amount : amount, paginate: paginate}),
+    // getCollateral: (amount = undefined) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCollateral' , amount : amount}),
+    // getBalance: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getBalance' }),
+    // getUsedAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUsedAddresses' }),
+    // getUnusedAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUnusedAddresses' }),
+    // getChangeAddress: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getChangeAddress' }),
+    // getRewardAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getRewardAddresses' }),
+    // submitTx: (tx) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'submitTx', tx: tx }),
+    // submitUnsignedTx: (tx) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'submitUnsignedTx', tx: tx }),
+    // getCollateralAddress: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCollateralAddress' }),
+    // getScriptRequirements: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getScriptRequirements' }),
+    // getScript: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getScript' }),
+    // getCompletedTx(txId) { return chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCompletedTx', txId: txId }) },
 
    async connect() {
 
@@ -25,17 +38,39 @@ class Messaging {
         this.port.onMessage.addListener((message) => {
             console.log("Received message from background script:", message);
             if(message.request){
-                switch (message.request) {
-                
-                    case "getBalance": 
-                        this.port.postMessage({ response: this.wallet.getBalance() });
-                        break;
-                    case "getUtxos":
-                        
-                        this.port.postMessage({ response: this.wallet.getUtxos().map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes()))) });
-                        break;    
-                }
-             }
+                let response
+                try{
+                switch (message.request) {          
+                        case "getBalance": 
+                            response = this.wallet.getBalance();
+                            break;
+                        case "getUtxos":
+                            response = this.wallet.getUtxos().map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                            break;    
+                        case "getUsedAddresses":
+                            response = this.wallet.getAddress();
+                            break;
+                        case "getUnusedAddresses":
+                            response = this.wallet.getAddress();
+                            break;
+                        case "getChangeAddress":
+                            response = this.wallet.getAddress();
+                            break;
+                        case "getRewardAddresses":
+                            response = this.wallet.getStakingAddress();
+                            break;
+                        case "submitTx":
+                            response = this.wallet.submitTx(message.tx);
+                            break;
+                        case "submitUnsignedTx":
+                            response = this.wallet.importTransaction(message.tx);
+                            break;
+                    }
+                }catch(e){
+                    response = {error: e.message}
+            }
+                this.port.postMessage({ method: message.request, response: response });
+            }
             else{
                 console.log("Received message from background script:", message);
                 console.log(this.wallet.getUtxos());
