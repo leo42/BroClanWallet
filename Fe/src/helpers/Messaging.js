@@ -35,7 +35,7 @@ class Messaging {
    async connect() {
 
         this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
-        this.port.onMessage.addListener((message) => {
+        this.port.onMessage.addListener( async (message) => {
             console.log("Received message from background script:", message);
             if(message.request){
                 let response
@@ -60,10 +60,10 @@ class Messaging {
                             response = this.wallet.getStakingAddress();
                             break;
                         case "submitTx":
-                            response = this.wallet.submitTx(message.tx);
+                            response = await this.wallet.submitTx(message.tx);
                             break;
                         case "submitUnsignedTx":
-                            response = this.wallet.importTransaction(message.tx);
+                            response = await  this.wallet.importTransaction(message.tx);
                             break;
                     }
                 }catch(e){
