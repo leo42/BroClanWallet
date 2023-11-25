@@ -158,7 +158,8 @@ async setState(state){
                                                                 name :wallet.getName(),
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames(),
-                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ) 
+                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ), 
+                                                                defaultSigners: wallet.getDefaultSigners()
                                                               }) )
     localStorage.setItem("wallets", JSON.stringify(dataPack))
   }
@@ -175,6 +176,7 @@ async setState(state){
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.props.root.state.settings  );
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
       myWallet.setAddressNamess(wallets[index].addressNames)
+      myWallet.setDefaultSigners(wallets[index].defaultSigners)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
       await myWallet.checkTransactions()
       state.wallets.push(myWallet)
@@ -406,6 +408,12 @@ async setState(state){
     }
   }
 
+  setDefaultSigners(signers){
+    const wallets = this.state.wallets
+    wallets[this.state.selectedWallet].setDefaultSigners(signers)
+    this.setState({wallets})
+  }
+
   transmitTransaction(transaction, sigAdded) {
     if(this.props.root.state.settings.disableSync) return
     fetch(this.props.root.state.syncService+'/api/transaction', {
@@ -464,7 +472,6 @@ async setState(state){
       }
     }
     ;
-    // create a deep copy of the wallet object
   
     const cleanWallet = JSON.parse(JSON.stringify(wallet));
     removeName(cleanWallet)

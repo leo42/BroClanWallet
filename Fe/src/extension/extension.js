@@ -44,8 +44,8 @@ function App() {
     }
 
     const walletOverview = <div> 
-          <h2>{walletName}Leo</h2>
-          <h2>{ballance}Hey</h2>
+          <h2>Connnected Wallet:{walletName === '' ? "UnNamed" : walletName}</h2>
+          <h2>Ballance:{ballance/1_000_000}tA</h2>
           <h2>{signers}</h2>
           </div>
     

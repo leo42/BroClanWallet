@@ -72,6 +72,9 @@ class Messaging {
                         case "submitUnsignedTx":
                             response = await  this.wallet.importTransaction(message.tx);
                             break;
+                        case "getScriptRequirements":
+                            response = this.wallet.getSigners();
+                            break;
                     }
                 }catch(e){
                     response = {error: e.message}

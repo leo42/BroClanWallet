@@ -21,6 +21,14 @@
 
 }
 
+.validSignerContainer{
+    color: green;
+}
+
+.invalidSignerContainer{
+    color: red;
+}
+
 .overviewTokenContainer .TokenElement {
     min-width: 250px;
     max-width: 250px;

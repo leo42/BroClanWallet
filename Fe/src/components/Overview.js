@@ -97,6 +97,18 @@ function Overview(props) {
 
   };
 
+  const toggleDefultSigner = (ChangedSigner) => {
+    const defaultSigners =  wallet.getSigners().map((signer) => { 
+      if(signer.hash === ChangedSigner){
+        signer.isDefault = !signer.isDefault
+      }
+      //return sigherHash if it is default
+      return signer.isDefault ? signer.hash : ""
+    }).filter((signer) => (signer !== ""))
+    props.moduleRoot.setDefaultSigners(defaultSigners)
+  }
+
+    
   const walletSettings = () =>
     <div className="walletSettings">
       <label>
@@ -106,7 +118,18 @@ function Overview(props) {
       <br/>
       {wallet.getDefaultAddress() !== "" && <button onClick={() => props.moduleRoot.setDefaultAddress("")}> Make Default</button> }
       <br/>
-      <div className='overviewButtons'>
+      <div key= {JSON.stringify(wallet.defaultSignersValid())} className={wallet.defaultSignersValid() !== false ? "validSignerContainer" : "invalidSignerContainer" }> 
+      <label>Default Signers</label>
+      <br/>
+      {wallet.getSigners().map((signer, index) => (
+        <div key={index} className={'signerContainer ' } >
+          <input type="checkbox" checked={signer.isDefault} onChange={() => toggleDefultSigner(signer.hash)}></input>
+          <label> {signer.name}</label>
+          <br/>
+        </div>
+      ))}
+      </div>
+      <div className='overviewButtons'>      
       {/* <button onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}> Delete Wallet</button> */}
       <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
                             setshowingDetails(!showingDetails);
