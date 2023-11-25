@@ -6,35 +6,40 @@ const approvedUrls = [ "http://localhost:8081"];
 let BroPort = null;
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log("Received internal message:", sender);
+    console.log("Received internal message:", sender, request);
     
     if(sender.id !== chrome.runtime.id){
         sendResponse({ error: "Invalid sender" });
-        return
+        return false;
     }
-    
-    if(BroPort === null){
-        sendResponse( {error: "BroClan not connected"});
-        return
-    }
-    console.log()
-        if(request && request.action){
-               BroPort.postMessage({ request: request.action });
-               
-               BroPort.onMessage.addListener((message) => {
-                    console.log(request.action, message.method)
-                    if( request.action === message.method){
-                       console.log(request.action, message)
-                       sendResponse(message.response );
-                    }
-                });
-                return true;
-           
+
+    if(request && request.action){
+        if(request.action === "openApp"){
+           connectBroClan().then(() => {
+            sendResponse({ response: "Connected to BroClan" });
+           });
+           return true;
         }
-        // Process the message and send a response if needed
-        // ...
+                    
+        if(BroPort === null){
+            sendResponse( {error: "BroClan not connected"});
+            return true;
+        }
+
+        const messageListener = (message) => {
+            console.log(request.action, message.method);
+            if(request.action === message.method){
+                console.log(request.action, message);
+                BroPort.onMessage.removeListener(messageListener);
+                sendResponse(message.response);
+            }
+        };
+
+        BroPort.postMessage({ request: request.action });
+        BroPort.onMessage.addListener(messageListener);
+        return true;
     }
-);
+});
 
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
     console.log("Received message from webpage:", request);
@@ -46,13 +51,15 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
     if (approvedUrls.includes(sender.origin)) {
         if(request && request.action){
                BroPort.postMessage({ request: request.action });
-                BroPort.onMessage.addListener((message) => {
-                   if( request.action === message.method){
-                       sendResponse( message.response);
-                   }
-                });
-           
-            return
+               const messageListener = (message) => { 
+                     if( request.action === message.method){
+                            BroPort.onMessage.removeListener(messageListener);
+                            sendResponse(message.response);
+                        }
+                };
+
+                BroPort.onMessage.addListener(messageListener);
+                return true;
         }else{
             sendResponse({ response: "Message processed in the background script!" });        }
     } else {
@@ -90,43 +97,38 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
     
 
 });
+async function connectBroClan() {
+    return new Promise((resolve, reject) => {
+        chrome.tabs.query({}, async function(tabs) {
+            let tabIds = [];
 
-async function connectBroClan(){
-    chrome.tabs.query({}, function(tabs) {
-        let tabIds = [];
-
-        for (let tab of tabs) {
-            let tabDomain = new URL(tab.url).hostname;
-            if (tabDomain === BROCLAN_DOMAIN) {
-                tabIds.push(tab.id);
-            }
-        }
-
-        if (tabIds.length === 0) {
-            // If no tabs are open, open one but don't focus it
-            tabIds.push(chrome.tabs.create({ url: BROCLAN_URL, active: false }));
-            
-        } else {
-
-            // If multiple tabs are open, close all but one
-            if (tabIds.length > 1) {
-                // Remove the first tab ID from the array and close the rest
-                tabIds.shift();
-                chrome.tabs.remove(tabIds);
+            for (let tab of tabs) {
+                let tabDomain = new URL(tab.url).hostname;
+                if (tabDomain === BROCLAN_DOMAIN) {
+                    tabIds.push(tab.id);
+                }
             }
 
-            // Send a message to the remaining open tab
-        }
+            if (tabIds.length === 0) {
+                tabIds.push(chrome.tabs.create({ url: BROCLAN_URL, active: false }));
+            } else {
+                if (tabIds.length > 1) {
+                    tabIds.shift();
+                    chrome.tabs.remove(tabIds);
+                }
+            }
 
-        if(BroPort === null){
-            //refresh the page
-            chrome.tabs.reload(tabIds[0]);
-            
-        }
-        console.log("Sending message to tab:", tabIds[0]);
-        BroPort.postMessage({ fromBackground: "Message from background script!" });    
+            if(BroPort === null){
+                chrome.tabs.reload(tabIds[0]);
+            }
+
+            while(BroPort === null){
+                console.log("Waiting for BroClan to connect");
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            resolve(true);
+        });
     });
-
 }
-
 console.log("Background script loaded");

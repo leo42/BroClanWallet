@@ -1,47 +1,68 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import {useState , useEffect} from "react"; 
 
   
 
 
 
-class App extends React.Component {
-    state = {
-        walletName: '',
-        ballance: '',
-        signers: []
-    };
+function App() {
+    const [walletName, setWalletName] = useState("");
+    const [ballance, setBallance] = useState(0);
+    const [connected, setConnected] = useState(false);
+    const [signers, setSigners] = useState([]);
+    
 
-    componentDidMount() {
-        // Get information about the current active tab
-        this.getInfo()
-    }
+     
+    useEffect(() => {
+        getInfo()
+      }, []);
 
-    getInfo(){
+    function getInfo(){
         console.log("getInfo");
         chrome.runtime.sendMessage({ action: 'getData' }, (response) => {
             // Received the data from the background
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError.message);
-              } else {
-      
-                this.setState(response);
+              } else if (response.error){   
+                console.error(response.error);
+              }else{
+                console.log(response)
+                setBallance(response.ballance);
+                setWalletName(response.walletName);
+                setSigners(response.signers);
+                setConnected(true);
               }            
-            return true; // Indicate that we will send a response asynchronously
           });
    }
 
-    render() {
+    const openApp = () => {
+        chrome.runtime.sendMessage({ action: 'openApp' }, (response) => {
+
+            getInfo();
+          });
+    }
+
+    const walletOverview = <div> 
+          <h2>{walletName}Leo</h2>
+          <h2>{ballance}Hey</h2>
+          <h2>{signers}</h2>
+          </div>
+    
+
+    const notConnected =         <div> <h2>Not Connected</h2>
+        <button onClick={openApp}>Open App</button>
+        </div>
+    
+
+    
         return (
         <div className="extensionWindow">
           <h1>BroClan dApp Connector  </h1>
-          <h2>{this.state.walletName}Leo</h2>
-          <h2>{this.state.ballance}Hey</h2>
-          <h2>{this.state.signers}</h2>
-          </div>
+          {!connected  ? notConnected : walletOverview }
+         </div>
         );
-    }
+    
 
 }
 
