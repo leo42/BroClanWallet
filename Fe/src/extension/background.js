@@ -5,8 +5,41 @@ const approvedUrls = [ "http://localhost:8081"];
 
 let BroPort = null;
 
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log("Received internal message:", sender);
+    
+    if(sender.id !== chrome.runtime.id){
+        sendResponse({ error: "Invalid sender" });
+        return
+    }
+    
+    if(BroPort === null){
+        sendResponse( {error: "BroClan not connected"});
+        return
+    }
+    console.log()
+        if(request && request.action){
+               BroPort.postMessage({ request: request.action });
+               
+               BroPort.onMessage.addListener((message) => {
+                    console.log(request.action, message.method)
+                    if( request.action === message.method){
+                       console.log(request.action, message)
+                       sendResponse(message.response );
+                    }
+                });
+                return true;
+           
+        }
+        // Process the message and send a response if needed
+        // ...
+    }
+);
+
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
-    console.log("Received message from webpage:", sender);
+    console.log("Received message from webpage:", request);
+
+
     if(BroPort === null){
         connectBroClan();
     }
@@ -20,14 +53,13 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
                 });
            
             return
-        }
-        // Process the message and send a response if needed
-        // ...
-        sendResponse({ response: "Message processed in the background script!" });
+        }else{
+            sendResponse({ response: "Message processed in the background script!" });        }
     } else {
         sendResponse({ error: "User Rejected" });
     }
 });
+
 
 
 chrome.runtime.onConnectExternal.addListener(function(port) {
@@ -59,7 +91,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
 
 });
 
-function connectBroClan(){
+async function connectBroClan(){
     chrome.tabs.query({}, function(tabs) {
         let tabIds = [];
 

@@ -40,7 +40,14 @@ class Messaging {
             if(message.request){
                 let response
                 try{
-                switch (message.request) {          
+                switch (message.request) {  
+                        case "getData":
+                            response = {
+                                walletName : this.wallet.getName(), 
+                                ballance: this.wallet.getBalance(),
+                                signers: [] 
+                             }
+                            break;        
                         case "getBalance": 
                             response = this.wallet.getBalance();
                             break;
@@ -69,6 +76,7 @@ class Messaging {
                 }catch(e){
                     response = {error: e.message}
             }
+            console.log(response)
                 this.port.postMessage({ method: message.request, response: response });
             }
             else{
