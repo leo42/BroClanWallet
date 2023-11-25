@@ -45,7 +45,7 @@ class Messaging {
                             response = {
                                 walletName : this.wallet.getName(), 
                                 ballance: this.wallet.getBalance(),
-                                signers: [] 
+                                signers: this.wallet.getSigners(),
                              }
                             break;        
                         case "getBalance": 

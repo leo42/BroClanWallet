@@ -46,7 +46,12 @@ function App() {
     const walletOverview = <div> 
           <h2>Connnected Wallet:{walletName === '' ? "UnNamed" : walletName}</h2>
           <h2>Ballance:{ballance/1_000_000}tA</h2>
-          <h2>{signers}</h2>
+          <h2>Signers:{signers.map((signer) => <div>
+            <label>{signer.name} 
+            <input type="checkbox" checked={signer.isDefault} onChange={() => {}}></input>
+           </label>
+            
+          </div>)}</h2>
           </div>
     
 
