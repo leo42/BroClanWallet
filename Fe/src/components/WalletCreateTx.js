@@ -8,7 +8,7 @@ class WalletCreateTx extends React.Component {
 
   state = {
     recipients: [{address :"", amount: {lovelace:0}}],
-    signers: this.props.wallet.getSigners().map( () =>  true ),
+    signers: this.props.wallet.getSigners().map( (signer) => signer.isDefult ),
     tokenData: {},
     sendFrom : this.props.wallet.getDefaultAddress(),
     sendAll: null,

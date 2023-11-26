@@ -34,7 +34,7 @@ class Wallet {
         if (json.keyHash.substring(0, 4)=== "addr"){
           json.keyHash=this.lucid.utils.getAddressDetails(json.keyHash).paymentCredential.hash
         }
-        this.signersNames.push( { hash:json.keyHash , name:json.name, isDefault:  json.isDefault? true : json.isDefault})
+        this.signersNames.push( { hash:json.keyHash , name:json.name, isDefault:  json.isDefault ? true : json.isDefault})
       }
       for (const key in json) {
         if (json.hasOwnProperty(key)) {
@@ -123,6 +123,7 @@ class Wallet {
 
 
     getSignatures(){
+
       return this.signatures;
     }
 
@@ -730,6 +731,19 @@ setPendingTxs(pendingTxs){
       
     }
 
+    resetDefaultSigners(){  
+      const signersNames = this.signersNames.map( (signer) => {
+        signer.isDefault = false
+        return signer
+      })
+      signersNames.map( (signer,index) => {
+          this.signersNames[index].isDefault = !this.defaultSignersValid()
+      })
+
+    }
+
+  
+
     // Setters
     setScript(wallet_script) {
       this.wallet_script = wallet_script;
@@ -764,7 +778,6 @@ setPendingTxs(pendingTxs){
     }
 
     defaultSignersValid(){
-      console.log(this.checkSigners(this.getDefaultSigners()))
       return this.checkSigners(this.getDefaultSigners())
     
     }

@@ -359,6 +359,7 @@ async setState(state){
       if (! res.includes(walletHash)) {
         const myWallet = new Wallet(pendingWallet.json,"Imported Wallet");
         await myWallet.initialize(this.props.root.state.settings);
+        myWallet.resetDefaultSigners()
         wallets.push(myWallet)
         this.setState({wallets})
         //remove pending wallet
@@ -385,6 +386,7 @@ async setState(state){
     const res = await Promise.all(walletsHashes)
     const myWallet = new Wallet(script,name);
     await myWallet.initialize(this.props.root.state.settings);
+    myWallet.resetDefaultSigners()
     const walletHash = await this.walletHash(myWallet.getJson())
 
     if (this.state.connectedWallet.socket) {

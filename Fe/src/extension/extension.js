@@ -11,7 +11,7 @@ function App() {
     const [ballance, setBallance] = useState(0);
     const [connected, setConnected] = useState(false);
     const [signers, setSigners] = useState([]);
-    
+    const [signersValid, setSignersValid] = useState(false);
 
      
     useEffect(() => {
@@ -31,6 +31,7 @@ function App() {
                 setBallance(response.ballance);
                 setWalletName(response.walletName);
                 setSigners(response.signers);
+                setSignersValid(response.signersValid);
                 setConnected(true);
               }            
           });
@@ -46,7 +47,10 @@ function App() {
     const walletOverview = <div className='walletOverview'> 
           <h1>{walletName === '' ? "UnNamed" : walletName}</h1>
           <h2>{ballance/1_000_000}tA</h2>
-          <h2>Signers:</h2><div className='signers'>{signers.filter((signer => signer.isDefault)).map((signer) => <div>
+          <h2>Signers:</h2>
+          
+          {!signersValid && <span className="signersWarning">Signers not valid</span> }
+          <div className='signers'>{signers.filter((signer => signer.isDefault)).map((signer) => <div>
             <label>{signer.name} 
 
             {/* <input type="checkbox" checked={signer.isDefault} onChange={() => {}}></input> */}

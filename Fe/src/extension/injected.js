@@ -16,19 +16,33 @@ async function enable(extensions = null) {
     
 
     return { 
-        getUtxos: (amount = undefined, paginate= undefined) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUtxos' , amount : amount, paginate: paginate}),
-        getCollateral: (amount = undefined) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCollateral' , amount : amount}),
-        getBalance: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getBalance' }),
-        getUsedAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUsedAddresses' }),
-        getUnusedAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUnusedAddresses' }),
-        getChangeAddress: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getChangeAddress' }),
-        getRewardAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getRewardAddresses' }),
-        submitTx: (tx) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'submitTx', tx: tx }),
-        submitUnsignedTx: (tx) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'submitUnsignedTx', tx: tx }),
-        getCollateralAddress: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCollateralAddress' }),
-        getScriptRequirements: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getScriptRequirements' }),
-        getScript: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getScript' }),
-        getCompletedTx(txId) { return chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCompletedTx', txId: txId }) },
+        getUtxos: (amount = undefined, paginate= undefined) => promiseMessage({ action: 'getUtxos' , amount : amount, paginate: paginate}),
+        getCollateral: (amount = undefined) => promiseMessage({ action: 'getCollateral' , amount : amount}),
+        getBalance: () => promiseMessage({ action: 'getBalance' }),
+        getUsedAddresses: () => promiseMessage({ action: 'getUsedAddresses' }),
+        getUnusedAddresses: () => promiseMessage({ action: 'getUnusedAddresses' }),
+        getChangeAddress: () => promiseMessage({ action: 'getChangeAddress' }),
+        getRewardAddresses: () => promiseMessage({ action: 'getRewardAddresses' }),
+
+        submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
+        submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: tx }),
+        getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
+        getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
+        getScript: () => promiseMessage({ action: 'getScript' }),
+        getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
+    }
+
+    function promiseMessage(message){
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(EXTENSION_ID, message).then((responce) => { 
+                if(responce.error){
+                    reject(responce.error);
+                }else{
+                    resolve(responce);
+                }
+            })
+        })
+    
     }
     
 }

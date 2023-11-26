@@ -1,7 +1,10 @@
 // Desc: Messaging helper for communicating with background script
 // Usage: Messaging(this);
 //
-import { Lucid, utxoToCore  } from "lucid-cardano";
+
+import {Buffer} from 'buffer';
+ 
+import { Lucid, utxoToCore , C , assetsToValue} from "lucid-cardano";
 
 function toHexString(byteArray) {
     return Array.from(byteArray, function(byte) {
@@ -36,7 +39,6 @@ class Messaging {
 
         this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
         this.port.onMessage.addListener( async (message) => {
-            console.log("Received message from background script:", message);
             if(message.request){
                 let response
                 try{
@@ -49,25 +51,27 @@ class Messaging {
                                 walletName : this.wallet.getName(), 
                                 ballance: this.wallet.getBalance(),
                                 signers: this.wallet.getSigners(),
+                                signersValid: this.wallet.defaultSignersValid()
                              }
                             break;        
                         case "getBalance": 
-                            response = this.wallet.getBalance();
+                            response =Buffer.from(assetsToValue(this.wallet.getBalanceFull()).to_bytes(), 'hex').toString('hex');
+                           // response = assetsToValue(this.wallet.getBalanceFull());
                             break;
                         case "getUtxos":
                             response = this.wallet.getUtxos().map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
                             break;    
                         case "getUsedAddresses":
-                            response = this.wallet.getAddress();
+                            response =  [Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
                             break;
                         case "getUnusedAddresses":
-                            response = this.wallet.getAddress();
+                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
                             break;
                         case "getChangeAddress":
-                            response = this.wallet.getAddress();
+                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
                             break;
                         case "getRewardAddresses":
-                            response = this.wallet.getStakingAddress();
+                            response = [Buffer.from( C.Address.from_bech32( this.wallet.getStakingAddress()).to_bytes(), 'hex').toString('hex')]; 
                             break;
                         case "submitTx":
                             response = await this.wallet.submitTx(message.tx);
@@ -76,17 +80,19 @@ class Messaging {
                             response = await  this.wallet.importTransaction(message.tx);
                             break;
                         case "getScriptRequirements":
-                            response = this.wallet.getSigners();
+                            signers = this.wallet.getSigners(); 
+                            
+                             this.wallet.defaultSignersValid();
+                            response = signers.filter((signer) => signer.isDefault).map((signer) => signer.hash);
+                            response
                             break;
                     }
                 }catch(e){
                     response = {error: e.message}
             }
-            console.log(response)
                 this.port.postMessage({ method: message.request, response: response });
             }
             else{
-                console.log("Received message from background script:", message);
                 console.log(this.wallet.getUtxos());
             }
         }

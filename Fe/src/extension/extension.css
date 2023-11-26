@@ -52,6 +52,10 @@ body{
 
 }
 
+.signersWarning{
+    color: red;
+    font-size: 10px;
+}
 .signers label{
     margin: 5px;
     padding: 10px;
