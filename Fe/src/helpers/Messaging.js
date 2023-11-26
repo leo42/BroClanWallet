@@ -80,11 +80,24 @@ class Messaging {
                             response = await  this.wallet.importTransaction(message.tx);
                             break;
                         case "getScriptRequirements":
-                            signers = this.wallet.getSigners(); 
+                            const signers = this.wallet.getSigners(); 
                             
-                             this.wallet.defaultSignersValid();
-                            response = signers.filter((signer) => signer.isDefault).map((signer) => signer.hash);
-                            response
+                            const isValid = this.wallet.defaultSignersValid();
+                            console.log(isValid);
+                            if (isValid === false){
+                                response = {error: "not enough signers"}
+                                break;
+                            }else{
+                                response = signers.filter((signer) => signer.isDefault).map((signer) => ({ "1" : signer.hash}));
+                                if (isValid.requires_before){
+                                    response.push({"2": isValid.requires_before});
+                                }
+                                if (isValid.requires_after){
+                                    response.push({"3": isValid.requires_after});
+                                }
+
+                            }
+                            
                             break;
                     }
                 }catch(e){
