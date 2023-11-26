@@ -28,11 +28,11 @@ function App() {
                 console.error(response.error);
               }else{
                 console.log(response)
+                setConnected(true);
                 setBallance(response.ballance);
                 setWalletName(response.walletName);
                 setSigners(response.signers);
                 setSignersValid(response.signersValid);
-                setConnected(true);
               }            
           });
    }

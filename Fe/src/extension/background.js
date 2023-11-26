@@ -27,15 +27,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
 
         const messageListener = (message) => {
-            console.log(request.action, message.method);
-            if(request.action === message.method){
+            console.log(request.action, message.action);
+            if(request.action === message.action){
                 console.log(request.action, message);
                 BroPort.onMessage.removeListener(messageListener);
                 sendResponse(message.response);
             }
         };
 
-        BroPort.postMessage({ request: request.action });
+        BroPort.postMessage({ action: request.action });
         BroPort.onMessage.addListener(messageListener);
         
         return true;
@@ -77,7 +77,7 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
         if(request && request.action){
                BroPort.postMessage(request);
                const messageListener = (message) => { 
-                     if( request.action === message.method){
+                     if( request.action === message.action){
                             BroPort.onMessage.removeListener(messageListener);
                             sendResponse(message.response);
                         }
