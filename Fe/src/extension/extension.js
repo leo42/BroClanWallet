@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {useState , useEffect} from "react"; 
-
+import './extension.css';
   
 
 
@@ -43,19 +43,21 @@ function App() {
           });
     }
 
-    const walletOverview = <div> 
-          <h2>Connnected Wallet:{walletName === '' ? "UnNamed" : walletName}</h2>
-          <h2>Ballance:{ballance/1_000_000}tA</h2>
-          <h2>Signers:{signers.map((signer) => <div>
+    const walletOverview = <div className='walletOverview'> 
+          <h1>{walletName === '' ? "UnNamed" : walletName}</h1>
+          <h2>{ballance/1_000_000}tA</h2>
+          <h2>Signers:</h2><div className='signers'>{signers.filter((signer => signer.isDefault)).map((signer) => <div>
             <label>{signer.name} 
-            <input type="checkbox" checked={signer.isDefault} onChange={() => {}}></input>
+
+            {/* <input type="checkbox" checked={signer.isDefault} onChange={() => {}}></input> */}
            </label>
             
-          </div>)}</h2>
+          </div>)}
+            </div>
           </div>
     
 
-    const notConnected =         <div> <h2>Not Connected</h2>
+    const notConnected =         <div className='notConnected'> <h2>Not Connected</h2>
         <button onClick={openApp}>Open App</button>
         </div>
     
@@ -63,7 +65,9 @@ function App() {
     
         return (
         <div className="extensionWindow">
-          <h1>BroClan dApp Connector  </h1>
+         <div className='extensionHeader'>
+            <h1 >BroClan dApp Connector  </h1>
+          </div>
           {!connected  ? notConnected : walletOverview }
          </div>
         );

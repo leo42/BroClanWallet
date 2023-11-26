@@ -41,6 +41,9 @@ class Messaging {
                 let response
                 try{
                 switch (message.request) {  
+                        case "ping":
+                            response = "pong";
+                            break;
                         case "getData":
                             response = {
                                 walletName : this.wallet.getName(), 

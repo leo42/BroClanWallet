@@ -37,9 +37,34 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         BroPort.postMessage({ request: request.action });
         BroPort.onMessage.addListener(messageListener);
+        
         return true;
+
     }
+
 });
+
+let pingInterval;
+
+function startPing() {
+    pingInterval = setInterval(() => {
+        if (BroPort) {
+            BroPort.postMessage({ request: 'ping' });
+        } else {
+            clearInterval(pingInterval);
+        }
+    }, 1000); // Ping every 1000 milliseconds (1 second)
+}
+
+function stopPing() {
+    clearInterval(pingInterval);
+}
+
+function keepAlive() {
+    //ping every second to keep connection alive until disconnect
+
+}   
+
 
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
     console.log("Received message from webpage:", request);
@@ -78,10 +103,11 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         
         port.onDisconnect.addListener(function() {
             console.log('Port disconnected');
+            stopPing();
             BroPort = null;
-          });
+        });
         // check if BroPort is alive 
-
+        
         if(BroPort !== null){
             console.log("BroClan already connected");
             BroPort.disconnect();
@@ -89,6 +115,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         }
         
         BroPort = port; 
+        startPing();
         
         return
     }
