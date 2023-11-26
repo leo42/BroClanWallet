@@ -75,7 +75,7 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
     }
     if (approvedUrls.includes(sender.origin)) {
         if(request && request.action){
-               BroPort.postMessage({ request: request.action });
+               BroPort.postMessage(request);
                const messageListener = (message) => { 
                      if( request.action === message.method){
                             BroPort.onMessage.removeListener(messageListener);

@@ -4,7 +4,7 @@
 
 import {Buffer} from 'buffer';
  
-import { Lucid, utxoToCore , C , assetsToValue} from "lucid-cardano";
+import { Lucid, utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
 
 function toHexString(byteArray) {
     return Array.from(byteArray, function(byte) {
@@ -14,8 +14,9 @@ function toHexString(byteArray) {
 
 class Messaging {   
 
-    constructor(wallet) {
+    constructor(wallet, root) {
         this.wallet = wallet;
+        this.root = root;   
         this.port = null;
         this.connect();
 
@@ -38,11 +39,13 @@ class Messaging {
    async connect() {
 
         this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
+
         this.port.onMessage.addListener( async (message) => {
-            if(message.request){
+            console.log(message);
+            if(message.action){
                 let response
                 try{
-                switch (message.request) {  
+                switch (message.action) {  
                         case "ping":
                             response = "pong";
                             break;
@@ -77,33 +80,47 @@ class Messaging {
                             response = await this.wallet.submitTx(message.tx);
                             break;
                         case "submitUnsignedTx":
-                            response = await  this.wallet.importTransaction(message.tx);
+                            try{
+                                console.log(message.tx);
+                                response = await this.root.importTransaction(JSON.parse(message.tx));
+                                
+                            }catch(e){
+                                response = {code : 2, error: e.message}
+                            }
                             break;
                         case "getScriptRequirements":
                             const signers = this.wallet.getSigners(); 
                             
                             const isValid = this.wallet.defaultSignersValid();
-                            console.log(isValid);
                             if (isValid === false){
                                 response = {error: "not enough signers"}
                                 break;
                             }else{
-                                response = signers.filter((signer) => signer.isDefault).map((signer) => ({ "1" : signer.hash}));
+                                response = signers.filter((signer) => signer.isDefault).map((signer) => ({ code: 1 , value: signer.hash}));
                                 if (isValid.requires_before){
-                                    response.push({"2": isValid.requires_before});
+                                    response.push({code : 2, "value": isValid.requires_before});
                                 }
                                 if (isValid.requires_after){
-                                    response.push({"3": isValid.requires_after});
+                                    response.push({code: 3, "value": isValid.requires_after});
                                 }
 
                             }
                             
                             break;
+                        case "getScript":
+                            response = nativeScriptFromJson(this.wallet.getJson()).script
+                            break;
+                        case "getCompletedTx":
+                            response = await this.wallet.getCompletedTx(message.txId);
+                            if(!response){
+                                response = {code : 1, error:  "Transaction not found!"}
+                            }  
+                            break;
                     }
                 }catch(e){
                     response = {error: e.message}
             }
-                this.port.postMessage({ method: message.request, response: response });
+                this.port.postMessage({ method: message.action, response: response });
             }
             else{
                 console.log(this.wallet.getUtxos());

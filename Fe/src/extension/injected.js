@@ -23,9 +23,8 @@ async function enable(extensions = null) {
         getUnusedAddresses: () => promiseMessage({ action: 'getUnusedAddresses' }),
         getChangeAddress: () => promiseMessage({ action: 'getChangeAddress' }),
         getRewardAddresses: () => promiseMessage({ action: 'getRewardAddresses' }),
-
         submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
-        submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: tx }),
+        submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
         getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
         getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
         getScript: () => promiseMessage({ action: 'getScript' }),
@@ -33,10 +32,11 @@ async function enable(extensions = null) {
     }
 
     function promiseMessage(message){
+        console.log(message)
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(EXTENSION_ID, message).then((responce) => { 
                 if(responce.error){
-                    reject(responce.error);
+                    reject(responce);
                 }else{
                     resolve(responce);
                 }

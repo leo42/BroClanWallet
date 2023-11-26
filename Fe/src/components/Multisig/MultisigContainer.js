@@ -189,7 +189,7 @@ async setState(state){
     state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet"))
     
     super.setState(state) 
-    const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet])
+    const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
     this.setState({dAppConnector})
     this.setState({loading : false})
 
@@ -221,9 +221,12 @@ async setState(state){
   async importTransaction(transaction){
     try{
     const wallets = this.state.wallets
-    await this.state.wallets[this.state.selectedWallet].importTransaction(transaction)
+    const txHash = await this.state.wallets[this.state.selectedWallet].importTransaction(transaction)
+    
     this.setState({wallets})
+   
     toast.success("Transaction imported");
+    return txHash
     }catch(e){
       toast.error("Could not import transaction: " + e.message);
     }

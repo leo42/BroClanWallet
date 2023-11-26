@@ -113,6 +113,14 @@ class Wallet {
       return this.wallet_script;
     }
 
+    getScript(){
+      return this.lucidNativeScript;
+    }
+
+    getCompletedTx(txId){
+      return this.pendingTxs.find( tx => tx.tx.toHash() === txId)
+    }
+
     getCBOR() {
       return  JSON.stringify(this.lucidNativeScript);
     }
@@ -437,10 +445,6 @@ setPendingTxs(pendingTxs){
           } ) 
     }})
       
-          
-          
-
-        //check if there is enough funds in the wallet
         const balance = this.getBalanceFull()
 
 
@@ -509,14 +513,11 @@ setPendingTxs(pendingTxs){
 
     async importTransaction(transaction)
     { 
+      let uint8Array , tx
       try{
       if (!await this.checkTransaction(transaction)){
         throw new Error("Transaction invalid")
       }
-      let uint8Array , tx
-
-        //if transaction type is string
-
 
         uint8Array = typeof transaction === 'string' ?  new Uint8Array(transaction.match(/.{2}/g).map(byte => parseInt(byte, 16))) : transaction;
         tx =  new  TxComplete(this.lucid, Transaction.from_bytes(uint8Array)) 
@@ -531,8 +532,8 @@ setPendingTxs(pendingTxs){
           }
          })
 
-      this.pendingTxs.push({tx:tx, signatures:{}})
-      
+      this.pendingTxs.push({ tx, signatures:{}})
+      return tx.toHash()
       }catch(e){
         console.log(e)
         throw new Error('Transaction already registered');
