@@ -41,7 +41,6 @@ class Messaging {
         this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
 
         this.port.onMessage.addListener( async (message) => {
-            console.log(message);
             if(message.action){
                 let response
                 try{
@@ -110,14 +109,27 @@ class Messaging {
                         case "getScript":
                             response = nativeScriptFromJson(this.wallet.getJson()).script
                             break;
+   
                         case "getCompletedTx":
-                            response = await this.wallet.getCompletedTx(message.txId);
-                            if(!response){
+                            const tx = await this.wallet.getCompletedTx(message.txId);
+                            if(!tx){
                                 response = {code : 1, error:  "Transaction not found!"}
-                            }  
+                            }else{
+                                const txDetails = this.wallet.decodeTransaction(tx.tx);
+                                console.log(txDetails);
+                                const signersComplete = this.wallet.checkSigners( Object.keys(tx.signatures))
+                                if(!signersComplete){
+                                    response = {code : 2, error:  "Transaction not ready!"}
+                                    break;
+                                }else{
+                                    response = [ tx.tx.toString(), 
+                                                 Object.values(tx.signatures)  ] 
+                                }       
+                            }
                             break;
                     }
                 }catch(e){
+                    console.log(e)
                     response = {error: e.message}
             }
                 this.port.postMessage({ action: message.action, response: response });

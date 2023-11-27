@@ -214,7 +214,6 @@ async setState(state){
           toast.error(e.message);
           toast.error(e);
         }
-
     }
   }
 
@@ -421,6 +420,7 @@ async setState(state){
 
   transmitTransaction(transaction, sigAdded) {
     if(this.props.root.state.settings.disableSync) return
+    try{
     fetch(this.props.root.state.syncService+'/api/transaction', {
       method: 'POST',
       headers: {
@@ -428,6 +428,9 @@ async setState(state){
         },
         body: JSON.stringify({tx: transaction.tx.toString() ,sigAdded: sigAdded ,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
       })
+    }catch(e){
+      toast.error("Could not transmit transaction: " + e.message);
+    }
   }
 
 
