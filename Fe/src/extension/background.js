@@ -49,11 +49,11 @@ let pingInterval;
 function startPing() {
     pingInterval = setInterval(() => {
         if (BroPort) {
-            BroPort.postMessage({ request: 'ping' });
+            BroPort.postMessage({ action: 'ping' });
         } else {
             clearInterval(pingInterval);
         }
-    }, 1000); // Ping every 1000 milliseconds (1 second)
+    }, 5000); // Ping every 1000 milliseconds (1 second)
 }
 
 function stopPing() {

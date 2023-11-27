@@ -122,9 +122,6 @@ class Messaging {
             }
                 this.port.postMessage({ action: message.action, response: response });
             }
-            else{
-                console.log(this.wallet.getUtxos());
-            }
         }
         );
     }
