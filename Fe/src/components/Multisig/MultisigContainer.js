@@ -224,10 +224,21 @@ async setState(state){
     
     this.setState({wallets})
    
+    if(txHash.error){
+      toast.error(txHash.error);
+      if(txHash.tx){
+        return(txHash.tx)
+      }else{
+        return {"code": 2, "error": txHash.error}
+      }
+    }
     toast.success("Transaction imported");
     return txHash
     }catch(e){
       toast.error("Could not import transaction: " + e.message);
+      
+      return {"code": 1, "error": "Could not import transaction: " + e.message}
+
     }
   }
 

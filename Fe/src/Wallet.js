@@ -536,7 +536,7 @@ setPendingTxs(pendingTxs){
       return tx.toHash()
       }catch(e){
         console.log(e)
-        throw new Error('Transaction already registered');
+        return {error: 'Transaction already registered', tx:tx.toHash()};
       }
     }
 
