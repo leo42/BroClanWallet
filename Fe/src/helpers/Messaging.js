@@ -106,6 +106,7 @@ class Messaging {
                             }
                             
                             break;
+                        
                         case "getScript":
                             response = nativeScriptFromJson(this.wallet.getJson()).script
                             break;
@@ -127,6 +128,13 @@ class Messaging {
                                 }       
                             }
                             break;
+                        case "getCollateralAddress":
+                            response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes(), 'hex').toString('hex')];
+                            break;
+                        case "getCollateral":
+                            response = (await this.wallet.getCollateral()).map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                            break;
+
                     }
                 }catch(e){
                     console.log(e)

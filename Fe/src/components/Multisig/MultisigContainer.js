@@ -158,6 +158,7 @@ async setState(state){
                                                                 name :wallet.getName(),
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames(),
+                                                               collateralDonor: wallet.getCollateralDonor(),
                                                                pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ), 
                                                                 defaultSigners: wallet.getDefaultSigners()
                                                               }) )
@@ -179,6 +180,7 @@ async setState(state){
       myWallet.setDefaultSigners(wallets[index].defaultSigners)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
       await myWallet.checkTransactions()
+      await myWallet.setCollateralDonor(wallets[index].collateralDonor)
       state.wallets.push(myWallet)
     }
     
@@ -216,6 +218,19 @@ async setState(state){
         }
     }
   }
+
+  async setCollateralDonor(keyHash){
+    try{
+    const wallets = this.state.wallets 
+    console.log(wallets)
+    await wallets[this.state.selectedWallet].setCollateralDonor(keyHash)
+    this.setState({wallets})
+    toast.info('Collateral Donor Set');
+    }catch(e){
+      toast.error(e.message);
+    }
+  }
+
 
   async importTransaction(transaction){
     try{

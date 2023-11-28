@@ -511,6 +511,7 @@ setPendingTxs(pendingTxs){
         return "Sucsess"
     }
 
+
     async importTransaction(transaction)
     { 
       let uint8Array , tx
@@ -539,6 +540,109 @@ setPendingTxs(pendingTxs){
         return {error: 'Transaction already registered', tx:tx.toHash()};
       }
     }
+
+
+
+    async setCollateralDonor(paymentKeyHash){
+      this.collateralDonor = paymentKeyHash
+      await this.loadCollateralUtxos()
+      if (this.collateralUtxo.length !== 0) {
+          this.collateralAddress = this.collateralUtxo[0].address  
+      }else{  
+          this.collateralAddress = ""
+      }
+    }
+
+    async loadCollateralUtxos(){
+      if (this.collateralDonor) {
+        try{
+          this.collateralUtxo = (await this.lucid.provider.getUtxos({type:"key", hash: this.collateralDonor})).filter( (utxo,index) => (Object.keys(utxo.assets).length === 1 ) ) 
+         }catch(e){
+           this.collateralUtxo = []
+      }
+
+      }else{
+        this.collateralUtxo = []
+      }
+    }
+
+    getCollateral(value=undefined){
+      function getMinimumUtxos(utxos, requiredValue) {
+        // Sort the UTXOs in ascending order
+        utxos.map(utxo => utxo.assets.lovelace = Number(utxo.assets.lovelace))
+        utxos.sort((a, b) => a.assets.lovelace - b.assets.lovelace);
+
+        let total = BigInt(0);
+        let result = [];
+
+        // Add UTXOs until the total is greater than or equal to the required value
+        for (let utxo of utxos) {
+          total +=  BigInt(utxo.assets.lovelace);
+          result.push(utxo);
+
+          if (total >= requiredValue) {
+            break;
+          }
+        }
+
+        // If the total is greater than the required value, find the smallest set of UTXOs that is closer to the required value
+        if (total > requiredValue) {
+          let bestMatch = result;
+
+          for (let i = 0; i < utxos.length; i++) {
+            let currentTotal = BigInt(0);
+            let currentResult = [];
+
+            for (let j = i; j < utxos.length; j++) {
+              currentTotal +=  BigInt(utxos[j].assets.lovelace);
+              currentResult.push(utxos[j]);
+
+              if (currentTotal >= requiredValue && currentResult.length < bestMatch.length) {
+                bestMatch = currentResult;
+                break;
+              }
+            }
+          }
+
+          result = bestMatch;
+        }
+        result.map(utxo => utxo.assets.lovelace = BigInt(utxo.assets.lovelace))
+        return result;
+      }
+    
+      if (value === undefined){
+        value = 5_000_000
+      }
+      if(this.collateralUtxo.length <= 1){
+        return this.collateralUtxo
+      }
+      console.log(this.collateralUtxo)  
+      let result = getMinimumUtxos(this.collateralUtxo, BigInt(value))
+
+      //result must be the minimum numbver of utxos to cover the value, and the smalest value possible after that, if you have 2 UTxO with 5 ADA and 10 ADA, and you need 12 ADA, the result must be 2 UTxO with 5 ADA and 7 ADA, if you need 3 ADA, the result must be 1 UTxO with 5 ADA, and if you need 7 ADA, the result must be 1 UTxO with 10 ADA
+
+      
+
+
+      return result
+    }
+
+    getCollateralDonor(){
+      return this.collateralDonor
+    }
+
+    async getCollateralUtxos(value=none){
+      
+    }
+    
+    getCollateralAddress(){
+      return this.collateralAddress
+    }
+
+    async getCollateralUtxo(value=none){
+  
+    }
+
 
     async loadTransaction(transaction){
         
@@ -656,7 +760,6 @@ setPendingTxs(pendingTxs){
     }
     
     decodeSignature(signature){
-
       try{
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
@@ -724,11 +827,29 @@ setPendingTxs(pendingTxs){
         throw new Error(errorMessage);
       }
     }
+
     setDefaultSigners(signers){
+      const setCollateralDonor = () => {
+        const defaultHashes = this.signersNames.filter( signer => signer.isDefault).map( signer => signer.hash)
+        if(defaultHashes.length === 0)
+        {
+          this.setCollateralDonor(undefined)
+        }else{
+          this.setCollateralDonor(defaultHashes[0])
+        }
+      }
+      let newDonorNeeded = false
+
       this.signersNames = this.signersNames.map( (signer) => {
         signer.isDefault = signers.includes(signer.hash)
+        if(!signer.isDefault && signer.hash === this.collateralDonor){
+          newDonorNeeded = true
+        }
         return signer
       })
+      
+      if (newDonorNeeded || this.collateralDonor === undefined)
+        setCollateralDonor()
       
     }
 
@@ -766,6 +887,7 @@ setPendingTxs(pendingTxs){
     changeAddressName(address,name){
       this.addressNames[address] = name
     }
+
 
     getDefaultAddress(){
         if (this.defaultAddress === null) {

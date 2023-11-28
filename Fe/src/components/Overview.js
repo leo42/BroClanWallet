@@ -11,7 +11,7 @@ function Overview(props) {
   const linkRef = useRef(null);
   const wallet = props.wallet
   const [settingsOpen, setSettingsOpen] = useState(wallet.getFundedAddress().map(() => (false)))
-  const [walletSettingsOpen, setWalletSettingsOpen] = useState(false)
+  const [walletSettingsOpen, setWalletSettingsOpen] = useState(true)
   const [showing , setShowing] = useState("All")
   const [showingAddress , setShowingAddress] = useState(props.wallet.getDefaultAddress())
   const [search , setSearch] = useState("")
@@ -121,14 +121,25 @@ function Overview(props) {
       <div key= {JSON.stringify(wallet.defaultSignersValid())} className={wallet.defaultSignersValid() !== false ? "validSignerContainer" : "invalidSignerContainer" }> 
       <label>Default Signers</label>
       <br/>
-      {wallet.getSigners().map((signer, index) => (
-        <div key={index} className={'signerContainer ' } >
+      <div className='signerContainer'>    
+        {wallet.getSigners().map((signer, index) => (
+        <div className='signerContainerItem' key={index}  >
           <input type="checkbox" checked={signer.isDefault} onChange={() => toggleDefultSigner(signer.hash)}></input>
           <label> {signer.name}</label>
-          <br/>
         </div>
       ))}
+       </div>
+
       </div>
+      <label>Collateral Donor:
+        <select key={wallet.getCollateralDonor()} value={wallet.getCollateralDonor()} onChange={(event)=> props.moduleRoot.setCollateralDonor(event.target.value)} >
+          <option value="" >None</option>
+          {wallet.getSigners().filter((sighener) => sighener.isDefault).map( (item, index) => (
+            <option key={index} value={item.hash} >{item.name}</option>
+          ))}
+        </select>
+
+      </label>
       <div className='overviewButtons'>      
       {/* <button onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}> Delete Wallet</button> */}
       <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {

@@ -71,6 +71,18 @@
     border-bottom: 3px solid var(--clrorange);
 }
 
+.signerContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items: center;
+
+}
+
+.signerContainerItem{
+    margin: 10px;
+    padding: 10px;
+}
 .overviewTokenContainer .tokenElementtooltip{
 
     word-wrap: break-word;
