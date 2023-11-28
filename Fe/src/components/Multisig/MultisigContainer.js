@@ -453,7 +453,7 @@ async setState(state){
         'Content-Type': 'application/json',
         },
         body: JSON.stringify({tx: transaction.tx.toString() ,sigAdded: sigAdded ,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
-      })
+      }).catch(e => toast.error("Could not transmit transaction: " + e.message));
     }catch(e){
       toast.error("Could not transmit transaction: " + e.message);
     }
