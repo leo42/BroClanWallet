@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {useState , useEffect} from "react"; 
 import "./extension.css";  
-
+import "./approval.css";
 
 
 function App() {
@@ -23,6 +23,13 @@ function App() {
         });
     }, []);
 
+    // on close 
+    window.onbeforeunload = function() {
+        chrome.storage.local.set({ approval_complete: true }, function() {
+            // Close the window
+            window.close();
+        });
+    };
 
     const approve = async () => {
         chrome.storage.local.get(['page', 'approvedUrls'], function(result) {
@@ -44,21 +51,44 @@ function App() {
                 approvedUrls = parsedApprovedUrls;
                 approvedUrls.push(result.page);
             }
-            chrome.storage.local.set({ approval_complete: true, approvedUrls: JSON.stringify(approvedUrls) }, function() {
+            chrome.storage.local.set({ approvedUrls: JSON.stringify(approvedUrls) }, function() {
                 // Close the window
                 window.close();     
             });    
         });
     }
 
+    const reject = async () => { window.close();  };
+
+    const pageApproval  = <div >
+           <div className='extensionHeader'>
+            < h1 >Connection approval</h1>
+          </div>
+          <div className='requestBody'>
+        <h2>This page is requesting access to your wallet.</h2>
+        <h3>{page}</h3>
+        <span className='disclamer'>This page will be able to: 
+        <ul>
+            <li>View your wallet ballance</li>
+            <li>View your wallet name</li>
+            <li>View your wallet signers</li>
+            <li>View your wallet script</li>
+            <li>View your wallet address</li>
+            <li>View your collateral</li>
+            <li>Query the state of transactions</li>
+            <li>Submit transactions for review</li>
+            <li>Submit completed transactions directly</li>    
+        </ul>
+        </span>
+       <span className='approvalButtons'> <button onClick={() => reject()}>Reject</button> <button onClick={() => approve()}>Approve</button> </span>
+    </div>
+    </div>
+
     return (
     <div className="extensionWindow">
-     <div className='extensionHeader'>
-        < h1 >Connection approval</h1>
-      </div>
-        {type} {page}
+  
+            {type === "connection" && pageApproval}
        
-        <button onClick={() => approve()}>Approve</button>
      </div>
     );
 

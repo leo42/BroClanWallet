@@ -1,59 +1,53 @@
 const TARGET = "BroClan";
 const EXTENSION_ID = document.currentScript.dataset.extensionId;
+function promiseMessage(message){
+    console.log(message)
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(EXTENSION_ID, message).then((responce) => { 
+            if(responce.error){
+                reject(responce);
+            }else{
+                resolve(responce);
+            }
+        })
+    })
+
+}
 console.log(EXTENSION_ID);
 console.log("BroClan, injected script loaded, test again 4", document.currentScript.dataset.extensionId);
 
 async function enable(extensions = null) {
-
-    // Establish a connection to the background script
-    let responce = await chrome.runtime.sendMessage(EXTENSION_ID, extensions);
-    if(responce.error){
-        return new Error(responce.error);
-    }
-
-    console.log(responce);
-
-    
-
-    return { 
-        getUtxos: (amount = undefined, paginate= undefined) => promiseMessage({ action: 'getUtxos' , amount : amount, paginate: paginate}),
-        getCollateral: (amount = undefined) => promiseMessage({ action: 'getCollateral' , amount : amount}),
-        getBalance: () => promiseMessage({ action: 'getBalance' }),
-        getUsedAddresses: () => promiseMessage({ action: 'getUsedAddresses' }),
-        getUnusedAddresses: () => promiseMessage({ action: 'getUnusedAddresses' }),
-        getChangeAddress: () => promiseMessage({ action: 'getChangeAddress' }),
-        getRewardAddresses: () => promiseMessage({ action: 'getRewardAddresses' }),
-        submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
-        submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
-        getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
-        getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
-        getScript: () => promiseMessage({ action: 'getScript' }),
-        getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
-    }
-
-    function promiseMessage(message){
-        console.log(message)
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage(EXTENSION_ID, message).then((responce) => { 
-                if(responce.error){
-                    reject(responce);
-                }else{
-                    resolve(responce);
-                }
-            })
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(EXTENSION_ID, { action: 'enable', extensions: extensions }).then((responce) => {
+            console.log(responce);
+            if(!responce || responce.error){ 
+                reject(responce.error);
+            }else{
+                resolve(
+                { 
+                    getUtxos: (amount = undefined, paginate= undefined) => promiseMessage({ action: 'getUtxos' , amount : amount, paginate: paginate}),
+                    getCollateral: (amount = undefined) => promiseMessage({ action: 'getCollateral' , amount : amount}),
+                    getBalance: () => promiseMessage({ action: 'getBalance' }),
+                    getUsedAddresses: () => promiseMessage({ action: 'getUsedAddresses' }),
+                    getUnusedAddresses: () => promiseMessage({ action: 'getUnusedAddresses' }),
+                    getChangeAddress: () => promiseMessage({ action: 'getChangeAddress' }),
+                    getRewardAddresses: () => promiseMessage({ action: 'getRewardAddresses' }),
+                    submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
+                    submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
+                    getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
+                    getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
+                    getScript: () => promiseMessage({ action: 'getScript' }),
+                    getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
+                });
+            }
         })
-    
-    }
-    
+    })
 }
 
 window.cardano = {
     ...(window.cardano || {}),
     broclan: { 
-        enable: async (extensions) => {
-           {
-                return await enable(extensions);
-        }},
+        enable: enable,
       apiVersion: '0.1.0',
       name: 'BroClan',
       supportedExtensions: [130],

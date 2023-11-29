@@ -64,57 +64,65 @@ function keepAlive() {
 
 }   
 
+function loadApprovedUrls() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(['approvedUrls'], function(result) {
+            let approvedUrls = [];
+            // Parse approvedUrls back to an array
+            let parsedApprovedUrls = [];
+            if (result.approvedUrls) {
+                try {
+                    parsedApprovedUrls = JSON.parse(result.approvedUrls);
+                } catch(e) {
+                    console.error("Error parsing approvedUrls:", e);
+                }
+            }
+            if(!parsedApprovedUrls || parsedApprovedUrls.length === 0){
+                approvedUrls = [];
+            } else {
+                approvedUrls = parsedApprovedUrls;
+            }
+            resolve(approvedUrls);
+        });
+    });
+}
 
 chrome.runtime.onMessageExternal.addListener(async function(request, sender, sendResponse) {
     console.log("Received message from webpage:", request);
 
-    let approvedUrls = await new Promise((resolve, reject) => { 
-        chrome.storage.local.get(['approvedUrls'], function(result) {
-
-            let res =   JSON.parse(result.approvedUrls)
-            console.log("Approved urls:", res
-            );
-
-            if(res === null || res.length === 0){
-                chrome.storage.local.set({ approvedUrls: JSON.stringify(["test"]) });
-                resolve([]);
-            }
-            resolve(res);
-        });
-    });
-
+    let approvedUrls = await loadApprovedUrls()
     console.log("Approved urls:", approvedUrls.toString());
 
     if (approvedUrls.includes(sender.origin)) {
         if(BroPort === null){
            await connectBroClan();
         }
-        if(request && request.action){
+        if(request && request.action && request.action !== "enable"){
                BroPort.postMessage(request);
                const messageListener = (message) => { 
                      if( request.action === message.action){
                             BroPort.onMessage.removeListener(messageListener);
                             sendResponse(message.response);
-                        }
+                         }
                 };
-
                 BroPort.onMessage.addListener(messageListener);
-                return true;
-        }else{
-            sendResponse({ response: "Message processed in the background script!" });        
-        }
+            }else{
+                sendResponse({ response: "Message processed in the background script!" });        
+            }
+            return true;
      } else {
         chrome.storage.local.set({ type: 'connection' ,page:sender.origin, approval_complete : false }, function() {
-            // Open the popup
             chrome.windows.create({ url: "approval_page.html", type: "popup", width: 500, height: 600 });
-
-            // Start checking approval_complete every 1 second
             let checkInterval = setInterval(function() {
-                chrome.storage.local.get(['approval_complete'], function(result) {
+                chrome.storage.local.get(['approval_complete'], async function(result) {
                     if (result.approval_complete) {
                         clearInterval(checkInterval);
-                        console.log("User approved");
-                        sendResponse({ response: "User Approved" });
+                        if((await loadApprovedUrls()).includes(sender.origin)){
+                            sendResponse({ response: "User Approved" });
+                        }else{
+                            sendResponse({ code: -3, error: "User Rejected" });
+                        }
+                        
                     }
                 });
             }, 1000);
