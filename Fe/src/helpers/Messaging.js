@@ -132,9 +132,28 @@ class Messaging {
                             response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes(), 'hex').toString('hex')];
                             break;
                         case "getCollateral":
+                        
                             response = (await this.wallet.getCollateral()).map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
                             break;
-
+                        case "getUtxoByOutRef":
+                            const replacer = (key, value) => {
+                                if (typeof value === 'bigint') {
+                                  // Convert BigInt to string
+                                  return Number(value);
+                                } else {
+                                  return value;
+                                }
+                              };
+                            //have BigInt transform to number for JSON
+                            response =  JSON.stringify(await this.wallet.getUtxosByOutRef(JSON.parse(message.outRefs)),replacer);
+                            break;
+                        case "decodeTx":
+                            response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
+                            break;
+                        case "isAddressMine":
+                            response = this.wallet.isAddressMine(message.address);
+                            console.log(message.address,response)
+                            break;
                     }
                 }catch(e){
                     console.log(e)

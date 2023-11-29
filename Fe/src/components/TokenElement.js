@@ -1,14 +1,15 @@
 import React from "react";
 import "./TokenElement.css"
 import getTokenInfo from "../helpers/tokenInfo.js"
-import ReactDOMServer from 'react-dom/server';
 
 function TokenElement(props){
     const [ tokenInfo, setTokenInfo] =  React.useState({})
     const [showTooltip, setShowTooltip] = React.useState(false);
     const [image , setImage] = React.useState("https://icons-for-free.com/iconfiles/png/512/cardano+icon-1320162855683510157.png")
-    const settings = JSON.parse(localStorage.getItem("settings"))
-
+    let settings = JSON.parse(localStorage.getItem("settings"))
+    if (settings === null) {
+      settings = {network: "Mainnet"}
+    }
     const networkPrefix = settings.network === "Mainnet" ? "" : settings.network.toLowerCase() + "."
     React.useEffect(() => {
         var tokenInfoFetch =  getTokenInfo(props.tokenId)

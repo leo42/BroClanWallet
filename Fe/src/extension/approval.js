@@ -3,17 +3,15 @@ import ReactDOM from 'react-dom';
 import {useState , useEffect} from "react"; 
 import "./extension.css";  
 import "./approval.css";
-
+import PendingTx from './components/PendingTx';
 
 function App() {
     const [type, setType] = useState('');
     const [page, setPage] = useState('');
-    const [tx, setTx] = useState('');   
-    const [approvedUrls, setApprovedUrls] = useState([]);
+    const [tx, setTx] = useState(undefined);   
 
     useEffect(() => {
         chrome.storage.local.get(['type'], function(result) {
-            console.log('Value currently is ' + result.type);   
             setType(result.type);
 
         });
@@ -21,13 +19,12 @@ function App() {
             setPage(result.page);
         });
 
-        chrome.storage.local.get(['approvedUrls'], function(result) {
-            setApprovedUrls(result.approvedUrls);
-        });
 
-        chrome.storage.local.get(['tx']) , function(result) {
-            setTx(result.tx);
-        };
+        chrome.storage.local.get(['tx'] , function(result) {
+            console.log('Value currently is ' + result.tx);
+            if(result.tx)
+            setTx(JSON.parse(result.tx));
+        });
 
     }, []);
 
@@ -103,6 +100,7 @@ function App() {
     <div className='requestBody'>
     <h2>This page is requesting to submit a transaction on your behalf.</h2>
     <h3>{page}</h3>
+    {tx &&  <PendingTx key={tx} tx={tx} />}
     <p>{tx}</p>
     <span className='approvalButtons'> <button onClick={() => reject()}>Reject</button> <button onClick={() => approve()}>Approve</button> </span>
 

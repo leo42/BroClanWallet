@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
                     
         if(BroPort === null){
-            sendResponse( {error: "BroClan not connected"});
+            sendResponse({error: "BroClan not connected"});
             return true;
         }
 
@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             }
         };
 
-        BroPort.postMessage({ action: request.action });
+        BroPort.postMessage(request);
         BroPort.onMessage.addListener(messageListener);
         
         return true;
@@ -167,9 +167,16 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
 function getUserApproval(data) {
     console.log("Requesting user approval for:", data);
     //get random number
+    let height = 600;
+    let width = 500;
+    if(data.type === "transaction"){
+        height = 1000;
+        width = 1600;
+    }
+
     return new Promise((resolve, reject) => {
         chrome.storage.local.set(data, function () {
-            chrome.windows.create({ url: "approval_page.html", type: "popup", width: 500, height: 600 });
+            chrome.windows.create({ url: "approval_page.html", type: "popup", width: width, height: height });
 
             let messageListener;
             let disconnectListener;

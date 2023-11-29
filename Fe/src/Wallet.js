@@ -3,18 +3,8 @@ const { Transaction} = C;
 import {  toast } from 'react-toastify';
 
 class Wallet {
-    // Initialize the wallet with the provided script and address
     constructor(wallet_json,name) {
-    //   const address =  Address.from_bech32("addr_test1qpy8h9y9euvdn858teawlxuqcnf638xvmhhmcfjpep769y60t75myaxudjacwd6q6knggt2lwesvc7x4jw4dr8nmmcdsfq4ccf") // L
-            
-    //   const address2 =  Address.from_bech32("addr_test1qpceptsuy658a4tjartjqj29fhwgwnfkq2fur66r4m6fpc73h7m9jt9q7mt0k3heg2c6sckzqy2pvjtrzt3wts5nnw2q9z6p9m") // Trash
 
-    //   let mintingScripts =  NativeScripts.new()
-    //   mintingScripts.add( NativeScript.new_script_pubkey( ScriptPubkey.new( BaseAddress.from_address(address).payment_cred().to_keyhash())))
-    //   mintingScripts.add( NativeScript.new_script_pubkey( ScriptPubkey.new( BaseAddress.from_address(address2).payment_cred().to_keyhash())))
-    //   console.log(NativeScript.new_script_all( ScriptAll.new(mintingScripts)).to_json())
-    //   this.wallet_script = NativeScript.new_script_all( ScriptAll.new(mintingScripts))
-      
       this.signersNames = []
       this.wallet_script = wallet_json
       this.wallet_address = "";

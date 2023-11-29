@@ -150,6 +150,8 @@ var workerConfig = {
 	var approvalConfig = {
 		entry:  './src/extension/approval.js',
 		  output: {
+			crossOriginLoading: 'anonymous',
+
 			filename: 'approval.js',
 			path: path.resolve(__dirname, 'build/extension'),
 			// Specify the folder name for the extension output
@@ -164,6 +166,10 @@ var workerConfig = {
 			module: {
 				rules: [
 					{
+					test: /\.svg$/,
+					use: ['@svgr/webpack', 'svg-url-loader'],
+				  	},
+					{
 					loader: 'babel-loader',
 					test: /\.js$/,
 					exclude: /node_modules/
@@ -173,6 +179,11 @@ var workerConfig = {
 					use: ["style-loader", "css-loader"],
 				  },]
 			},
+			experiments: {
+				asyncWebAssembly: true,
+				topLevelAwait: true,
+				layers: true // optional, with some bundlers/frameworks it doesn't work without
+				}
 		};	
 	
 
