@@ -91,11 +91,20 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
     console.log("Received message from webpage:", request);
 
     let approvedUrls = await loadApprovedUrls()
-    console.log("Approved urls:", approvedUrls.toString());
 
     if (approvedUrls.includes(sender.origin)) {
         if(BroPort === null){
            await connectBroClan();
+        }
+        if(request && request.action && request.action === "submitUnsignedTx"){
+            console.log("Requesting user approval for:", request);
+            const approval = await getUserApproval({ type: 'transaction', page: sender.origin, tx:request.tx ,approval_complete: false } );
+            console.log("Approval:", approval);
+            if(!approval){
+                sendResponse({ code: -3, error: "User Rejected" });
+                return false;
+            }
+            
         }
         if(request && request.action && request.action !== "enable"){
                BroPort.postMessage(request);
@@ -111,23 +120,12 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
             }
             return true;
      } else {
-        chrome.storage.local.set({ type: 'connection' ,page:sender.origin, approval_complete : false }, function() {
-            chrome.windows.create({ url: "approval_page.html", type: "popup", width: 500, height: 600 });
-            let checkInterval = setInterval(function() {
-                chrome.storage.local.get(['approval_complete'], async function(result) {
-                    if (result.approval_complete) {
-                        clearInterval(checkInterval);
-                        if((await loadApprovedUrls()).includes(sender.origin)){
-                            sendResponse({ response: "User Approved" });
-                        }else{
-                            sendResponse({ code: -3, error: "User Rejected" });
-                        }
-                        
-                    }
-                });
-            }, 1000);
-        });
-
+        let userApproval =await getUserApproval({ type: 'connection', page: sender.origin, approval_complete: false } );
+        if(userApproval === true){
+            sendResponse({ response: "User Approved" });
+        } else {
+            sendResponse({ code: -3, error: "User Rejected" });
+        }
         // Keep the message channel open until sendResponse is called
         return true;
     }
@@ -165,6 +163,47 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
     
 
 });
+
+function getUserApproval(data) {
+    console.log("Requesting user approval for:", data);
+    //get random number
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.set(data, function () {
+            chrome.windows.create({ url: "approval_page.html", type: "popup", width: 500, height: 600 });
+
+            let messageListener;
+            let disconnectListener;
+            let port;
+
+            let listenerFunction = async function(p) {
+                port = p;
+                if (port.name === "popup") {
+                    port.onMessage.addListener(messageListener);
+                    port.onDisconnect.addListener(disconnectListener);
+                }
+            };
+
+            messageListener = async function(message) {
+                port.onMessage.removeListener(messageListener);
+                port.onDisconnect.removeListener(disconnectListener);
+                chrome.runtime.onConnect.removeListener(listenerFunction);
+                resolve(message.approve);
+            };
+
+            disconnectListener = function() {
+                port.onMessage.removeListener(messageListener);
+                port.onDisconnect.removeListener(disconnectListener);
+                chrome.runtime.onConnect.removeListener(listenerFunction);
+                resolve(false);
+            };
+
+            chrome.runtime.onConnect.addListener(listenerFunction);
+        });
+    });
+}
+  
+
+
 async function connectBroClan() {
     return new Promise((resolve, reject) => {
         chrome.tabs.query({}, async function(tabs) {

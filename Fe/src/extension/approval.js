@@ -8,9 +8,12 @@ import "./approval.css";
 function App() {
     const [type, setType] = useState('');
     const [page, setPage] = useState('');
+    const [tx, setTx] = useState('');   
     const [approvedUrls, setApprovedUrls] = useState([]);
+
     useEffect(() => {
         chrome.storage.local.get(['type'], function(result) {
+            console.log('Value currently is ' + result.type);   
             setType(result.type);
 
         });
@@ -21,15 +24,22 @@ function App() {
         chrome.storage.local.get(['approvedUrls'], function(result) {
             setApprovedUrls(result.approvedUrls);
         });
+
+        chrome.storage.local.get(['tx']) , function(result) {
+            setTx(result.tx);
+        };
+
     }, []);
 
+ 
     // on close 
+    // Connect to the background script
+    let port = chrome.runtime.connect({name: "popup"});
+
     window.onbeforeunload = function() {
-        chrome.storage.local.set({ approval_complete: true }, function() {
-            // Close the window
-            window.close();
-        });
-    };
+        // Disconnect from the background script
+        port.disconnect();
+    }
 
     const approve = async () => {
         chrome.storage.local.get(['page', 'approvedUrls'], function(result) {
@@ -53,6 +63,8 @@ function App() {
             }
             chrome.storage.local.set({ approvedUrls: JSON.stringify(approvedUrls) }, function() {
                 // Close the window
+                port.postMessage({ approve: true });
+                port.disconnect();
                 window.close();     
             });    
         });
@@ -84,11 +96,25 @@ function App() {
     </div>
     </div>
 
+    const txApproval  = <div >
+    <div className='extensionHeader'>
+     < h1 >Transaction approval</h1>
+    </div>
+    <div className='requestBody'>
+    <h2>This page is requesting to submit a transaction on your behalf.</h2>
+    <h3>{page}</h3>
+    <p>{tx}</p>
+    <span className='approvalButtons'> <button onClick={() => reject()}>Reject</button> <button onClick={() => approve()}>Approve</button> </span>
+
+    </div>
+    </div>
+        
+
     return (
     <div className="extensionWindow">
   
             {type === "connection" && pageApproval}
-       
+            {type === "transaction" && txApproval}
      </div>
     );
 
