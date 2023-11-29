@@ -12,6 +12,40 @@
     border-bottom-right-radius: 20px;
 }
 
+.deleteUrl{
+    color: black;
+
+}
+
+.approvedUrl{
+    display: grid;
+    grid-template-columns: 8fr 1fr;
+    grid-template-rows: 1fr;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(3, 0, 0, 0.055);
+    margin-bottom: 5px;
+}
+.settingsOverview{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+}
+.closeBtn{
+    position: absolute;
+    bottom: 20px;
+    height: 30px;
+    width: 60px;
+    cursor: pointer;
+    background-color: #F48037;
+    border-radius: 10px;
+}
+
 .extensionHeader h1{
     color: white;
     font-size: 30px;
@@ -19,6 +53,15 @@
     margin: 0;
     padding: 0;
     margin-left: 20px;
+}
+
+.SettingsIcon{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
 }
 
 body{

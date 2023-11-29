@@ -2,7 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {useState , useEffect} from "react"; 
 import './extension.css';
-  
+import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
+
 
 
 
@@ -12,10 +13,14 @@ function App() {
     const [connected, setConnected] = useState(false);
     const [signers, setSigners] = useState([]);
     const [signersValid, setSignersValid] = useState(false);
-
+    const [settingsOpen , setSettingsOpen] = useState(false);
+    const [approvedUrls, setApprovedUrls] = useState([]);
      
     useEffect(() => {
         getInfo()
+        chrome.storage.local.get(['approvedUrls'], function(result) {
+            setApprovedUrls(JSON.parse(result.approvedUrls));
+        });
       }, []);
 
     function getInfo(){
@@ -59,7 +64,26 @@ function App() {
           </div>)}
             </div>
           </div>
-    
+
+    const deleteUrl = (url) => {
+        console.log(url);
+        let newApprovedUrls = approvedUrls.filter((approvedUrl) => approvedUrl !== url);
+        chrome.storage.local.set({ approvedUrls: JSON.stringify(newApprovedUrls) }, function() {
+            setApprovedUrls(newApprovedUrls);
+        });    
+    }
+
+    const settingsOverview = <div className='settingsOverview'>
+        <h2>Settings</h2>
+        <h3>Approved Urls</h3>
+        <div className='approvedUrls'>
+            {approvedUrls.map((url) => <div key={url} className='approvedUrl'>{url}<button  className='deleteUrl' onClick={()=> deleteUrl(url)}>X</button></div>)}
+        </div>  
+
+
+        <button className='closeBtn' onClick={() => setSettingsOpen(false)}>Back</button>
+        </div>
+
 
     const notConnected =         <div className='notConnected'> <h2>Not Connected</h2>
         <button onClick={openApp}>Open App</button>
@@ -72,7 +96,9 @@ function App() {
          <div className='extensionHeader'>
             <h1 >BroClan dApp Connector  </h1>
           </div>
-          {!connected  ? notConnected : walletOverview }
+          <SettingsIcon className="SettingsIcon" onClick={() => setSettingsOpen(!settingsOpen)}/>
+          
+          {settingsOpen ? settingsOverview : !connected  ? notConnected : walletOverview }
          </div>
         );
     

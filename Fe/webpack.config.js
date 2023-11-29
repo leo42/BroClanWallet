@@ -76,6 +76,10 @@ var extensionConfig = {
 	  module: {
 		rules: [
 			{
+			test: /\.svg$/,
+			use: ['@svgr/webpack', 'svg-url-loader'],
+		  },
+			{
 			loader: 'babel-loader',
 			test: /\.js$/,
 			exclude: /node_modules/
