@@ -1,0 +1,13 @@
+.extensionHeader{
+    height: 150px;
+    position: relative;
+    width: 100%;
+    top: -12px;
+    background-image: linear-gradient(  30deg , #F68F42 0%, #F48037 15%, #EF4A42, #F27B87 );
+    align-items: center;
+    display: flex;
+    text-align: center;
+    /* set boarder radious underneeath */
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}

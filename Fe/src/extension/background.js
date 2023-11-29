@@ -1,7 +1,6 @@
 const BROCLAN_DOMAIN = "test.broclan.io"
 const BROCLAN_PORT =  ":8080"
 const BROCLAN_URL = "http://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
-const approvedUrls = [ "http://localhost:8081"];
 
 let BroPort = null;
 
@@ -66,14 +65,30 @@ function keepAlive() {
 }   
 
 
-chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessageExternal.addListener(async function(request, sender, sendResponse) {
     console.log("Received message from webpage:", request);
 
+    let approvedUrls = await new Promise((resolve, reject) => { 
+        chrome.storage.local.get(['approvedUrls'], function(result) {
 
-    if(BroPort === null){
-        connectBroClan();
-    }
+            let res =   JSON.parse(result.approvedUrls)
+            console.log("Approved urls:", res
+            );
+
+            if(res === null || res.length === 0){
+                chrome.storage.local.set({ approvedUrls: JSON.stringify(["test"]) });
+                resolve([]);
+            }
+            resolve(res);
+        });
+    });
+
+    console.log("Approved urls:", approvedUrls.toString());
+
     if (approvedUrls.includes(sender.origin)) {
+        if(BroPort === null){
+           await connectBroClan();
+        }
         if(request && request.action){
                BroPort.postMessage(request);
                const messageListener = (message) => { 
@@ -86,9 +101,27 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
                 BroPort.onMessage.addListener(messageListener);
                 return true;
         }else{
-            sendResponse({ response: "Message processed in the background script!" });        }
-    } else {
-        sendResponse({ error: "User Rejected" });
+            sendResponse({ response: "Message processed in the background script!" });        
+        }
+     } else {
+        chrome.storage.local.set({ type: 'connection' ,page:sender.origin, approval_complete : false }, function() {
+            // Open the popup
+            chrome.windows.create({ url: "approval_page.html", type: "popup", width: 500, height: 600 });
+
+            // Start checking approval_complete every 1 second
+            let checkInterval = setInterval(function() {
+                chrome.storage.local.get(['approval_complete'], function(result) {
+                    if (result.approval_complete) {
+                        clearInterval(checkInterval);
+                        console.log("User approved");
+                        sendResponse({ response: "User Approved" });
+                    }
+                });
+            }, 1000);
+        });
+
+        // Keep the message channel open until sendResponse is called
+        return true;
     }
 });
 

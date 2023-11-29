@@ -142,8 +142,37 @@ var workerConfig = {
 				}]
 			},
 		};
+	
+	var approvalConfig = {
+		entry:  './src/extension/approval.js',
+		  output: {
+			filename: 'approval.js',
+			path: path.resolve(__dirname, 'build/extension'),
+			// Specify the folder name for the extension output
+		  },
+		  mode: 'development',
+		  devtool: 'source-map',
+		  experiments: {
+			asyncWebAssembly: false,
+			topLevelAwait: false,
+			layers: true // optional, with some bundlers/frameworks it doesn't work without
+			},
+			module: {
+				rules: [
+					{
+					loader: 'babel-loader',
+					test: /\.js$/,
+					exclude: /node_modules/
+				}
+				,{
+					test: /\.css$/i,
+					use: ["style-loader", "css-loader"],
+				  },]
+			},
+		};	
+	
 
-module.exports = [webAppConfig, extensionConfig , workerConfig, injectionConfig]
+module.exports = [webAppConfig, extensionConfig , workerConfig, injectionConfig, approvalConfig]
 if(isProduction) {
 	module.exports[0].plugins.push(new HtmlWebpackPlugin({
 		template: 'src/index.html' ,
