@@ -59,10 +59,6 @@ function stopPing() {
     clearInterval(pingInterval);
 }
 
-function keepAlive() {
-    //ping every second to keep connection alive until disconnect
-
-}   
 
 function loadApprovedUrls() {
     return new Promise((resolve, reject) => {
@@ -94,7 +90,7 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
 
     if (approvedUrls.includes(sender.origin)) {
         if(BroPort === null){
-           await connectBroClan();
+           await connectBroClan();  
         }
         if(request && request.action && request.action === "submitUnsignedTx"){
             console.log("Requesting user approval for:", request);
@@ -102,9 +98,8 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
             console.log("Approval:", approval);
             if(!approval){
                 sendResponse({ code: -3, error: "User Rejected" });
-                return false;
             }
-            
+
         }
         if(request && request.action && request.action !== "enable"){
                BroPort.postMessage(request);
@@ -116,7 +111,8 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
                 };
                 BroPort.onMessage.addListener(messageListener);
             }else{
-                sendResponse({ response: "Message processed in the background script!" });        
+                sendResponse({ response: "Message processed in the background script!" });   
+                    
             }
             return true;
      } else {
@@ -211,7 +207,7 @@ function getUserApproval(data) {
   
 
 
-async function connectBroClan() {
+function connectBroClan() {
     return new Promise((resolve, reject) => {
         chrome.tabs.query({}, async function(tabs) {
             let tabIds = [];
@@ -222,17 +218,9 @@ async function connectBroClan() {
                     tabIds.push(tab.id);
                 }
             }
-
             if (tabIds.length === 0) {
-                tabIds.push(chrome.tabs.create({ url: BROCLAN_URL, active: false }));
-            } else {
-                if (tabIds.length > 1) {
-                    tabIds.shift();
-                    chrome.tabs.remove(tabIds);
-                }
-            }
-
-            if(BroPort === null){
+                tabIds.push(chrome.tabs.create({ url: BROCLAN_URL, active: false }));               
+            }else if(BroPort === null){
                 chrome.tabs.reload(tabIds[0]);
             }
 
