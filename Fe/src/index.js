@@ -16,7 +16,7 @@ import AffiliateModal from "./components/Minting/affiliateModal";
 class App extends React.Component {
   state= {
     modal: "",
-    module : "multisig",
+    module : "",
     settings: { metadataProvider :"Blockfrost", 
                 sendAll: false, 
                 network: "Preprod", 
@@ -63,7 +63,7 @@ class App extends React.Component {
     this.setState({mode})
     const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.state.settings
     this.setState({settings})
-    const module = localStorage.getItem("module") ? localStorage.getItem("module") : this.state.module
+    const module = localStorage.getItem("module") ? localStorage.getItem("module") : "multisig" 
     this.setState({module})
   }
   setModule(module){

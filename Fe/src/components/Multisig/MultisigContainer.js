@@ -396,7 +396,8 @@ async setState(state){
         this.setState({pendingWallets})
         if (this.state.connectedWallet.socket) {
           this.state.connectedWallet.socket.emit('subscribe' , pendingWallet.json)}
-          
+        if(this.state.wallets.length === 1)
+          this.state.dAppConnector.changeWallet(myWallet)
         toast.success("Wallet Imported");
       }else{
         toast.error("Wallet already exists")
@@ -417,13 +418,16 @@ async setState(state){
     myWallet.resetDefaultSigners()
     const walletHash = await this.walletHash(myWallet.getJson())
 
-    if (this.state.connectedWallet.socket) {
-       this.state.connectedWallet.socket.emit('subscribe' , script)}
     if (! res.includes(walletHash)) {
       
       this.transmitWallet(script)
       wallets.push(myWallet)
       this.setState(wallets)
+      
+      if (this.state.connectedWallet.socket) {
+         this.state.connectedWallet.socket.emit('subscribe' , script)}
+      if(this.state.wallets.length === 1)
+            this.state.dAppConnector.changeWallet(myWallet)
     }else{
       
       toast.error("Wallet already exists")

@@ -10,6 +10,7 @@ import { ReactComponent as SettingsIcon } from '../html/assets/settings.svg';
 function App() {
     const [walletName, setWalletName] = useState("");
     const [ballance, setBallance] = useState(0);
+    const [empty, setEmpty] = useState(false);
     const [connected, setConnected] = useState(false);
     const [signers, setSigners] = useState([]);
     const [signersValid, setSignersValid] = useState(false);
@@ -30,6 +31,14 @@ function App() {
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError.message);
               } else if (response.error){   
+                if(response.error === "no wallet connected"){
+                    setConnected(true);
+                    setEmpty(true);
+                    setBallance(0);
+                    setWalletName("");
+                    setSigners([]);
+                    setSignersValid(false);
+                }
                 console.error(response.error);
               }else{
                 console.log(response)
@@ -49,7 +58,17 @@ function App() {
           });
     }
 
-    const walletOverview = <div className='walletOverview'> 
+    const walletOverview = empty? 
+    
+    <div className='walletOverview'>
+        <h1>Empty</h1>
+        <h3 className='emptyText'> It seems like you have not created any multisig wallets in BroClan!
+        <br/><br/> Please navigate to the App and create one to start using this connector</h3>
+    </div>
+    
+    
+    
+    : <div className='walletOverview'> 
           <h1>{walletName === '' ? "UnNamed" : walletName}</h1>
           <h2>{ballance/1_000_000}tA</h2>
           <h2>Signers:</h2>
@@ -86,6 +105,7 @@ function App() {
 
 
     const notConnected =         <div className='notConnected'> <h2>Not Connected</h2>
+      <label className="Disclamer">Only Multisig wallets supported.</label>
         <button className='openAppButton' onClick={openApp}>Open App</button>
         </div>
     

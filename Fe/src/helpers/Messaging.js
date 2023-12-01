@@ -49,6 +49,10 @@ class Messaging {
                             response = "pong";
                             break;
                         case "getData":
+                            if(!this.wallet){
+                                response = {error: "no wallet connected"}
+                                break;
+                            }
                             response = {
                                 walletName : this.wallet.getName(), 
                                 ballance: this.wallet.getBalance(),
