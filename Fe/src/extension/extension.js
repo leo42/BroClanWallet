@@ -86,7 +86,7 @@ function App() {
 
 
     const notConnected =         <div className='notConnected'> <h2>Not Connected</h2>
-        <button onClick={openApp}>Open App</button>
+        <button className='openAppButton' onClick={openApp}>Open App</button>
         </div>
     
 

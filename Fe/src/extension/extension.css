@@ -17,6 +17,23 @@
 
 }
 
+.openAppButton{
+    border-color: #EF4A42;
+    border-width: thin;
+    margin-top: 82px;
+    width: 100px   ;
+    height: 35px;
+    border-style: solid;
+    color: black;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.openAppButton:hover {
+    background-color: #EF4A42;
+    color: white;
+}
+
 .approvedUrl{
     display: grid;
     grid-template-columns: 8fr 1fr;
