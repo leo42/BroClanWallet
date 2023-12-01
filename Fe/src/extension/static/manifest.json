@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Bro Clan",
+  "name": "Bro Clan Companion Extension",
   "version": "0.1",
   "icons": {
     "16": "favicon-16x16.png",
@@ -11,8 +11,6 @@
     "activeTab",
     "tabs",
     "scripting", 
-    "devtools",
-    "<all_urls>",
     "nativeMessaging"],
     "content_scripts": [
       {
