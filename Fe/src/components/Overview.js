@@ -11,7 +11,7 @@ function Overview(props) {
   const linkRef = useRef(null);
   const wallet = props.wallet
   const [settingsOpen, setSettingsOpen] = useState(wallet.getFundedAddress().map(() => (false)))
-  const [walletSettingsOpen, setWalletSettingsOpen] = useState(true)
+  const [walletSettingsOpen, setWalletSettingsOpen] = useState(false)
   const [showing , setShowing] = useState("All")
   const [showingAddress , setShowingAddress] = useState(props.wallet.getDefaultAddress())
   const [search , setSearch] = useState("")

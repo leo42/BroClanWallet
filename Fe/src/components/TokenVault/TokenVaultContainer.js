@@ -53,22 +53,26 @@ class TokenVaultsContainer extends React.Component {
     }
 
     listenforAddressChange(){
-      this.state.connectedWallet.lucid.wallet.address().then((ogAddress) => {
-        //loop every 5 seconds to check if address has changed
-        var id = setInterval((interval) => {
-          this.state.connectedWallet.lucid.wallet.address().then((address) => {
-            if(ogAddress !== address){
-              clearInterval(id)
-              this.connectWallet(this.state.connectedWallet.name)
-              
-              return
-              
-            }
-          })
-        }
-        , 1000);
-
-      })
+      try{
+        this.state.connectedWallet.lucid.wallet.address().then((ogAddress) => {
+          //loop every 5 seconds to check if address has changed
+          var id = setInterval((interval) => {
+            this.state.connectedWallet.lucid.wallet.address().then((address) => {
+              if(ogAddress !== address){
+                clearInterval(id)
+                this.connectWallet(this.state.connectedWallet.name)
+                
+                return
+                
+              }
+            })
+          }
+          , 1000);
+        })
+      }catch (e){ 
+        console.log(e)
+        clearInterval(id)
+      }
       
     }
 
