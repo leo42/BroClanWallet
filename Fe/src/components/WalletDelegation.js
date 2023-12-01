@@ -6,10 +6,10 @@ import  { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
 
 function WalletDelegation(props) {
   const wallet = props.wallet
-  const initialState = [] 
+  const initialState = []
 
-  wallet.getSigners().map( () =>
-    initialState.push(true)
+  wallet.getSigners().map( (signer) =>
+    initialState.push(signer.isDefault)
   ) 
   const [pool, setPool] = useState('');
   const [signers, setCheckedState] = useState(initialState);
