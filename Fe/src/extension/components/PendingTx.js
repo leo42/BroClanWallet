@@ -50,7 +50,6 @@ function PendingTx(props) {
             const addressMine = await chrome.runtime.sendMessage({ action: 'isAddressMine', address: JSON.stringify(newAddress) }) 
 
         
-            console.log(addressMine)
             setAddress(JSON.parse(addressMine)) 
     
     }
@@ -61,7 +60,6 @@ function PendingTx(props) {
         setTxDetails(txDetails)
         const addressFound = []
         await getUtxosByOutRef(txDetails.inputs).then( (utxos) => {
-            console.log(utxos)
             setInputUtxos(utxos)
             utxos.map( (utxo) => {
                 addressFound.push(utxo.address)

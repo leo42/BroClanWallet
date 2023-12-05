@@ -5,7 +5,7 @@ const BROCLAN_URL = "http://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
 let BroPort = null;
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log("Received internal message:", sender, request);
+
     
     if(sender.id !== chrome.runtime.id){
         sendResponse({ error: "Invalid sender" });
@@ -26,9 +26,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
 
         const messageListener = (message) => {
-            console.log(request.action, message.action);
             if(request.action === message.action){
-                console.log(request.action, message);
                 BroPort.onMessage.removeListener(messageListener);
                 sendResponse(message.response);
             }
@@ -84,7 +82,6 @@ function loadApprovedUrls() {
 }
 
 chrome.runtime.onMessageExternal.addListener(async function(request, sender, sendResponse) {
-    console.log("Received message from webpage:", request);
 
     let approvedUrls = await loadApprovedUrls()
 
@@ -93,13 +90,11 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
            await connectBroClan();  
         }
         if(request && request.action && request.action === "submitUnsignedTx"){
-            console.log("Requesting user approval for:", request);
             const approval = await getUserApproval({ type: 'transaction', page: sender.origin, tx:request.tx ,approval_complete: false } );
-            console.log("Approval:", approval);
             if(!approval){
                 sendResponse({ code: -3, error: "User Rejected" });
+                return false;
             }
-
         }
         if(request && request.action && request.action !== "enable"){
                BroPort.postMessage(request);
@@ -130,7 +125,6 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
 
 
 chrome.runtime.onConnectExternal.addListener(function(port) {
-    console.log("Connected to webpage:", port.sender.url);
     // reject if url is not in approved list
     //check open tabs 
     if (port.sender.url === BROCLAN_URL) {
@@ -161,7 +155,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
 });
 
 function getUserApproval(data) {
-    console.log("Requesting user approval for:", data);
+
     //get random number
     let height = 600;
     let width = 500;
@@ -225,7 +219,7 @@ function connectBroClan() {
             }
 
             while(BroPort === null){
-                console.log("Waiting for BroClan to connect");
+
                 await new Promise(r => setTimeout(r, 1000));
             }
 

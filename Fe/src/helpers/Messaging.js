@@ -84,7 +84,6 @@ class Messaging {
                             break;
                         case "submitUnsignedTx":
                             try{
-                                console.log(message.tx);
                                 response = await this.root.importTransaction(JSON.parse(message.tx));
                                 
                             }catch(e){
@@ -121,7 +120,6 @@ class Messaging {
                                 response = {code : 1, error:  "Transaction not found!"}
                             }else{
                                 const txDetails = this.wallet.decodeTransaction(tx.tx);
-                                console.log(txDetails);
                                 const signersComplete = this.wallet.checkSigners( Object.keys(tx.signatures))
                                 if(!signersComplete){
                                     response = {code : 2, error:  "Transaction not ready!"}
@@ -158,7 +156,6 @@ class Messaging {
                             response = {}
                            JSON.parse(message.address).map( address => { response[address] = this.wallet.isAddressMine(address)});
                            response = JSON.stringify(response);
-                            console.log(message.address,response);
                             break;
                     }
                 }catch(e){

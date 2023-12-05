@@ -21,7 +21,6 @@ function App() {
 
 
         chrome.storage.local.get(['tx'] , function(result) {
-            console.log('Value currently is ' + result.tx);
             if(result.tx)
             setTx(JSON.parse(result.tx));
         });
@@ -40,8 +39,6 @@ function App() {
 
     const approve = async () => {
         chrome.storage.local.get(['page', 'approvedUrls'], function(result) {
-            console.log('Value currently is ' + result.page);
-            console.log('Value currently is ' + result.approvedUrls);
             let approvedUrls = [];
             // Parse approvedUrls back to an array
             let parsedApprovedUrls = [];
