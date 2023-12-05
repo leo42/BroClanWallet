@@ -1,6 +1,6 @@
-const BROCLAN_DOMAIN = "test.broclan.io"
-const BROCLAN_PORT =  ":8080"
-const BROCLAN_URL = "http://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
+const BROCLAN_DOMAIN = "beta.broclan.io"
+const BROCLAN_PORT =  ""
+const BROCLAN_URL = "https://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
 
 let BroPort = null;
 

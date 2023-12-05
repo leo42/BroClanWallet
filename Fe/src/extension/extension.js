@@ -70,7 +70,7 @@ function App() {
     
     : <div className='walletOverview'> 
           <h1>{walletName === '' ? "UnNamed" : walletName}</h1>
-          <h2>{ballance/1_000_000}tA</h2>
+          <h2>{ballance/1_000_000}₳</h2>
           <h2>Signers:</h2>
           
           {!signersValid && <span className="signersWarning">Signers not valid</span> }
