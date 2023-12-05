@@ -35,55 +35,58 @@ function PendingTx(props) {
     }, [isMobile]);
 
     
-    const isAddressMine = (address) => {
-        if(Object.keys(address).includes(address)){
-            return address[address]
+    const isAddressMine = (addressCheck) => {
+        if(Object.keys(address).includes(addressCheck)){
+            return address[addressCheck]
         }else{
             return false
         }
     }
 
     const checkAddress = async (newAddress) => {
-        if(Object.keys(address).includes(newAddress)){
-            return address[newAddress]
-        }else{
-            const addressMine = await chrome.runtime.sendMessage({ action: 'isAddressMine', address: newAddress }) 
-            const updatedAddress = address
-            updatedAddress[newAddress] = addressMine
-            setAddress(updatedAddress) 
-            console.log(newAddress,addressMine)    
-    }
+            //remove duplicates
+            newAddress = [...new Set(newAddress)]
+
+            const addressMine = await chrome.runtime.sendMessage({ action: 'isAddressMine', address: JSON.stringify(newAddress) }) 
+
+        
+            console.log(addressMine)
+            setAddress(JSON.parse(addressMine)) 
+    
     }
 
     useEffect(async () => {
 
         const txDetails =JSON.parse(await  chrome.runtime.sendMessage({ action: 'decodeTx', tx: JSON.stringify(props.tx) }))
         setTxDetails(txDetails)
-        getUtxosByOutRef(txDetails.inputs).then( (utxos) => {
+        const addressFound = []
+        await getUtxosByOutRef(txDetails.inputs).then( (utxos) => {
             console.log(utxos)
             setInputUtxos(utxos)
             utxos.map( (utxo) => {
-                checkAddress(utxo.address)
+                addressFound.push(utxo.address)
             })
         })
 
-        txDetails.collateral ? getUtxosByOutRef(txDetails.collateral).then( (utxos) => {
+        await txDetails.collateral ? getUtxosByOutRef(txDetails.collateral).then( (utxos) => {
             setCollateralUtxos(utxos)
             utxos.map( (utxo) => {
-                checkAddress(utxo.address)
+                addressFound.push(utxo.address)
             })
         }) : setCollateralUtxos([])
         
-        txDetails.reference_inputs ? getUtxosByOutRef(txDetails.reference_inputs).then( (utxos) => {
+        await txDetails.reference_inputs ? getUtxosByOutRef(txDetails.reference_inputs).then( (utxos) => {
             setReferenceInputsUtxos(utxos)
             utxos.map( (utxo) => {
-                checkAddress(utxo.address)
+                addressFound.push(utxo.address)
             })
         }) : setReferenceInputsUtxos([])
         
-        txDetails.outputs.map( (output) => {
-            checkAddress(output.address)
+        await txDetails.outputs.map( (output) => {
+            addressFound.push(output.address)
         })
+    
+        checkAddress(addressFound)
 
         setShowDetails(true)
     }, [])
@@ -135,13 +138,13 @@ function PendingTx(props) {
         
         
         return inputUtxos.length !== 0 ? (
-            <div className="transactionHistoryListBalance">
-               <span className={ lovelace >= 0n ?  "transactionHistoryAdaBalance" : "transactionHistoryAdaBalanceNegative"}>
+            <div className="transactionBallance">
+               <span className={ lovelace >= 0n ?  "transactionBallancePositive" : "transactionBallanceNegative"}>
                 { lovelace >= 0n ?  "+" : ""} {Number(lovelace)/1000000}
-                 </span>  "₳"  
+                 </span>  ₳
                  {tokens}
              </div>
-             ) : <div className="transactionHistoryListBalance"> </div>
+             ) : <div className=""> </div>
     }
 
     function TransactionInput(input){
@@ -205,7 +208,7 @@ function PendingTx(props) {
               </div>
                 </div>
                     <div className="txDetailsSmall">
-                <div><h3>Fee:</h3> {transaction.fee / 1_000_000}{ "₳"  }  </div>
+                <div><h3>Fee:</h3> {transaction.fee / 1_000_000} ₳    </div>
                 { transaction.ttl && <div><h3>TTL:</h3> {transaction.ttl}</div>}
                 {transaction.network_id &&  <div> <h3>Network:</h3> {transaction.network_id}</div> }
                     </div>
@@ -262,14 +265,6 @@ function PendingTx(props) {
             );
     }
 
- 
-
-    function copyTransaction(){
-        copyTextToClipboard(props.tx.tx.toString())
-    }
-
-
-
 
     return (
         <div className="pedningTx">
@@ -279,14 +274,9 @@ function PendingTx(props) {
 
             <div className="pendingTx_signers">
             
-
+            {showDetails && transactionBalance(txDetails)}
             {showDetails && TransactionDetails(txDetails)}
             </div>
-            <div className="pendingTx_buttons">
-              
-                <ExpandIcon className="icon"  alt="signicon" onClick={() => setShowDetails(!showDetails)} /> 
-                <label className='iconLabel'> Details</label> 
-            </div>  
                 </div>
     )
 }

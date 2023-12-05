@@ -1,6 +1,6 @@
-const BROCLAN_DOMAIN = "beta.broclan.io"
-const BROCLAN_PORT =  ""
-const BROCLAN_URL = "https://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
+const BROCLAN_DOMAIN = "test.broclan.io"
+const BROCLAN_PORT =  ":8080"
+const BROCLAN_URL = "http://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
 
 let BroPort = null;
 
@@ -92,15 +92,15 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
         if(BroPort === null){
            await connectBroClan();  
         }
-        // if(request && request.action && request.action === "submitUnsignedTx"){
-        //     console.log("Requesting user approval for:", request);
-        //     const approval = await getUserApproval({ type: 'transaction', page: sender.origin, tx:request.tx ,approval_complete: false } );
-        //     console.log("Approval:", approval);
-        //     if(!approval){
-        //         sendResponse({ code: -3, error: "User Rejected" });
-        //     }
+        if(request && request.action && request.action === "submitUnsignedTx"){
+            console.log("Requesting user approval for:", request);
+            const approval = await getUserApproval({ type: 'transaction', page: sender.origin, tx:request.tx ,approval_complete: false } );
+            console.log("Approval:", approval);
+            if(!approval){
+                sendResponse({ code: -3, error: "User Rejected" });
+            }
 
-        // }
+        }
         if(request && request.action && request.action !== "enable"){
                BroPort.postMessage(request);
                const messageListener = (message) => { 

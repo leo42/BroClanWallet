@@ -1,0 +1,13 @@
+.transactionBallance{
+     text-align: center;
+        font-size: 25px;
+        font-weight: 700;
+}
+
+.transactionBallancePositive{
+    color: green;
+}
+
+.transactionBallanceNegative{
+    color: red;
+}

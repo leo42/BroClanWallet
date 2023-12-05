@@ -98,10 +98,11 @@ function App() {
      < h1 >Transaction approval</h1>
     </div>
     <div className='requestBody'>
-    <h2>This page is requesting to submit a transaction on your behalf.</h2>
+    <h2>This page is requesting to import a Transaction.</h2>
     <h3>{page}</h3>
     {tx &&  <PendingTx key={tx} tx={tx} />}
-    <p>{tx}</p>
+    <h3>Raw bytes:</h3>
+    <p className='txRaw'>{tx}</p>
     <span className='approvalButtons'> <button onClick={() => reject()}>Reject</button> <button onClick={() => approve()}>Approve</button> </span>
 
     </div>

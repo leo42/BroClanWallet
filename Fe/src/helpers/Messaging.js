@@ -155,8 +155,10 @@ class Messaging {
                             response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
                             break;
                         case "isAddressMine":
-                            response = this.wallet.isAddressMine(message.address);
-                            console.log(message.address,response)
+                            response = {}
+                           JSON.parse(message.address).map( address => { response[address] = this.wallet.isAddressMine(address)});
+                           response = JSON.stringify(response);
+                            console.log(message.address,response);
                             break;
                     }
                 }catch(e){

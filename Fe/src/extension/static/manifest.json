@@ -8,9 +8,7 @@
   },
   "permissions": [
     "storage",
-    "tabs",
-    "scripting", 
-    "nativeMessaging"],
+    "tabs"],
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*", "<all_urls>"], 
