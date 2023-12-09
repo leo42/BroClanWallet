@@ -38,8 +38,8 @@ class Messaging {
 
    async connect() {
 
-        this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
-
+       // this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
+        this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
         this.port.onMessage.addListener( async (message) => {
             if(message.action){
                 let response
