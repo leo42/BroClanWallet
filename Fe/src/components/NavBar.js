@@ -26,7 +26,7 @@ function NavBar(props){
         <div className="modeToggle" onClick={() => props.root.toggleMode()}> 
             {props.root.state.mode === "lightMode" ? <MoonIcon className="modeIcon nightIcon" alt="sunIcon" /> : <SunIcon className="modeIcon dayIcon" alt="moonIcon" /> }
         </div>
-            <img src={"./assets/logoFull.png"} alt="Logo" className='MainAppLogo' />
+            <img src={props.root.state.mode === "lightMode" ? "./assets/fullLogoDark.png"  : "./assets/fullLogo.png"} alt="Logo" className='MainAppLogo' />
         <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className={ "settingsButton menuIcon " + (navOpen ? "menuIconOpen" : "" )}>
             <SettingsIcon  alt="settingsIcon" />
             {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'></label> }

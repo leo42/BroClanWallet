@@ -106,8 +106,8 @@ select{
 
 .MainAppLogo{
   height: 70px;
-  width: 300px;
-  margin: 30px;
+  width: 260px;
+  margin: 15px;
   z-index: 2;
 }
 
@@ -116,7 +116,7 @@ select{
     position: relative;
     height: 50px;
     width: 160px;
-    margin: 10px;
+    margin: 0px;
     top: 30px;
   }
 }
