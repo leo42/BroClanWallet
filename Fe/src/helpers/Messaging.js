@@ -1,6 +1,3 @@
-// Desc: Messaging helper for communicating with background script
-// Usage: Messaging(this);
-//
 
 import {Buffer} from 'buffer';
  
