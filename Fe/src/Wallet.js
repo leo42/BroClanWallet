@@ -877,7 +877,9 @@ setPendingTxs(pendingTxs){
     changeAddressName(address,name){
       this.addressNames[address] = name
     }
-
+    getNetworkId(){
+        return this.lucid.network === "Mainnet" ? 1 : 0 
+    }
 
     getDefaultAddress(){
         if (this.defaultAddress === null) {

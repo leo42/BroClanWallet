@@ -42,6 +42,7 @@ function enable(extensions = []) {
             }else{
                 resolve(
                 { 
+                    getNetworkId: () => promiseMessage({ action: 'getNetworkId' }),
                     getUtxos: (amount = undefined, paginate= undefined) => promiseMessage({ action: 'getUtxos' , amount : amount, paginate: paginate}),
                     getCollateral: (amount = undefined) => promiseMessage({ action: 'getCollateral' , amount : amount}),
                     getBalance: () => promiseMessage({ action: 'getBalance' }),

@@ -38,8 +38,8 @@ class Messaging {
 
    async connect() {
 
-       // this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
-        this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
+        this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
+       // this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
         this.port.onMessage.addListener( async (message) => {
             if(message.action){
                 let response
@@ -60,6 +60,9 @@ class Messaging {
                                 signersValid: this.wallet.defaultSignersValid()
                              }
                             break;        
+                        case "getNetworkId":
+                            response = this.wallet.getNetworkId();
+                            break;
                         case "getBalance": 
                             response =Buffer.from(assetsToValue(this.wallet.getBalanceFull()).to_bytes(), 'hex').toString('hex');
                            // response = assetsToValue(this.wallet.getBalanceFull());
