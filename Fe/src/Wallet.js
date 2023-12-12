@@ -753,12 +753,17 @@ setPendingTxs(pendingTxs){
       try{
       const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes(signature))
       const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
-      return {signer: signer , witness : witness}     
-      }catch(e){
-        console.log(e)
-        throw new Error('Invalid signature');
+      return {signature, signer: signer , witness : witness}     
+      }catch(f){
+        try{
+            const witness  =  C.TransactionWitnessSet.from_bytes(this.hexToBytes("a10081" + signature))
+            const signer = witness.vkeys().get(0).vkey().public_key().hash().to_hex();
+            return {signature : "a10081" + signature, signer: signer , witness : witness}             
+        }catch(e){
+          console.log(e)
+          throw new Error('Decoding Failed, Invalid signature');
       }
-    }
+    } }
 
 
     hexToBytes(hex) {
@@ -768,6 +773,7 @@ setPendingTxs(pendingTxs){
     }
     
     addSignature(signature){
+
       const signatureInfo = this.decodeSignature(signature)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
       var valid = false
@@ -776,7 +782,7 @@ setPendingTxs(pendingTxs){
             {
               valid = true
               if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
-                   this.pendingTxs[index].signatures[signatureInfo.signer] = signature
+                   this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature
                    return  this.pendingTxs[index]
                 }else{
                    throw new Error('Signature already registered');
