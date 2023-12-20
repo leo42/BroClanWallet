@@ -2,7 +2,7 @@
 import {Buffer} from 'buffer';
  
 import { Lucid, utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
-//test
+
 function toHexString(byteArray) {
     return Array.from(byteArray, function(byte) {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
