@@ -33,6 +33,7 @@ function WalletDelegation(props) {
     }
     SearchPools(pool).then( (pools) => {
       setSearching(false);
+
       setPools(pools);
     })
   }, [pool, wallet])
@@ -53,7 +54,7 @@ function WalletDelegation(props) {
         item ? wallet.getSigners()[index].hash : ""
     )
 
-    props.moduleRoot.createDelegationTx(pools[0].pool_id_bech32, txSigners.filter((element, index) => signers[index]));
+    props.moduleRoot.createDelegationTx(pools[0], txSigners.filter((element, index) => signers[index]));
   }
 
   const Undelegate = event => {
@@ -127,8 +128,8 @@ function WalletDelegation(props) {
       </label>
       {searching ? searchingAnimation() : pools.map( (pool) => (
           <div key={pool}>
-            <PoolElement  key={pool.pool_id_bech32} root={props.root} poolId={pool.pool_id_bech32} />
-             {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool.pool_id_bech32)}>Select</button>}
+            <PoolElement  key={pool} root={props.root} poolId={pool} />
+             {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool)}>Select</button>}
             <br/>
           </div>
         )

@@ -19,6 +19,16 @@
 
 }
 
+.PoolElementAtributionText{
+    display: flex;
+    flex-direction: row;
+    font-size: 12px;
+    color: #F48037;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    margin-left: 10px;
+}
 .PoolElement {
     display: flex;
     flex-direction: row;
@@ -71,7 +81,8 @@
 .PoolElementAtributionImg{
     width: 80px;
     height: 20px;
+    background-color: rgba(255, 255, 255, 0.747);
+    border-radius: 10px;
     z-index: 100;
     cursor: pointer;
-
 }
