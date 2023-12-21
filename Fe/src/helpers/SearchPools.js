@@ -8,12 +8,14 @@ async function SearchPools(string){
    // }
 
     const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/pool_list" : `https://${settings.network}.koios.rest/api/v0/pool_list`
+    try{
     const responseTicker = await fetch(
         `${api}?ticker=like.${string}*`,
         {
             method: "GET",
             headers: {
-                "Content-Type": "application/json",
+                "accept": "application/json",
+                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdTk4cGp2eDduYTRmZDRoZzJtbTk1c2RycTZ6czk5NHduaGR2bGVtemR3ajRuOWNqMnd1bmEiLCJleHAiOjE3MzQ3MDM1MzAsInRpZXIiOjEsInByb2pJRCI6Im5SNXhkbWJrQlRUR3ZQN3gifQ.VAPc1HyKwiClRB0E9Sn5tjc2Im2g1p1hNSp1mxdbPHE",
             }
         })
 
@@ -23,6 +25,7 @@ async function SearchPools(string){
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdTk4cGp2eDduYTRmZDRoZzJtbTk1c2RycTZ6czk5NHduaGR2bGVtemR3ajRuOWNqMnd1bmEiLCJleHAiOjE3MzQ3MDM1MzAsInRpZXIiOjEsInByb2pJRCI6Im5SNXhkbWJrQlRUR3ZQN3gifQ.VAPc1HyKwiClRB0E9Sn5tjc2Im2g1p1hNSp1mxdbPHE",
             }
         })
 
@@ -31,8 +34,11 @@ async function SearchPools(string){
     const data2 = await responseId.json()
     //return sublist of data that matches string size 10
         
-    return (data.length !== 0 ? data : data2).slice(0,10)
-
+    return (data.length !== 0 ? data : data2).slice(0,10).map( pool => pool.pool_id_bech32)
+    } catch(e){
+        console.log(e)
+        return [string]   
+    }
 
     }
 

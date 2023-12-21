@@ -68,7 +68,7 @@ function TransactionHistory (props) {
     }
 
     function TransactionListing(transaction){
-        const urlPrefix = props.root.state.settings.network === "mainet" ?   "https://cexplorer.io/tx/" : `https://${props.root.state.settings.network}.cexplorer.io/tx/`
+        const urlPrefix = props.root.state.settings.network === "Mainnet" ?   "https://cexplorer.io/tx/" : `https://${props.root.state.settings.network}.cexplorer.io/tx/`
         const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
                    <a  href={`${urlPrefix}${transaction.tx_hash}`} target="_blank"> {transaction.tx_hash}<br/></a>

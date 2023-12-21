@@ -19,12 +19,12 @@ class App extends React.Component {
     module : "",
     settings: { metadataProvider :"Blockfrost", 
                 sendAll: false, 
-                network: "Preprod", 
-                explorer: "https://preprod.cardanoscan.io/" , 
+                network: "Mainnet", 
+                explorer: "https://cardanoscan.io/" , 
                 provider: "Blockfrost" , 
                 disableSync: false,
                 termsAccepted: "NotAccepted",
-                api :  {"url": "https://passthrough.broclan.io" , "projectId": "preprod"} 
+                api :  {"url": "https://passthrough.broclan.io" , "projectId": "mainnet"} 
                 },
     mode: "darkMode",
     syncService: "https://sync.broclan.io",
