@@ -1,6 +1,8 @@
-const BROCLAN_DOMAIN = "beta.broclan.io"
-const BROCLAN_PORT =  ""
-const BROCLAN_URL = "https://" + BROCLAN_DOMAIN + BROCLAN_PORT + "/";
+chrome.storage.local.get('appURL', function(result) {
+    if (result.appURL === undefined) {
+        chrome.storage.local.set({appURL: 'https://app.broclan.io/'});
+    }
+});
 
 let BroPort = null;
 
@@ -127,7 +129,12 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
 chrome.runtime.onConnectExternal.addListener(function(port) {
     // reject if url is not in approved list
     //check open tabs 
-    if (port.sender.url === BROCLAN_URL) {
+    chrome.storage.local.get('appURL', function(result) {
+         console.log("connection request from " + port.sender.url, result.appURL);  
+    let senderUrl = new URL(port.sender.url);
+    let appUrl = new URL(result.appURL);
+
+    if (senderUrl.hostname === appUrl.hostname && senderUrl.port === appUrl.port) {
         console.log("Connected to BroClan");
         
         port.onDisconnect.addListener(function() {
@@ -148,8 +155,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         
         return
     }
-
-
+});
     
 
 });
@@ -203,28 +209,30 @@ function getUserApproval(data) {
 
 function connectBroClan() {
     return new Promise((resolve, reject) => {
-        chrome.tabs.query({}, async function(tabs) {
-            let tabIds = [];
+        chrome.storage.local.get('appURL', function(result) {
+            let appDomain = new URL(result.appURL);
 
-            for (let tab of tabs) {
-                let tabDomain = new URL(tab.url).hostname;
-                if (tabDomain === BROCLAN_DOMAIN) {
-                    tabIds.push(tab.id);
+            chrome.tabs.query({}, async function(tabs) {
+                let tabIds = [];
+                for (let tab of tabs) {
+                    let tabDomain = new URL(tab.url);
+                    if (tabDomain.hostname === appDomain.hostname && tabDomain.port === appDomain.port) {
+                        tabIds.push(tab.id);
+                        console.log("tab Found");
+                    }
                 }
-            }
-            if (tabIds.length === 0) {
-                tabIds.push(chrome.tabs.create({ url: BROCLAN_URL, active: false }));               
-            }else if(BroPort === null){
-                chrome.tabs.reload(tabIds[0]);
-            }
+                if (tabIds.length === 0) {
+                    tabIds.push(chrome.tabs.create({ url:  result.appURL, active: false }));
+                } else if(BroPort === null){
+                    chrome.tabs.reload(tabIds[0]);
+                }
 
-            while(BroPort === null){
+                while(BroPort === null){
+                    await new Promise(r => setTimeout(r, 1000));
+                }
 
-                await new Promise(r => setTimeout(r, 1000));
-            }
-
-            resolve(true);
+                resolve(true);
+            });
         });
     });
 }
-console.log("Background script loaded");

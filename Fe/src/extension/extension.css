@@ -17,6 +17,43 @@
 
 }
 
+.settingsLine{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(3, 0, 0, 0.055);
+    margin-bottom: 5px;
+}
+
+.saveBtn{
+    bottom: 20px;
+    width: 60px;
+    cursor: pointer;
+    background-color: #b69d8c;
+    border-radius: 6px;
+}
+
+
+.saveBtn:hover{
+    background-color: #F68F42;
+}
+
+
+.resetBtn{
+    bottom: 20px;
+    width: 60px;
+    cursor: pointer;
+    background-color: #b69d8c;
+    border-radius: 6px;
+}
+
+.resetBtn:hover{
+    background-color: #F68F42;
+}
+
 .emptyText{
     color: black;
     font-size: 20px;
