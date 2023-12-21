@@ -16,7 +16,7 @@ function handleClick(e) {
     window.open(`https://${urlPrefix}cexplorer.io/pool/${props.poolId}`, '_blank');
   }
 
-    if (PoolInfo === undefined  ) return (<div className="PoolElementNotFound">{JSON.stringify(props.poolId)}Pool Not found </div>)
+    if (PoolInfo === undefined  ) return (<div className="PoolElementNotFound">Pool Not found </div>)
 
     const networkPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."
     return (
