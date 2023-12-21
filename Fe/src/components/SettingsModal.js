@@ -44,7 +44,7 @@ function SettingsModal(props) {
   function resetSettings(){
     setProvider("MWallet")
     setMetadataProvider("Blockfrost")
-    networkChange("Preprod")
+    networkChange("Mainnet")
 
   }
 
