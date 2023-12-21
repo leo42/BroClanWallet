@@ -173,7 +173,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
              consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
              metadata[`0x${policyId}`][`0x${validUtxos[index].txHash}`] =  {name: mintingSetting.name, 
                                                                             description: mintingSetting.description.length > 56 ? stringToChunks(mintingSetting.description) : mintingSetting.description, 
-                                                                            image: [`https://${settings.network === "Mainnet" ? "" : "preprod."}tokenvaults.broclan.io/api/`,`${validUtxos[index].txHash}`,`/image.png`],
+                                                                            image: [`https://${settings.network === "Mainnet" ? "" : "preprod"}tokenvaults.broclan.io/api/`,`${validUtxos[index].txHash}`,`/image.png`],
                                                                             information: this.mintingInfo }
     }) 
     let affiliate =  localStorage.getItem("affiliate") ? JSON.parse(localStorage.getItem("affiliate")) : undefined
