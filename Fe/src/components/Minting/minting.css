@@ -12,6 +12,12 @@
     max-width: 200px;
 }
 
+.mintingDisclamer{
+    margin: 10px;
+    color: red;
+    font-weight: 700;
+}
+
 .affiliateLink{
     position: fixed;
     bottom: 0px;

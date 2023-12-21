@@ -298,6 +298,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         return (
             <div className='MintingModule'>
                     {this.description}
+                  { this.props.root.state.settings.network !== "Preprod" &&  <span className="mintingDisclamer">Tokenized Wallets are only supported on the preprod testnet.</span>}
                     <div key={this.state.mintingSettings}> 
                 {this.state.mintingSettings.map((mintingSetting, index) => 
                     <div key={index}>
