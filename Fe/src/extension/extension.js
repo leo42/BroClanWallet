@@ -16,11 +16,16 @@ function App() {
     const [signersValid, setSignersValid] = useState(false);
     const [settingsOpen , setSettingsOpen] = useState(false);
     const [approvedUrls, setApprovedUrls] = useState([]);
-     
+    const [appURL, setAppURL] = useState("");
+
     useEffect(() => {
         getInfo()
         chrome.storage.local.get(['approvedUrls'], function(result) {
             setApprovedUrls(JSON.parse(result.approvedUrls));
+        });
+        chrome.storage.local.get(['appURL'], function(result) {
+          //if empty set default value to app.broclan.io 
+            setAppURL(result.appURL);
         });
       }, []);
 
@@ -84,6 +89,17 @@ function App() {
             </div>
           </div>
 
+    const saveAppURL = () => {
+        chrome.storage.local.set({ appURL: appURL }, function() {
+          });
+    }
+
+    const resetAppURL = () => {
+        chrome.storage.local.set({ appURL: 'https://app.broclan.io/' }, function() {
+            setAppURL('https://app.broclan.io/');
+          });
+    }
+
     const deleteUrl = (url) => {
         console.log(url);
         let newApprovedUrls = approvedUrls.filter((approvedUrl) => approvedUrl !== url);
@@ -94,12 +110,18 @@ function App() {
 
     const settingsOverview = <div className='settingsOverview'>
         <h2>Settings</h2>
+          <h3>App Url</h3>
+        <div className='settingsLine'>
+          <input type="text" value={appURL} onChange={(e) => setAppURL(e.target.value)}></input>
+          <button className='saveBtn' onClick={() => saveAppURL()}>Save</button> 
+          <button className='resetBtn' onClick={resetAppURL}>Reset</button>
+        </div>
         <h3>Approved Urls</h3>
         <div className='approvedUrls'>
             {approvedUrls.map((url) => <div key={url} className='approvedUrl'>{url}<button  className='deleteUrl' onClick={()=> deleteUrl(url)}>X</button></div>)}
         </div>  
 
-
+    
         <button className='closeBtn' onClick={() => setSettingsOpen(false)}>Back</button>
         </div>
 

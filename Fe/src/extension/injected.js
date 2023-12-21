@@ -1,7 +1,7 @@
 const TARGET = "BroClan";
 const EXTENSION_ID = document.currentScript.dataset.extensionId;
 function promiseMessage(message){
-    console.log(message)
+
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(EXTENSION_ID, message).then((responce) => { 
             if(responce.error){
@@ -13,13 +13,10 @@ function promiseMessage(message){
     })
 
 }
-console.log(EXTENSION_ID);
-console.log("BroClan, injected script loaded, test again 4", document.currentScript.dataset.extensionId);
 
 function isEnabled() {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(EXTENSION_ID, { action: 'enable', extensions: extensions }).then((responce) => {
-            console.log(responce);
             if(!responce || responce.error){ 
                 resolve(false);
             }else{
@@ -36,7 +33,6 @@ function enable(extensions = []) {
             reject("Only Extencion 106 is supported");
         }
         chrome.runtime.sendMessage(EXTENSION_ID, { action: 'enable', extensions: extensions }).then((responce) => {
-            console.log(responce);
             if(!responce || responce.error){ 
                 reject(responce.error);
             }else{
