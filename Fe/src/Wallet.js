@@ -1,6 +1,7 @@
-import {   C , Lucid, Blockfrost , TxComplete ,Kupmios, Data} from "lucid-cardano";
+import {   C ,   TxComplete , Data} from "lucid-cardano";
 const { Transaction} = C;
 import {  toast } from 'react-toastify';
+import {getNewLucidInstance, changeProvider} from "./helpers/newLucid.js"
 
 class Wallet {
     constructor(wallet_json,name) {
@@ -53,21 +54,8 @@ class Wallet {
     }
 
     async initialize (settings){
-      if(settings.provider === "Blockfrost"){
-      this.lucid = await Lucid.new(
-        new Blockfrost(settings.api.url, settings.api.projectId),
-        settings.network,
-      );
-     }else if(settings.provider === "Kupmios"){
-        this.lucid = await Lucid.new(
-          new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
-          settings.network,
-        );
-      }else if(settings.provider === "MWallet"){
-        this.lucid = await Lucid.new(
-        new Blockfrost(settings.api.url, settings.api.projectId),
-        settings.network
-      )}
+      this.lucid = await getNewLucidInstance(settings)
+
       this.extractSignerNames(this.wallet_script)
       this.lucidNativeScript = this.lucid.utils.nativeScriptFromJson(this.wallet_script )
       this.lucid.selectWalletFrom(  { "address":this.getAddress()})
@@ -81,14 +69,8 @@ class Wallet {
       }
 
       try{
-      if (settings.provider === "Blockfrost"){
-        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
-      }else if (settings.provider === "Kupmios"){
-        await this.lucid.switchProvider(new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl), settings.network)
-      }else if (settings.provider === "MWallet"){
-        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
-      }
-      await this.loadUtxos()
+        await changeProvider(this.lucid, settings)
+        await this.loadUtxos()
     }catch(e){
       throw new Error('Invalid Connection Settings'+ e);
     }

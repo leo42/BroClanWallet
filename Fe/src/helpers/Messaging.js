@@ -1,7 +1,7 @@
 
 import {Buffer} from 'buffer';
  
-import { Lucid, utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
+import {  utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
 
 function toHexString(byteArray) {
     return Array.from(byteArray, function(byte) {

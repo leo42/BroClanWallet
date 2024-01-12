@@ -1,6 +1,7 @@
 import React from "react";
 import "./minting.css"
-import { Lucid ,Blockfrost, Kupmios, Data, Constr } from "lucid-cardano";
+import { Data, Constr } from "lucid-cardano";
+import { getNewLucidInstance } from "../../helpers/newLucid";
 
 import {  toast } from 'react-toastify';class Minting extends React.Component {
   
@@ -261,22 +262,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
     }
 
     async newLucidInstance(settings) {
-        if (settings.provider === "Blockfrost") {
-          return await Lucid.new(
-            new Blockfrost(settings.api.url, settings.api.projectId),
-            settings.network
-          );
-        } else if (settings.provider === "Kupmios") {
-          return await Lucid.new(
-            new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
-            settings.network
-          );
-        } else if (settings.provider === "MWallet") {
-          return await Lucid.new(
-            new Blockfrost(settings.api.url, settings.api.projectId),
-            settings.network
-          );
-        }
+      getNewLucidInstance(settings);
       }
 
 
