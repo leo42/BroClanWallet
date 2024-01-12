@@ -1,11 +1,7 @@
 import React, { useEffect }     from "react";
 import TokenElement from "../../components/TokenElement";
-import { ReactComponent as ExpandIcon } from "../../html/assets/details.svg";
-import copyTextToClipboard from "../../helpers/copyTextToClipboard";
 import "../../components/Multisig/PendingTx.css"
 import "./PendingTx.css"
-import {   C, Lucid } from "lucid-cardano";
-import { Buffer } from "buffer";
 
 
 function PendingTx(props) {

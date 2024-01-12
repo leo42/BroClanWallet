@@ -142,6 +142,10 @@ function SettingsModal(props) {
           <input type="text" placeholder="ogmiosUrl" value={providerConnection.ogmiosUrl ? providerConnection.ogmiosUrl : "" } onChange={(event) => setProviderConnection({...providerConnection, ogmiosUrl: event.target.value})} />
           </div>
       )}
+      { provider === "Maestro" &&( <div> 
+          <input type="text" placeholder="apiKey" value={providerConnection.apiKey ? providerConnection.apiKey : ""} onChange={(event) => setProviderConnection({...providerConnection, apiKey: event.target.value})} />    
+          </div>
+      )}
       </div>
     )
   }  
@@ -179,6 +183,7 @@ function SettingsModal(props) {
           <option value="Blockfrost">Blockfrost</option>
           <option value="MWallet">BroClan</option>
           <option value="Kupmios">Kupmios</option>
+          <option value="Maestro">Maestro</option>
         </select>
         <span>Metadata Provider</span>
             <select onChange={(event) => setMetadataProvider(event.target.value)} value={metadataProvider} defaultValue={metadataProvider}>

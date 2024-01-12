@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import TermsAndConditionsBanner from './components/TermsBanner';
 import NavBar from './components/NavBar';
-import {  Blockfrost ,Kupmios} from "lucid-cardano";
+import { getNewLucidInstance } from './helpers/newLucid.js';
 import SettingsModal from "./components/SettingsModal";
 import TokenVaultsContainer from './components/TokenVault/TokenVaultContainer';
 import Minting from './components/Minting/minting';
@@ -84,16 +84,10 @@ class App extends React.Component {
 
   async checkSettings(settings){
     try{
-      if (settings.provider === "Blockfrost"){
-        const provider = new Blockfrost(settings.api.url, settings.api.projectId)
-        await provider.getProtocolParameters()
-      }else if (settings.provider === "Kupmios"){
-        const provider = new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl)
-        await provider.getProtocolParameters()
-      }else if (settings.provider === "MWallet"){
-        const provider = new Blockfrost(settings.api.url, settings.api.projectId)
-        await provider.getProtocolParameters()
-      }
+      const provider = await getNewLucidInstance(settings)
+
+      await provider.provider.getProtocolParameters()
+      
       return true
     }catch(e){
       console.log(e)

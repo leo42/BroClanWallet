@@ -1,6 +1,7 @@
-import {   C , Lucid, Blockfrost , TxComplete ,Kupmios , Data } from "lucid-cardano";
+import {   C , TxComplete  , Data } from "lucid-cardano";
 const { Transaction} = C;
 import { Program } from "@hyperionbt/helios"
+import {getNewLucidInstance, changeProvider} from "../../Fe/src/helpers/newLucid.js"
 
 class Wallet {
     constructor(token, api) {
@@ -77,28 +78,7 @@ func main(_ ,ctx: ScriptContext) -> Bool {
 
   async newLucidInstance(settings) {
 
-    if (settings.provider === "Blockfrost") {
-      return await Lucid.new(
-        new Blockfrost(settings.api.url, settings.api.projectId),
-        settings.network
-      );
-    } else if (settings.provider === "Kupmios") {
-      return await Lucid.new(
-        new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl),
-        settings.network
-      );
-    } else if (settings.provider === "MWallet") {
-      return await Lucid.new(
-        new Blockfrost(settings.api.url, settings.api.projectId),
-        settings.network
-      );
-    }
-    else if (settings.provider === undefined) {
-      return await Lucid.new(
-        undefined,
-        settings.network
-      );
-    }
+    return getNewLucidInstance(settings)
   }
 
     async changeSettings(settings){
@@ -109,13 +89,7 @@ func main(_ ,ctx: ScriptContext) -> Bool {
       }
 
       try{
-      if (settings.provider === "Blockfrost"){
-        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
-      }else if (settings.provider === "Kupmios"){
-        await this.lucid.switchProvider(new Kupmios(settings.api.kupoUrl, settings.api.ogmiosUrl), settings.network)
-      }else if (settings.provider === "MWallet"){
-        await this.lucid.switchProvider(new Blockfrost(settings.api.url, settings.api.projectId), settings.network)
-      }
+        changeProvider(this.lucid, settings)
       await this.loadUtxos()
     }catch(e){
       throw new Error('Invalid Connection Settings'+ e);
