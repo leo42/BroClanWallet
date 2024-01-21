@@ -10,7 +10,7 @@ async function getTokenInfo(tokenId){
         "name": "ADA",
         "ticker": "ADA",
         "decimals": 6,
-        "image": "https://icons-for-free.com/iconfiles/png/512/cardano+icon-1320162855683510157.png",
+        "image": "assets/ADA.png",
         "unit": "lovelace",
 
         "fetch_time": Date.now()
