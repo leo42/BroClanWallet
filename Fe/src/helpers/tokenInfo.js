@@ -118,7 +118,7 @@ async function getTokenInfo(tokenId){
                 tokenInfo["provider"] = "Koios"
                 tokenInfo["fingerprint"] = koiosTokenInfo[0].fingerprint
                 tokenInfo["image"] = typeof  tokenInfo["image"] === "object" ?  tokenInfo["image"].join('') : tokenInfo["image"]
-                tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
+                tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs://ipfs/","ipfs/").replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
 
@@ -146,7 +146,43 @@ async function getTokenInfo(tokenId){
                     tokenInfo["fingerprint"] = BlockfrostTokenInfo.fingerprint
                     tokenInfo["isNft"] =  (BlockfrostTokenInfo.quantity) === "1"
                     tokenInfo["image"] = typeof  tokenInfo["image"] === "object" ?  tokenInfo["image"].join('') : tokenInfo["image"]
-                    tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
+                    tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs://ipfs/","ipfs/").replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
+                writeToLocalStorage(tokenId,tokenInfo)
+                return(tokenInfo)
+              }else if (settings.metadataProvider === "Maestro"){
+                const MaestroUrl = `https://${settings.network}.gomaestro-api.org`
+                const MaestroTokenData = await fetch(
+                  `${MaestroUrl}/v1/assets/${tokenId}`,
+                  { headers: { 
+                    'Accept': 'application/json', 
+                    'api-key': settings.api.apiKey,
+                  } },
+                ).then((res) => res.json());     
+                   tokenInfo["fetch_time"] = Date.now()
+                  if(MaestroTokenData.data.token_registry_metadata){
+                    tokenInfo["name"] = MaestroTokenData.data.token_registry_metadata.name
+                    tokenInfo["image"] =   "data:image/jpeg;base64," + MaestroTokenData.data.token_registry_metadata.logo.replace(/\s/g, ';')
+                    tokenInfo["decimals"] = MaestroTokenData.data.token_registry_metadata.decimals
+                  }
+                  if (MaestroTokenData.data.asset_standards){
+                    if(MaestroTokenData.data.asset_standards.cip25_metadata){
+                      tokenInfo["name"] = MaestroTokenData.data.asset_standards.cip25_metadata.name 
+                      tokenInfo["image"] =  MaestroTokenData.data.asset_standards.cip25_metadata.image 
+                    }else if(MaestroTokenData.data.asset_standards.cip68_metadata){
+                      tokenInfo["name"] =MaestroTokenData.data.asset_standards.cip68_metadata.name
+                      tokenInfo["image"] = MaestroTokenData.data.asset_standards.cip68_metadata.image
+                    }
+
+                  }else{
+                    tokenInfo["name"] = MaestroTokenData.data.asset_name_ascii
+                    
+                  }
+                  
+                    tokenInfo["provider"] = "Maestro"
+                    tokenInfo["fingerprint"] = MaestroTokenData.data.fingerprint
+                    tokenInfo["isNft"] =  (MaestroTokenData.data.total_supply) === "1"
+                    tokenInfo["image"] = typeof  tokenInfo["image"] === "object" ?  tokenInfo["image"].join('') : tokenInfo["image"]
+                    tokenInfo["image"] = tokenInfo["image"]?.replace("ipfs://ipfs/","ipfs/").replace("ipfs/",ipfsGateWay).replace("ipfs://",ipfsGateWay)
                 writeToLocalStorage(tokenId,tokenInfo)
                 return(tokenInfo)
               }

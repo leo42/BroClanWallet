@@ -1,5 +1,8 @@
+import { Lucid  } from "lucid-cardano";
+
 async function getTransactionHistory(address, settings, page=0 , limit = 10){
-    if( settings.metadataProvider === "None"){
+    console.log("getTransactionHistory", address, settings, page, limit)
+    if( settings.metadataProvider === "None" ){
         return []
     }
 
@@ -31,7 +34,7 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
     }else if ( settings.metadataProvider === "Blockfrost"){
         const api = settings.api.url
         const response = await fetch(
-            `${api}/addresses/${address}/transactions`,
+            `${api}/addresses/${address}/transactions?order=acs`,
             {
                 method: "GET",
                 headers: {
@@ -40,27 +43,45 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
             }
         );
         const json = await response.json();
-        // return the first 10 transactions if page is not specified 
-        // sort by block height
-    if (json.error) 
-        return []
-    json.sort((a,b) => b.block_height - a.block_height)
-    return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
+
+        if (json.error) 
+            return []
+        json.sort((a,b) => b.block_height - a.block_height)
+        return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
+    }else if(settings.metadataProvider === "Maestro")
+    {
+        const MaestroUrl = `https://${settings.network}.gomaestro-api.org`
+        const MaestroTxHistory = await fetch(
+            `${MaestroUrl}/v1/addresses/${address}/transactions?count=${limit}&order=desc` + (page > 0 ? `&cursor=${localStorage.getItem('next_cursor')}` : "" ),
+            { headers: { 
+              'Accept': 'application/json', 
+              'api-key': settings.api.apiKey,
+            } },
+          ).then((res) => res.json());   
+        if (MaestroTxHistory.error) 
+            return []
+          MaestroTxHistory.data.sort((a,b) => b.slot - a.slot)
+         //write next_cursor to local storage 
+         localStorage.setItem('next_cursor', MaestroTxHistory.next_cursor);
+
+        
+
+        return await getTransactionDetails(MaestroTxHistory.data, settings)
     }
 
 
 }
     
 async function getTransactionDetails(transactionIds, settings){
-    
     let transactionInfo =  {...JSON.parse(localStorage.getItem('transactionInfo'))};
      
 
     let fullTransactionsInfo = transactionIds.map( async (transactionId) => {
         if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider ){
-            return (transactionInfo[transactionId.tx_hash])
-        }else{
-             
+           return (transactionInfo[transactionId.tx_hash])
+        }
+        else
+        {
             if ( settings.metadataProvider === "Koios"){
                 const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/tx_utxos" : `https://${settings.network}.koios.rest/api/v0/tx_utxos`
                 const response = await fetch(
@@ -124,6 +145,36 @@ async function getTransactionDetails(transactionIds, settings){
             transactionInfo[transactionId.tx_hash].provider = "Blockfrost"
             localStorage.setItem('transactionInfo', JSON.stringify(transactionInfo));
             return transactionInfo[transactionId.tx_hash]
+        }else if (settings.metadataProvider === "Maestro"){
+
+            const MaestroUrl = `https://${settings.network}.gomaestro-api.org`
+            const MaestroTx = await fetch(
+                `${MaestroUrl}/v1/transactions/${transactionId.tx_hash}`,
+                { headers: { 
+                  'Accept': 'application/json', 
+                  'api-key': settings.api.apiKey,
+                } },
+              ).then((res) => res.json());   
+
+            const lucid =  await Lucid.new(
+                null,
+                settings.network
+              );            
+              
+            let fullTransactionInfo =  {...transactionId};
+            fullTransactionInfo.utxos = {}
+            fullTransactionInfo.utxos.inputs = MaestroTx.data.inputs.map(input =>  maestroUtxoToUtxo(input) )
+            fullTransactionInfo.utxos.outputs = MaestroTx.data.outputs.map(input =>  maestroUtxoToUtxo(input) )
+            transactionInfo[transactionId.tx_hash] = fullTransactionInfo
+            transactionInfo[transactionId.tx_hash].fetch_time = Date.now()
+            transactionInfo[transactionId.tx_hash].block_time =  lucid.utils.slotToUnixTime(transactionInfo[transactionId.tx_hash].slot);
+            transactionInfo[transactionId.tx_hash].provider = "Maestro"
+            transactionInfo[transactionId.tx_hash].withdrawals = MaestroTx.data.withdrawals[0];
+
+            localStorage.setItem('transactionInfo', JSON.stringify(transactionInfo));
+
+            return transactionInfo[transactionId.tx_hash]
+
         }
         }
     })
@@ -132,6 +183,17 @@ async function getTransactionDetails(transactionIds, settings){
 
 
     return fullTransactionsInfo
+}
+
+function maestroUtxoToUtxo(utxo){
+    return {
+        address: utxo.address,
+        amount: utxo.assets.map(asset => ({ "unit": asset.unit, "quantity" : Math.abs(asset.amount) })),
+        tx_hash: utxo.tx_hash,
+        tx_index: utxo.tx_index,
+        tx_output_index: utxo.tx_output_index
+    }
+
 }
 
 function koiosUtxosToUtxos(lovelace,asset_list){
