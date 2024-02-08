@@ -43,12 +43,13 @@ function TransactionHistory (props) {
                input.amount.map( (asset) => 
                 asset.unit in BalancesOut ? BalancesOut[asset.unit] -= parseInt(asset.quantity) :  BalancesOut[asset.unit] = -parseInt(asset.quantity)
             )}})
-        transaction.utxos.outputs.map( (input, index) => {
-            if ( input.address === address  && !input.collateral)  {
-             input.amount.map( (asset) => 
+        transaction.utxos.outputs.map( (output, index) => {
+            if ( output.address === address  && !output.collateral)  {
+                output.amount.map( (asset) => 
                  asset.unit in BalancesOut ? BalancesOut[asset.unit] += parseInt(asset.quantity) : BalancesOut[asset.unit] = parseInt(asset.quantity)
              )}})
-        const lovelace = BalancesOut.lovelace
+        const withdraw = transaction.withdrawals? transaction.withdrawals.amount : 0
+        const lovelace = BalancesOut.lovelace - withdraw
         delete BalancesOut["lovelace"]
         Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
         const tokens = Object.keys(BalancesOut).map((key, index) => ( 
@@ -79,8 +80,9 @@ function TransactionHistory (props) {
     }
 
     function loadMoreTransactions(){
-        setPage(page + 1)
-        let TxH = getTransactionHistory(address, props.root.state.settings, page )
+        const newPage = page + 1
+        setPage(newPage)
+        let TxH = getTransactionHistory(address, props.root.state.settings, newPage )
         TxH.then(transactionHistory => {setTransactions(transactions.concat(transactionHistory))
             if (transactionHistory.length < 10) setLoadMore(false)}
             )
