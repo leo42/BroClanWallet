@@ -17,14 +17,13 @@ async function getNewLucidInstance(settings){
 async function changeProvider(lucid, settings){
     return new Promise(async (resolve, reject) => {
         const provider = getProvider(settings);
-        lucid.switchProvider(provider);
+        await lucid.switchProvider(provider);
         resolve(lucid);
     });
    
 }
 
 function getProvider(settings){
-    console.log(settings)
     switch(settings.provider){
         case "Blockfrost":
             return new Blockfrost(settings.api.url, settings.api.projectId);

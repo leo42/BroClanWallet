@@ -24,10 +24,10 @@ state= {
     dAppConnector: null,
 }
 
-componentDidUpdate(prevProps) {
+componentDidUpdate(prevProps) { 
 
   if (this.props.settings !== prevProps.settings) {
-    this.newSettings(this.props.root.state.settings)
+    this.newSettings(this.props.settings)
     
   }
 }
