@@ -212,7 +212,7 @@ class WalletCreateTx extends React.Component {
     </div>
     ))}
     </div>
-    <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index+this.state.sendFrom}></TokenDropdownMenu>
+    { Object.values(this.props.wallet.getBalanceFull(this.state.sendFrom)).length > 1 && <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index+this.state.sendFrom}></TokenDropdownMenu>}
     { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
   </div>
   ))
