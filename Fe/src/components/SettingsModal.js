@@ -188,7 +188,7 @@ function SettingsModal(props) {
         <span>Metadata Provider</span>
             <select onChange={(event) => setMetadataProvider(event.target.value)} value={metadataProvider} defaultValue={metadataProvider}>
               <option value="None">None</option>
-              <option value="Koios">Koios</option>
+              {/* <option value="Koios">Koios</option> */}
               <option value="Maestro">Maestro</option>
              { provider && <option value="Blockfrost">Blockfrost</option> }
             </select>
