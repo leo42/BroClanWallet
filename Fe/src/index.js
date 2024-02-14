@@ -77,7 +77,6 @@ class App extends React.Component {
       return
     }
     const settings = {...this.state.settings, ...newSettings}
-    localStorage.setItem("settings", JSON.stringify(newSettings))
 
     this.setState({settings})
   }
