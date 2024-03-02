@@ -2,10 +2,10 @@
 use aiken/list
 use aiken/option
 use aiken/dict
+use aiken/bytearray
 use aiken/transaction/credential.{VerificationKeyCredential , ScriptCredential ,VerificationKey, Script}
 use aiken/hash.{Blake2b_224, Hash}
 use aiken/transaction/value.{ PolicyId , AssetName  }
-
 use aiken/transaction.{Transaction, ScriptContext, Mint, Output, InlineDatum }
 
 type VerificationKeyHash =
@@ -25,19 +25,16 @@ type AdminDatum {
       paymentAddressCredential : VerificationHash
 }
 
-type Redeemer {
-    Void
-    Affiliate { paymentAddressCredential : VerificationHash}
-}
 
-validator {
-  fn minting( redeemer: Redeemer, ctx: ScriptContext) {
+
+validator( ) {
+  fn minting(  _, ctx: ScriptContext) {
     // In principle, scripts can be used for different purpose (e.g. minting
     // assets). Here we make sure it's only used when 'spending' from a eUTxO
     when ctx.purpose is {
       Mint(policyId) ->
         and {
-        payment_made(ctx.transaction,policyId, redeemer),
+        payment_made(ctx.transaction,policyId),
         mint_consumed_utxos(ctx.transaction, policyId)
           }
       _ -> False
@@ -45,9 +42,12 @@ validator {
   }
 }
  
-fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeemer ) {
+fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
   let adminTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
   let adminTokenName : AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
+
+  let redemptionTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
+  let redemptionTokenName :  AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
 
   let tokensMintedAmount = value.tokens( value.from_minted_value(transaction.mint), policyId)
                           |> dict.size()
@@ -63,43 +63,39 @@ fn payment_made(transaction: Transaction, policyId:PolicyId , redeemer : Redeeme
     
   
 
-  
-   when (redeemer) is { 
-     Void ->   list.any( transaction.outputs, fn(output) { and {
+  let regularPayment = list.any( transaction.outputs, fn(output) { and {
                                                 address_belongs_to_hash(output, adminData.paymentAddressCredential),
                                                 value.lovelace_of(output.value) == adminData.mintAmount * tokensMintedAmount
                                                 }
                                               })
       
-    Affiliate(affiliateKey) -> and { 
-                  list.any( transaction.outputs, fn(output) { and { 
-                                                       address_belongs_to_hash(output, adminData.paymentAddressCredential),
-                                                       value.lovelace_of(output.value) == (adminData.mintAmount - adminData.affiliateBounty ) * tokensMintedAmount
-                                                        }
-                                                      }),
-                  list.any( transaction.outputs, fn(output) { and {
-                                                        address_belongs_to_hash(output, affiliateKey),
-                                                        value.lovelace_of(output.value) == adminData.affiliateBounty * tokensMintedAmount
-                                                        }
-                                                      })
-                              }
-        
-  }
+  let tokensMinted = value.from_minted_value(transaction.mint)
+
+
+  let redemptionPayment = (value.quantity_of(tokensMinted, redemptionTokenPolicy,redemptionTokenName) == -1)
+  
+  
+  regularPayment ||  redemptionPayment
                                            
 }
  
  fn mint_consumed_utxos(transaction: Transaction,  policyId:PolicyId) {
   let tokensMinted = dict.keys(value.tokens( value.from_minted_value(transaction.mint), policyId))
-  
+  and {
    list.all( tokensMinted, fn(token) { 
-                                  list.count(transaction.inputs , fn(input)  {
-                                           and{ 
-                                             input.output_reference.transaction_id.hash == token , 
-                                             input.output_reference.output_index == 0 
-                                             }
-                                            }) == 1
-                                    })
-   
+        list.count(transaction.inputs , fn(input)  {
+                hash.sha2_256(bytearray.push(input.output_reference.transaction_id.hash,
+                                               input.output_reference.output_index
+                                          )) == token  
+                  }) == 1 
+                 
+          }),
+    list.all(transaction.inputs , fn(input)  {
+       input.output_reference.output_index < 255
+       })
+
+  }
+
 }
 
 
