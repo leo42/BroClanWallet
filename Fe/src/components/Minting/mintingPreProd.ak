@@ -46,8 +46,8 @@ fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
   let adminTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
   let adminTokenName : AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
 
-  let redemptionTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
-  let redemptionTokenName :  AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
+  let redemptionTokenPolicy : PolicyId = #"24fc896805f0b75ab51502b022834440ef8235f134475e0c14ea9353" 
+  let redemptionTokenName :  AssetName  = #"546f6b656e5661756c742056617563686572"
 
   let tokensMintedAmount = value.tokens( value.from_minted_value(transaction.mint), policyId)
                           |> dict.size()
