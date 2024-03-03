@@ -1,4 +1,4 @@
-import {   C , TxComplete  , Data } from "lucid-cardano";
+import {   C , TxComplete  , Data, applyParamsToScript, fromText } from "lucid-cardano";
 const { Transaction} = C;
 import { Program } from "@hyperionbt/helios"
 import {getNewLucidInstance, changeProvider} from "../../Fe/src/helpers/newLucid.js"
@@ -6,55 +6,19 @@ import {getNewLucidInstance, changeProvider} from "../../Fe/src/helpers/newLucid
 class Wallet {
     constructor(token, api) {
 
-      const policy = token.substring(0, 56)
-      const assetName = token.substring(56 )
-      const SpendingSrc = `
-spending TokenKey
+      this.policy = token.substring(0, 56)
+      this.assetName = token.substring(56 )
+      const SpendingSrc = "5901800100003232323232323232323232232232222533300c3322323300100100322533301300114a026464a666024600a00429444cc010010004c05c008c054004dd6198041805198041805000a40009000119b8948008ccc888c8c8c94ccc04ccdc3a4004002290000991bad3019001301100230110013253330123370e90010008a60103d87a800013232323300100100222533301900114c103d87a8000132323232533301a3371e016004266e9520003301e375000297ae0133006006003375a60360066eb8c064008c074008c06c004dd5980c00098080011808000991980080080211299980a8008a60103d87a800013232323253330163371e010004266e9520003301a374c00297ae01330060060033756602e0066eb8c054008c064008c05c004dd5998049805998049805800a400490010038028a4c2c6eb8004dd700099800800a40004444666600e66e1c00400c0308cccc014014cdc000224004601c0020040044600a6ea80048c00cdd5000ab9a5573aaae7955cfaba05742ae881"
 
-const  MintingPolicy: ByteArray = #${policy} 
-const TokenName: ByteArray = #${assetName}
-     
-const tt_assetclass: AssetClass = AssetClass::new(
-  MintingPolicyHash::new(MintingPolicy),
-  TokenName
-)
-
-func main(_, _, ctx: ScriptContext) -> Bool {
-  ctx.tx.inputs.any((input: TxInput) -> Bool { 
-    input.value.get_safe(tt_assetclass) != 0
-  })
-}
-`      
-      const stakingSrc = `
-staking TokenKey
-const  MintingPolicy: ByteArray = #${policy} 
-const TokenName: ByteArray = #${assetName}
-     
-const tt_assetclass: AssetClass = AssetClass::new(
-  MintingPolicyHash::new(MintingPolicy),
-  TokenName
-)
-
-func main(_ ,ctx: ScriptContext) -> Bool {
-  ctx.tx.inputs.any((input: TxInput) -> Bool { 
-    input.value.get_safe(tt_assetclass) != 0
-  })
-}
-`    
-
-      const program = Program.new(SpendingSrc)
-      const stakingProgram = Program.new(stakingSrc)
-
-      const simplify = true
+      const compiled= applyParamsToScript(SpendingSrc,[this.policy,this.assetName]  );
     
-      const myUplcProgram = program.compile(simplify)
-      const myUplcStakingProgram = stakingProgram.compile(simplify)
-
+      //const myUplcProgram = program.compile(simplify)
       this.token = token 
 
-      this.ValidatorScript = { type: "PlutusV2", script : JSON.parse(myUplcProgram.serialize()).cborHex }
+      this.ValidatorScript = { type: "PlutusV2", script : compiled}
       //this.StakingScript = this.ValidatorScript
-      this.StakingScript = { type: "PlutusV2", script : JSON.parse(myUplcStakingProgram.serialize()).cborHex }
+      this.StakingScript = { type: "PlutusV2", script :compiled }
+      
       this.wallet_address = "";
       this.delegation = {poolId: null, rewards: null}
       this.defaultAddress= ""
