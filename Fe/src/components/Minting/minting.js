@@ -3,8 +3,17 @@ import "./minting.css"
 import { Data, Constr } from "lucid-cardano";
 import { getNewLucidInstance } from "../../helpers/newLucid";
 
-import {  toast } from 'react-toastify';class Minting extends React.Component {
+import CryptoJS from 'crypto-js';
+
+import {  toast } from 'react-toastify';
+
+class Minting extends React.Component {
+
   
+ 
+
+
+
   terms = [ <span>I read and understood the <a href="https://raw.githubusercontent.com/leo42/BroClanWallet/main/LICENSE" target="blank">Opensource License </a> </span>, 
             <span>I read and understood the <a href="https://broclan.io/faq.html" target="blank">FAQ</a> </span>]
   
@@ -17,7 +26,7 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
 
     }
     paymentAddress = "addr_test1qpw97ty053xuqnqg0tsu3qeu5w2c8emu9lufyt24h68k6pcuf8fd97xmztpdh8l5fackuzf5r26m74p7gd924y6yecvs5f968f"
-    mintingRawScript = { type: "PlutusV2", script : "590641010000323232323232323232323222323253330093232533300b3370e90000008991919191929998081999919191919191111919191919299980f19b87480000044cc02cdd61980d180e004240084a66603e6601600266036603a0089002099b87300a375666036603a002900119b82375a66036603a00890000030a501323253330203300d375866038603c014900212999810998068009980e980f80324008266e1cc030dd59980e980f800a400466e08cdc09bad3301d301f00648000dd69980e980f8032400401029404cc034dd61980e180f005240084a6660426601a002004266e1cc030dd59980e980f800a400466e08dd69980e980f8032400401029405281812000980e003180e00299299980e99b87480000044c8c8c8c8c8c94ccc098c0a40084c926301c0011630270013027002375a604a002604a0046eb4c08c004c06c00858c06c004cc88c94ccc078cdc3a4004002200426460480026038006603800464a66603866e1d200200114c103d87a8000132323374a9000198111919299981019b87480100044c8c098004c07800858c078004cc068c070cc068c0700052002480112f5c060440026034004603400298103d87a800032323300100100222533302000114c0103d87a800013232533301f3371090001998069bab3301b301d3301b301d0024800920024891c29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae0048811342726f436c616e4d696e74696e6741646d696e0013374a90001981180125eb804cc010010004c090008c088004dd61980b180c002240046460120026601660146eaccc054c05c00d2008002233300400148900488100223253330173370e90000008991919baf3301530173301530170054800120003374a90001980e9ba90014bd701bae301d00130150021323253330193375e6602a602e6602a602e00a90002400066e9520023301d375200297ae013232533301b3370e9002000899251301900214a060320026602a602e00a90020a50375c603a002602a004602a00244646600200200644a66603400229404c8c94ccc064c014008528899802002000980f001180e000911191919299980c19b874800800452000132375a603c002602c004602c00264a66602e66e1d200200114c0103d87a800013232323300100100222533301e00114c103d87a8000132323232533301f3371e016004266e95200033023375000297ae0133006006003375a60400066eb8c078008c088008c080004dd5980e800980a801180a80099804001801180080091299980a8008a400026466e0120023300300300130180013300c300e00a4800001002c4ccc8c888c8c8cc004004008894ccc06800452889919299980c99b87332232333001001003480008894ccc08400840044c8c8ccc0140140054ccc080c0180084cdc0001a40042006604a00660460046eb0cc054c05c01d20002533301a3371e6eb8cc058c060cc058c060cc058c060005200048001200000313370e6eb4cc058c060cc058c060005200048009200014a090010998020020008a50301e002375c60380026460080026600c600a6eaccc040c0480092008001300100122533301500114bd7009919191980c9ba900133005005002375c602a0046032004602e00266018601c01490000020a502323300100100222533301500114bd6f7b630099191919299980b19b8f488100002100313301a337606ea4008dd3000998030030019bab3017003375c602a0046032004602e002446464a66602466e1d200200114bd6f7b6300991bab3018001301000230100013300300200122323300100100322533301400114c103d87a800013232323253330153371e00e004266e95200033019374c00297ae01330060060033756602c0066eb8c050008c060008c058004dd7180880098048010a50300900133005300700348008526163253330093370e90000008a99980618038020a4c2c2a66601266e1d200200113232533300e3011002132498c01000458c03c004c01c01058c01c00c8c94ccc024cdc3a400000226464a66601c60220042930b1bae300f0013007002153330093370e900100089919299980718088010a4c2c6eb8c03c004c01c00858c01c004cc0040052000222233330073370e0020060184666600a00a66e000112002300e001002002230053754002460066ea80055cd2ab9d5573caae7d5d02ba157441" }
+    mintingRawScript = { type: "PlutusV2", script : "5906000100003232323232323232323232225333007323253330093370e9000000899191919192999807199919191119191919191919299980d0018a5110013370e66601200291011c24fc896805f0b75ab51502b022834440ef8235f134475e0c14ea935300488112546f6b656e5661756c7420566175636865720048004c02cdd59980a180b003a40106644646600200200644a66603c00229404c8c94ccc074c014008528899802002000981100118100009bac3301330150064801094ccc060c8c94ccc068cdc3a40000022646466ebccc060c068cc060c068015200048000cdd2a4000660406ea40052f5c06eb8c080004c0600084c8c94ccc070cdd79980c180d1980c180d002a4000900019ba548008cc080dd4800a5eb804c8c94ccc078cdc3a4008002264944c070008528180e0009980c180d002a40082940dd71810000980c001180c0009980a180b001a4008266e1cc8ccc02400522100488100375666028602c002900119b82375a66028602c00690000028a503253330173370e900000089919191919192999810181180109924c64a66603c66e1d20000011323253330233026002149858dd71812000980e0010a99980f19b87480080044c8c94ccc08cc09800852616375c604800260380042c60380022c604200260420046eb4c07c004c07c008dd6980e800980a8010b180a800999119299980c19b874800800440084c8c078004c05800cc058008c94ccc058cdc3a4004002298103d87a8000132323374a90001980e1919299980d19b87480100044c8c080004c06000858c060004cc050c058cc050c0580052002480112f5c060380026028004602800298103d87a800032323300100100222533301a00114c0103d87a80001323253330193371090001998049bab3301530173301530170024800920024891c29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae0048811342726f436c616e4d696e74696e6741646d696e0013374a90001980e80125eb804cc010010004c078008c070004dd6198081809001a400464600a0026600e600c6eaccc03cc044009200800122232323253330163370e90010008a40002646eb4c070004c050008c050004c94ccc054cdc3a4004002298103d87a800013232323300100100222533301c00114c103d87a8000132323232533301d3371e016004266e95200033021375000297ae0133006006003375a603c0066eb8c070008c080008c078004dd5980d800980980118098009980400180118008009129998098008a400026466e0120023300300300130160013300a300c008480000104ccc8c888c94ccc04cc8cc004004008894ccc06000452889919299980b99b87332232333001001003480008894ccc07c00840044c8c8ccc0140140054ccc078c0180084cdc0001a40042006604600660420046eb0cc04cc05401d200023371e646e48004cc88cdc58008011bae33014301633014301633014301600148001200048000dd69980a180b1980a180b000a40009001001a40042660080080022940c070008dd7180d00089991191980080080191299980d0008a51132325333019300500213300400400114a0603c00460380026eb0cc03cc04400d20002337106eb4cc040c048cc040c04800520004800920fe0314a06460080026600c600a6eaccc038c0400092008001300100122533301300114bd7009919191980b9ba900133005005002375c6026004602e004602a00266014601801090000020a502323300100100222533301300114bd6f7b630099191919299980a19b8f489000021003133018337606ea4008dd3000998030030019bab3015003375c6026004602e004602a002446464a66602066e1d200200114bd6f7b6300991bab3016001300e002300e0013300300200122323300100100322533301200114c103d87a800013232323253330133371e00e004266e95200033017374c00297ae0133006006003375660280066eb8c048008c058008c050004dd7180780098038010a503007001330033005001480085261633001001480008888cccc01ccdc38008018061199980280299b8000448008c0380040080088c014dd5000918019baa0015734aae7555cf2ab9f5740ae855d101" }
     adminKey = "29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae42726f436c616e4d696e74696e6741646d696e"
 
 
@@ -136,6 +145,12 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
     }
 
     async mint(mintingSettings, wallet , settings){
+      let adminTokenPolicy = "29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
+      let adminTokenName   = "42726f436c616e4d696e74696e6741646d696e"
+
+      let redemptionTokenPolicy  = "29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
+      let redemptionTokenName = "42726f436c616e4d696e74696e6741646d696e"
+      
       function stringToChunks(string) {
         const chunks = [];
         while (string.length > 0) {
@@ -146,7 +161,8 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
       }
       try{      
         const api = await window.cardano[wallet].enable();
-        const lucid = await this.newLucidInstance(settings)
+        const lucid = await getNewLucidInstance(this.props.root.state.settings)
+
         lucid.selectWallet(api)
 
         const policyId = lucid.utils.mintingPolicyToId(this.mintingRawScript)
@@ -170,42 +186,21 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
          
 
         mintingSettings.forEach((mintingSetting, index) => { 
-             assets[policyId+validUtxos[index].txHash] =  mintingSetting.amount;
+             const tokenName = getTokenName(validUtxos[index])
+             console.log(tokenName)
+             assets[policyId+tokenName] =  mintingSetting.amount;
              consumingTxs.push( lucid.newTx().collectFrom([validUtxos[index]]))
-             metadata[`0x${policyId}`][`0x${validUtxos[index].txHash}`] =  {name: mintingSetting.name, 
+             metadata[`0x${policyId}`][`0x$tokenName`] =  {name: mintingSetting.name, 
                                                                             description: mintingSetting.description.length > 56 ? stringToChunks(mintingSetting.description) : mintingSetting.description, 
-                                                                            image: [`https://${settings.network === "Mainnet" ? "" : "preprod"}tokenvaults.broclan.io/api/`,`${validUtxos[index].txHash}`,`/image.png`],
+                                                                            image: [`https://${settings.network === "Mainnet" ? "" : "preprod"}tokenvaults.broclan.io/api/`,`${tokenName}`,`/image.png`],
                                                                             information: this.mintingInfo }
     }) 
-    let affiliate =  localStorage.getItem("affiliate") ? JSON.parse(localStorage.getItem("affiliate")) : undefined
-    if (affiliate && affiliate.time < Date.now() - 2592000000) {
-        affiliate = undefined
-        localStorage.removeItem("affiliate")
-    }
 
       const paymentTx = lucid.newTx()
-      const affiliateValid = this.addressIsValid(affiliate, lucid.utils.getAddressDetails)
-      if (affiliateValid ){  
-          if(lucid.utils.getAddressDetails(this.paymentAddress).paymentCredential.type === "Key" )
-                paymentTx.payToAddress(this.paymentAddress, {lovelace : mintPrice - affiliateBounty  }) 
-          else     
-                paymentTx.payToAddressWithData(this.paymentAddress, {inline :Data.void()}, {lovelace : mintPrice - affiliateBounty  })
-          
-          if(lucid.utils.getAddressDetails(affiliate.affiliate).paymentCredential.type === "Key" )
-                paymentTx.payToAddress(affiliate.affiliate, {lovelace : affiliateBounty  }) 
-          else     
-                paymentTx.payToAddressWithData(affiliate.affiliate, {inline :Data.void()}, {lovelace : affiliateBounty  })
-      }else {
-        if(lucid.utils.getAddressDetails(this.paymentAddress).paymentCredential.type === "Key" )
-                paymentTx.payToAddress(this.paymentAddress, {lovelace : mintPrice   })
-        else  
-                paymentTx.payToAddressWithData(this.paymentAddress, {inline :Data.void()}, {lovelace : mintPrice   })
-      }
+      paymentTx.payToAddressWithData(this.paymentAddress, {inline :Data.void()}, {lovelace : mintPrice   })
 
-       
-       const redeemer  = affiliateValid ?  
-                 Data.to(new Constr(1, [new Constr( lucid.utils.getAddressDetails(affiliate.affiliate).paymentCredential.type === "Key" ? 0 : 1, [ lucid.utils.getAddressDetails(affiliate.affiliate).paymentCredential.hash])])) :
-                 Data.void()
+      
+       const redeemer  =  Data.void()
       
         const tx = lucid.newTx()
                    .mintAssets(assets, redeemer)
@@ -239,9 +234,43 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
         }
     }
 
+    function getTokenName(utxo) { 
+      console.log(utxo)
+      let string =utxo.outputIndex.toString(16)  ;
+      if (utxo.outputIndex < 16) string = "0" + string;
+      string = string + utxo.txHash;
+      console.log(string)
+      function hexToByteArray(hexString) {
+        var result = [];
+        while (hexString.length >= 2) { 
+          result.push(parseInt(hexString.substring(0, 2), 16));
+          hexString = hexString.substring(2, hexString.length);
+        }
+        return result;
+      }
+
+      function byteArrayToWordArray(byteArray) {
+        var words = [], i = 0, bytes = byteArray.length;
+        while (i < bytes) {
+          words.push(
+            (byteArray[i++] << 24) |
+            (byteArray[i++] << 16) |
+            (byteArray[i++] << 8)  |
+            byteArray[i++]
+          );
+        }
+        return CryptoJS.lib.WordArray.create(words, bytes);
+      }
+
+      let byteArray = hexToByteArray(string);
+      let wordArray = byteArrayToWordArray(byteArray);
+      return CryptoJS.SHA256(wordArray).toString(CryptoJS.enc.Hex);
+
+    }
+
       async function getValidUtxos(lucid) {
         const utxos = await lucid.provider.getUtxos( lucid.utils.getAddressDetails(await lucid.wallet.address()).paymentCredential);
-        const validUtxos = utxos.filter(utxo => utxo.outputIndex === 0);
+        const validUtxos = utxos
         return validUtxos;
       }
 
@@ -261,9 +290,6 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
       }
     }
 
-    async newLucidInstance(settings) {
-      getNewLucidInstance(settings);
-      }
 
 
 
