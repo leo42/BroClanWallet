@@ -16,13 +16,10 @@ validator(policy: PolicyId, tokenName: AssetName ) {
         
         let onlyBurn = list.all( dict.values(minted), fn(value) {value < 0} )
 
-
         adminAuthorized || onlyBurn
       }
-
       _ -> False
-       
-       }
+      }
   }     
 }
 

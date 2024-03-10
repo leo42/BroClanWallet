@@ -29,8 +29,6 @@ type AdminDatum {
 
 validator( ) {
   fn minting(  _, ctx: ScriptContext) {
-    // In principle, scripts can be used for different purpose (e.g. minting
-    // assets). Here we make sure it's only used when 'spending' from a eUTxO
     when ctx.purpose is {
       Mint(policyId) ->
         and {
@@ -43,6 +41,10 @@ validator( ) {
 }
  
 fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
+
+  //This are hardcoded values 
+  //for the NFT controlling the price and payment address we calle the admin token
+  //and for the cupons for 1 free mint we call the redemption token 
   let adminTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
   let adminTokenName : AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
 
@@ -61,8 +63,6 @@ fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
                                                                   InlineDatum(data) -> data
                                                                   _ -> fail}}), None)    
     
-  
-
   let regularPayment = list.any( transaction.outputs, fn(output) { and {
                                                 address_belongs_to_hash(output, adminData.paymentAddressCredential),
                                                 value.lovelace_of(output.value) == adminData.mintAmount * tokensMintedAmount
@@ -71,8 +71,7 @@ fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
       
   let tokensMinted = value.from_minted_value(transaction.mint)
 
-
-  let redemptionPayment = (value.quantity_of(tokensMinted, redemptionTokenPolicy,redemptionTokenName) == -1)
+  let redemptionPayment = (value.quantity_of(tokensMinted, redemptionTokenPolicy,redemptionTokenName) == -tokensMintedAmount)
   
   
   regularPayment ||  redemptionPayment
@@ -92,10 +91,8 @@ fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
           }),
     list.all(transaction.inputs , fn(input)  {
        input.output_reference.output_index < 255
-       })
-
+    })
   }
-
 }
 
 
@@ -108,7 +105,6 @@ fn address_belongs_to_hash( output : Output , hash : VerificationHash  )  {
                  InlineDatum(_) -> True
                  _ -> False
                }
-               }
+        }
   }
-  
 }
