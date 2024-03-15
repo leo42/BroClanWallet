@@ -21,7 +21,6 @@ type VerificationHash {
 
 type AdminDatum {
       mintAmount: Int,
-      affiliateBounty: Int,
       paymentAddressCredential : VerificationHash
 }
 
@@ -43,7 +42,7 @@ validator( ) {
 fn payment_made(transaction: Transaction, policyId:PolicyId  ) {
 
   //This are hardcoded values 
-  //for the NFT controlling the price and payment address we calle the admin token
+  //for the NFT controlling the price and payment address, we it the admin token
   //and for the cupons for 1 free mint we call the redemption token 
   let adminTokenPolicy : PolicyId = #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae" 
   let adminTokenName : AssetName  = #"42726f436c616e4d696e74696e6741646d696e"
