@@ -13,7 +13,7 @@ type SmartMultisigDescriptor {
     NftHolder { policy : PolicyId, name: AssetName }
     AtLeast {  scripts: List<SmartMultisigDescriptor> , m: Int }
     Before { time: PosixTime }
-    After { time: Int }
+    After { time: PosixTime }
 }
 
 validator(descriptor: SmartMultisigDescriptor ) {
