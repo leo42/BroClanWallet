@@ -29,7 +29,7 @@ fn validate(segment: SmartMultisigDescriptor,ctx: ScriptContext) -> Bool{
       } )
       AtLeast(scripts,m) -> list.count(scripts , fn(script)  {
                                 validate(script, ctx)} 
-                            ) == m
+                            ) >= m
     }
      
 }
