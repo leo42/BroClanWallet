@@ -80,8 +80,9 @@ async function getTransactionDetails(transactionIds, settings, address){
       );            
       
 
+      // I want to refresh every 15 minutes
     let fullTransactionsInfo = transactionIds.map( async (transactionId) => {
-        if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider ){
+        if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider && Date.now() - transactionInfo[transactionId.tx_hash].fetch_time < 900000){
            return (transactionInfo[transactionId.tx_hash])
         }
         else
