@@ -34,7 +34,7 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
     }else if ( settings.metadataProvider === "Blockfrost"){
         const api = settings.api.url
         const response = await fetch(
-            `${api}/addresses/${address}/transactions?order=acs`,
+            `${api}/addresses/${address}/transactions`,
             {
                 method: "GET",
                 headers: {
@@ -47,7 +47,7 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
         if (json.error) 
             return []
         json.sort((a,b) => b.block_height - a.block_height)
-        return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings)
+        return await getTransactionDetails(json.slice(page*limit,(page+1)*limit), settings, address)
     }else if(settings.metadataProvider === "Maestro")
     {
         const MaestroUrl = `https://${settings.network}.gomaestro-api.org`
@@ -72,9 +72,13 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
 
 }
     
-async function getTransactionDetails(transactionIds, settings){
+async function getTransactionDetails(transactionIds, settings, address){
     let transactionInfo =  {...JSON.parse(localStorage.getItem('transactionInfo'))};
-     
+    const lucid =  await Lucid.new(
+        null,
+        settings.network
+      );            
+      
 
     let fullTransactionsInfo = transactionIds.map( async (transactionId) => {
         if (transactionInfo[transactionId.tx_hash] && transactionInfo[transactionId.tx_hash].provider === settings.metadataProvider ){
@@ -138,10 +142,35 @@ async function getTransactionDetails(transactionIds, settings){
                     }
                 }
             );
+            let withdraw 
+            try{
+                const withdrawResponce = await fetch(
+                    `${api}/txs/${transactionId.tx_hash}/withdrawals`,
+                    {
+
+                        method: "GET",
+                        headers: {
+                            project_id: settings.api.projectId
+                        }
+                    }
+                )
+                withdraw = await withdrawResponce.json()
+            }catch(e){
+                console.log(e)
+                withdraw = []
+            }
             let fullTransactionInfo =  {...transactionId};
             fullTransactionInfo.utxos = await response.json();
             transactionInfo[transactionId.tx_hash] = fullTransactionInfo
             transactionInfo[transactionId.tx_hash].fetch_time = Date.now()
+            transactionInfo[transactionId.tx_hash].withdrawals = {}
+            transactionInfo[transactionId.tx_hash].withdrawals.amount = 0
+            withdraw.forEach( w =>  {
+                     if(lucid.utils.getAddressDetails(address).stakeCredential.hash === lucid.utils.getAddressDetails(w.address).stakeCredential.hash) { 
+                        transactionInfo[transactionId.tx_hash].withdrawals.amount += Number(w.amount)}
+                     })  
+            
+            // transactionInfo[transactionId.tx_hash].withdrawals = withdrawResponce.ok ? await withdrawResponce.json() : null
             transactionInfo[transactionId.tx_hash].provider = "Blockfrost"
             localStorage.setItem('transactionInfo', JSON.stringify(transactionInfo));
             return transactionInfo[transactionId.tx_hash]
@@ -156,10 +185,7 @@ async function getTransactionDetails(transactionIds, settings){
                 } },
               ).then((res) => res.json());   
 
-            const lucid =  await Lucid.new(
-                null,
-                settings.network
-              );            
+       
               
             let fullTransactionInfo =  {...transactionId};
             fullTransactionInfo.utxos = {}
