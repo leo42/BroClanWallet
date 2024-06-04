@@ -119,6 +119,18 @@ res.header('Access-Control-Allow-Origin', SERVING);
     }
     }
 );
+//Endpoint  /txs/:hash/withdrawals  
+app.get('/txs/:hash/withdrawals',  async (req, res) => {
+  res.header('Access-Control-Allow-Origin', SERVING);
+    const { hash } = req.params;
+    try {
+        const response = await axios.get(`${blockfrostApis[req.headers.project_id]}/txs/${hash}/withdrawals`, { headers: { project_id: blockfrostApiKeys[req.headers.project_id] } });
+        res.json(response.data);
+    }catch (error) {
+      const statusCode = error.response.status || 500;
+      res.status(statusCode).json({ error: error.message });
+    }
+});
 
 //Endpoint :txs/${txHash}
 app.get('/txs/:txHash',  async (req, res) => {
