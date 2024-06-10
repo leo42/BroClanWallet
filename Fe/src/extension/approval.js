@@ -53,7 +53,9 @@ function App() {
                 approvedUrls = [result.page];
             } else {
                 approvedUrls = parsedApprovedUrls;
-                approvedUrls.push(result.page);
+                if(!approvedUrls.includes(result.page)){
+                    approvedUrls.push(result.page);
+                }
             }
             chrome.storage.local.set({ approvedUrls: JSON.stringify(approvedUrls) }, function() {
                 // Close the window

@@ -118,7 +118,7 @@ function App() {
         </div>
         <h3>Approved Urls</h3>
         <div className='approvedUrls'>
-            {approvedUrls.map((url) => <div key={url} className='approvedUrl'>{url}<button  className='deleteUrl' onClick={()=> deleteUrl(url)}>X</button></div>)}
+            {approvedUrls.map((url, index) => <div key={url+ index} className='approvedUrl'>{url}<button  className='deleteUrl' onClick={()=> deleteUrl(url)}>X</button></div>)}
         </div>  
 
     

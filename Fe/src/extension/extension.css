@@ -23,7 +23,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    width: 100%;
+    width: 90%;
     background-color: rgba(3, 0, 0, 0.055);
     margin-bottom: 5px;
 }
@@ -80,13 +80,38 @@
     background-color: #EF4A42;
     color: white;
 }
+.approvedUrls {
+    height: 130px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 155, 155, 0.7) transparent;
+
+    /* For Internet Explorer and Edge */
+    -ms-overflow-style: none;
+
+    /* For Webkit browsers like Chrome and Safari */
+}
+
+.approvedUrls::-webkit-scrollbar {
+    width: 8px;
+}
+
+.approvedUrls::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.approvedUrls::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.7);
+    border-radius: 20px;
+    border: transparent;
+}
 
 .approvedUrl{
     display: grid;
     grid-template-columns: 8fr 1fr;
     grid-template-rows: 1fr;
     width: 100%;
-    height: 100%;
+    height: fit-content;
     align-items: center;
     justify-content: center;
     background-color: rgba(3, 0, 0, 0.055);
