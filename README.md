@@ -2,13 +2,11 @@
 # BroClanWallet 
 Bro Clan is a multisig Wallet for the Cardano ecosystem.
 
+This is the monorepo of the software that runs The [BroClan Multisig Wallet](https://broclan.io) documentation.
+
 ## Running BroClan:
 
-  
-
-You can run access this app via our servise on broclan.io
-
-  
+ 
 
 We also provide dockerfiles and docker Images for all components.
 
