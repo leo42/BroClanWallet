@@ -4,12 +4,11 @@ import { Lucid, Blockfrost  ,Kupmios, Maestro} from "lucid-cardano";
 async function getNewLucidInstance(settings){
     return new Promise(async (resolve, reject) => {
         const provider = getProvider(settings);
-       
-                    let lucid = await Lucid.new(
-                        provider,
-                        settings.network,
-                    );
-                    resolve(lucid);
+        let lucid = await Lucid.new(
+            provider,
+            settings.network,
+        );
+        resolve(lucid);
           
     });
 }
