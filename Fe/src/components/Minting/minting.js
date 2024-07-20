@@ -261,8 +261,8 @@ import {  toast } from 'react-toastify';class Minting extends React.Component {
       }
     }
 
-    async newLucidInstance(settings) {
-      getNewLucidInstance(settings);
+    async newLucidInstance(settings){
+      return getNewLucidInstance(settings);
       }
 
 
