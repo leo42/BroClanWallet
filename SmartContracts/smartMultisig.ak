@@ -39,7 +39,10 @@ validator smartMultisig (walletId: AssetName)  {
 
   spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
     let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
-    let descriptor = getDescriptorFromTokenName(configPolicy , walletId , self) 
+    let descriptor = when getDescriptorFromTokenName(configPolicy , walletId , self) is {
+                Some(descriptor) -> descriptor
+                None -> fail
+    }
     when redeemer is {
       Spend -> validate(descriptor, self)
       SubScription(subscriptionIndex) ->  subscriptionPayment(self, configPolicy , walletId, subscriptionIndex , myUtxo)
@@ -50,9 +53,10 @@ validator smartMultisig (walletId: AssetName)  {
   else( ctx: ScriptContext) -> Bool {
     let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
 
-
-    let descriptor = getDescriptorFromTokenName(configPolicy , walletId , ctx.transaction)
-    
+    let descriptor = when getDescriptorFromTokenName(configPolicy , walletId , ctx.transaction) is {
+                Some(descriptor) -> descriptor
+                None -> fail
+    }
     validate(descriptor, ctx.transaction)
   }
 }
@@ -193,17 +197,22 @@ fn getPaymentOutput(transaction : Transaction, myAddress : Address) -> Output {
   }
 }
 
-
-fn getDescriptorFromTokenName(policy : PolicyId, assetName : AssetName, transaction : Transaction) -> SmartMultisigDescriptor{
-    let adminUtxo = transaction.reference_inputs 
-                     |> list.find(fn(x) { ( quantity_of(x.output.value  ,policy ,assetName) > 0 ) } ) 
-
-    expect descriptor: SmartMultisigDescriptor  = option.or_else(option.map(adminUtxo, fn(utxo) {
-                                                                  when (utxo.output.datum) is {
-                                                                  InlineDatum(data) -> data
-                                                                  _ -> fail}}), None)  
-    descriptor  
-
+fn getDescriptorFromTokenName(policy: PolicyId, assetName: AssetName, transaction: Transaction) -> Option<SmartMultisigDescriptor> {
+  let adminUtxo = transaction.reference_inputs 
+    |> list.find(fn(x) { quantity_of(x.output.value, policy, assetName) > 0 })
+  
+  adminUtxo
+    |> option.and_then(fn(utxo) {
+      when utxo.output.datum is {
+        InlineDatum(data) ->
+          if data is descriptor: SmartMultisigDescriptor {
+            Some(descriptor)
+          } else {
+            None
+          }
+        _ -> None
+      }
+    })
 }
 
 fn validate(segment: SmartMultisigDescriptor, transaction: Transaction) -> Bool {
@@ -219,8 +228,11 @@ fn validate(segment: SmartMultisigDescriptor, transaction: Transaction) -> Bool 
           transaction.inputs,
           fn(input) { quantity_of(input.output.value, policy, name) >= 1 },
         ),
-        validate( getDescriptorFromTokenName(policy , name , transaction), 
-                  transaction)         
+        when getDescriptorFromTokenName(policy , name , transaction)  is {
+            Some(descriptor) ->validate(descriptor ,  transaction)  
+            None -> False
+        }
+               
       }
     AtLeast(scripts, m) ->
       list.count(scripts, fn(script) { validate(script, transaction) }) >= m
