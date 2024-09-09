@@ -198,10 +198,10 @@ fn getPaymentOutput(transaction : Transaction, myAddress : Address) -> Output {
 }
 
 fn getDescriptorFromTokenName(policy: PolicyId, assetName: AssetName, transaction: Transaction) -> Option<SmartMultisigDescriptor> {
-  let adminUtxo = transaction.reference_inputs 
+  let hostUtxo = transaction.reference_inputs 
     |> list.find(fn(x) { quantity_of(x.output.value, policy, assetName) > 0 })
   
-  adminUtxo
+  hostUtxo
     |> option.and_then(fn(utxo) {
       when utxo.output.datum is {
         InlineDatum(data) ->
