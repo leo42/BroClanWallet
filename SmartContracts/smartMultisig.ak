@@ -1,9 +1,10 @@
 use aiken/crypto.{  VerificationKeyHash}
-use cardano/assets.{AssetName, PolicyId, quantity_of}
+use cardano/assets.{AssetName , Value, PolicyId, quantity_of, from_lovelace, negate, zero, merge, from_asset}
 use aiken/collection/list
-use cardano/transaction.{ Transaction, InlineDatum}
+use cardano/transaction.{ Transaction, InlineDatum, Output,OutputReference}
 use cardano/script_context.{ScriptContext}
 use aiken/interval
+use cardano/address.{Address}
 use aiken/option
 pub type Datum {
   owner: VerificationKeyHash,
@@ -17,13 +18,33 @@ pub type SmartMultisigDescriptor {
     After { time: Int }
 }
 
+type PaymentAmount {
+      Lovelace { lovelace : Int}
+      NativeToken { policy : PolicyId , assetName : AssetName, amount : Int}
+  }
+
+type SubscriptionDatum {
+    nextPayment : Int,
+    paymentInterval : Int, 
+    recipient : Address, 
+    paymentAmount : PaymentAmount
+}
+
+pub type Redeemer{
+    Spend 
+    SubScription{ subscriptionIndex : Int}
+}
 
 validator smartMultisig (walletId: AssetName)  {
 
-  spend(_, __, ___, self: Transaction) {
+  spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
     let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
     let descriptor = getDescriptorFromTokenName(configPolicy , walletId , self) 
-     validate(descriptor, self)
+    when redeemer is {
+      Spend -> validate(descriptor, self)
+      SubScription(subscriptionIndex) ->  subscriptionPayment(self, configPolicy , walletId, subscriptionIndex , myUtxo)
+    }
+
   }
   
   else( ctx: ScriptContext) -> Bool {
@@ -36,8 +57,133 @@ validator smartMultisig (walletId: AssetName)  {
   }
 }
 
+fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId : AssetName, subscriptionIndex: Int, outRef : OutputReference){
+  let myAddress = getMyAddress(transaction,outRef)
+  
+  let subscriptionAssetName = walletId
+  let subscriptionUtxo =  transaction.inputs 
+                     |> list.find(fn(x) { ( quantity_of(x.output.value  ,policy ,subscriptionAssetName) > 0 ) } ) 
+                          
+
+  let incomingSubscriptionDatum : List<SubscriptionDatum> = 
+                                      when subscriptionUtxo is {
+                                        Some(utxo) -> when utxo.output.datum  is {
+                                          InlineDatum(data) -> {
+                                            if data is datum : List<SubscriptionDatum>{
+                                              datum
+                                            } else {
+                                              fail
+                                            }
+                                          }
+                                          _ -> fail
+                                        }
+                                      _ -> fail
+                                    }
+
+  let subscriptionDatumOutput = transaction.outputs
+                     |> list.find(fn(x) { ( quantity_of(x.value  ,policy ,subscriptionAssetName) > 0 ) } ) 
+  
+
+  let outgoingSubscriptionDatum : List<SubscriptionDatum> = 
+                                      when subscriptionDatumOutput is {
+                                        Some(ouput) -> when ouput.datum  is {
+                                          InlineDatum(data) -> {
+                                            if data is datum : List<SubscriptionDatum>{
+                                              datum
+                                            } else {
+                                              fail
+                                            }
+                                          }
+                                          _ -> fail
+                                        }
+                                      _ -> fail
+                                    }
+
+  let subscription = when list.at(incomingSubscriptionDatum,subscriptionIndex) is{
+                            Some(subscriptionDatum) -> subscriptionDatum
+                            None -> fail
+                          }
+
+  let subscriptionAmount = when subscription.paymentAmount is {
+                                      Lovelace(lovelace) -> from_lovelace(lovelace)
+                                      NativeToken(policy , assetName , amount ) -> from_asset(policy,assetName,amount)
+                                      }
+
+  let subscriptionTimeValid = interval.is_entirely_before(transaction.validity_range, subscription.nextPayment)
+  
+  let totalSpend = getTotalSpend(transaction, myAddress)
+
+  let spendCorrect = totalSpend == subscriptionAmount
+
+  let paymentOutput = getPaymentOutput(transaction , myAddress)
+
+  let paymentAddressCorrect = paymentOutput.address == subscription.recipient
+
+   
+
+  subscriptionTimeValid && spendCorrect && paymentAddressCorrect
+
+}
+
+fn getMyAddress(transaction : Transaction, outRef : OutputReference){
+  expect Some(input) = list.find(
+    transaction.inputs,
+    fn(input) { input.output_reference == outRef }
+  )
+  
+  input.output.address
+}
+
+
+fn getValueSpend(transaction : Transaction, myAddress : Address) -> Value{
+      list.foldl(transaction.inputs, 
+                 zero, 
+                 fn( input, n) { if (myAddress.payment_credential == input.output.address.payment_credential)
+                                  {
+                                    merge(n, input.output.value )
+                                  } else {
+                                    n
+                                  }
+                                }
+                  )
+                                    
+}
+
+fn getChangeValue(transaction : Transaction, myAddress : Address) -> Value{
+    list.foldl(transaction.outputs, 
+               zero, 
+               fn(output , n) { if (myAddress == output.address){
+                                merge(n, output.value)
+                              } else{
+                                n
+                              }
+   })
+
+}
+
+fn getTotalSpend(transaction: Transaction, myAddress: Address) -> Value {
+  let valueSpend = getValueSpend(transaction, myAddress) 
+  let changeValue = getChangeValue(transaction, myAddress)
+
+  merge(valueSpend, negate(changeValue))  
+}
+
+fn getPaymentOutput(transaction : Transaction, myAddress : Address) -> Output {
+  let outputs = list.filter(transaction.outputs, fn(output) { output.address !=  myAddress})
+  
+  let output =  when list.length(outputs) is {
+                  1 -> list.at(outputs, 0) 
+                  _ -> fail 
+                }
+  when output is {
+      Some(out) -> out
+      None -> fail
+  }
+}
+
+
 fn getDescriptorFromTokenName(policy : PolicyId, assetName : AssetName, transaction : Transaction) -> SmartMultisigDescriptor{
-      let adminUtxo = transaction.reference_inputs 
+    let adminUtxo = transaction.reference_inputs 
                      |> list.find(fn(x) { ( quantity_of(x.output.value  ,policy ,assetName) > 0 ) } ) 
 
     expect descriptor: SmartMultisigDescriptor  = option.or_else(option.map(adminUtxo, fn(utxo) {
