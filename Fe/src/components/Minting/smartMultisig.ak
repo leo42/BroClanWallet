@@ -83,6 +83,10 @@ fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId
   let subscriptionDatumOutput = transaction.outputs
                      |> list.find(fn(x) { ( quantity_of(x.value  ,policy ,subscriptionAssetName) > 0 ) } ) 
   
+  let subscription = when list.at(incomingSubscriptionDatum,subscriptionIndex) is{
+                            Some(subscriptionDatum) -> subscriptionDatum
+                            None -> fail
+                          }
 
   let outgoingSubscriptionDatum : List<SubscriptionDatum> = 
                                       when subscriptionDatumOutput is {
@@ -99,11 +103,16 @@ fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId
                                       _ -> fail
                                     }
 
-  let subscription = when list.at(incomingSubscriptionDatum,subscriptionIndex) is{
-                            Some(subscriptionDatum) -> subscriptionDatum
-                            None -> fail
+  let outgoingSubscription = when list.at(outgoingSubscriptionDatum,subscriptionIndex) is{
+                                  Some(subscriptionDatum) -> subscriptionDatum
+                                  None -> fail
                           }
 
+  let expectedOutcoingSubscription = SubscriptionDatum { nextPayment : subscription.nextPayment + subscription.paymentInterval,
+                                      paymentInterval : subscription.paymentInterval, 
+                                      recipient : subscription.recipient, 
+                                      paymentAmount : subscription.paymentAmount
+                                        }
   let subscriptionAmount = when subscription.paymentAmount is {
                                       Lovelace(lovelace) -> from_lovelace(lovelace)
                                       NativeToken(policy , assetName , amount ) -> from_asset(policy,assetName,amount)
@@ -119,9 +128,12 @@ fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId
 
   let paymentAddressCorrect = paymentOutput.address == subscription.recipient
 
+  let datumDifferences = list.difference(outgoingSubscriptionDatum,incomingSubscriptionDatum) 
+
+  let datumCorrect = list.length(datumDifferences) == 1 && expectedOutcoingSubscription == outgoingSubscription && expectedOutcoingSubscription.paymentInterval != 0
    
 
-  subscriptionTimeValid && spendCorrect && paymentAddressCorrect
+  subscriptionTimeValid && spendCorrect && paymentAddressCorrect && datumCorrect
 
 }
 
