@@ -1,6 +1,5 @@
-import { TxSignBuilder, Data, applyParamsToScript, SpendingValidator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, applyParamsToScript, SpendingValidator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
-import  *  as utils  from "@lucid-evolution/utils";
 interface WalletSettings {
   network: string;
   // Add other necessary settings
@@ -59,7 +58,7 @@ class SmartWallet {
 
 
   getAddress(): string {
-    return utils.validatorToAddress(this.lucid.config().network, this.script);
+    return validatorToAddress(this.lucid.config().network, this.script);
   }
 
   getName(): string {
@@ -67,7 +66,7 @@ class SmartWallet {
   }
 
   async getDelegation(): Promise<Delegation> {
-    const rewardAddress = utils.validatorToRewardAddress(this.lucid.config().network, this.script);
+    const rewardAddress = validatorToAddress(this.lucid.config().network, this.script);
 
     this.delegation = await this.lucid.config().provider.getDelegation(rewardAddress);
     return this.delegation;
@@ -87,7 +86,7 @@ class SmartWallet {
     const result: Assets = {};
     this.utxos.forEach(utxo => {
       if (address === "" || utxo.address === address) {
-        Object.entries(utxo.assets).forEach(([asset, amount]) => {
+        Object.entries(utxo.assets).forEach(([asset, amount  ]) => {
           result[asset] = (result[asset] || BigInt(0)) + BigInt(amount);
         });
       }
@@ -109,13 +108,14 @@ class SmartWallet {
     }
   }
 
+
   private compareUtxos(a: UTxO[], b: UTxO[]): boolean {
     if (a.length !== b.length) return false;
     return a.every((utxo, index) => 
       utxo.txHash === b[index].txHash && utxo.outputIndex === b[index].outputIndex
     );
   }
-
+  
   async createTx(
     recipients: Recipient[],
     datums: Datum[],
@@ -132,7 +132,7 @@ class SmartWallet {
     });
 
     if (withdraw && this.delegation.rewards && BigInt(this.delegation.rewards) > 0) {
-      tx.withdraw(utils.validatorToRewardAddress( this.lucid.config().network, this.script), BigInt(this.delegation.rewards));
+      tx.withdraw(validatorToRewardAddress( this.lucid.config().network, this.script), BigInt(this.delegation.rewards));
     }
 
     tx.attach.SpendingValidator(this.script)
@@ -146,7 +146,7 @@ class SmartWallet {
   }
 
   async createStakeUnregistrationTx(): Promise<TxSignBuilder> {
-    const rewardAddress = utils.validatorToRewardAddress(this.lucid.config().network, this.script);
+    const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
     const tx = this.lucid.newTx()
       .deRegisterStake(rewardAddress)
       .attach.SpendingValidator(this.script)
@@ -162,7 +162,7 @@ class SmartWallet {
   }
 
   async createDelegationTx(pool: string): Promise<TxSignBuilder> {
-    const rewardAddress = utils.validatorToRewardAddress( this.lucid.config().network, this.script);
+    const rewardAddress = validatorToRewardAddress( this.lucid.config().network, this.script);
     const tx = this.lucid.newTx()
       .delegateTo(rewardAddress, pool)
       .attach.CertificateValidator(this.script)
@@ -178,20 +178,20 @@ class SmartWallet {
   }
 
   isAddressMine(address: string): boolean {
-    return utils.getAddressDetails(address).paymentCredential?.hash ===
-           utils.getAddressDetails(this.getAddress()).paymentCredential?.hash;
+    return getAddressDetails(address).paymentCredential?.hash ===
+           getAddressDetails(this.getAddress()).paymentCredential?.hash;
   }
 
   isAddressValid(address: string): boolean {
     try {
-      return !!utils.getAddressDetails(address);
+      return !! getAddressDetails(address);
     } catch (e) {
       return false;
     }
   }
 
   isAddressScript(address: string): boolean {
-    return utils.getAddressDetails(address).paymentCredential?.type === "Script";
+    return getAddressDetails(address).paymentCredential?.type === "Script";
   }
 
   async submitTransaction(index: number): Promise<Boolean> {

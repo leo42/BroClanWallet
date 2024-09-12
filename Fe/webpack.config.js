@@ -6,6 +6,9 @@ const argv = require('yargs').argv;
 const isProduction = argv.mode === 'production';
 
 var webAppConfig = {
+	resolve: {
+		fallback: { crypto: false },
+	},
     entry: './src/index.js',
     output: {
 		crossOriginLoading: 'anonymous',

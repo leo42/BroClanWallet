@@ -105,7 +105,7 @@ func main(_ ,ctx: ScriptContext) -> Bool {
       return { type: "tokenVault" , token : this.token}
     }
 
-   
+  
 
     getName(){
       return this.name

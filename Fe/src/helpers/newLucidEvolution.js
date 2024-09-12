@@ -1,10 +1,10 @@
-import { LucidEvolution, Blockfrost  ,Kupmios, Maestro} from "@lucid-evolution/lucid";
+import { Lucid, Blockfrost  ,Kupmios, Maestro} from "@lucid-evolution/lucid";
 
 
 async function getNewLucidInstance(settings){
     return new Promise(async (resolve, reject) => {
         const provider = getProvider(settings);
-        let lucid = await LucidEvolution.new(
+        let lucid = await Lucid(
             provider,
             settings.network,
         );  
