@@ -8,6 +8,7 @@ const isProduction = argv.mode === 'production';
 var webAppConfig = {
 	resolve: {
 		fallback: { crypto: false },
+		extensions: ['.js', '.jsx', '.ts', '.tsx'],  // Add .tsx here
 	},
     entry: './src/index.js',
     output: {

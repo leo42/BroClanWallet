@@ -1,5 +1,4 @@
 import React from "react";
-import "./minting.css";
 interface MintingProps {
     root: {
         openWalletPicker: (callback: (wallet: any) => void) => void;

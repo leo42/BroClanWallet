@@ -1,5 +1,4 @@
 import React from "react";
-import "./minting.css"
 import { Data, Constr, Lucid, MintingPolicy, Assets } from "lucid-cardano";
 import { getNewLucidInstance } from "../../helpers/newLucid";
 import { toast } from "react-toastify";

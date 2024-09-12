@@ -14,7 +14,8 @@
       "moduleResolution": "node",
       "resolveJsonModule": true,
       "isolatedModules": true,
-      "noEmit": false,
+      "noEmit": false,  // Set noEmit to false
+      "emitDeclarationOnly": false,  // Change this to false
       "jsx": "react-jsx",
       "paths": {
         "@lucid-evolution/*": ["./node_modules/@lucid-evolution/*"]

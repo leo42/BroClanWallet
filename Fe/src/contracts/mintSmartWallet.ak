@@ -3,7 +3,7 @@ use aiken/collection/list
 use aiken/option
 use aiken/collection/dict
 use  aiken/primitive/bytearray
-use cardano/address.{Credential }
+use cardano/address.{ VerificationKey , Script  }
 use aiken/crypto
 use cardano/assets.{ PolicyId , AssetName  }
 use cardano/transaction.{Transaction,  Output, InlineDatum }
@@ -82,6 +82,10 @@ fn mint_consumed_utxos(transaction: Transaction,  policyId:PolicyId) {
 }
 
 
-fn address_belongs_to_hash( output : Output , hash : Credential  )  {
-    output.address.payment_credential == hash
+fn address_belongs_to_hash( output : Output , hash : ByteArray  )  {
+    let paymentCredHash : ByteArray = when output.address.payment_credential is {
+                                VerificationKey(hash) -> hash
+                                Script(hash) -> hash
+                              }
+    paymentCredHash == hash
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-
+import MintingModule from './MintingModule';  // Make sure this matches the actual file name
 
 interface SmartWalletContainerProps {
   settings: any;
@@ -160,6 +160,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   render() {
     return (
       <div className="SmartWalletContainer"> Hey Leo
+      <MintingModule root={this.props.root} />
         {this.state.wallets.length === 0 ? this.walletsEmpty() : (
          <div> Hello World</div> // Render your wallet list or other content here
         )}
