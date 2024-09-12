@@ -7,7 +7,6 @@ interface SmartWalletContainerProps {
   root: any;
 }
 
-
 interface SmartWalletContainerState {
   modal: string;
   wallets: any[];

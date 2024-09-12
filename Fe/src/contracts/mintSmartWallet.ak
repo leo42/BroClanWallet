@@ -12,7 +12,7 @@ use cardano/transaction.{Transaction,  Output, InlineDatum }
 
 type AdminDatum {
       mintAmount: Int,
-      paymentAddressCredential : Credential
+      paymentAddressCredential : ByteArray
 }
 
 
