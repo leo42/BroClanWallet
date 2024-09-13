@@ -68,6 +68,17 @@
   
   }
 
+  .nftHolder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+  }
+
+  .nftHolder input {
+    margin-bottom: 10px;
+    width: 50%;
+  }
 .cardSelect {
   margin-top: -34px;
    }
