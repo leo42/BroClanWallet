@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import MintingModule from './MintingModule';  // Make sure this matches the actual file name
-
+import UpdateWalletModal from './UpdateWalletModal';
 interface SmartWalletContainerProps {
   settings: any;
   root: any;
@@ -160,7 +160,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   render() {
     return (
       <div className="SmartWalletContainer"> Hey Leo
-      <MintingModule root={this.props.root} />
+      <UpdateWalletModal root={this.props.root} moduleRoot={this} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} />
+      {this.state.modal === "newWallet" && < MintingModule root={this.props.root} showModal={() => this.setState({modal: ""})} /> }
         {this.state.wallets.length === 0 ? this.walletsEmpty() : (
          <div> Hello World</div> // Render your wallet list or other content here
         )}

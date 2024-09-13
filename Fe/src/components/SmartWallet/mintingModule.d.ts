@@ -7,6 +7,7 @@ interface MintingProps {
         };
         showModal: (modalName: string) => void;
     };
+    showModal: (modalName: string) => void;
 }
 declare class Minting extends React.Component<MintingProps> {
     terms: import("react/jsx-runtime").JSX.Element[];

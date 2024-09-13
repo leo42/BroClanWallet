@@ -22,5 +22,5 @@
       }
       
     },
-    "include": ["src" ]
+    "include": ["src", "src/svg.d.ts", "src/custom.d.ts"]
   }

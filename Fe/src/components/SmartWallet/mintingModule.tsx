@@ -3,7 +3,7 @@ import { Data, Constr, Lucid, MintingPolicy, Assets } from "lucid-cardano";
 import { getNewLucidInstance } from "../../helpers/newLucid";
 import { toast } from "react-toastify";
 import { adminDatumSchema } from "./types";
-
+import "./MintingModule.css"
 interface MintingProps {
   root: {
     openWalletPicker: (callback: (wallet: any) => void) => void;
@@ -12,6 +12,7 @@ interface MintingProps {
     };
     showModal: (modalName: string) => void;
   };
+  showModal: () => void;
 }
 
 class Minting extends React.Component<MintingProps> {
@@ -114,21 +115,6 @@ class Minting extends React.Component<MintingProps> {
         }
     }
 
-
-      async function createEmptyTx(lucid : Lucid) {
-        const returnAddress = await lucid.wallet.address();
-        const tx = lucid.newTx().payToAddress(returnAddress, { lovelace: BigInt(1000000) });
-        const completedTx = await tx.complete();
-        const signature = await completedTx.sign().complete();
-        const txHash = await signature.submit();
-        const awaitTxPromise =  lucid.provider.awaitTx(txHash)
-        toast.promise(awaitTxPromise, {
-          pending: 'Waiting for confirmation',
-          success: 'Transaction confirmed.',
-          error: 'Something went wrong',
-        });
-        await awaitTxPromise
-      }
     }
 
     description = <div id="mintingDescription"><h1>Mint your Tokenized Wallet</h1><br/>
@@ -140,21 +126,23 @@ class Minting extends React.Component<MintingProps> {
         this.setState({termsAccepted});
     }    
 
-    toggleAfiliateModal = () => {
-        this.props.root.showModal("affiliate")
+    closeModule = () => {
+      this.props.showModal()
     }
 
     render() {
         return (
-            <div className='MintingModule'>
+          <div className="ModuleBackground" onClick={() => this.closeModule()}>
+            <div className='MintingModule' onClick={(e) => e.stopPropagation()}>
+                <div className='MintingModule-content'>
                     {this.description}
-                  { this.props.root.state.settings.network !== "Preprod" &&  <span className="mintingDisclamer">Tokenized Wallets are only supported on the preprod testnet.</span>}
-          
-                              <button className="commonBtn" onClick={() => this.startMint()}>Mint Now</button>
-
-                <span className="affiliateLink" onClick={() => this.toggleAfiliateModal() }> affiliate </span>
+                    {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Tokenized Wallets are only supported on the preprod testnet.</span>}
+                    <button className="commonBtn" onClick={() => this.closeModule()}>Mint Now</button>
+                    <span className="affiliateLink" onClick={() => this.closeModule()}>affiliate</span>
+                </div>
             </div>
-        );
+          </div>
+          );
     }
 
 }

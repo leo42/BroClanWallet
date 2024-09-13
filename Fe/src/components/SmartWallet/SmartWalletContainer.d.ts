@@ -2,6 +2,7 @@ import React from 'react';
 interface SmartWalletContainerProps {
     settings: any;
     root: any;
+    showModal: (modalName: string) => void;
 }
 interface SmartWalletContainerState {
     modal: string;
