@@ -1,10 +1,12 @@
 import React from "react";
-import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails } from "@lucid-evolution/lucid";
+import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO } from "@lucid-evolution/lucid";
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
-import { adminDatumSchema, AdminDatum } from "./types";
-import "./MintingModule.css"
+import { adminDatumSchema, } from "./types";
+import "./mintingModule.css"
+import CryptoJS from 'crypto-js';
+
 interface MintingProps {
   root: {
     openWalletPicker: (callback: (wallet: any) => void) => void;
@@ -21,7 +23,7 @@ interface MintingState {
   price: number | null;
   }
 
-class Minting extends React.Component<MintingProps> {
+class MintingModule extends React.Component<MintingProps> {
   
   terms = [ <span>I read and understood the <a href="https://raw.githubusercontent.com/leo42/BroClanWallet/main/LICENSE" target="blank">Opensource License </a> </span>, 
             <span>I read and understood the <a href="https://broclan.io/faq.html" target="blank">FAQ</a> </span>]
@@ -103,26 +105,25 @@ class Minting extends React.Component<MintingProps> {
 
         const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
         
+        let validUtxos = await getValidUtxos(lucid);
         const adminUtxo = await lucid.config().provider.getUtxoByUnit(this.adminKey)
         const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
-
-        const paymentTx = lucid.newTx();
-        paymentTx.pay.ToAddress(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
+        const consumingTx =  lucid.newTx().collectFrom([validUtxos[0]])
+        const tokenName = this.getTokenName(validUtxos[0])
+        console.log(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) })
+        consumingTx.pay.ToAddress(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
-        let validUtxos = await getValidUtxos(lucid);
 
-        assets[policyId+validUtxos[0].txHash] = 1n;
+        assets[policyId+tokenName] = 1n;
 
 
       const redeemer = Data.void();
-      const tx = lucid.newTx()
-                  .mintAssets(assets, redeemer)
+      consumingTx.mintAssets(assets, redeemer)
                   .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
                   .readFrom([adminUtxo])
-                  .compose(paymentTx)
-        
-      console.log(tx.toString())
-        const completedTx = await tx.complete()
+
+                  
+        const completedTx = await consumingTx.complete()
         
         const signature = await completedTx.sign.withWallet()
         
@@ -147,6 +148,40 @@ class Minting extends React.Component<MintingProps> {
           toast.error(e.message ? e.message : e)
         }
     }
+
+    }
+    
+
+    getTokenName(utxo : UTxO) { 
+      console.log(utxo)
+      let string =utxo.outputIndex.toString(16)  ;
+      if (utxo.outputIndex < 16) string = "0" + string;
+      string = string + utxo.txHash;
+      console.log(string)
+      function hexToByteArray(hexString : string) {
+        var result = [];
+        while (hexString.length >= 2) { 
+          result.push(parseInt(hexString.substring(0, 2), 16));
+          hexString = hexString.substring(2, hexString.length);
+        }
+        return result;
+      }
+      function byteArrayToWordArray(byteArray : number[]) {
+        var words = [], i = 0, bytes = byteArray.length;
+        while (i < bytes) {
+          words.push(
+            (byteArray[i++] << 24) |
+            (byteArray[i++] << 16) |
+            (byteArray[i++] << 8)  |
+            byteArray[i++]
+          );
+        }
+        return CryptoJS.lib.WordArray.create(words, bytes);
+      }
+
+      let byteArray = hexToByteArray(string);
+      let wordArray = byteArrayToWordArray(byteArray);
+      return CryptoJS.SHA256(wordArray).toString(CryptoJS.enc.Hex);
 
     }
 
@@ -199,4 +234,4 @@ toggleTerm = (index: number) => {
 
 }
 
-export default Minting
+export default MintingModule

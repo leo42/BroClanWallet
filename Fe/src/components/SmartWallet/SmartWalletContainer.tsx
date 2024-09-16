@@ -1,7 +1,8 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import MintingModule from './MintingModule';  // Make sure this matches the actual file name
+import MintingModule from './mintingModule';  // Changed to match the actual file name
 import UpdateWalletModal from './UpdateWalletModal';
+
 interface SmartWalletContainerProps {
   settings: any;
   root: any;
