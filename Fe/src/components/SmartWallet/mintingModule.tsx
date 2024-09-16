@@ -109,14 +109,13 @@ class MintingModule extends React.Component<MintingProps> {
         const adminUtxo = await lucid.config().provider.getUtxoByUnit(this.adminKey)
         const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
         const consumingTx =  lucid.newTx().collectFrom([validUtxos[0]])
-        const tokenName = this.getTokenName(validUtxos[0])
-        console.log(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) })
+        const tokenNameSuffix = this.getTokenName(validUtxos[0]).slice(1); 
         consumingTx.pay.ToAddress(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
 
-        assets[policyId+tokenName] = 1n;
-
-
+        assets[policyId+ "0" +tokenNameSuffix] = 1n;
+        assets[policyId+ "1" +tokenNameSuffix] = 1n;
+        assets[policyId+ "2" +tokenNameSuffix] = 1n;
       const redeemer = Data.void();
       consumingTx.mintAssets(assets, redeemer)
                   .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
