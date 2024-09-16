@@ -67,17 +67,50 @@
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   
   }
+.nftInfo{
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+}
 
-  .nftHolder {
-    display: flex;
-    flex-direction: column;
+.nftHolderInput{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+}
+
+  .policy {
+    flex-direction: row;
     align-items: center;
     align-content: center;
   }
 
+.policy input[type="text"] {
+  border: solid green 1px;
+  width: 25vw;
+}
+
+  .nftHolder {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+  }
+
+  .policyValid {
+    border: solid green 1px;
+  }
+
+  .policyInvalid {
+    border: solid red 1px;
+  }
+
   .nftHolder input {
     margin-bottom: 10px;
-    width: 50%;
+    width: 100%;
   }
 .cardSelect {
   margin-top: -34px;

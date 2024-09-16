@@ -3,14 +3,14 @@ import "./UpdateWalletModal.css";
 import { Lucid, C } from "lucid-cardano";
 import { toast } from "react-toastify";
 import getTokenInfo from "../../helpers/tokenInfo"
-
+import { TokenInfo } from "../../helpers/tokenInfo"
 type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;
 
 type SmartMultisigDescriptor = 
   | { type: "KeyHash"; keyHash: VerificationKeyHash , name: string}
-  | { type: "NftHolder"; policy: PolicyId; name: AssetName }
+  | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
   | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number }
   | { type: "Before"; time: number }
   | { type: "After"; time: number };
@@ -32,7 +32,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     json: {
       type: "AtLeast",
       scripts: [
-        { type: "KeyHash", keyHash: "", name: "" },
+        { type: "NftHolder", policy: "", name: "" , tokenData: null},
         { type: "KeyHash", keyHash: "", name: "" },
       ],
       m: 1
@@ -41,7 +41,12 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   };
 
   lucid: Lucid | null = null;
+  policyMap : Map<string, string> = new Map([
+      ["adaHandle", "f0ff48bbb7bbe9d59a40f1ce90e9e9d0ff5002ec48f232b49ca0fb9a"],
+      ["Custom", ""]
+    ]);
 
+  
   options = [
     { name: "KeyHash", value: "KeyHash" },
     { name: "NftHolder", value: "NftHolder" },
@@ -57,6 +62,8 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     { name: "Shared Bank Account", value: "Shared Bank Account" },
     { name: "Paranoid Vault", value: "Paranoid Vault" },
   ];
+
+  debouncedFunctions: Map<string, (...args: typeof debounce[]) => void> = new Map();
 
   isAddressValid = (address: string): boolean => {
     try {
@@ -286,6 +293,26 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     this.setState({ json });
   };
 
+  handlePolicyTypeChange = (value: string, coordinates: number[]) => {
+    const json = { ...this.state.json };
+    let current = json;
+    for (const index of coordinates) {
+      if (current.type !== "AtLeast") {
+        return;
+      }
+      current = current.scripts[index];
+    }
+
+    if (current.type !== "NftHolder") {
+      return;
+    }
+    current.policy = this.policyMap.get(value) || "";
+    this.setState({ json });
+    this.debouncedhandleNftHolderChange(coordinates);
+
+  }
+
+  
   sigComponent = (json: SmartMultisigDescriptor, coordinates: number[]) => {
     if (json.type !== "KeyHash") {
       return null;
@@ -378,16 +405,36 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     if (json.type !== "NftHolder") {
       return null;
     }
+    console.log(json.policy, "policy", Array.from(this.policyMap.keys()))
+    const foundKey = Array.from(this.policyMap.values()).find(value => value === json.policy);
+    console.log(foundKey, "foundKey")
+    const policyType = foundKey ? foundKey : "Custom";
+    const policyValid = /^[0-9a-fA-F]{56}$/.test(json.policy);
+
     return (
-      <div className="nftHolder">
-        <input
-          required  
-          type="text"
-          placeholder="Policy ID"
-          name="amount"
-          value={json.policy}
-          onChange={(event) => this.handlePolicyChange(event.target.value, coordinates)}
-        />
+      <div className={`nftHolder`} >
+        <div className="nftHolderInput">
+        <div className={`policy ${policyValid ? 'policyValid' : 'policyInvalid'}`} >
+        <select
+          name="policyType"
+          value={policyType}
+          onChange={(event) => this.handlePolicyTypeChange(event.target.value, coordinates)}
+        >
+          {Array.from(this.policyMap.keys()).map((key) => (
+            <option key={key} value={key}>{key}</option>
+          ))}
+        </select>
+        {policyType === "Custom" && (
+          <input
+            required  
+            type="text"
+            placeholder="Policy ID"
+            name="amount"
+            value={json.policy}
+            onChange={(event) => this.handlePolicyChange(event.target.value, coordinates)}
+          />
+        )}
+        </div>
         <input
           required
           type="text"
@@ -396,11 +443,19 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
           value={json.name}
           onChange={(event) => this.handleAssetNameChange(event.target.value, coordinates)}
         />
+        </div>
+
+
+        <div className="nftInfo">
+          {json.tokenData ? <img src={json.tokenData.image} alt="NFT" /> : <p>No NFT found</p>}
+        </div>
+
       </div>
     );
   };
 
   handlePolicyChange = (value: string, coordinates: number[]) => {
+    console.log(value, "policy")
     const json = { ...this.state.json };
     let current = json;
     for (const index of coordinates) {
@@ -414,7 +469,11 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     }
     current.policy = value;
     this.setState({ json });
-    this.debouncedhandleNftHolderChange(coordinates);
+    try {
+      this.debouncedhandleNftHolderChange(coordinates);
+    } catch (error) {
+      console.error("Error in debouncedhandleNftHolderChange:", error);
+    }
   };
 
   handleAssetNameChange = (value: string, coordinates: number[]) => {
@@ -431,12 +490,15 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     }
     current.name = value;
     this.setState({ json });
-    this.debouncedhandleNftHolderChange(coordinates);
+    try {
+      this.debouncedhandleNftHolderChange(coordinates);
+    } catch (error) {
+      console.error("Error in debouncedhandleNftHolderChange:", error);
+    }
   };
 
-  
-  
   handleNftHolderChange = async (coordinates: number[]) => {
+    console.log("handleNftHolderChange called with coordinates:", coordinates);
     const json = { ...this.state.json };
     let current = json;
     for (const index of coordinates) {
@@ -445,20 +507,29 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     }
     if (current.type !== "NftHolder") return;
     
-    
     try {
-      const tokenInfo = await getTokenInfo(current.policy + current.name);
-      current.name = tokenInfo.name || '';
+      const hexName = /^[0-9a-fA-F]+$/.test(current.name) ? current.name : current.name.split('').map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+      const tokenInfo = await getTokenInfo(current.policy + hexName);
+      current.tokenData = tokenInfo.image === "" ? null : tokenInfo;
     } catch (error) {
       console.error("Error fetching token info:", error);
     }
     
     this.setState({ json });
   };
-  
-  debouncedhandleNftHolderChange = debounce((coordinates: number[]) => this.handleNftHolderChange(coordinates), 1000);
 
-  
+  debouncedhandleNftHolderChange = (coordinates: number[]) => {
+    const key = coordinates.join(',');
+    if (!this.debouncedFunctions.has(key)) {
+      this.debouncedFunctions.set(
+        key,
+        debounce(() => this.handleNftHolderChange(coordinates), 1000)
+      );
+    }
+    const debouncedFn = this.debouncedFunctions.get(key);
+    if (debouncedFn) debouncedFn();
+  };
+
   deleteElement = (value: any, coordinates: number[]) => {
     const json = { ...this.state.json };
     let current = json;
@@ -525,7 +596,8 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
         newElement = {
           type: "NftHolder",
           policy: "",
-          name: ""
+          name: "",
+          tokenData: null
         };
         break;
       default:
@@ -586,6 +658,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
       </div>
     );
   };
+
 
   render() {
     return (

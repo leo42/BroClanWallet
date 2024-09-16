@@ -20,7 +20,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   private interval: NodeJS.Timeout | null = null;
 
   state: SmartWalletContainerState = {
-    modal: "",
+    modal: "updateWallet",
     wallets: [],
     selectedWallet: 0,
     connectedWallet: { name: "", socket: null },
@@ -160,7 +160,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   render() {
     return (
       <div className="SmartWalletContainer"> Hey Leo
-      <UpdateWalletModal root={this.props.root} moduleRoot={this} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} />
+      { this.state.modal === "updateWallet" && <UpdateWalletModal root={this.props.root} moduleRoot={this} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
       {this.state.modal === "newWallet" && < MintingModule root={this.props.root} showModal={() => this.setState({modal: ""})} /> }
         {this.state.wallets.length === 0 ? this.walletsEmpty() : (
          <div> Hello World</div> // Render your wallet list or other content here
