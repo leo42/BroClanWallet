@@ -1,9 +1,9 @@
 import React from "react";
-import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO } from "@lucid-evolution/lucid";
+import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , Constr} from "@lucid-evolution/lucid";
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
-import { adminDatumSchema, } from "./types";
+import { adminDatumSchema, SmartMultisigDescriptor , SmartMultisigDescriptorSchema } from "./types";
 import "./mintingModule.css"
 import CryptoJS from 'crypto-js';
 
@@ -31,7 +31,7 @@ class MintingModule extends React.Component<MintingProps> {
   mintingInfo = ["This token represents a tokenized Wallet", "the holder of this token can access the funds of the wallet", "access your tokenized wallet or mint your own", "at broclan.io"]
 
   state : MintingState  = {
-         termsAccepted: (this.terms.map(() => false)),
+         termsAccepted: (this.terms.map(() => true)),
          price : null
 
     }
@@ -86,7 +86,10 @@ class MintingModule extends React.Component<MintingProps> {
 
     async mint( wallet  : string , settings : any){
     try {     
-      async function getValidUtxos(lucid: LucidEvolution) {
+      const api = await window.cardano[wallet].enable();
+      const lucid = await getNewLucidInstance(settings)
+      lucid.selectWallet.fromAPI(api)
+
         const address = await lucid.config().wallet?.address();
         if (!address) {
           throw new Error("Wallet address not available");
@@ -96,26 +99,29 @@ class MintingModule extends React.Component<MintingProps> {
           throw new Error("Payment credential not found");
         }
         const utxos = await lucid.config().provider.getUtxos(paymentCredential);
-        return utxos;
-      } 
 
-        const api = await window.cardano[wallet].enable();
-        const lucid = await getNewLucidInstance(settings)
-        lucid.selectWallet.fromAPI(api)
+
 
         const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
         
-        let validUtxos = await getValidUtxos(lucid);
         const adminUtxo = await lucid.config().provider.getUtxoByUnit(this.adminKey)
         const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
-        const consumingTx =  lucid.newTx().collectFrom([validUtxos[0]])
-        const tokenNameSuffix = this.getTokenName(validUtxos[0]).slice(1); 
+        const consumingTx =  lucid.newTx().collectFrom([utxos[0]])
+        const tokenNameSuffix = this.getTokenName(utxos[0]).slice(1); 
         consumingTx.pay.ToAddress(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
+        const assetsConfigToken : Assets= {}
+        const walletConfigToken = policyId + "0" + tokenNameSuffix
+        const walletSubscriptionToken = policyId + "1" + tokenNameSuffix
+        const walletRefferenceToken = policyId + "2" + tokenNameSuffix
+        assets[walletConfigToken] = 1n;
+        assetsConfigToken[walletConfigToken] = 1n
+        assets[walletSubscriptionToken] = 1n;
+        assets[walletRefferenceToken] = 1n;
 
-        assets[policyId+ "0" +tokenNameSuffix] = 1n;
-        assets[policyId+ "1" +tokenNameSuffix] = 1n;
-        assets[policyId+ "2" +tokenNameSuffix] = 1n;
+        const initialMultisigConfig =  Data.to(new Constr(0, [Data.to(paymentCredential.hash)])).valueOf()
+        console.log(initialMultisigConfig)
+        consumingTx.pay.ToContract(address, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
       const redeemer = Data.void();
       consumingTx.mintAssets(assets, redeemer)
                   .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
