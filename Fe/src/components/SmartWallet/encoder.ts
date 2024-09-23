@@ -22,11 +22,11 @@ function innerConstr(json: SmartMultisigJson) : Constr<any> {
     }
 
     const encodeBefore = (before: { time: number }) => {
-        return new Constr(3, [before.time])
+        return new Constr(3, [BigInt(before.time)])
     }
 
     const encodeAfter = (after: { time: number }) => {
-        return new Constr(4, [after.time])
+        return new Constr(4, [BigInt(after.time)])
     }
 
     switch (json.Type) {

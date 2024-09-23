@@ -132,7 +132,12 @@ class MintingModule extends React.Component<MintingProps> {
                                                         {
                                                           Type : SmartMultisigDescriptorType.NftHolder,
                                                           nftHolder : {name : "124212", policy : policyId}
+                                                        },
+                                                        {
+                                                          Type : SmartMultisigDescriptorType.After,
+                                                          after : {time : 172800}
                                                         }
+
                                                       ]
                                                     }
                                                   }))

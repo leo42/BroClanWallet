@@ -53,3 +53,22 @@ test serializeNftHolder() {
   trace cbor
   cbor == #"d87b9f9fd8799f581cffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820affd87a9f581c79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd143124212ffff01ff"
 }
+
+test serializeAfter() {
+  let policyId: PolicyId =
+    #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
+  let descriptor: SmartMultisigDescriptor =
+    AtLeast {
+      scripts: [
+        KeyHash {
+          keyHash: #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a",
+        },
+        NftHolder { policy: policyId, name: #"124212" },
+        After { time: 172800 },
+      ],
+      m: 1,
+    }
+  let cbor = cbor.serialise(descriptor)
+  trace cbor
+  cbor == #"d87b9f9fd8799f581cffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820affd87a9f581c79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd143124212ffd87d9f1a0002a300ffff01ff"
+}
