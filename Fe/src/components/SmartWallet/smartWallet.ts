@@ -21,7 +21,7 @@ class SmartWallet {
 
   constructor(private id: string, private name: string, settings: WalletSettings, script: string) {
     
-    this.script = {type: "PlutusV3", script: applyParamsToScript(script, [])}
+    this.script = {type: "PlutusV3", script: applyParamsToScript(script, [Data.to(this.id)])}
 
     this.initializeLucid(settings);
     
@@ -151,7 +151,7 @@ class SmartWallet {
       .deRegisterStake(rewardAddress)
       .attach.SpendingValidator(this.script)
       .collectFrom(this.utxos, Data.void());
-
+      
     if (this.delegation.rewards && BigInt(this.delegation.rewards) > 0) {
       tx.withdraw(rewardAddress, BigInt(this.delegation.rewards));
     }

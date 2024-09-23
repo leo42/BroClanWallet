@@ -6,6 +6,7 @@ use cardano/script_context.{ScriptContext}
 use aiken/interval
 use cardano/address.{Address}
 use aiken/option
+
 pub type Datum {
   owner: VerificationKeyHash,
 }

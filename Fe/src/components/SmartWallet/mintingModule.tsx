@@ -3,10 +3,10 @@ import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO ,
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
-import { adminDatumSchema, SmartMultisigDescriptor , SmartMultisigDescriptorSchema } from "./types";
+import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptor , SmartMultisigDescriptorSchema , SmartMultisigDescriptorKeyHash  , SmartMultisigDescriptorKeyHashSchema} from "./types";
 import "./mintingModule.css"
 import CryptoJS from 'crypto-js';
-
+import { encode } from "./encoder";
 interface MintingProps {
   root: {
     openWalletPicker: (callback: (wallet: any) => void) => void;
@@ -118,12 +118,13 @@ class MintingModule extends React.Component<MintingProps> {
         assetsConfigToken[walletConfigToken] = 1n
         assets[walletSubscriptionToken] = 1n;
         assets[walletRefferenceToken] = 1n;
-
-        const initialMultisigConfig =  Data.to(new Constr(0, [Data.to(paymentCredential.hash)])).valueOf()
-        console.log(initialMultisigConfig)
+        const keyHash =   Data.to(new Constr(0, [paymentCredential.hash]))
+        console.log("keyHash", paymentCredential.hash)
+        const initialMultisigConfig = keyHash // Data.to(new Constr(0, [keyHash]))
+        console.log(initialMultisigConfig, encode({Type : SmartMultisigDescriptorType.AtLeast, atLeast : {m : 1, scripts : [{Type : SmartMultisigDescriptorType.KeyHash, keyHash : {name : "test", keyHash : paymentCredential.hash}}]}}))
         consumingTx.pay.ToContract(address, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
-      const redeemer = Data.void();
-      consumingTx.mintAssets(assets, redeemer)
+        const redeemer = Data.void();
+        consumingTx.mintAssets(assets, redeemer)
                   .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
                   .readFrom([adminUtxo])
 
