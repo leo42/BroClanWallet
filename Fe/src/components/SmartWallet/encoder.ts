@@ -2,25 +2,31 @@ import { Data, Constr } from "@lucid-evolution/lucid";
 import { SmartMultisigJson, SmartMultisigDescriptorType } from './types'
 
 export function encode(json: SmartMultisigJson): string {
-    const encodeKeyHash = (keyHash: { name: string, keyHash: string }) => {
-        return Data.to(new Constr(0, [ keyHash.keyHash]))
+    return Data.to(innerConstr(json))
+    
+}
+
+function innerConstr(json: SmartMultisigJson) : Constr<any> {
+   const encodeKeyHash = (keyHash: { name: string, keyHash: string }) => {
+        return new Constr(0, [keyHash.keyHash])
     }
 
     const encodeNftHolder = (nftHolder: { name: string, policy: string }) => {
-        return Data.to(new Constr(1, [nftHolder.name, nftHolder.policy]))
+        return new Constr(1, [nftHolder.name, nftHolder.policy])
     }
-
+    
     const encodeAtLeast = (atLeast: { m: number, scripts: SmartMultisigJson[] }) => {
-        const encodedScripts = atLeast.scripts.map(script => encode(script))
-        return Data.to<Constr<number | string[]>>(new Constr(2, [atLeast.m, encodedScripts]))
+        const encodedScripts = atLeast.scripts.map(script => innerConstr(script));
+        console.log(encodedScripts);
+        return new Constr(2, [encodedScripts, BigInt(atLeast.m)]);
     }
 
     const encodeBefore = (before: { time: number }) => {
-        return Data.to<Constr<number>>(new Constr(3, [before.time]))
+        return new Constr(3, [before.time])
     }
 
     const encodeAfter = (after: { time: number }) => {
-        return Data.to<Constr<number>>(new Constr(4, [after.time]))
+        return new Constr(4, [after.time])
     }
 
     switch (json.Type) {

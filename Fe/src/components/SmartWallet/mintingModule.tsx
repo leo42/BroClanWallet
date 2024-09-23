@@ -121,7 +121,7 @@ class MintingModule extends React.Component<MintingProps> {
         const keyHash =   Data.to(new Constr(0, [paymentCredential.hash]))
         console.log("keyHash", paymentCredential.hash)
         const initialMultisigConfig = keyHash // Data.to(new Constr(0, [keyHash]))
-        console.log(initialMultisigConfig, encode({Type : SmartMultisigDescriptorType.AtLeast, atLeast : {m : 1, scripts : [{Type : SmartMultisigDescriptorType.KeyHash, keyHash : {name : "test", keyHash : paymentCredential.hash}}]}}))
+        console.log(initialMultisigConfig, encode({Type : SmartMultisigDescriptorType.AtLeast, atLeast : {m : 1, scripts : [{Type : SmartMultisigDescriptorType.KeyHash, keyHash : {name : "", keyHash : paymentCredential.hash}}]}}))
         consumingTx.pay.ToContract(address, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         const redeemer = Data.void();
         consumingTx.mintAssets(assets, redeemer)
