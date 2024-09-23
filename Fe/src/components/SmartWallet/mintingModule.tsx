@@ -119,9 +119,23 @@ class MintingModule extends React.Component<MintingProps> {
         assets[walletSubscriptionToken] = 1n;
         assets[walletRefferenceToken] = 1n;
         const keyHash =   Data.to(new Constr(0, [paymentCredential.hash]))
-        console.log("keyHash", paymentCredential.hash)
+        console.log("keyHash", paymentCredential.hash, policyId)
         const initialMultisigConfig = keyHash // Data.to(new Constr(0, [keyHash]))
-        console.log(initialMultisigConfig, encode({Type : SmartMultisigDescriptorType.AtLeast, atLeast : {m : 1, scripts : [{Type : SmartMultisigDescriptorType.KeyHash, keyHash : {name : "", keyHash : paymentCredential.hash}}]}}))
+        console.log(initialMultisigConfig, encode({Type : SmartMultisigDescriptorType.AtLeast, 
+                                                  atLeast : 
+                                                    {m : 1, 
+                                                    scripts : [
+                                                        {
+                                                          Type : SmartMultisigDescriptorType.KeyHash, 
+                                                          keyHash : {name : "12a23s", keyHash : paymentCredential.hash}
+                                                        },
+                                                        {
+                                                          Type : SmartMultisigDescriptorType.NftHolder,
+                                                          nftHolder : {name : "124212", policy : policyId}
+                                                        }
+                                                      ]
+                                                    }
+                                                  }))
         consumingTx.pay.ToContract(address, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         const redeemer = Data.void();
         consumingTx.mintAssets(assets, redeemer)

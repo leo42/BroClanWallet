@@ -12,7 +12,7 @@ function innerConstr(json: SmartMultisigJson) : Constr<any> {
     }
 
     const encodeNftHolder = (nftHolder: { name: string, policy: string }) => {
-        return new Constr(1, [nftHolder.name, nftHolder.policy])
+        return new Constr(1, [nftHolder.policy, nftHolder.name])
     }
     
     const encodeAtLeast = (atLeast: { m: number, scripts: SmartMultisigJson[] }) => {
