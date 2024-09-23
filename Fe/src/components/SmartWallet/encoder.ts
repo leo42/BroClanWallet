@@ -6,6 +6,56 @@ export function encode(json: SmartMultisigJson): string {
     
 }
 
+export function decode(data: string): SmartMultisigJson {
+    const decoded = Data.from(data);
+    return innerDecode(decoded as Constr<any>);
+}
+
+function innerDecode(constr: Constr<any>): SmartMultisigJson {
+    switch (constr.index) {
+        case 0:
+            return {
+                Type: SmartMultisigDescriptorType.KeyHash,
+                keyHash: {
+                    name: "", // Name is not encoded, so we use an empty string
+                    keyHash: constr.fields[0] as string
+                }
+            };
+        case 1:
+            return {
+                Type: SmartMultisigDescriptorType.NftHolder,
+                nftHolder: {
+                    name: constr.fields[1] as string,
+                    policy: constr.fields[0] as string
+                }
+            };
+        case 2:
+            return {
+                Type: SmartMultisigDescriptorType.AtLeast,
+                atLeast: {
+                    scripts: (constr.fields[0] as Constr<any>[]).map(innerDecode),
+                    m: Number(constr.fields[1])
+                }
+            };
+        case 3:
+            return {
+                Type: SmartMultisigDescriptorType.Before,
+                before: {
+                    time: Number(constr.fields[0])
+                }
+            };
+        case 4:
+            return {
+                Type: SmartMultisigDescriptorType.After,
+                after: {
+                    time: Number(constr.fields[0])
+                }
+            };
+        default:
+            throw new Error(`Unknown SmartMultisigDescriptorType: ${constr.index}`);
+    }
+}
+
 function innerConstr(json: SmartMultisigJson) : Constr<any> {
    const encodeKeyHash = (keyHash: { name: string, keyHash: string }) => {
         return new Constr(0, [keyHash.keyHash])

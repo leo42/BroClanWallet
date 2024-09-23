@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptor , SmartMultisigDescriptorSchema , SmartMultisigDescriptorKeyHash  , SmartMultisigDescriptorKeyHashSchema} from "./types";
 import "./mintingModule.css"
 import CryptoJS from 'crypto-js';
-import { encode } from "./encoder";
+import { encode , decode } from "./encoder";
 interface MintingProps {
   root: {
     openWalletPicker: (callback: (wallet: any) => void) => void;
@@ -141,6 +141,9 @@ class MintingModule extends React.Component<MintingProps> {
                                                       ]
                                                     }
                                                   }))
+
+        const decoded = decode("d87b9f9fd8799f581cffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820affd87a9f581c79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd143124212ffd87d9f1a0002a300ffff01ff")
+        console.log(decoded)
         consumingTx.pay.ToContract(address, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         const redeemer = Data.void();
         consumingTx.mintAssets(assets, redeemer)
