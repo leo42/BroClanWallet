@@ -6,6 +6,7 @@ use cardano/script_context.{ScriptContext}
 use aiken/interval
 use cardano/address.{Address}
 use aiken/option
+use aiken/primitive/bytearray
 
 pub type Datum {
   owner: VerificationKeyHash,
@@ -36,11 +37,12 @@ pub type Redeemer{
     SubScription{ subscriptionIndex : Int}
 }
 
-validator smartMultisig (walletId: AssetName)  {
+validator smartMultisig (walletId: ByteArray)  {
 
   spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
     let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
-    let descriptor = when getDescriptorFromTokenName(configPolicy , walletId , self) is {
+    let configToken : AssetName = bytearray.push( walletId, 0 )  
+    let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , self) is {
                 Some(descriptor) -> descriptor
                 None -> fail
     }
@@ -53,8 +55,9 @@ validator smartMultisig (walletId: AssetName)  {
   
   else( ctx: ScriptContext) -> Bool {
     let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
+    let configToken : AssetName = bytearray.push( walletId, 0 )  
 
-    let descriptor = when getDescriptorFromTokenName(configPolicy , walletId , ctx.transaction) is {
+    let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , ctx.transaction) is {
                 Some(descriptor) -> descriptor
                 None -> fail
     }
@@ -62,10 +65,10 @@ validator smartMultisig (walletId: AssetName)  {
   }
 }
 
-fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId : AssetName, subscriptionIndex: Int, outRef : OutputReference){
+fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId : ByteArray, subscriptionIndex: Int, outRef : OutputReference){
   let myAddress = getMyAddress(transaction,outRef)
   
-  let subscriptionAssetName = walletId
+  let subscriptionAssetName = bytearray.push(walletId, 1)
   let subscriptionUtxo =  transaction.inputs 
                      |> list.find(fn(x) { ( quantity_of(x.output.value  ,policy ,subscriptionAssetName) > 0 ) } ) 
                           

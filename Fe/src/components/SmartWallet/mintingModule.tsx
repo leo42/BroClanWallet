@@ -7,11 +7,15 @@ import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptor 
 import "./mintingModule.css"
 import CryptoJS from 'crypto-js';
 import { encode , decode } from "./encoder";
+import SmartWallet from "./smartWallet";
+import contracts from "./contracts.json";
+import { Settings  } from "../../types/app";
+
 interface MintingProps {
   root: {
     openWalletPicker: (callback: (wallet: any) => void) => void;
     state: {
-      settings: any;
+      settings: Settings
     };
     showModal: (modalName: string) => void;
   };
@@ -33,11 +37,8 @@ class MintingModule extends React.Component<MintingProps> {
   state : MintingState  = {
          termsAccepted: (this.terms.map(() => true)),
          price : null
-
     }
-    paymentAddress = "addr_test1qpw97ty053xuqnqg0tsu3qeu5w2c8emu9lufyt24h68k6pcuf8fd97xmztpdh8l5fackuzf5r26m74p7gd924y6yecvs5f968f";
-    mintingRawScript = { type: "PlutusV3", script : "590641010100323232323232323232322533300332323232325332330093001300b37540042646464646464a66466020646464a6666660360022a6660266016602a6ea80044c94ccc06000404c4c94cccccc0740040500500504c8c94ccc06c0040584c94cccccc08000405c05c05c05c4c94ccc074c08000c4c94ccc068c8cc004004dd61805180f1baa01722533302000114a0264a66603a64a66603c66e3cc94ccc07cc05cc084dd500089bae30253022375400226eb8c094c088dd5000980918109baa3012302137540026eb8c04cc084dd5006099b8733300e3756602660426ea8005220100488100375a602460426ea803052818118010a51133003003001302300114a2200266e1cccc024dd59807980e1baa0154891c24fc896805f0b75ab51502b022834440ef8235f134475e0c14ea935300488112546f6b656e5661756c7420566175636865720048004060dd7000980e800980e8019bad001014301a0013016375400202402402402402464a6660266008602a6ea80045300103d87a8000130193016375400264a6660266008602a6ea8004530103d87a800013006330183253330143370e9002180b1baa0011301a301737540022c6004602c6ea8c020c058dd5180c980b1baa0014bd7019198008009bac30083016375401e44a6660300022980103d87a80001323253330163371090001998031bab300b30193754601660326ea800922011c592fb0f9d8ed15c06858118d134d5c4b7c77320507810fee9ac2ddf90048810e736d6172744d696e7441646d696e00130093301b0024bd70099802002000980e001180d0009180c180c980c80091119299980a1802980b1baa0011480004dd6980d180b9baa001325333014300530163754002298103d87a8000132330010013756603660306ea8008894ccc068004530103d87a8000132323232533301a337220100042a66603466e3c0200084c034cc07cdd4000a5eb80530103d87a8000133006006003375a60380066eb8c068008c078008c070004cc01400c0084c8c94ccc048c8cc004004cc00c00cc94ccc050c014c058dd50008a5eb7bdb1804dd5980d180b9baa0013300537566012602c6ea803c028894ccc060004528899299980a99180399198008009bac300b301a375402644a6660380022900009991299980d19b8f33009372466e2cdd69807980e9baa300e301d37540046eb8c038c074dd51807180e9baa002480080144cdc0000a40042002603c00266004004603e002660086eb8c06c009200213300300300114a06036002264660020026eb0c01cc058dd500791299980c0008a511325333015337106eb4c028c060dd51804980c1baa301b002483f80c4cc00c00c004528180d8008a502233371800266e04dc680100080111299980b0008a5eb804cc05cc050c060004cc008008c064004dc3a4004294088c8cc00400400c894ccc0580045300103d87a800013232323253330163372200e0042a66602c66e3c01c0084c024cc06cdd3000a5eb80530103d87a8000133006006003375660300066eb8c058008c068008c060004dd2a4000460260024602460260024602260246024602460240026eb8c03cc030dd50011b874800058c034c038008c030004c030008c028004c018dd50008a4c2a6600892011856616c696461746f722072657475726e65642066616c7365001365615330024901ff6578706563742061646d696e446174613a2041646d696e446174756d20203d206f7074696f6e2e6f725f656c7365286f7074696f6e2e6d61702861646d696e5574786f2c20666e287574786f29207b0a2020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207768656e20287574786f2e6f75747075742e646174756d29206973207b0a202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020496e6c696e65446174756d28646261746129202d3e20646174610a2020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020205f202d3e206661696c7d7d292c204e6f6e652900165734ae7155ceaab9e5573eae815d0aba257481" };
-    adminKey = "592fb0f9d8ed15c06858118d134d5c4b7c77320507810fee9ac2ddf9736d6172744d696e7441646d696e";
+    mintingRawScript = { type: "PlutusV3", script : contracts[this.props.root.state.settings.network].minting.script}
 
     componentDidMount() {
       const getAdminData = async () => {
@@ -45,7 +46,7 @@ class MintingModule extends React.Component<MintingProps> {
           console.log("getting AdminData");
           const lucid = await getNewLucidInstance(this.props.root.state.settings)
 
-          const adminUtxo = await lucid.config().provider.getUtxoByUnit(this.adminKey)
+          const adminUtxo = await lucid.config().provider.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
           console.log(adminUtxo)
           const adminDatum  =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
           this.setState({price : Number(adminDatum.mintAmount)} )
@@ -103,54 +104,38 @@ class MintingModule extends React.Component<MintingProps> {
 
 
         const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
-        
-        const adminUtxo = await lucid.config().provider.getUtxoByUnit(this.adminKey)
+        const adminUtxo = await lucid.config().provider.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
         const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
         const consumingTx =  lucid.newTx().collectFrom([utxos[0]])
-        const tokenNameSuffix = this.getTokenName(utxos[0]).slice(1); 
-        consumingTx.pay.ToAddress(this.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
+        const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
+        consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
         const assetsConfigToken : Assets= {}
-        const walletConfigToken = policyId + "0" + tokenNameSuffix
-        const walletSubscriptionToken = policyId + "1" + tokenNameSuffix
-        const walletRefferenceToken = policyId + "2" + tokenNameSuffix
+        const walletConfigToken = policyId + "00" + tokenNameSuffix
+        const walletSubscriptionToken = policyId + "01" + tokenNameSuffix
+        const walletRefferenceToken = policyId + "02" + tokenNameSuffix
         assets[walletConfigToken] = 1n;
         assetsConfigToken[walletConfigToken] = 1n
         assets[walletSubscriptionToken] = 1n;
         assets[walletRefferenceToken] = 1n;
-        const keyHash =   Data.to(new Constr(0, [paymentCredential.hash]))
+        const smartWallet = new SmartWallet(tokenNameSuffix)
+        await smartWallet.initializeLucid(settings)
+        const smartWalletEnterpriseAddress = smartWallet.getEnterpriseAddress()
+        
         console.log("keyHash", paymentCredential.hash, policyId)
-        const initialMultisigConfig = keyHash // Data.to(new Constr(0, [keyHash]))
-        console.log(initialMultisigConfig, encode({Type : SmartMultisigDescriptorType.AtLeast, 
-                                                  atLeast : 
-                                                    {m : 1, 
-                                                    scripts : [
-                                                        {
-                                                          Type : SmartMultisigDescriptorType.KeyHash, 
-                                                          keyHash : {name : "12a23s", keyHash : paymentCredential.hash}
-                                                        },
-                                                        {
-                                                          Type : SmartMultisigDescriptorType.NftHolder,
-                                                          nftHolder : {name : "124212", policy : policyId}
-                                                        },
-                                                        {
-                                                          Type : SmartMultisigDescriptorType.After,
-                                                          after : {time : 172800}
-                                                        }
-
-                                                      ]
-                                                    }
-                                                  }))
-
-        const decoded = decode("d87b9f9fd8799f581cffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820affd87a9f581c79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd143124212ffd87d9f1a0002a300ffff01ff")
-        console.log(decoded)
-        consumingTx.pay.ToContract(address, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
+        const initialMultisigConfig = encode(    {
+          Type : SmartMultisigDescriptorType.KeyHash, 
+          keyHash : {name : "me", keyHash : paymentCredential.hash}
+        })
+        console.log(initialMultisigConfig)
+        
         const redeemer = Data.void();
         consumingTx.mintAssets(assets, redeemer)
-                  .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
-                  .readFrom([adminUtxo])
-
-                  
+        .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
+        .readFrom([adminUtxo])
+        
+        consumingTx.pay.ToContract(smartWalletEnterpriseAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
+        
         const completedTx = await consumingTx.complete()
         
         const signature = await completedTx.sign.withWallet()
