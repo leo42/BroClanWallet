@@ -22,5 +22,4 @@ validator minting(adminPolicy: PolicyId, adminTokenName: AssetName) {
 
         adminAuthorized || onlyBurn
       }
-     
 }

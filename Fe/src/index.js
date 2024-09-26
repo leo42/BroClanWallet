@@ -2,7 +2,7 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MultisigContainer from './components/Multisig/MultisigContainer';
-import SmartWalletContainer from './components/SmartWallet/SmartWalletContainer.tsx';
+import SmartWalletContainer from './components/SmartWallet/SmartWalletContainer';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import TermsAndConditionsBanner from './components/TermsBanner';

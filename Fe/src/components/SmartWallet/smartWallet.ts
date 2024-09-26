@@ -20,8 +20,11 @@ class SmartWallet {
   private pendingTxs: { tx: any; signatures: Record<string, string> }[] = [];
   private addressNames: Record<string, string> = {};
   private defaultAddress: string = "";
+  private id: string;
 
   constructor(id: string) {
+    this.id = id;
+    console.log("id", id, rawScript)
     this.script = {
       type: "PlutusV3",
       script: applyParamsToScript(applyDoubleCborEncoding(rawScript), [id])
@@ -30,6 +33,7 @@ class SmartWallet {
 
     
   }
+
 
   async initializeLucid(settings: WalletSettings): Promise<void> {
     try {
@@ -58,6 +62,14 @@ class SmartWallet {
     }
   }
 
+  getName(): string {
+    return "Todo"
+  }
+
+  getPendingTxs(): { tx: any; signatures: Record<string, string> }[] {
+    return this.pendingTxs;
+  }
+
 
   getAddress(): string {
     const stakeCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
@@ -78,14 +90,26 @@ class SmartWallet {
     return this.delegation;
   }
 
-  getBalance(address: string = ""): bigint {
+  getFundedAddress() : string[] {
+    const utxos = this.utxos
+    let result : string[] = []
+    utxos.map( utxo => {
+      result.push(utxo.address);
+        
+       }
+      )
+      
+    return  [...new Set(result)]; 
+  }
+
+  getBalance(address: string = ""): number {
     let result = BigInt(0);
     this.utxos.forEach(utxo => {
       if (address === "" || utxo.address === address) {
         result += BigInt(utxo.assets.lovelace);
       }
     });
-    return result + BigInt(this.delegation.rewards || 0);
+    return Number(result + BigInt(this.delegation.rewards || 0));
   }
 
   getBalanceFull(address: string = ""): Assets {
@@ -211,6 +235,10 @@ class SmartWallet {
       const errorMessage = e.message ? e.message : JSON.stringify(e);
       throw new Error(errorMessage);
     }
+  }
+
+  getId(): string {
+    return this.id;
   }
 
   setDefaultAddress(address: string): void {

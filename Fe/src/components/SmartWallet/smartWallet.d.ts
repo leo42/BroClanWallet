@@ -7,8 +7,6 @@ interface Recipient {
     amount: Assets;
 }
 declare class SmartWallet {
-    private id;
-    private name;
     private lucid;
     private script;
     private utxos;
@@ -16,12 +14,12 @@ declare class SmartWallet {
     private pendingTxs;
     private addressNames;
     private defaultAddress;
-    constructor(id: string, name: string, settings: WalletSettings, script: string);
-    private initializeLucid;
-    initialize(): Promise<void>;
+    private id;
+    constructor(id: string);
+    initializeLucid(settings: WalletSettings): Promise<void>;
     changeSettings(settings: WalletSettings): Promise<void>;
     getAddress(): string;
-    getName(): string;
+    getEnterpriseAddress(): string;
     getDelegation(): Promise<Delegation>;
     getBalance(address?: string): bigint;
     getBalanceFull(address?: string): Assets;
@@ -34,6 +32,7 @@ declare class SmartWallet {
     isAddressValid(address: string): boolean;
     isAddressScript(address: string): boolean;
     submitTransaction(index: number): Promise<Boolean>;
+    getId(): string;
     setDefaultAddress(address: string): void;
     setAddressNames(names: Record<string, string>): void;
     changeAddressName(address: string, name: string): void;

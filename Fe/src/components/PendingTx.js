@@ -1,10 +1,10 @@
 import React, { useEffect }     from "react";
-import TokenElement from "../TokenElement";
+import TokenElement from "./TokenElement";
 import {  toast } from 'react-toastify';
-import { ReactComponent as SignIcon } from "../../html/assets/sign.svg";
-import { ReactComponent as ImportSigIcon } from "../../html/assets/importSig.svg";
-import { ReactComponent as ExpandIcon } from "../../html/assets/details.svg";
-import copyTextToClipboard from "../../helpers/copyTextToClipboard";
+import { ReactComponent as SignIcon } from "./../html/assets/sign.svg";
+import { ReactComponent as ImportSigIcon } from "./../html/assets/importSig.svg";
+import { ReactComponent as ExpandIcon } from "./../html/assets/details.svg";
+import copyTextToClipboard from "./../helpers/copyTextToClipboard";
 import "./PendingTx.css"
 
 function WalletPendingTx(props) {

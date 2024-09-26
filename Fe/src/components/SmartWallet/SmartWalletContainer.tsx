@@ -2,6 +2,9 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import MintingModule from './mintingModule';  // Changed to match the actual file name
 import UpdateWalletModal from './UpdateWalletModal';
+import SmartWallet from './smartWallet';
+import MWalletMain from './WalletMain'; 
+import './SmartWalletContainer.css';
 
 interface SmartWalletContainerProps {
   settings: any;
@@ -21,16 +24,18 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   private interval: NodeJS.Timeout | null = null;
 
   state: SmartWalletContainerState = {
-    modal: "newWallet",
+    modal: "",
     wallets: [],
     selectedWallet: 0,
     connectedWallet: { name: "", socket: null },
     loading: true,
     dAppConnector: null,
   };
-
+  
   componentDidMount() {
-    this.loadState();
+    setTimeout(() => {
+      this.loadState();
+    }, 5000);
     this.interval = setInterval(() => {
       this.reloadBalance();
     }, 15000);
@@ -72,37 +77,34 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   storeState() {
-    // Implementation similar to MultisigContainer
+    // Implementation similar to MultisigContainer`
   }
 
-  storeWallets() {
-    // Implementation similar to MultisigContainer
-  }
-
+  
   async loadState() {
-    // Implementation similar to MultisigContainer
+    this.loadWallets()
   }
-
+  
   modalType() {
     return "smart";
   }
-
+  
   async createTx(recipients: any[], signers: any[], sendFrom: any, sendAll: boolean | null = null) {
     // Implementation similar to MultisigContainer
   }
-
+  
   async importTransaction(transaction: any) {
     // Implementation similar to MultisigContainer
   }
-
+  
   async deleteWallet(index: number) {
     // Implementation similar to MultisigContainer
   }
-
+  
   changeWalletName(name: string) {
     // Implementation similar to MultisigContainer
   }
-
+  
   addSignature(signature: any) {
     // Implementation similar to MultisigContainer
   }
@@ -110,21 +112,37 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   setDefaultAddress(address: string) {
     // Implementation similar to MultisigContainer
   }
-
+  
   changeAddressName(address: string, name: string) {
     // Implementation similar to MultisigContainer
   }
-
+  
   getTransactionHistory(address: string) {
     // Implementation similar to MultisigContainer
   }
 
-  async addWallet(script: any, name: string) {
-    // Implementation similar to MultisigContainer
+  storeWallets() {
+    const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId() } })
+    localStorage.setItem("smartWallets", JSON.stringify(wallets))
+    console.log("wallets", this.state.wallets)
+  }
+  
+  async loadWallet(id: string) {
+    const newWallet = new SmartWallet(id)
+    await newWallet.initializeLucid(this.props.root.state.settings)
+    this.setState({wallets: [...this.state.wallets, newWallet]})
+  }
+
+  async addWallet(id: any) {
+    this.loadWallet(id)
+    this.storeWallets()
   }
 
   loadWallets() {
-    // Implementation similar to MultisigContainer
+    const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]")
+    wallets.forEach((wallet: any) => {
+      this.loadWallet(wallet.id)
+    })
   }
 
   transmitTransaction(transaction: any, sigAdded: any) {
@@ -151,9 +169,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     return (
      <div className="walletsEmpty">
         <h2>No Smart Wallets Found</h2>
-        <p>Create a new smart wallet to start using this APP.</p>
+        <p>Create or Import a new smart wallet to start using this APP.</p>
         <button className="commonBtn" onClick={() => this.setState({modal: "newWallet"})}>Add Smart Wallet</button>
-        Malakaaaaa
+        <button className="commonBtn" onClick={() => this.setState({modal: "importWallet"})}>Import Smart Wallet</button>
       </div>
     );
   }
@@ -162,10 +180,10 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     return (
       <div className="SmartWalletContainer"> 
       { this.state.modal === "updateWallet" && <UpdateWalletModal root={this.props.root} moduleRoot={this} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
-      {this.state.modal === "newWallet" && < MintingModule root={this.props.root} showModal={() => this.setState({modal: ""})} /> }
+      {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
         {this.state.wallets.length === 0 ? this.walletsEmpty() : (
-         <div> Hello World</div> // Render your wallet list or other content here
-        )}
+          <MWalletMain wallet={this.state.wallets[this.state.selectedWallet]} root={this.props.root} moduleRoot={this} />
+)}
       </div>
     );
   }

@@ -177,7 +177,11 @@ class Messaging {
         this.wallet = wallet;
     }
     disconnect() {
-        this.port.disconnect();
+        try{
+            this.port.disconnect();
+        }catch(e){
+            console.log(e)
+        }
     }   
 }
 

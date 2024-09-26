@@ -4,7 +4,7 @@ import WalletDelegation from '../WalletDelegation';
 import WalletOverview from '../Overview'
 import TransactionHistory from '../TransactionHistory';
 import Receive from '../Receive';
-import PendingTxs from './PendingTxs';
+import PendingTxs from '../PendingTxs';
 import './WalletMain.css';
 
 class WalletMain extends React.Component {

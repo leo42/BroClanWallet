@@ -1,6 +1,6 @@
   export interface Settings {
     network: NetworkType;
-    provider: string;
+    provider: ProviderType;
     api: {
       apiKey: string;
       url: string;
@@ -13,7 +13,7 @@
   // Add more type declarations as needed
   export type NetworkType = 'Mainnet' | 'Preprod' | 'Preview' | 'Custom';
 
-  export type ProviderType = 'MWallet' | 'NamiWallet' | 'FlintWallet' | 'EternlWallet' | 'GeroWallet' | 'CardWallet';
+  export type ProviderType = 'Blockfrost' | 'Kupmios' | 'BroClan' | 'Maestro';
 
   export type MetadataProviderType = 'Blockfrost' | 'Koios' | 'Custom';
 
@@ -37,3 +37,4 @@
   }
 
   // Add any other global types or interfaces your application might use
+

@@ -20,6 +20,7 @@ interface MintingProps {
     showModal: (modalName: string) => void;
   };
   showModal: () => void;
+  moduleRoot: any;
 }
 
 interface MintingState {
@@ -142,11 +143,14 @@ class MintingModule extends React.Component<MintingProps> {
         
         const txComlete = await signature.complete();
         const txHash = await txComlete.submit();
-        toast.promise(lucid.config().provider.awaitTx(txHash), {
+        const awaitTx = lucid.config().provider.awaitTx(txHash)
+        toast.promise(awaitTx, {
           pending: 'Waiting for confirmation',
           success: 'Transaction confirmed',
           error: 'Something went wrong',
         });
+        await awaitTx
+        this.props.moduleRoot.addWallet(tokenNameSuffix, "New Smart Wallet")
 
     }catch(e : any){
         console.log(e , "error")
