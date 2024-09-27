@@ -5,15 +5,16 @@ import UpdateWalletModal from './UpdateWalletModal';
 import SmartWallet from './smartWallet';
 import MWalletMain from './WalletMain'; 
 import './SmartWalletContainer.css';
+import { Settings } from '../../types/app';
 
 interface SmartWalletContainerProps {
-  settings: any;
+  settings: Settings;
   root: any;
 }
 
 interface SmartWalletContainerState {
   modal: string;
-  wallets: any[];
+  wallets: SmartWallet[];
   selectedWallet: number;
   connectedWallet: { name: string; socket: any };
   loading: boolean;
@@ -35,7 +36,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   componentDidMount() {
     setTimeout(() => {
       this.loadState();
-    }, 5000);
+    }, 50);
     this.interval = setInterval(() => {
       this.reloadBalance();
     }, 15000);
@@ -89,8 +90,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     return "smart";
   }
   
-  async createTx(recipients: any[], signers: any[], sendFrom: any, sendAll: boolean | null = null) {
-    // Implementation similar to MultisigContainer
+  async createTx(recipients: any[], signers: any[], sendFrom: string = "", sendAll: number | null = null, withdraw: boolean = true) {
+      const wallet = this.state.wallets[0]
+      await wallet.createTx(recipients, signers, sendFrom, sendAll, withdraw)
   }
   
   async importTransaction(transaction: any) {
@@ -128,8 +130,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   
   async loadWallet(id: string) {
-    const newWallet = new SmartWallet(id)
-    await newWallet.initializeLucid(this.props.root.state.settings)
+    const newWallet = new SmartWallet(id, this.props.settings)
+    await newWallet.initializeLucid()
     this.setState({wallets: [...this.state.wallets, newWallet]})
   }
 

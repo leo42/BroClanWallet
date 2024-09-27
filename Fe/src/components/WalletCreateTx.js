@@ -7,7 +7,7 @@ import "./WalletCreateTx.css"
 class WalletCreateTx extends React.Component {
 
   state = {
-    recipients: [{address :"", amount: {lovelace:0}}],
+    recipients: [{address :"", amount: {lovelace:0n}}],
     signers: this.props.wallet.getSigners().filter( (signer) => (signer.isDefault) ),
     tokenData: {},
     sendFrom : this.props.wallet.getDefaultAddress(),
@@ -63,8 +63,8 @@ class WalletCreateTx extends React.Component {
     }
 
     let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData)  ? value * (10**this.state.tokenData[token].decimals)  : value 
-    valueNew = Math.round(valueNew)
-    valueNew= valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
+    valueNew = BigInt(Math.round(valueNew))
+    valueNew= valueNew < 0n ? 0n : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
     recipients[index].amount[token] = valueNew
     this.setState({recipients})
   }
@@ -182,7 +182,7 @@ class WalletCreateTx extends React.Component {
       type="number"
       name="amount"
       placeholder='ADA'
-      value={this.state.recipients[index].amount.lovelace === 0 ? "" :this.state.recipients[index].amount.lovelace/1_000_000 }
+      value={this.state.recipients[index].amount.lovelace === 0n ? "" : Number(this.state.recipients[index].amount.lovelace)/1_000_000   }
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     /> </span>
     </div>
@@ -199,7 +199,7 @@ class WalletCreateTx extends React.Component {
        {!this.state.tokenData[item].isNft && <div className='tokenAmount'> <input
           type="number"
           name="amount"
-          value={ this.state.recipients[index].amount[item] === 0 ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
+          value={ this.state.recipients[index].amount[item] === 0n ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
           /> 
           <button type="submit" className='maxButton' onClick={ () =>  this.setMax(item,index)}>max</button>

@@ -119,8 +119,8 @@ class MintingModule extends React.Component<MintingProps> {
         assetsConfigToken[walletConfigToken] = 1n
         assets[walletSubscriptionToken] = 1n;
         assets[walletRefferenceToken] = 1n;
-        const smartWallet = new SmartWallet(tokenNameSuffix)
-        await smartWallet.initializeLucid(settings)
+        const smartWallet = new SmartWallet(tokenNameSuffix,settings)
+        await smartWallet.initializeLucid()
         const smartWalletEnterpriseAddress = smartWallet.getEnterpriseAddress()
         
         console.log("keyHash", paymentCredential.hash, policyId)
