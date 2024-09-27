@@ -91,8 +91,16 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   
   async createTx(recipients: any[], signers: any[], sendFrom: string = "", sendAll: number | null = null, withdraw: boolean = true) {
-      const wallet = this.state.wallets[0]
+    try {
+      const wallets = [...this.state.wallets]
+      const wallet = wallets[0]
       await wallet.createTx(recipients, signers, sendFrom, sendAll, withdraw)
+      this.setState({wallets: wallets})
+      this.storeWallets()
+    } catch (error: any) {
+      toast.error("Error creating transaction: " + error.message)
+      console.log("error", error)
+    }
   }
   
   async importTransaction(transaction: any) {
@@ -124,7 +132,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   storeWallets() {
-    const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId() } })
+    const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId(), 
+                                                                  txs: wallet.getPendingTxs()
+      
+
+    }})
     localStorage.setItem("smartWallets", JSON.stringify(wallets))
     console.log("wallets", this.state.wallets)
   }
@@ -140,10 +152,15 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
 
-  loadWallets() {
+  async loadWallets() {
     const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]")
-    wallets.forEach((wallet: any) => {
-      this.loadWallet(wallet.id)
+    wallets.forEach(async (wallet: any) => {
+      const newWallet = new SmartWallet(wallet.id, this.props.settings)
+      await newWallet.initializeLucid()
+      wallet.txs.forEach((tx: any) => {
+        newWallet.addPendingTx(tx)
+      })
+      this.setState({wallets: [...this.state.wallets, newWallet]})
     })
   }
 

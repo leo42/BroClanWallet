@@ -40,7 +40,7 @@ pub type Redeemer{
 validator smartMultisig (walletId: ByteArray)  {
 
   spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
-    let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
+    let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
     let configToken : AssetName = bytearray.push( walletId, 0 )  
     let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , self) is {
                 Some(descriptor) -> descriptor
@@ -54,7 +54,7 @@ validator smartMultisig (walletId: ByteArray)  {
   }
   
   else( ctx: ScriptContext) -> Bool {
-    let configPolicy : PolicyId  = #"a653490ca18233f06e7f69f4048f31ade4e3885750beae0170d7c8ae"
+    let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
     let configToken : AssetName = bytearray.push( walletId, 0 )  
 
     let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , ctx.transaction) is {

@@ -19,7 +19,7 @@ interface WalletMainState {
 
 class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
   state: WalletMainState = {
-    showing: "overview"
+    showing: "createTx"
   }
 
   mainView() {

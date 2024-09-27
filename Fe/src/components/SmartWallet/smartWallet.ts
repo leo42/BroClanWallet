@@ -1,9 +1,10 @@
-import { TxSignBuilder, Data, applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, Credential, applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
 import { encode , decode } from "./encoder";
-import { SmartMultisigJson } from "./types";
+import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
+import { Transaction } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 interface Recipient {
   address: string;
   amount: Assets;
@@ -16,8 +17,10 @@ class SmartWallet {
   private utxos: UTxO[] = [];
   private delegation: Delegation = { poolId: null, rewards: BigInt(0) };
   private pendingTxs: { tx: any; signatures: Record<string, string> }[] = [];
-  private addressNames: Record<string, string> = {};
+  private signerNames: {hash: string, name: string, isDefault: boolean}[] = [];
   private defaultAddress: string = "";
+  private addressNames: Record<string, string> = {};
+  private config: SmartMultisigJson | null = null;
   private id: string;
   private settings: Settings;
   constructor(id: string, settings: Settings) {
@@ -68,6 +71,9 @@ class SmartWallet {
     return this.pendingTxs;
   }
 
+  addPendingTx(tx: { tx: string, signatures: {} }): void {
+    this.pendingTxs.push(tx);
+  }
 
   getAddress(): string {
     const stakeCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
@@ -125,18 +131,57 @@ class SmartWallet {
     return result;
   }
 
+  async getConfigUtxo(): Promise<UTxO> {
+    const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+    console.log("policyId", policyId)
+    const configUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "00" + this.id);
+    return configUtxo
+  }
+
   async getConfig(): Promise<SmartMultisigJson> {
     try {
-      const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
-      const configUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "00" + this.id);
+      const configUtxo = await this.getConfigUtxo();
       const config : SmartMultisigJson = decode(configUtxo?.datum as string)
-
+      this.config = config
+      this.signerNames = this.loadSignerNames(config)
       console.log("configUtxo", config)
       return config
     } catch (e) {
       console.error("Error getting config:", e);
       return Promise.reject(e);
     }
+  }
+
+  // // export type SmartMultisigJson = 
+  // | { Type: SmartMultisigDescriptorType.KeyHash, keyHash: { name: string, keyHash: string } }
+  // | { Type: SmartMultisigDescriptorType.NftHolder, nftHolder: { name: string, policy: string } }
+  // | { Type: SmartMultisigDescriptorType.AtLeast, atLeast: { m: number, scripts: SmartMultisigJson[] } }
+  // | { Type: SmartMultisigDescriptorType.Before, before: { time: number } }
+  // | { Type: SmartMultisigDescriptorType.After, after: { time: number } }
+
+  loadSignerNames(config : SmartMultisigJson): {hash: string, name: string, isDefault: boolean}[] {
+    let signerNames : {hash: string, name: string, isDefault: boolean}[] = []
+
+    switch (config.Type) {
+      case SmartMultisigDescriptorType.KeyHash:
+        signerNames.push({ hash: config.keyHash.keyHash, name: config.keyHash.name, isDefault: false})
+        break
+      case SmartMultisigDescriptorType.NftHolder:
+        //TODO get signer and delegation
+        break
+      case SmartMultisigDescriptorType.AtLeast:
+        const subAddresses = config.atLeast.scripts.map(script => this.loadSignerNames(script))
+        subAddresses.forEach(address => {
+          signerNames = {...signerNames, ...address}
+        })
+        break
+      case SmartMultisigDescriptorType.Before:
+        break
+      case SmartMultisigDescriptorType.After:
+        break
+    }
+    return signerNames
+
   }
 
   async loadUtxos(): Promise<void> {
@@ -166,29 +211,58 @@ class SmartWallet {
     sendFrom: string = "",
     sendAll: number | null = null,
     withdraw: boolean = true
-  ): Promise<TxSignBuilder> {
-    const tx = this.lucid.newTx();
+  ) {
+    if(signers.length === 0) {
+      throw new Error("No signers provided")
+    }
     
+    const collateralProvider = signers[0];
+    const collateralUtxos = (await this.lucid.config().provider.getUtxos({ type: "Key", hash: collateralProvider }))
+                                  .filter(utxo => Object.keys(utxo.assets).length === 1 && utxo.assets.lovelace > 5_000_000n);
+
+    if (collateralUtxos.length === 0) {
+      throw new Error("No valid collateral UTXO found");
+    }
+
+    const collateralUtxo = collateralUtxos[0];
+    const configUtxo = await this.getConfigUtxo();
+    console.log("collateralUtxo", collateralUtxo, this.utxos, configUtxo);
+    const localLucid = await getNewLucidInstance(this.settings);
+    localLucid.selectWallet.fromAddress(collateralUtxo.address, [collateralUtxo]);
+    const tx = localLucid.newTx()
+      .attach.Script(this.script)
+      .collectFrom(this.utxos, Data.to(new Constr(0, [])))
+      .readFrom([configUtxo])
+
     recipients.forEach((recipient, index) => {
       if (sendAll !== index) {
         tx.pay.ToAddress(recipient.address, recipient.amount);
       }
     });
+    
+    signers.forEach(signer => {
+      tx.addSignerKey(signer)
+    })
 
-    if (withdraw && this.delegation.rewards && BigInt(this.delegation.rewards) > 0) {
-      tx.withdraw(validatorToRewardAddress( this.lucid.config().network, this.script), BigInt(this.delegation.rewards));
-    }
-    const redeemer = Data.void()
-    tx.attach.SpendingValidator(this.script)
-      .collectFrom(this.utxos, redeemer);
+    // Add collateral UTXO explicitly
+    // tx.collectFrom([collateralUtxo]).pay.ToAddress(collateralUtxo.address, {lovelace: collateralUtxo.assets.lovelace - 1000000n })
+      
 
     const returnAddress = sendAll !== null ? recipients[sendAll].address : this.getAddress();
 
-    const completedTx = await tx.complete({ changeAddress: returnAddress });
-    this.pendingTxs.push({ tx: completedTx, signatures: {} });
-    return completedTx;
-  }
+     const completedTx = await tx.complete({ 
+       setCollateral : 1000000n,
+       changeAddress: returnAddress,
+      
+     });
+     this.pendingTxs.push({ tx: completedTx.toCBOR({canonical: true}) , signatures: {} });
+     return completedTx;
+}
 
+
+
+
+  
   async createStakeUnregistrationTx(): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
     const tx = this.lucid.newTx()
@@ -200,8 +274,8 @@ class SmartWallet {
       tx.withdraw(rewardAddress, BigInt(this.delegation.rewards));
     }
 
-    const completedTx = await tx.complete({ changeAddress: this.getAddress()  });
-    this.pendingTxs.push({ tx: completedTx, signatures: {} });
+    const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress()  });
+    this.pendingTxs.push({ tx : completedTx, signatures: {} });
     return completedTx;
   }
 
@@ -216,12 +290,13 @@ class SmartWallet {
       tx.registerStake(rewardAddress);
     }
 
-    const completedTx = await tx.complete({ changeAddress:  this.getAddress() });
+    const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress() });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
   }
 
   isAddressMine(address: string): boolean {
+    return true //TODO
     return getAddressDetails(address).paymentCredential?.hash ===
            getAddressDetails(this.getAddress()).paymentCredential?.hash;
   }
@@ -255,10 +330,69 @@ class SmartWallet {
     return this.id;
   }
 
-  getSigners(): string[] {
-    return [this.getAddress(), this.getEnterpriseAddress()];
+  checkSigners(signers: string[]){
+    console.log(signers)
+    return true
+    
+  }
+  getSigners(): {hash: string, name: string, isDefault: boolean}[] {
+    
+    return this.signerNames
+
   }
 
+  decodeTransaction(tx: string) {
+    const txBody = Transaction.from_cbor_hex(tx).body().to_js_value();
+    
+    // Simplify the outputs
+    if (txBody.outputs) {
+      txBody.outputs = txBody.outputs.map((output: any) => {
+        // Check if the output is an object with a single key (format type)
+        const formatKeys = Object.keys(output);
+        if (formatKeys.length === 1 && typeof output[formatKeys[0]] === 'object') {
+          // Return the inner object, which contains the actual output data
+          return output[formatKeys[0]];
+        }
+        return output;
+      });
+    }
+    if (txBody.inputs) {
+      txBody.inputs = txBody.inputs.map((input: any) => {
+        // Check if the input is an object with a single key (format type)
+        const formatKeys = Object.keys(input);
+        if (formatKeys.length === 1 && typeof input[formatKeys[0]] === 'object') {
+          // Return the inner object, which contains the actual input data
+          return input[formatKeys[0]];
+        }
+        return input;
+      });
+    }
+    
+    return txBody;
+  }
+
+  async getUtxosByOutRef(OutputRef: {transaction_id: string, index: string}[])  {
+    const resault= await this.lucid.config().provider.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
+    return resault
+  }
+
+  getPendingTxDetails(index: number){
+    console.log(this.pendingTxs, index, this.pendingTxs[index])
+    try {
+
+      
+      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx)
+
+    const signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
+      {name:  "TODO" , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
+    )) : []
+
+    return { ...txDetails, signatures}
+  } catch (e) {
+    console.log(e)
+
+  }
+  }
   setDefaultAddress(address: string): void {
     this.defaultAddress = address;
   }
@@ -268,7 +402,7 @@ class SmartWallet {
   }
 
   changeAddressName(address: string, name: string): void {
-    this.addressNames[address] = name;
+
   }
 
   getDefaultAddress(): string {
@@ -279,8 +413,8 @@ class SmartWallet {
     return this.addressNames;
   }
 
-  getAddressName(address: string): string {
-    return this.addressNames[address] || (address === this.getAddress() ? "Regular Address" : address);
+  getAddressName(address: string) {
+
   }
 }
 

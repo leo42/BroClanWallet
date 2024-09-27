@@ -30,7 +30,7 @@ function WalletPendingTx(props) {
     }, [isMobile]);
     
     const txDetails = props.moduleRoot.state.wallets[props.moduleRoot.state.selectedWallet].getPendingTxDetails(props.index)
-    
+    console.log(txDetails)
     
     useEffect(() => {
         // get Utxo for each input
