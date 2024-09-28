@@ -115,8 +115,17 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     // Implementation similar to MultisigContainer
   }
   
-  addSignature(signature: any) {
-    // Implementation similar to MultisigContainer
+  addSignature(signature: string) {
+    try{
+        const wallets = [...this.state.wallets]
+        const wallet = wallets[0]
+        wallet.addSignature(signature)
+        this.setState({wallets: wallets})
+        this.storeWallets()
+      }catch(error: any){
+        toast.error("Error adding signature: " + error.message)
+        console.log("error", error)
+    }
   }
 
   setDefaultAddress(address: string) {
@@ -139,6 +148,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }})
     localStorage.setItem("smartWallets", JSON.stringify(wallets))
     console.log("wallets", this.state.wallets)
+  }
+
+  removePendingTx(tx: number) {
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[0]
+    wallet.removePendingTx(tx)
+    this.setState({wallets: wallets})
+    this.storeWallets()
   }
   
   async loadWallet(id: string) {

@@ -1,10 +1,10 @@
-import { TxSignBuilder, Data, Credential, applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, Credential, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
 import { encode , decode } from "./encoder";
 import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
-import { Transaction } from '@anastasia-labs/cardano-multiplatform-lib-browser';
+import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 interface Recipient {
   address: string;
   amount: Assets;
@@ -16,7 +16,7 @@ class SmartWallet {
   private script: Validator ;
   private utxos: UTxO[] = [];
   private delegation: Delegation = { poolId: null, rewards: BigInt(0) };
-  private pendingTxs: { tx: any; signatures: Record<string, string> }[] = [];
+  private pendingTxs: { tx: TxSignBuilder; signatures: Record<string, string> }[] = [];
   private signerNames: {hash: string, name: string, isDefault: boolean}[] = [];
   private defaultAddress: string = "";
   private addressNames: Record<string, string> = {};
@@ -67,12 +67,17 @@ class SmartWallet {
     return "Todo"
   }
 
-  getPendingTxs(): { tx: any; signatures: Record<string, string> }[] {
-    return this.pendingTxs;
+  removePendingTx(tx: number) {
+    this.pendingTxs.splice(tx, 1);
   }
 
-  addPendingTx(tx: { tx: string, signatures: {} }): void {
-    this.pendingTxs.push(tx);
+  getPendingTxs(): { tx: CBORHex; signatures: Record<string, string> }[] {
+    return this.pendingTxs.map(tx => ({ tx: tx.tx.toCBOR({canonical: true}), signatures: tx.signatures }));
+  }
+
+  addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
+    const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(tx.tx))
+    this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
   }
 
   getAddress(): string {
@@ -212,10 +217,13 @@ class SmartWallet {
     sendAll: number | null = null,
     withdraw: boolean = true
   ) {
+    console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw)
+    console.time("createTx")
     if(signers.length === 0) {
       throw new Error("No signers provided")
     }
-    
+    console.timeEnd("createTx")
+    console.time("getConfigUtxo")
     const collateralProvider = signers[0];
     const collateralUtxos = (await this.lucid.config().provider.getUtxos({ type: "Key", hash: collateralProvider }))
                                   .filter(utxo => Object.keys(utxo.assets).length === 1 && utxo.assets.lovelace > 5_000_000n);
@@ -223,10 +231,14 @@ class SmartWallet {
     if (collateralUtxos.length === 0) {
       throw new Error("No valid collateral UTXO found");
     }
+    console.timeEnd("getConfigUtxo")
+    console.time("getConfig")
 
     const collateralUtxo = collateralUtxos[0];
     const configUtxo = await this.getConfigUtxo();
     console.log("collateralUtxo", collateralUtxo, this.utxos, configUtxo);
+    console.timeEnd("getConfig")
+    console.time("newLucid")
     const localLucid = await getNewLucidInstance(this.settings);
     localLucid.selectWallet.fromAddress(collateralUtxo.address, [collateralUtxo]);
     const tx = localLucid.newTx()
@@ -255,7 +267,7 @@ class SmartWallet {
        changeAddress: returnAddress,
       
      });
-     this.pendingTxs.push({ tx: completedTx.toCBOR({canonical: true}) , signatures: {} });
+     this.pendingTxs.push({ tx: completedTx , signatures: {} });
      return completedTx;
 }
 
@@ -275,7 +287,7 @@ class SmartWallet {
     }
 
     const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress()  });
-    this.pendingTxs.push({ tx : completedTx, signatures: {} });
+    this.pendingTxs.push({ tx : completedTx , signatures: {} });
     return completedTx;
   }
 
@@ -313,6 +325,7 @@ class SmartWallet {
     return getAddressDetails(address).paymentCredential?.type === "Script";
   }
 
+
   async submitTransaction(index: number): Promise<Boolean> {
     try {
       const tx = this.pendingTxs[index];
@@ -333,13 +346,64 @@ class SmartWallet {
   checkSigners(signers: string[]){
     console.log(signers)
     return true
-    
   }
   getSigners(): {hash: string, name: string, isDefault: boolean}[] {
     
     return this.signerNames
 
   }
+
+  decodeSignature(signature : string) : {signature: string, signer: string, witness: TransactionWitnessSet} {
+    try{
+    const witness = TransactionWitnessSet.from_cbor_hex(signature);
+    const signer = witness.vkeywitnesses()?.get(0)?.vkey().hash().to_hex() ?? '';
+    return { signature, signer, witness };
+    } catch (f) {
+      try {
+          const witness = TransactionWitnessSet.from_cbor_hex("a10081" + signature);
+          const signer = witness.vkeywitnesses()?.get(0)?.vkey().hash().to_hex() ?? '';
+          return {signature : "a10081" + signature, signer: signer , witness : witness}             
+      }catch(e){
+        console.log(e)
+        throw new Error('Decoding Failed, Invalid signature');
+    }
+  } }
+
+  hexToBytes(hex : string) : Uint8Array {
+    for (var bytes = [], c = 0; c < hex.length; c += 2)
+      bytes.push(parseInt(hex.substr(c, 2), 16));
+    return new Uint8Array(bytes);
+  }
+
+  addSignature(signature: string){
+
+    const signatureInfo = this.decodeSignature(signature)
+    let valid = false;
+    console.log(signatureInfo)
+    for (let index = 0; index < this.pendingTxs.length; index++) {
+        const vkeyWitness = signatureInfo.witness.vkeywitnesses()?.get(0);
+        if (vkeyWitness?.vkey().verify(
+            this.hexToBytes(this.pendingTxs[index].tx.toHash()) ,
+            vkeyWitness.ed25519_signature() 
+        )) {
+
+            valid = true;
+            if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
+                this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature;
+                 return  this.pendingTxs[index]
+              }else{
+                 throw new Error('Signature already registered');
+                }
+          }else {
+            throw new Error('Invalid Signature');
+          }
+      }
+      if (!valid){
+        throw new Error('Invalid Signature');
+      }
+
+  }
+
 
   decodeTransaction(tx: string) {
     const txBody = Transaction.from_cbor_hex(tx).body().to_js_value();
@@ -381,7 +445,7 @@ class SmartWallet {
     try {
 
       
-      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx)
+      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx.toCBOR({canonical: true}))
 
     const signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
       {name:  "TODO" , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
