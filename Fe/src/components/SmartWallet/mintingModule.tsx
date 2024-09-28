@@ -26,6 +26,7 @@ interface MintingProps {
 interface MintingState {
   termsAccepted: boolean[];
   price: number | null;
+  walletId: string;
   }
 
 class MintingModule extends React.Component<MintingProps> {
@@ -37,7 +38,8 @@ class MintingModule extends React.Component<MintingProps> {
 
   state : MintingState  = {
          termsAccepted: (this.terms.map(() => true)),
-         price : null
+         price : null,
+         walletId : ""
     }
     mintingRawScript = { type: "PlutusV3", script : contracts[this.props.root.state.settings.network].minting.script}
 
@@ -232,6 +234,10 @@ toggleTerm = (index: number) => {
       this.props.showModal()
     }
 
+    importWallet = () => {
+      this.props.moduleRoot.addWallet(this.state.walletId, "Imported Wallet")
+    }
+
     render() {
         return (
           <div className="ModuleBackground" onClick={() => this.closeModule()}>
@@ -244,9 +250,13 @@ toggleTerm = (index: number) => {
                     {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Tokenized Wallets are only supported on the preprod testnet.</span>}
                     <button className="commonBtn" onClick={this.startMint}>Mint Now</button>
                 </div>
+                <div className="ImportFromId">
+                  <input type="text" placeholder="Enter your wallet ID" value={this.state.walletId} onChange={(e) => this.setState({walletId: e.target.value})}/>
+                      <button className="commonBtn" onClick={this.importWallet}>Import</button>
+                </div>
             </div>
           </div>
-          );
+        );
     }
 
 }

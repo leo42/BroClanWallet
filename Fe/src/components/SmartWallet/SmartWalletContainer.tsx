@@ -165,7 +165,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   async addWallet(id: any) {
-    this.loadWallet(id)
+    await this.loadWallet(id)
     this.storeWallets()
   }
 
@@ -194,7 +194,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   selectWallet(key: number) {
-    // Implementation similar to MultisigContainer
+    this.setState({selectedWallet: key})
   }
 
   async submit(index: number) {
@@ -226,15 +226,36 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       </div>
     );
   }
+
+  WalletList () {
+
+    return (
+    <div className='WalletListContainer multisigWalletListContainer'>
+        <select className="MWalletList" value={this.state.selectedWallet} onChange={(event) => this.selectWallet(parseInt(event.target.value))}>
+
+        {this.state.wallets.map( (item, index) => (
+               <option key={index} value={index}> {item.getName()}-{String((item.getBalance()/1000000).toFixed(2))}{this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  } </option>
+        ))}
+
+    </select>
+
+
+    <button className={"addWalletButton" + ( this.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => this.showModal("newWallet")}>+</button>
+
+    </div>
+    );
+    
+}
   
   render() {
     return (
       <div className="SmartWalletContainer"> 
+      {this.WalletList()}
       { this.state.modal === "updateWallet" && <UpdateWalletModal root={this.props.root} moduleRoot={this} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
       {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
         {this.state.wallets.length === 0 ? this.walletsEmpty() : (
           <MWalletMain wallet={this.state.wallets[this.state.selectedWallet]} root={this.props.root} moduleRoot={this} />
-)}
+        )}
       </div>
     );
   }
