@@ -198,7 +198,22 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   async submit(index: number) {
-    // Implementation similar to MultisigContainer
+    try{
+      const wallets = [...this.state.wallets]
+      const wallet = wallets[index]
+      const txSub =wallet.submitTransaction(index)
+      toast.promise(txSub, {
+        pending: "Submitting transaction...",
+        success: "Transaction submitted successfully!",
+      })
+      await txSub
+      this.setState({wallets: wallets})
+      this.storeWallets()
+    }
+    catch(error: any){
+      toast.error("Error submitting transaction: " + error.message)
+      console.log("error", error)
+    }
   }
 
   walletsEmpty() {

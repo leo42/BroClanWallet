@@ -191,7 +191,8 @@ class SmartWallet {
 
   async loadUtxos(): Promise<void> {
     try {
-      const utxos = await this.lucid.utxosAt(this.getAddress());
+      const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
+      const utxos = await this.lucid.utxosAt(scriptCredential);
       console.log("utxos", utxos)
       this.getConfig()
       if (this.compareUtxos(utxos, this.utxos)) return;
@@ -217,7 +218,9 @@ class SmartWallet {
     sendAll: number | null = null,
     withdraw: boolean = true
   ) {
-    console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw)
+    const returnAddress = sendAll !== null ? recipients[sendAll].address : this.getAddress();
+
+    console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw,returnAddress)
     console.time("createTx")
     if(signers.length === 0) {
       throw new Error("No signers provided")
@@ -240,7 +243,7 @@ class SmartWallet {
     console.timeEnd("getConfig")
     console.time("newLucid")
     const localLucid = await getNewLucidInstance(this.settings);
-    localLucid.selectWallet.fromAddress(collateralUtxo.address, [collateralUtxo]);
+    localLucid.selectWallet.fromAddress(returnAddress, [collateralUtxo]);
     const tx = localLucid.newTx()
       .attach.Script(this.script)
       .collectFrom(this.utxos, Data.to(new Constr(0, [])))
@@ -260,12 +263,12 @@ class SmartWallet {
     // tx.collectFrom([collateralUtxo]).pay.ToAddress(collateralUtxo.address, {lovelace: collateralUtxo.assets.lovelace - 1000000n })
       
 
-    const returnAddress = sendAll !== null ? recipients[sendAll].address : this.getAddress();
-
+  
      const completedTx = await tx.complete({ 
        setCollateral : 1000000n,
+       coinSelection : false,
+       localUPLCEval: true,
        changeAddress: returnAddress,
-      
      });
      this.pendingTxs.push({ tx: completedTx , signatures: {} });
      return completedTx;
@@ -308,7 +311,6 @@ class SmartWallet {
   }
 
   isAddressMine(address: string): boolean {
-    return true //TODO
     return getAddressDetails(address).paymentCredential?.hash ===
            getAddressDetails(this.getAddress()).paymentCredential?.hash;
   }
@@ -329,8 +331,17 @@ class SmartWallet {
   async submitTransaction(index: number): Promise<Boolean> {
     try {
       const tx = this.pendingTxs[index];
-      const signedTx = await tx.tx.assemble(Object.values(tx.signatures)).complete();
+      
+      // Ensure we're only including necessary witnesses
+      const necessarySignatures = Object.values(tx.signatures).filter(sig => sig !== null && sig !== undefined);
+      
+      // Assemble the transaction with only necessary signatures
+      const signedTx = await tx.tx.assemble(necessarySignatures).complete();
+  
+      // Submit the transaction
       const txHash = await signedTx.submit();
+  
+      // Wait for confirmation
       return this.lucid.awaitTx(txHash, 2500);
     } catch (e : any) {
       console.error(e);
@@ -431,7 +442,13 @@ class SmartWallet {
         return input;
       });
     }
-    
+    if (txBody.collateral_return) {
+      const formatKeys = Object.keys(txBody.collateral_return);
+      if (formatKeys.length === 1 && typeof txBody.collateral_return[formatKeys[0]] === 'object') {
+        txBody.collateral_return = txBody.collateral_return[formatKeys[0]];
+      }
+    }
+    console.log(txBody)
     return txBody;
   }
 
@@ -441,21 +458,21 @@ class SmartWallet {
   }
 
   getPendingTxDetails(index: number){
-    console.log(this.pendingTxs, index, this.pendingTxs[index])
-    try {
+      console.log(this.pendingTxs, index, this.pendingTxs[index])
+      try {
 
-      
-      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx.toCBOR({canonical: true}))
+        
+        const txDetails = this.decodeTransaction(this.pendingTxs[index].tx.toCBOR({canonical: true}))
 
-    const signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
-      {name:  "TODO" , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
-    )) : []
+      const signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
+        {name:  "TODO" , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
+      )) : []
 
-    return { ...txDetails, signatures}
-  } catch (e) {
-    console.log(e)
+      return { ...txDetails, signatures}
+    } catch (e) {
+      console.log(e)
 
-  }
+    }
   }
   setDefaultAddress(address: string): void {
     this.defaultAddress = address;
