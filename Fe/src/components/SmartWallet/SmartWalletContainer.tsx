@@ -5,7 +5,8 @@ import UpdateWalletModal from './UpdateWalletModal';
 import SmartWallet from './smartWallet';
 import MWalletMain from './WalletMain'; 
 import './SmartWalletContainer.css';
-import { Settings } from '../../types/app';
+import { Settings , } from '../../types/app';
+import { SmartMultisigJson } from "./types";
 
 interface SmartWalletContainerProps {
   settings: Settings;
@@ -25,7 +26,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   private interval: NodeJS.Timeout | null = null;
 
   state: SmartWalletContainerState = {
-    modal: "",
+    modal: "updateWallet",
     wallets: [],
     selectedWallet: 0,
     connectedWallet: { name: "", socket: null },
@@ -103,14 +104,37 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }
   }
   
+  async createUpdateTx(signers: string[], newConfig: SmartMultisigJson) {
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[0]
+    console.log("newConfig", newConfig, signers)
+    await wallet.createUpdateTx(signers, newConfig)
+    this.setState({wallets: wallets})
+    this.storeWallets()
+  }
+  
   async importTransaction(transaction: any) {
     // Implementation similar to MultisigContainer
   }
   
   async deleteWallet(index: number) {
-    // Implementation similar to MultisigContainer
+    try{
+      const wallets = [...this.state.wallets]
+      wallets.splice(index, 1);
+      this.setState({selectedWallet : 0})
+      this.setState({wallets: wallets})
+      
+      this.storeWallets()
+      
+    
   }
-  
+  catch(error: any){
+    toast.error("Error deleting wallet: " + error.message)
+    console.log("error", error)
+  }
+}
+
+
   changeWalletName(name: string) {
     // Implementation similar to MultisigContainer
   }
@@ -251,7 +275,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     return (
       <div className="SmartWalletContainer"> 
       {this.WalletList()}
-      { this.state.modal === "updateWallet" && <UpdateWalletModal root={this.props.root} moduleRoot={this} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
+      { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
       {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
         {this.state.wallets.length === 0 ? this.walletsEmpty() : (
           <MWalletMain wallet={this.state.wallets[this.state.selectedWallet]} root={this.props.root} moduleRoot={this} />

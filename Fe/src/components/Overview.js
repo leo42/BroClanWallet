@@ -71,6 +71,7 @@ function Overview(props) {
 
   const settingsMenu = (address) => 
     <div className="settingsMenu">
+      {walletSettings()} 
        {address === "" ? walletSettings() : addressSettings(address)}
     </div>
     

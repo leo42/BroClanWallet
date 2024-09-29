@@ -1,5 +1,5 @@
 import React from "react";
-import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , Constr} from "@lucid-evolution/lucid";
+import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , Constr, credentialToAddress} from "@lucid-evolution/lucid";
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ import { encode , decode } from "./encoder";
 import SmartWallet from "./smartWallet";
 import contracts from "./contracts.json";
 import { Settings  } from "../../types/app";
+import { validatorToAddress ,validatorToScriptHash} from "@lucid-evolution/utils";
 
 interface MintingProps {
   root: {
@@ -84,11 +85,21 @@ class MintingModule extends React.Component<MintingProps> {
     }
 
     mintWithWallet = (wallet : string) =>{
-        this.mint( wallet , this.props.root.state.settings)
+        this.mint( wallet , this.props.root.state.settings, "TODO")
     }
 
 
-    async mint( wallet  : string , settings : any){
+    async mint( wallet  : string , settings : any, name: string ){
+
+      function stringToChunks(string : string) {
+        const chunks = [];
+        while (string.length > 0) {
+            chunks.push(string.substring(0, 56));
+            string = string.substring(56, string.length);
+        }
+        return chunks
+      }
+
     try {     
       const api = await window.cardano[wallet].enable();
       const lucid = await getNewLucidInstance(settings)
@@ -113,17 +124,29 @@ class MintingModule extends React.Component<MintingProps> {
         const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
         consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
-        const assetsConfigToken : Assets= {}
+        const assetsConfigToken : Assets = {}
+        const assetsSubscriptionToken : Assets = {}
+        const assetsRefferenceToken : Assets = {}
         const walletConfigToken = policyId + "00" + tokenNameSuffix
         const walletSubscriptionToken = policyId + "01" + tokenNameSuffix
         const walletRefferenceToken = policyId + "02" + tokenNameSuffix
         assets[walletConfigToken] = 1n;
         assetsConfigToken[walletConfigToken] = 1n
+        assetsConfigToken["lovelace"] = 2_500_000n
         assets[walletSubscriptionToken] = 1n;
+        assetsSubscriptionToken[walletSubscriptionToken] = 1n
         assets[walletRefferenceToken] = 1n;
+        assetsRefferenceToken[walletRefferenceToken] = 1n
         const smartWallet = new SmartWallet(tokenNameSuffix,settings)
         await smartWallet.initializeLucid()
-        const smartWalletEnterpriseAddress = smartWallet.getEnterpriseAddress()
+
+        const stakeCredential = { type : "Key" as any , hash : "2c2d6e74020e441090d0b9ab1e2537a127764c2d3920896197c1ec9a" }
+
+
+        
+        const configAddress = validatorToAddress(settings.network, { type: "PlutusV3" ,script : contracts[this.props.root.state.settings.network].configHost}, stakeCredential);
+        const deadAddress = credentialToAddress(settings.network, { type: "Key" ,hash : "deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"}, stakeCredential);
+        
         
         console.log("keyHash", paymentCredential.hash, policyId)
         const initialMultisigConfig = encode(    {
@@ -131,14 +154,43 @@ class MintingModule extends React.Component<MintingProps> {
           keyHash : {name : "me", keyHash : paymentCredential.hash}
         })
         console.log(initialMultisigConfig)
+        const metadata : any =  {}
+        metadata[`0x${policyId}`] ={}
+        metadata["version"] = 2
+        metadata[`0x${policyId}`]["00" + tokenNameSuffix] =  
+        { 
+          name: name+ "-Config" , 
+          description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
+          image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+          information: this.mintingInfo 
+        }
+        metadata[`0x${policyId}`]["01" + tokenNameSuffix] =  
+        { 
+          name: name+ "-Subscription" , 
+          description: stringToChunks(`The subscription token for the smart wallet ${name}, attached to this token you will find the current subscriptions of the smart wallet`) , 
+          image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+          information: this.mintingInfo 
+        }
+        metadata[`0x${policyId}`]["03" + tokenNameSuffix] =  
+        { 
+          name: name+ "-Refference" , 
+          description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
+          image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+          information: this.mintingInfo 
+        }
         
+        
+
+
         const redeemer = Data.void();
         consumingTx.mintAssets(assets, redeemer)
         .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
+        .attachMetadata( 721 , metadata )
         .readFrom([adminUtxo])
         
-        consumingTx.pay.ToContract(smartWalletEnterpriseAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
-        
+        consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
+        consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
+        consumingTx.pay.ToAddressWithData(smartWallet.getEnterpriseAddress(), {kind : "inline" , value : Data.to(new Constr(0,[]))}, assetsSubscriptionToken)
         const completedTx = await consumingTx.complete()
         
         const signature = await completedTx.sign.withWallet()

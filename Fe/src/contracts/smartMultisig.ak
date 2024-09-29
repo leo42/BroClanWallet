@@ -37,6 +37,38 @@ pub type Redeemer{
     SubScription{ subscriptionIndex : Int}
 }
 
+validator configHost() {
+  spend(datum : Option<SmartMultisigDescriptor>, _redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
+     let valid = when datum is {
+      Some(descriptor) -> validate(descriptor,self)
+      None -> fail
+     }
+
+    let outputValid = configOutputValid(myUtxo , self)
+    valid && outputValid
+  }
+
+
+}
+
+fn configOutputValid( myUtxo: OutputReference, self: Transaction) -> Bool{
+  expect Some(myinput) = list.find(
+    self.inputs,
+    fn(input) { input.output_reference == myUtxo }
+  )
+  
+  expect Some(myOutput) = list.find(
+    self.outputs,
+    fn(output) {output.value == myinput.output.value}
+  )
+  
+  expect InlineDatum(data) = myOutput.datum
+  expect _: SmartMultisigDescriptor = data
+
+  let addressEqual = myinput.output.address == myOutput.address
+  addressEqual
+  }
+
 validator smartMultisig (walletId: ByteArray)  {
 
   spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {

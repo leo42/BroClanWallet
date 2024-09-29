@@ -1,9 +1,11 @@
 import React from "react";
 import "./UpdateWalletModal.css";
-import { Lucid, C } from "lucid-cardano";
 import { toast } from "react-toastify";
-import getTokenInfo from "../../helpers/tokenInfo"
-import { TokenInfo } from "../../helpers/tokenInfo"
+import getTokenInfo from "../../helpers/tokenInfo";
+import { TokenInfo } from "../../helpers/tokenInfo";
+import SmartWallet from "./smartWallet"; // Changed to default import
+import SmartWalletContainer from "./SmartWalletContainer";
+import { SmartMultisigJson, SmartMultisigDescriptorType } from "./types";
 type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;
@@ -17,7 +19,8 @@ type SmartMultisigDescriptor =
 
 interface AddWalletModalProps {
   root: any; // Replace with actual type
-  moduleRoot: any; // Replace with actual type
+  moduleRoot: SmartWalletContainer; // Replace with actual type
+  wallet: SmartWallet; // Replace with actual type
   setOpenModal: (isOpen: boolean) => void;
   hostModal: (isHost: boolean) => void;
 }
@@ -25,6 +28,7 @@ interface AddWalletModalProps {
 interface AddWalletModalState {
   json: SmartMultisigDescriptor;
   WName: string;
+  signers: { hash: string; name: string; isDefault: boolean; }[];
 }
 
 class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletModalState> {
@@ -37,10 +41,10 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
       ],
       m: 1
     },
-    WName: ""
+    WName: "",
+    signers: this.props.wallet.getSigners(),
   };
 
-  lucid: Lucid | null = null;
   policyMap : Map<string, string> = new Map([
       ["adaHandle", "f0ff48bbb7bbe9d59a40f1ce90e9e9d0ff5002ec48f232b49ca0fb9a"],
       ["Custom", ""]
@@ -66,17 +70,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   debouncedFunctions: Map<string, (...args: typeof debounce[]) => void> = new Map();
 
   isAddressValid = (address: string): boolean => {
-    try {
-      C.Ed25519KeyHash.from_hex(address);
-      return true;
-    } catch (error) {
-      try {
-        this.lucid?.utils.getAddressDetails(address);
-        return true;
-      } catch {
-        return false;
-      }
-    }
+    return true //TODO
   };
 
   checkAllAddresses = (scripts: SmartMultisigDescriptor[]): boolean => {
@@ -96,12 +90,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   };
 
   componentDidMount() {
-    Lucid.new(
-      undefined,
-      this.props.root.state.settings.network
-    ).then((lucid) => {
-      this.lucid = lucid;
-    });
+
   }
 
   setJson = (json: SmartMultisigDescriptor) => {
@@ -112,9 +101,57 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     this.setState({ WName });
   };
 
+// ... existing code ...
+
+toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
+  switch (json.type) {
+    case "KeyHash":
+      return {
+        Type: SmartMultisigDescriptorType.KeyHash,
+        keyHash: {
+          name: json.name,
+          keyHash: json.keyHash
+        }
+      };
+    case "NftHolder":
+      return {
+        Type: SmartMultisigDescriptorType.NftHolder,
+        nftHolder: {
+          name: json.name,
+          policy: json.policy
+        }
+      };
+    case "AtLeast":
+      return {
+        Type: SmartMultisigDescriptorType.AtLeast,
+        atLeast: {
+          m: json.m,
+          scripts: json.scripts.map(script => this.toSmartMultisigJson(script))
+        }
+      };
+    case "Before":
+      return {
+        Type: SmartMultisigDescriptorType.Before,
+        before: {
+          time: json.time
+        }
+      };
+    case "After":
+      return {
+        Type: SmartMultisigDescriptorType.After,
+        after: {
+          time: json.time
+        }
+      };
+    default:
+      throw new Error("Invalid SmartMultisigDescriptor type");
+    }
+  };
+
   handleSubmit = () => {
     if (this.state.json.type === "AtLeast" && this.checkAllAddresses(this.state.json.scripts)) {
-      this.props.moduleRoot.addWallet(this.state.json, this.state.WName);
+      const signers = this.state.signers.map(signer => signer.hash);
+      this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(this.state.json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
     }
@@ -659,6 +696,29 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     );
   };
 
+  handleOnChangeSigners(index: number) {
+    const signers = [...this.state.signers];
+    signers[index].isDefault = !signers[index].isDefault;
+    this.setState({ signers });
+  }
+
+  SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
+    
+    <div key={index} >
+   <label className='signerCheckbox'>
+     {this.props.wallet.getSigners()[index].name}:
+     <input
+       type="checkbox"
+       name="value"
+       value={index}
+       className='signerCheckbox'
+       checked={this.state.signers[index].isDefault} 
+       onChange={  () =>  this.handleOnChangeSigners(index)  }
+      
+     />
+   </label>
+   </div>
+  ) ) 
 
   render() {
     return (
@@ -668,7 +728,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
             <button onClick={() => this.props.setOpenModal(false)}>X</button>
           </div>
           <div className="title">
-            <h1 className="createWalletModalTitle">Create Wallet</h1>
+            <h1 className="createWalletModalTitle">Update Wallet</h1>
           </div>
           <div className="body">
             <select value="Examples" onChange={(event) => this.handlePresetChange(event.target.value)}>
@@ -692,8 +752,13 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
               {this.rootComponenent(this.state.json)}
             </div>
           </div>
-          <div className="footer">
-            <button onClick={this.handleSubmit}>Create</button>
+          {this.props.wallet.getSigners().length !== 0 && <div className='SignersSelect' ><h2> Signers:</h2>
+      <div className='SignersSelectList'>
+      { this.SignersSelect()}
+      </div>
+      </div>
+  }          <div className="footer">
+            <button onClick={this.handleSubmit}>Create Update Transaction</button>
             <button onClick={() => this.props.setOpenModal(false)} id="cancelBtn">Cancel</button>
           </div>
         </div>

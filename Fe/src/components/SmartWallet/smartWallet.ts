@@ -120,7 +120,9 @@ class SmartWallet {
     });
     return Number(result + BigInt(this.delegation.rewards || 0));
   }
-
+  getContract() : Validator {
+    return this.script
+  }
   getBalanceFull(address: string = ""): Assets {
     const result: Assets = {};
     this.utxos.forEach(utxo => {
@@ -157,6 +159,13 @@ class SmartWallet {
     }
   }
 
+  getCollateralDonor() : string{
+    return this.signerNames[0].hash
+  }
+
+  defaultSignersValid (signers: string[]) : boolean {
+    return true //TODO
+  }
   // // export type SmartMultisigJson = 
   // | { Type: SmartMultisigDescriptorType.KeyHash, keyHash: { name: string, keyHash: string } }
   // | { Type: SmartMultisigDescriptorType.NftHolder, nftHolder: { name: string, policy: string } }
@@ -177,7 +186,7 @@ class SmartWallet {
       case SmartMultisigDescriptorType.AtLeast:
         const subAddresses = config.atLeast.scripts.map(script => this.loadSignerNames(script))
         subAddresses.forEach(address => {
-          signerNames = {...signerNames, ...address}
+          signerNames = [...signerNames, ...address]
         })
         break
       case SmartMultisigDescriptorType.Before:
@@ -185,6 +194,7 @@ class SmartWallet {
       case SmartMultisigDescriptorType.After:
         break
     }
+    console.log(signerNames)
     return signerNames
 
   }
@@ -194,7 +204,7 @@ class SmartWallet {
       const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
       const utxos = await this.lucid.utxosAt(scriptCredential);
       console.log("utxos", utxos)
-      this.getConfig()
+      await this.getConfig()
       if (this.compareUtxos(utxos, this.utxos)) return;
       this.utxos = utxos;
       await this.getDelegation();
@@ -276,8 +286,94 @@ class SmartWallet {
 
 
 
+async createUpdateTx(
+  signers: string[],
+  newConfig: SmartMultisigJson
+) {
+  const configUtxo = await this.getConfigUtxo();
+  const enterpriseAddress = this.getEnterpriseAddress()
+
+  const collateralUtxo = await this.getColateralUtxo(signers);
+
+  const collateralProvider = signers[0];
+  const collateralUtxos = (await this.lucid.config().provider.getUtxos({ type: "Key", hash: collateralProvider }))
+  const localLucid = await getNewLucidInstance(this.settings);
+  localLucid.selectWallet.fromAddress(collateralUtxos[0].address,collateralUtxos);
+  
+  const cleanNewConfig = this.cleanConfig(newConfig);
+  const encodedConfig = encode(cleanNewConfig);
+
+  const tx = localLucid.newTx()
+  .collectFrom([configUtxo], Data.void())
+  .collectFrom([collateralUtxo])
+  .attach.Script({ type: "PlutusV3", script: contracts[this.settings.network].configHost})
+  .pay.ToAddressWithData( configUtxo.address, {kind : "inline" , value : encodedConfig}, configUtxo.assets)
+  .addSignerKey(signers[0])
+  const completedTx = await tx.complete({ 
+    setCollateral : 1000000n,
+    coinSelection : false,
+    localUPLCEval: true,
+    changeAddress: this.getAddress(),
+  });
+  this.pendingTxs.push({ tx: completedTx , signatures: {} });
+  return completedTx;
+}
+
+private cleanConfig(config: SmartMultisigJson): SmartMultisigJson {
+  switch (config.Type) {
+    case SmartMultisigDescriptorType.KeyHash:
+      if (this.isAddressValid(config.keyHash.keyHash)) {
+        const addressDetails = getAddressDetails(config.keyHash.keyHash);
+        if (addressDetails.paymentCredential?.type === 'Key') {
+          return {
+            ...config,
+            keyHash: {
+              ...config.keyHash,
+              keyHash: addressDetails.paymentCredential.hash
+            }
+          };
+        }
+      }
+      if (!this.isValidKeyHash(config.keyHash.keyHash)) {
+        throw new Error(`Invalid key hash or address: ${config.keyHash.keyHash}`);
+      }
+      return config;
+    case SmartMultisigDescriptorType.AtLeast:
+      return {
+        ...config,
+        atLeast: {
+          ...config.atLeast,
+          scripts: config.atLeast.scripts.map(script => this.cleanConfig(script))
+        }
+      };
+    case SmartMultisigDescriptorType.NftHolder:
+    case SmartMultisigDescriptorType.Before:
+    case SmartMultisigDescriptorType.After:
+      return config;
+    default:
+      throw new Error(`Unknown config type: ${(config as any).Type}`);
+  }
+}
+
+private isValidKeyHash(hash: string): boolean {
+  // A valid key hash is a 28-byte (56 character) hexadecimal string
+  return /^[0-9a-fA-F]{56}$/.test(hash);
+}
 
   
+  private async getColateralUtxo(signers: string[]) : Promise<UTxO>{
+    const collateralProvider = signers[0];
+    const collateralUtxos = (await this.lucid.config().provider.getUtxos({ type: "Key", hash: collateralProvider }))
+      .filter(utxo => Object.keys(utxo.assets).length === 1 && utxo.assets.lovelace > 5000000n);
+
+    if (collateralUtxos.length === 0) {
+      throw new Error("No valid collateral UTXO found");
+    }
+
+    const collateralUtxo = collateralUtxos[0];
+    return collateralUtxo
+  }
+
   async createStakeUnregistrationTx(): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
     const tx = this.lucid.newTx()
@@ -359,7 +455,7 @@ class SmartWallet {
     return true
   }
   getSigners(): {hash: string, name: string, isDefault: boolean}[] {
-    
+    console.log(this.signerNames)
     return this.signerNames
 
   }
@@ -382,37 +478,36 @@ class SmartWallet {
 
   hexToBytes(hex : string) : Uint8Array {
     for (var bytes = [], c = 0; c < hex.length; c += 2)
-      bytes.push(parseInt(hex.substr(c, 2), 16));
+      bytes.push(parseInt(hex.slice(c, c + 2), 16));
     return new Uint8Array(bytes);
   }
 
-  addSignature(signature: string){
-
-    const signatureInfo = this.decodeSignature(signature)
+  
+  addSignature(signature: string) {
+    const signatureInfo = this.decodeSignature(signature);
     let valid = false;
-    console.log(signatureInfo)
+    console.log(signatureInfo);
+  
     for (let index = 0; index < this.pendingTxs.length; index++) {
-        const vkeyWitness = signatureInfo.witness.vkeywitnesses()?.get(0);
-        if (vkeyWitness?.vkey().verify(
-            this.hexToBytes(this.pendingTxs[index].tx.toHash()) ,
-            vkeyWitness.ed25519_signature() 
-        )) {
-
-            valid = true;
-            if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
-                this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature;
-                 return  this.pendingTxs[index]
-              }else{
-                 throw new Error('Signature already registered');
-                }
-          }else {
-            throw new Error('Invalid Signature');
+      const vkeyWitness = signatureInfo.witness.vkeywitnesses()?.get(0);
+      if (vkeyWitness) {
+        const txHash = this.pendingTxs[index].tx.toHash();
+        const ed25519Signature = signatureInfo.witness.vkeywitnesses()?.get(0)?.ed25519_signature();
+        if (ed25519Signature && vkeyWitness.vkey().verify(this.hexToBytes(txHash), ed25519Signature)) {
+          valid = true;
+          if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
+            this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature;
+            return this.pendingTxs[index];
+          } else {
+            throw new Error('Signature already registered');
           }
+        }
       }
-      if (!valid){
-        throw new Error('Invalid Signature');
-      }
-
+    }
+  
+    if (!valid) {
+      throw new Error('Invalid Signature');
+    }
   }
 
 
