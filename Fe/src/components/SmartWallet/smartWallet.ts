@@ -269,6 +269,7 @@ class SmartWallet {
       tx.addSignerKey(signer)
     })
 
+    
     // Add collateral UTXO explicitly
     // tx.collectFrom([collateralUtxo]).pay.ToAddress(collateralUtxo.address, {lovelace: collateralUtxo.assets.lovelace - 1000000n })
       
@@ -280,7 +281,9 @@ class SmartWallet {
        localUPLCEval: true,
        changeAddress: returnAddress,
      });
-     this.pendingTxs.push({ tx: completedTx , signatures: {} });
+     const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
+
+     this.pendingTxs.push({ tx: txBuilder , signatures: {} });
      return completedTx;
 }
 
@@ -302,7 +305,6 @@ async createUpdateTx(
   
   const cleanNewConfig = this.cleanConfig(newConfig);
   const encodedConfig = encode(cleanNewConfig);
-
   const tx = localLucid.newTx()
   .collectFrom([configUtxo], Data.void())
   .collectFrom([collateralUtxo])
@@ -315,7 +317,9 @@ async createUpdateTx(
     localUPLCEval: true,
     changeAddress: this.getAddress(),
   });
-  this.pendingTxs.push({ tx: completedTx , signatures: {} });
+  const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
+
+  this.pendingTxs.push({ tx: txBuilder , signatures: {} });
   return completedTx;
 }
 
