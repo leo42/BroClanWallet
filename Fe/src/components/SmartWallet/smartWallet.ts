@@ -160,7 +160,7 @@ class SmartWallet {
   }
 
   getCollateralDonor() : string{
-    return this.signerNames[0].hash
+    return this.signerNames[0]? this.signerNames[0].hash : ""
   }
 
   defaultSignersValid (signers: string[]) : boolean {
@@ -244,6 +244,10 @@ class SmartWallet {
     if (collateralUtxos.length === 0) {
       throw new Error("No valid collateral UTXO found");
     }
+
+    const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+    console.log("policyId", policyId)
+    const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
     console.timeEnd("getConfigUtxo")
     console.time("getConfig")
 
@@ -255,9 +259,9 @@ class SmartWallet {
     const localLucid = await getNewLucidInstance(this.settings);
     localLucid.selectWallet.fromAddress(returnAddress, [collateralUtxo]);
     const tx = localLucid.newTx()
-      .attach.Script(this.script)
-      .collectFrom(this.utxos, Data.to(new Constr(0, [])))
-      .readFrom([configUtxo])
+    //  .attach.Script(this.script)
+      .collectFrom(this.utxos, Data.void())
+      .readFrom([configUtxo, scriptUtxo])
 
     recipients.forEach((recipient, index) => {
       if (sendAll !== index) {

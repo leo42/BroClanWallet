@@ -26,7 +26,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   private interval: NodeJS.Timeout | null = null;
 
   state: SmartWalletContainerState = {
-    modal: "updateWallet",
+    modal: "",
     wallets: [],
     selectedWallet: 0,
     connectedWallet: { name: "", socket: null },
@@ -94,7 +94,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   async createTx(recipients: any[], signers: any[], sendFrom: string = "", sendAll: number | null = null, withdraw: boolean = true) {
     try {
       const wallets = [...this.state.wallets]
-      const wallet = wallets[0]
+      const wallet = wallets[this.state.selectedWallet]
       await wallet.createTx(recipients, signers, sendFrom, sendAll, withdraw)
       this.setState({wallets: wallets})
       this.storeWallets()
@@ -106,7 +106,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   
   async createUpdateTx(signers: string[], newConfig: SmartMultisigJson) {
     const wallets = [...this.state.wallets]
-    const wallet = wallets[0]
+    const wallet = wallets[this.state.selectedWallet]
     console.log("newConfig", newConfig, signers)
     await wallet.createUpdateTx(signers, newConfig)
     this.setState({wallets: wallets})

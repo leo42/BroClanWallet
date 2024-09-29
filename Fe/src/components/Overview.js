@@ -72,7 +72,7 @@ function Overview(props) {
   const settingsMenu = (address) => 
     <div className="settingsMenu">
       {walletSettings()} 
-       {address === "" ? walletSettings() : addressSettings(address)}
+       {address === "" ? "" : addressSettings(address)}
     </div>
     
 
@@ -143,6 +143,14 @@ function Overview(props) {
       </label>
       <div className='overviewButtons'>      
       {/* <button onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}> Delete Wallet</button> */}
+      {props.root.state.module === "smartWallets" && <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
+                            props.moduleRoot.setState({ modal : "updateWallet"})
+                          }}  className='iconWraper detailsButton'>
+                      <DetailsIcon className="icon"  alt="detailsIcon" />
+                      {  (hovering === "details" || isMobile ) &&  <label className='iconLabel'>Update</label> }
+                      < br/>   
+                      </div>   }
+
       <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
                             setshowingDetails(!showingDetails);
                           }}  className='iconWraper detailsButton'>
