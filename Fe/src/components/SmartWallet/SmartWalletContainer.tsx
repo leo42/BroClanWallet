@@ -176,7 +176,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   removePendingTx(tx: number) {
     const wallets = [...this.state.wallets]
-    const wallet = wallets[0]
+    const wallet = wallets[this.state.selectedWallet]
     wallet.removePendingTx(tx)
     this.setState({wallets: wallets})
     this.storeWallets()
