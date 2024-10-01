@@ -293,6 +293,7 @@ class SmartWallet {
 
 
 
+
 async createUpdateTx(
   signers: string[],
   newConfig: SmartMultisigJson
@@ -310,11 +311,15 @@ async createUpdateTx(
   const cleanNewConfig = this.cleanConfig(newConfig);
   const encodedConfig = encode(cleanNewConfig);
   const tx = localLucid.newTx()
-  .collectFrom([configUtxo], Data.void())
+  .collectFrom([configUtxo], Data.to(new Constr(0, [])))
   .collectFrom([collateralUtxo])
   .attach.Script({ type: "PlutusV3", script: contracts[this.settings.network].configHost})
   .pay.ToAddressWithData( configUtxo.address, {kind : "inline" , value : encodedConfig}, configUtxo.assets)
-  .addSignerKey(signers[0])
+
+  signers.forEach(signer => {
+    tx.addSignerKey(signer)
+  })
+
   const completedTx = await tx.complete({ 
     setCollateral : 1000000n,
     coinSelection : false,
@@ -398,18 +403,34 @@ private isValidKeyHash(hash: string): boolean {
     return completedTx;
   }
 
-  async createDelegationTx(pool: string): Promise<TxSignBuilder> {
+  async createDelegationTx(pool: string, signers: string[]): Promise<TxSignBuilder> {
+    console.log("createDelegationTx", pool, signers)
     const rewardAddress = validatorToRewardAddress( this.lucid.config().network, this.script);
-    const tx = this.lucid.newTx()
-      .delegateTo(rewardAddress, pool)
-      .attach.CertificateValidator(this.script)
-      .collectFrom(this.utxos, Data.void());
+
+    const localLucid = await getNewLucidInstance(this.settings);
+    const collateralUtxo = await this.getColateralUtxo(signers);
+    const configUtxo = await this.getConfigUtxo();
+    const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+
+    const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
+
+
+    localLucid.selectWallet.fromAddress(this.getAddress(), [collateralUtxo]);
+    
+    const tx = localLucid.newTx()
+      .delegateTo(rewardAddress, pool, Data.void())
+      .collectFrom(this.utxos, Data.void())
+      .readFrom([configUtxo, scriptUtxo])
 
     if (this.delegation.poolId === null) {
       tx.registerStake(rewardAddress);
     }
 
-    const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress() });
+    signers.forEach(signer => {
+      tx.addSignerKey(signer)
+    })
+
+    const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
   }

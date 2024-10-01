@@ -123,7 +123,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       wallets.splice(index, 1);
       this.setState({selectedWallet : 0})
       this.setState({wallets: wallets})
-      
       this.storeWallets()
       
     
@@ -204,6 +203,21 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       this.setState({wallets: [...this.state.wallets, newWallet]})
     })
   }
+
+  async createDelegationTx(pool: string, signers: string[]) {
+    try{
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    wallet.createDelegationTx(pool, signers)
+    this.setState({wallets: wallets})
+    this.storeWallets()
+  }
+  catch(error: any){
+    toast.error("Error creating delegation transaction: " + error.message)
+    console.log("error", error)
+  }
+  }
+
 
   transmitTransaction(transaction: any, sigAdded: any) {
     // Implementation similar to MultisigContainer
