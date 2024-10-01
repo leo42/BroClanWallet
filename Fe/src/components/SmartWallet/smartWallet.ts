@@ -95,6 +95,7 @@ class SmartWallet {
   async getDelegation(): Promise<Delegation> {
     const rewardAddress = validatorToAddress(this.lucid.config().network, this.script);
 
+    const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
     this.delegation = await this.lucid.config().provider.getDelegation(rewardAddress);
     return this.delegation;
   }
