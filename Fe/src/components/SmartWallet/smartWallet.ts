@@ -400,7 +400,7 @@ private isValidKeyHash(hash: string): boolean {
       tx.withdraw(rewardAddress, BigInt(this.delegation.rewards));
     }
 
-    const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress()  });
+    const completedTx = await tx.complete({ setCollateral : 1000000n, changeAddress:  this.getAddress()  });
     this.pendingTxs.push({ tx : completedTx , signatures: {} });
     return completedTx;
   }
