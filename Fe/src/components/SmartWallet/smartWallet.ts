@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, Credential, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, Credential, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -93,10 +93,10 @@ class SmartWallet {
 
 
   async getDelegation(): Promise<Delegation> {
-    const rewardAddress = validatorToAddress(this.lucid.config().network, this.script);
-
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
+    // const rewardAddress = credentialToRewardAddress(this.lucid.config().network, getAddressDetails("addr_test1xrujtjctsdvm43g633cc823ctyz3453t89qj0yj3evakdhheyh9shq6ehtz34rr3sw4rskg9rtfzkw2py7f9rjemvm0qnusdr8").stakeCredential as Credential)
     this.delegation = await this.lucid.config().provider.getDelegation(rewardAddress);
+    console.log("rewardAddress", rewardAddress, this.delegation)
     return this.delegation;
   }
 
@@ -205,10 +205,10 @@ class SmartWallet {
       const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
       const utxos = await this.lucid.utxosAt(scriptCredential);
       console.log("utxos", utxos)
-      await this.getConfig()
       if (this.compareUtxos(utxos, this.utxos)) return;
-      this.utxos = utxos;
-      await this.getDelegation();
+        this.utxos = utxos;
+        await this.getDelegation();
+        await this.getConfig()
     } catch (e) {
       console.error("Error loading UTXOs:", e);
     }
@@ -221,6 +221,7 @@ class SmartWallet {
       utxo.txHash === b[index].txHash && utxo.outputIndex === b[index].outputIndex
     );
   }
+
   
   async createTx(
     recipients: Recipient[],
@@ -419,13 +420,14 @@ private isValidKeyHash(hash: string): boolean {
     localLucid.selectWallet.fromAddress(this.getAddress(), [collateralUtxo]);
     
     const tx = localLucid.newTx()
-      .delegateTo(rewardAddress, pool, Data.void())
       .collectFrom(this.utxos, Data.void())
       .readFrom([configUtxo, scriptUtxo])
 
     if (this.delegation.poolId === null) {
       tx.registerStake(rewardAddress);
     }
+
+    tx.delegateTo(rewardAddress, pool, Data.void())
 
     signers.forEach(signer => {
       tx.addSignerKey(signer)

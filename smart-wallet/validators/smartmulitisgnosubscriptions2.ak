@@ -71,30 +71,42 @@ fn configOutputValid( myUtxo: OutputReference, self: Transaction) -> Bool{
 
 validator smartMultisig (walletId: ByteArray)  {
 
-  spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
-    let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
-    let configToken : AssetName = bytearray.push( walletId, 0 )  
-    let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , self) is {
+  spend(_datum, _redeemer : Redeemer , _myUtxo: OutputReference, self: Transaction) {
+    	multisigAproved(walletId,self)
+  }
+
+   mint(_redeemer , _policy_id , self: Transaction) {
+    	multisigAproved(walletId,self)  }
+ 
+
+ 
+  withdraw(_redeemer, _account, self: Transaction) {
+  	multisigAproved(walletId,self)  }
+ 
+  publish(_redeemer, _ertificate, self: Transaction) {
+  	multisigAproved(walletId,self)  }
+ 
+  vote(_redeemer, _voter, self: Transaction) {
+    	multisigAproved(walletId,self)  
+    
+  }
+ 
+  propose(_redeemer, _proposal , self: Transaction) {
+
+    	multisigAproved(walletId,self)  
+  }
+
+}
+fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool{
+ let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
+ let configToken : AssetName = bytearray.push( walletId, 0 ) 
+    let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , transaction) is {
                 Some(descriptor) -> descriptor
                 None -> fail
     }
-    when redeemer is {
-      Spend -> validate(descriptor, self)
-      SubScription(subscriptionIndex) ->  subscriptionPayment(self, configPolicy , walletId, subscriptionIndex , myUtxo)
-    }
+    validate(descriptor, transaction)
 
-  }
-  
-  else( ctx: ScriptContext) -> Bool {
-    let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
-    let configToken : AssetName = bytearray.push( walletId, 0 )  
 
-    let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , ctx.transaction) is {
-                Some(descriptor) -> descriptor
-                None -> fail
-    }
-    validate(descriptor, ctx.transaction)
-  }
 }
 
 fn subscriptionPayment(transaction : Transaction , policy : PolicyId ,  walletId : ByteArray, subscriptionIndex: Int, outRef : OutputReference){

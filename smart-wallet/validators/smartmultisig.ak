@@ -71,19 +71,21 @@ fn configOutputValid( myUtxo: OutputReference, self: Transaction) -> Bool{
 
 validator smartMultisig (walletId: ByteArray)  {
 
-  spend(_datum, _redeemer : Redeemer , _myUtxo: OutputReference, self: Transaction) {
+  spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
     let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
     let configToken : AssetName = bytearray.push( walletId, 0 )  
     let descriptor = when getDescriptorFromTokenName(configPolicy , configToken , self) is {
                 Some(descriptor) -> descriptor
                 None -> fail
     }
-    validate(descriptor, self)
-    
+    when redeemer is {
+      Spend -> validate(descriptor, self)
+      SubScription(subscriptionIndex) ->  subscriptionPayment(self, configPolicy , walletId, subscriptionIndex , myUtxo)
+    }
 
   }
   
-  else( ctx: ScriptContext) -> Bool {
+  else( ctx: ScriptContext)  {
     let configPolicy : PolicyId  = #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
     let configToken : AssetName = bytearray.push( walletId, 0 )  
 

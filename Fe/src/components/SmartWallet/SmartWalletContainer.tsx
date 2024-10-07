@@ -208,7 +208,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
-    wallet.createDelegationTx(pool, signers)
+    await wallet.createDelegationTx(pool, signers)
     this.setState({wallets: wallets})
     this.storeWallets()
   }

@@ -1,0 +1,16 @@
+name = "broclan/smart-wallet"
+version = "0.0.0"
+compiler = "v1.0.29-alpha"
+plutus = "v3"
+license = "Apache-2.0"
+description = "Aiken contracts for project 'broclan/smart-wallet'"
+
+[repository]
+user = "broclan"
+project = "smart-wallet"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "v2.1.0"
+source = "github"
