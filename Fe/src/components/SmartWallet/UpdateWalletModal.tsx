@@ -15,7 +15,8 @@ type SmartMultisigDescriptor =
   | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
   | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number }
   | { type: "Before"; time: number }
-  | { type: "After"; time: number };
+  | { type: "After"; time: number }
+  | { type: "Script"; scriptHash: string }
 
 interface AddWalletModalProps {
   root: any; // Replace with actual type
@@ -57,6 +58,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     { name: "AtLeast", value: "AtLeast" },
     { name: "Before", value: "Before" },
     { name: "After", value: "After" },
+    { name: "Script", value: "Script" },
   ];
 
   presetOptions = [
@@ -108,40 +110,34 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     case "KeyHash":
       return {
         Type: SmartMultisigDescriptorType.KeyHash,
-        keyHash: {
-          name: json.name,
-          keyHash: json.keyHash
-        }
+        keyHash: json.keyHash
       };
     case "NftHolder":
       return {
         Type: SmartMultisigDescriptorType.NftHolder,
-        nftHolder: {
-          name: json.name,
-          policy: json.policy
-        }
+        name: json.name,
+        policy: json.policy
       };
     case "AtLeast":
       return {
         Type: SmartMultisigDescriptorType.AtLeast,
-        atLeast: {
           m: json.m,
           scripts: json.scripts.map(script => this.toSmartMultisigJson(script))
-        }
       };
     case "Before":
       return {
         Type: SmartMultisigDescriptorType.Before,
-        before: {
           time: json.time
-        }
       };
     case "After":
       return {
         Type: SmartMultisigDescriptorType.After,
-        after: {
           time: json.time
-        }
+      };
+    case "Script":
+      return {
+        Type: SmartMultisigDescriptorType.ScriptRef,
+        scriptHash: json.scriptHash
       };
     default:
       throw new Error("Invalid SmartMultisigDescriptor type");
@@ -240,6 +236,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       </div>
     );
   };
+
+  
 
   handleAddScript = (coordinates: number[]) => {
 
@@ -491,6 +489,42 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     );
   };
 
+  scriptComponent = (json: SmartMultisigDescriptor, coordinates: number[]) => {
+    if (json.type !== "Script") {
+      return null;
+    }
+    return (
+      <div className="sigWrap">
+        <div className="input_wrap">
+          <input
+            required
+            type="text"
+            placeholder="Script Hash"
+            name="amount"
+            value={json.scriptHash}
+            onChange={(event) => this.handleScriptHashChange(event.target.value, coordinates)}
+          />
+        </div>
+      </div>
+    );
+  };  
+
+  handleScriptHashChange = (value: string, coordinates: number[]) => {
+    const json = { ...this.state.json };
+    let current = json;
+    for (const index of coordinates) {
+      if (current.type !== "AtLeast") {
+        return;
+      }
+      current = current.scripts[index];
+    }
+    if (current.type !== "Script") {
+      return;
+    }
+    current.scriptHash = value;
+    this.setState({ json });
+  };
+
   handlePolicyChange = (value: string, coordinates: number[]) => {
     console.log(value, "policy")
     const json = { ...this.state.json };
@@ -637,6 +671,12 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
           tokenData: null
         };
         break;
+      case "Script":
+        newElement = {
+          type: "Script",
+          scriptHash: ""
+        };
+        break;
       default:
         return; // Invalid type
     }
@@ -672,6 +712,9 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         break;
       case "NftHolder":
         content = this.nftHolderComponent(json, coordinates);
+        break;
+      case "Script":
+        content = this.scriptComponent(json, coordinates);
         break;
     }
 

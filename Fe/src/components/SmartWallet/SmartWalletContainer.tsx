@@ -141,7 +141,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   addSignature(signature: string) {
     try{
         const wallets = [...this.state.wallets]
-        const wallet = wallets[0]
+        const wallet = wallets[this.state.selectedWallet]
         wallet.addSignature(signature)
         this.setState({wallets: wallets})
         this.storeWallets()
@@ -238,7 +238,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   async submit(index: number) {
     try{
       const wallets = [...this.state.wallets]
-      const wallet = wallets[index]
+      const wallet = wallets[this.state.selectedWallet]
       const txSub =wallet.submitTransaction(index)
       toast.promise(txSub, {
         pending: "Submitting transaction...",

@@ -179,13 +179,13 @@ class SmartWallet {
 
     switch (config.Type) {
       case SmartMultisigDescriptorType.KeyHash:
-        signerNames.push({ hash: config.keyHash.keyHash, name: config.keyHash.name, isDefault: false})
+        signerNames.push({ hash: config.keyHash, name: "", isDefault: false})
         break
       case SmartMultisigDescriptorType.NftHolder:
         //TODO get signer and delegation
         break
       case SmartMultisigDescriptorType.AtLeast:
-        const subAddresses = config.atLeast.scripts.map(script => this.loadSignerNames(script))
+        const subAddresses = config.scripts.map(script => this.loadSignerNames(script))
         subAddresses.forEach(address => {
           signerNames = [...signerNames, ...address]
         })
@@ -337,33 +337,28 @@ async createUpdateTx(
 private cleanConfig(config: SmartMultisigJson): SmartMultisigJson {
   switch (config.Type) {
     case SmartMultisigDescriptorType.KeyHash:
-      if (this.isAddressValid(config.keyHash.keyHash)) {
-        const addressDetails = getAddressDetails(config.keyHash.keyHash);
+        if (this.isAddressValid(config.keyHash)) {
+        const addressDetails = getAddressDetails(config.keyHash);
         if (addressDetails.paymentCredential?.type === 'Key') {
           return {
             ...config,
-            keyHash: {
-              ...config.keyHash,
-              keyHash: addressDetails.paymentCredential.hash
-            }
+            keyHash: addressDetails.paymentCredential.hash
           };
         }
       }
-      if (!this.isValidKeyHash(config.keyHash.keyHash)) {
-        throw new Error(`Invalid key hash or address: ${config.keyHash.keyHash}`);
+      if (!this.isValidKeyHash(config.keyHash)) {
+        throw new Error(`Invalid key hash or address: ${config.keyHash}`);
       }
       return config;
     case SmartMultisigDescriptorType.AtLeast:
       return {
         ...config,
-        atLeast: {
-          ...config.atLeast,
-          scripts: config.atLeast.scripts.map(script => this.cleanConfig(script))
-        }
+          scripts: config.scripts.map(script => this.cleanConfig(script))
       };
     case SmartMultisigDescriptorType.NftHolder:
     case SmartMultisigDescriptorType.Before:
     case SmartMultisigDescriptorType.After:
+    case SmartMultisigDescriptorType.ScriptRef:
       return config;
     default:
       throw new Error(`Unknown config type: ${(config as any).Type}`);

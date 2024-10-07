@@ -9,17 +9,6 @@ use cardano/address.{Address, Credential, Script}
 use aiken/option
 use aiken/primitive/bytearray
 
-pub type Datum {
-  owner: VerificationKeyHash,
-}
-
-pub type SmartMultisigDescriptor {
-    KeyHash { keyHash : VerificationKeyHash }
-    NftHolder { policy : PolicyId, name: AssetName }
-    AtLeast {  scripts: List<SmartMultisigDescriptor> , m: Int }
-    Before { time: Int }
-    After { time: Int }
-}
 
 type PaymentAmount {
       Lovelace { lovelace : Int}
@@ -40,38 +29,22 @@ pub type Redeemer{
 }
 
 
-fn configOutputValid( myUtxo: OutputReference, self: Transaction) -> Bool{
-  expect Some(myinput) = list.find(
-    self.inputs,
-    fn(input) { input.output_reference == myUtxo }
-  )
-  
-  expect Some(myOutput) = list.find(
-    self.outputs,
-    fn(output) {output.value == myinput.output.value}
-  )
-  
-  expect InlineDatum(data) = myOutput.datum
-  expect _: SmartMultisigDescriptor = data
-
-  let addressEqual = myinput.output.address == myOutput.address
-  addressEqual
-  }
 
 
-validator subscriptionModule (walletId: ByteArray)  {
+validator subscriptionModule ()  {
 
-  spend(_datum, _redeemer : Redeemer , _myUtxo: OutputReference, self: Transaction) {
+  spend(_datum, redeemer : Redeemer , myUtxo: OutputReference, self: Transaction) {
     or{
-      True,
-      clientApproved(walletId,self)
-      }
+      withdrawOk(),
+      burn(myUtxo, self)
+    }
   }
 
-  mint(_redeemer , _policy_id , self: Transaction) {
+  mint(_redeemer , policy_id , self: Transaction) {
    and{
-      clientApproved(walletId,self)
-  }
+      clientApproved(policy_id,self),
+      True
+    }
 
   }
   
@@ -81,15 +54,31 @@ validator subscriptionModule (walletId: ByteArray)  {
 
 }
 
+fn burn(myUtxo: OutputReference, self: Transaction){
+  // Check that all tokens mints are Burns (Negative)
+  // check for each token that is being burned  clientApproved(policy_id,self)
 
+  True
+}
+
+fn withdrawOk( ) -> Bool{
+    //check that withdraw contains my self
+    True
+}
 
 fn  clientApproved(walletId: ByteArray, transaction: Transaction) -> Bool{
+  //
   True
 }
 
 fn subscriptionPayment(transaction : Transaction , account : Credential){
-  let clientAddress = getClientAddress(account, transaction)
+// Need to find all the subscriptins being fullfild, we find them by searching for all the inputs that contain a token with our minting policy
+// Then check that we consume the exact amount, 
+// Check that outputs are correct with the expected datum
+// Check  you are not spending any inputs from any client that you should not
+// Check that no mints are happening
 
+  let clientAddress = getClientAddress(account, transaction)
   True
 
 }

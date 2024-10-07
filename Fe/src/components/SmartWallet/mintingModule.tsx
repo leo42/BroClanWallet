@@ -151,7 +151,7 @@ class MintingModule extends React.Component<MintingProps> {
         console.log("keyHash", paymentCredential.hash, policyId)
         const initialMultisigConfig = encode(    {
           Type : SmartMultisigDescriptorType.KeyHash, 
-          keyHash : {name : "me", keyHash : paymentCredential.hash}
+          keyHash : paymentCredential.hash
         })
         console.log(initialMultisigConfig)
         const metadata : any =  {}

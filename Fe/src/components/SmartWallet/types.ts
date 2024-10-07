@@ -35,7 +35,8 @@ export enum SmartMultisigDescriptorType {
   NftHolder = "NftHolder",
   AtLeast = "AtLeast",
   Before = "Before",
-  After = "After"
+  After = "After",
+  ScriptRef = "ScriptRef"
 }
 
 export const SmartMultisigDescriptorKeyHashSchema = Data.Object({
@@ -51,8 +52,9 @@ export type SmartMultisigDescriptorNftHolder = {
 }
 
 export type SmartMultisigJson = 
-  | { Type: SmartMultisigDescriptorType.KeyHash, keyHash: { name: string, keyHash: string } }
-  | { Type: SmartMultisigDescriptorType.NftHolder, nftHolder: { name: string, policy: string } }
-  | { Type: SmartMultisigDescriptorType.AtLeast, atLeast: { m: number, scripts: SmartMultisigJson[] } }
-  | { Type: SmartMultisigDescriptorType.Before, before: { time: number } }
-  | { Type: SmartMultisigDescriptorType.After, after: { time: number } }
+  | { Type: SmartMultisigDescriptorType.KeyHash,  keyHash: string  }
+  | { Type: SmartMultisigDescriptorType.NftHolder,  name: string, policy: string  }
+  | { Type: SmartMultisigDescriptorType.AtLeast,  m: number, scripts: SmartMultisigJson[]  }
+  | { Type: SmartMultisigDescriptorType.Before,  time: number  }
+  | { Type: SmartMultisigDescriptorType.After,  time: number  }
+  | { Type: SmartMultisigDescriptorType.ScriptRef, scriptHash: string }

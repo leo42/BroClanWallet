@@ -16,40 +16,34 @@ function innerDecode(constr: Constr<any>): SmartMultisigJson {
         case 0:
             return {
                 Type: SmartMultisigDescriptorType.KeyHash,
-                keyHash: {
-                    name: "", // Name is not encoded, so we use an empty string
-                    keyHash: constr.fields[0] as string
-                }
+                keyHash: constr.fields[0] as string
             };
         case 1:
             return {
                 Type: SmartMultisigDescriptorType.NftHolder,
-                nftHolder: {
-                    name: constr.fields[1] as string,
-                    policy: constr.fields[0] as string
-                }
+                name: constr.fields[1] as string,
+                policy: constr.fields[0] as string
             };
         case 2:
             return {
                 Type: SmartMultisigDescriptorType.AtLeast,
-                atLeast: {
-                    scripts: (constr.fields[0] as Constr<any>[]).map(innerDecode),
-                    m: Number(constr.fields[1])
-                }
+                m: Number(constr.fields[1]),
+                scripts: (constr.fields[0] as Constr<any>[]).map(innerDecode)
             };
         case 3:
             return {
                 Type: SmartMultisigDescriptorType.Before,
-                before: {
-                    time: Number(constr.fields[0])
-                }
+                time: Number(constr.fields[0])
             };
         case 4:
             return {
                 Type: SmartMultisigDescriptorType.After,
-                after: {
-                    time: Number(constr.fields[0])
-                }
+                time: Number(constr.fields[0])
+            };
+        case 5:
+            return {
+                Type: SmartMultisigDescriptorType.ScriptRef,
+                scriptHash: constr.fields[0] as string
             };
         default:
             throw new Error(`Unknown SmartMultisigDescriptorType: ${constr.index}`);
@@ -57,39 +51,45 @@ function innerDecode(constr: Constr<any>): SmartMultisigJson {
 }
 
 function innerConstr(json: SmartMultisigJson) : Constr<any> {
-   const encodeKeyHash = (keyHash: { name: string, keyHash: string }) => {
-        return new Constr(0, [keyHash.keyHash])
+   const encodeKeyHash = (  keyHash: string ) => {
+        return new Constr(0, [keyHash])
     }
 
-    const encodeNftHolder = (nftHolder: { name: string, policy: string }) => {
-        return new Constr(1, [nftHolder.policy, nftHolder.name])
+    const encodeNftHolder = (name: string, policy: string ) => {
+        return new Constr(1, [policy, name])
     }
     
-    const encodeAtLeast = (atLeast: { m: number, scripts: SmartMultisigJson[] }) => {
-        const encodedScripts = atLeast.scripts.map(script => innerConstr(script));
+    const encodeAtLeast = ( m: number, scripts: SmartMultisigJson[] ) => {
+        const encodedScripts = scripts.map(script => innerConstr(script));
         console.log(encodedScripts);
-        return new Constr(2, [encodedScripts, BigInt(atLeast.m)]);
+        return new Constr(2, [encodedScripts, BigInt(m)]);
     }
 
-    const encodeBefore = (before: { time: number }) => {
-        return new Constr(3, [BigInt(before.time)])
+    const encodeBefore = ( time: number ) => {
+        return new Constr(3, [BigInt(time)])
     }
 
-    const encodeAfter = (after: { time: number }) => {
-        return new Constr(4, [BigInt(after.time)])
+    const encodeAfter = ( time: number ) => {
+        return new Constr(4, [BigInt(time)])
+    }
+
+    const encodeScriptRef = ( scriptHash: string ) => {
+        return new Constr(5, [scriptHash])
     }
 
     switch (json.Type) {
         case SmartMultisigDescriptorType.KeyHash:
             return encodeKeyHash(json.keyHash)
         case SmartMultisigDescriptorType.NftHolder:
-            return encodeNftHolder(json.nftHolder)
+            return encodeNftHolder(json.name, json.policy)
         case SmartMultisigDescriptorType.AtLeast:
-            return encodeAtLeast(json.atLeast)
+            return encodeAtLeast(json.m, json.scripts)
         case SmartMultisigDescriptorType.Before:
-            return encodeBefore(json.before)
+            return encodeBefore(json.time)
         case SmartMultisigDescriptorType.After:
-            return encodeAfter(json.after)
+            return encodeAfter(json.time)
+        case SmartMultisigDescriptorType.ScriptRef:
+            return encodeScriptRef(json.scriptHash)
         default:
             throw new Error('Unknown SmartMultisigDescriptorType')
     }
