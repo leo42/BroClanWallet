@@ -123,9 +123,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       wallets.splice(index, 1);
       this.setState({selectedWallet : 0})
       this.setState({wallets: wallets})
-      this.storeWallets()
       
-    
+      await new Promise(resolve => setTimeout(resolve, 500));
+      this.storeWallets()    
   }
   catch(error: any){
     toast.error("Error deleting wallet: " + error.message)
