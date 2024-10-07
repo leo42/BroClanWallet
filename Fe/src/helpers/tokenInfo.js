@@ -77,7 +77,7 @@ async function getTokenInfo(tokenId){
               }
               if ( settings.metadataProvider === "Koios"){
                 const splitTokenName =  splitTokenId(tokenId)
-                const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/asset_info" : `https://${settings.network}.koios.rest/api/v0/asset_info`
+                const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v1/asset_info" : `https://${settings.network}.koios.rest/api/v1/asset_info`
       
                   const koiosTokenInfo = await fetch(
                     `${api}?_asset_policy=${splitTokenName[0]}&_asset_name=${splitTokenName[1]}`,

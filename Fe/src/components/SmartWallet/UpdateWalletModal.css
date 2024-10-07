@@ -36,6 +36,10 @@
     display: none;
   }
 
+.scriptHash {
+  width: 90%;
+}
+
 .modalContainer .title {
   display: inline-block;
   text-align: center;

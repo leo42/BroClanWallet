@@ -524,6 +524,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             type="text"
             placeholder="Script Hash"
             name="amount"
+            className="scriptHash"
             value={json.scriptHash}
             onChange={(event) => this.handleScriptHashChange(event.target.value, coordinates)}
           />
