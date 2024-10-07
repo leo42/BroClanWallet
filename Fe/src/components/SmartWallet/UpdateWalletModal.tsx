@@ -92,6 +92,10 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   };
 
   componentDidMount() {
+    // get current config
+    this.props.wallet.getConfig().then((config) => {
+      this.setState({ json: this.toSmartMultisigDescriptor(config) })
+    })
 
   }
 
@@ -104,6 +108,25 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   };
 
 // ... existing code ...
+
+toSmartMultisigDescriptor = (json: SmartMultisigJson): SmartMultisigDescriptor => {
+  switch (json.Type) {
+    case SmartMultisigDescriptorType.KeyHash:
+      return { type: "KeyHash", keyHash: json.keyHash, name: "" };
+    case SmartMultisigDescriptorType.NftHolder:
+      return { type: "NftHolder", policy: json.policy, name: json.name, tokenData: null };
+    case SmartMultisigDescriptorType.AtLeast:
+      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m };
+    case SmartMultisigDescriptorType.Before:
+      return { type: "Before", time: json.time };
+    case SmartMultisigDescriptorType.After:
+      return { type: "After", time: json.time };
+    case SmartMultisigDescriptorType.ScriptRef:
+      return { type: "Script", scriptHash: json.scriptHash };
+    default:
+      throw new Error("Invalid SmartMultisigDescriptor type");
+  }
+};
 
 toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
   switch (json.type) {
@@ -744,6 +767,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     signers[index].isDefault = !signers[index].isDefault;
     this.setState({ signers });
   }
+  
 
   SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
     

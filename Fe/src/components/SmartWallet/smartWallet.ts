@@ -147,6 +147,11 @@ class SmartWallet {
   }
 
   async getConfig(): Promise<SmartMultisigJson> {
+
+    return this.config || this.loadConfig()
+  }
+
+  async loadConfig(): Promise<SmartMultisigJson> {
     try {
       const configUtxo = await this.getConfigUtxo();
       const config : SmartMultisigJson = decode(configUtxo?.datum as string)
@@ -208,7 +213,7 @@ class SmartWallet {
       if (this.compareUtxos(utxos, this.utxos)) return;
         this.utxos = utxos;
         await this.getDelegation();
-        await this.getConfig()
+        await this.loadConfig()
     } catch (e) {
       console.error("Error loading UTXOs:", e);
     }
