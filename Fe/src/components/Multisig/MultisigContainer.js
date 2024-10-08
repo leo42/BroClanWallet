@@ -256,7 +256,16 @@ async setState(state){
 
     }
   }
+  getSigners(){
+    const wallets = this.state.wallets
+    return wallets[this.state.selectedWallet].getSigners()
+  }
 
+  getSignerName(keyHash){
+    const wallets = this.state.wallets
+    return wallets[this.state.selectedWallet].getSignerName(keyHash)
+  }
+  
   async createDelegationTx(pool, dRepId, signers){
     try{
     const wallets = this.state.wallets

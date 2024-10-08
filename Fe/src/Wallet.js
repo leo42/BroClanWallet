@@ -681,6 +681,9 @@ setPendingTxs(pendingTxs){
       return "Sucsess"
     }
 
+    getSignerName(keyHash){
+        return this.signersNames.find(signer => signer.hash === keyHash)?.name || '';
+    }
 
     async createDelegationTx(pool, dRepId, signers){ 
       const curentDelegation = await this.getDelegation()

@@ -186,7 +186,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
   handleSubmit = () => {
     if (this.state.json.type === "AtLeast" && this.checkAllAddresses(this.state.json.scripts)) {
-      const signers = this.state.signers.map(signer => signer.hash);
+      const signers = this.state.signers.filter(signer => signer.isDefault).map(signer => signer.hash);
       this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(this.state.json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);

@@ -608,14 +608,13 @@ private isValidKeyHash(hash: string): boolean {
     return resault
   }
 
+
   getPendingTxDetails(index: number){
       try {
-
-        
         const txDetails = this.decodeTransaction(this.pendingTxs[index].tx.toCBOR({canonical: true}))
 
       const signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
-        {name:  "TODO" , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
+        { keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
       )) : []
 
       return { ...txDetails, signatures}
@@ -624,6 +623,7 @@ private isValidKeyHash(hash: string): boolean {
 
     }
   }
+
   setDefaultAddress(address: string): void {
     this.defaultAddress = address;
   }
