@@ -110,9 +110,8 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
 
   componentDidMount() {
     // get current config
-    this.props.wallet.getConfig().then((config) => {
-      this.setState({ json: this.toSmartMultisigDescriptor(config) })
-    })
+    const config = this.props.wallet.getConfig()
+    this.setState({ json: this.toSmartMultisigDescriptor(config) })
 
   }
 

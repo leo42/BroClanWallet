@@ -8,7 +8,7 @@ function WalletDelegation(props) {
   const wallet = props.wallet
   const initialState = []
 
-  wallet.getSigners().map( (signer) =>
+  props.moduleRoot.getSigners().map( (signer) =>
     initialState.push(signer.isDefault)
   ) 
   const [pool, setPool] = useState('');
@@ -53,7 +53,7 @@ function WalletDelegation(props) {
     event.preventDefault();
    
     const txSigners = signers.map((item, index) =>
-        item ? wallet.getSigners()[index].hash : ""
+        item ?  props.moduleRoot.getSigners()[index].hash : ""
     )
     const dRepId = delegationType === 'custom' ? customDelegation : delegationType;
     props.moduleRoot.createDelegationTx(pools[0], dRepId, txSigners.filter((element, index) => signers[index]));
@@ -63,7 +63,7 @@ function WalletDelegation(props) {
     event.preventDefault();
 
     const txSigners = signers.map((item, index) =>
-        item ? wallet.getSigners()[index].hash : ""
+        item ? props.moduleRoot.getSigners()[index].hash : ""
     )
 
     props.moduleRoot.createStakeUnregistrationTx(txSigners.filter((element, index) => signers[index]));
@@ -94,10 +94,10 @@ function WalletDelegation(props) {
   } 
 
  
-   const SignersSelect =  wallet.getSigners().map( (item, index) => (
+   const SignersSelect =  props.moduleRoot.getSigners().map( (item, index) => (
     <div key={index} >
    <label className='signerCheckbox'>
-     {wallet.getSigners()[index].name}:
+     {props.moduleRoot.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"
@@ -157,7 +157,7 @@ function WalletDelegation(props) {
         </label>
       )}
 </div>
-      {wallet.getSigners().length !== 0 && (
+      { props.moduleRoot.getSigners().length !== 0 && (
       <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
       { SignersSelect}

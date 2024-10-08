@@ -10,17 +10,21 @@ interface Recipient {
   amount: Assets;
 }
 
+type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number, after?: number }
+
+
 
 class SmartWallet {
   private lucid!: LucidEvolution ;
   private script: Validator ;
   private utxos: UTxO[] = [];
+  private nftUtxos: UTxO[] = [];
   private delegation: Delegation = { poolId: null, rewards: BigInt(0) };
   private pendingTxs: { tx: TxSignBuilder; signatures: Record<string, string> }[] = [];
   private signerNames: {hash: string,  isDefault: boolean}[] = [];
   private defaultAddress: string = "";
   private addressNames: Record<string, string> = {};
-  private config: SmartMultisigJson | null = null;
+  private config: SmartMultisigJson  = {Type: SmartMultisigDescriptorType.KeyHash, keyHash: ""}
   private id: string;
   private settings: Settings;
   constructor(id: string, settings: Settings) {
@@ -35,6 +39,7 @@ class SmartWallet {
     
   }
 
+  
 
   async initializeLucid(): Promise<void> {
     try {
@@ -146,9 +151,8 @@ class SmartWallet {
     return configUtxo
   }
 
-  async getConfig(): Promise<SmartMultisigJson> {
-
-    return this.config || this.loadConfig()
+  getConfig(): SmartMultisigJson {
+    return this.config
   }
 
   async loadConfig(): Promise<SmartMultisigJson> {
@@ -156,7 +160,9 @@ class SmartWallet {
       const configUtxo = await this.getConfigUtxo();
       const config : SmartMultisigJson = decode(configUtxo?.datum as string)
       this.config = config
-      this.signerNames = this.loadSignerNames(config)
+      const signers = await this.loadSigners(config)
+      this.signerNames = signers.signers
+      this.nftUtxos  =   signers.nftUtxos
       console.log("configUtxo", config)
       return config
     } catch (e) {
@@ -172,27 +178,32 @@ class SmartWallet {
   defaultSignersValid (signers: string[]) : boolean {
     return true //TODO
   }
-  // // export type SmartMultisigJson = 
-  // | { Type: SmartMultisigDescriptorType.KeyHash, keyHash: { name: string, keyHash: string } }
-  // | { Type: SmartMultisigDescriptorType.NftHolder, nftHolder: { name: string, policy: string } }
-  // | { Type: SmartMultisigDescriptorType.AtLeast, atLeast: { m: number, scripts: SmartMultisigJson[] } }
-  // | { Type: SmartMultisigDescriptorType.Before, before: { time: number } }
-  // | { Type: SmartMultisigDescriptorType.After, after: { time: number } }
 
-  loadSignerNames(config : SmartMultisigJson): {hash: string, name: string, isDefault: boolean}[] {
-    let signerNames : {hash: string, name: string, isDefault: boolean}[] = []
-
+  async loadSigners(config : SmartMultisigJson): Promise<{ nftUtxos: UTxO[], signers: {hash: string,  isDefault: boolean}[]}> {
+    let signers : {hash: string,  isDefault: boolean}[] = []
+    let nftUtxos : UTxO[] = []
     switch (config.Type) {
       case SmartMultisigDescriptorType.KeyHash:
-        signerNames.push({ hash: config.keyHash, name: "", isDefault: false})
+        signers.push({ hash: config.keyHash, isDefault: false})
         break
       case SmartMultisigDescriptorType.NftHolder:
-        //TODO get signer and delegation
+        const utxo = await this.lucid.config().provider.getUtxoByUnit(config.policy + config.name)
+        signers.push({ hash: getAddressDetails(utxo.address).paymentCredential?.hash as string, isDefault: false})
+        try{
+          const subConfig : SmartMultisigJson = decode(utxo?.datum as string)
+          const subAddresses = await this.loadSigners(subConfig)
+          signers = [...signers, ...subAddresses.signers] // Correctly spread the array of addresses
+          nftUtxos = [...nftUtxos, ...subAddresses.nftUtxos]
+        } catch (e) {
+          console.error("Error loading signers:", e) // Use console.error for consistency
+        }
+        
         break
       case SmartMultisigDescriptorType.AtLeast:
-        const subAddresses = config.scripts.map(script => this.loadSignerNames(script))
+        const subAddresses = await Promise.all(config.scripts.map(script => this.loadSigners(script)))
         subAddresses.forEach(address => {
-          signerNames = [...signerNames, ...address]
+          signers = [...signers, ...address.signers]
+          nftUtxos = [...nftUtxos, ...address.nftUtxos]
         })
         break
       case SmartMultisigDescriptorType.Before:
@@ -200,8 +211,8 @@ class SmartWallet {
       case SmartMultisigDescriptorType.After:
         break
     }
-    console.log(signerNames)
-    return signerNames
+    console.log(signers)
+    return {signers, nftUtxos}
 
   }
 
@@ -507,12 +518,77 @@ private isValidKeyHash(hash: string): boolean {
     return this.id;
   }
 
-  checkSigners(signers: string[]){
-    return true
+  
+
+
+
+  checkSigners(signers: string[]): extraRequirements | false {
+    const config = this.getConfig();
+    const memo = new Map<SmartMultisigJson, extraRequirements | false>();
+
+    function merge(front: extraRequirements, back: extraRequirements): extraRequirements {
+      return {
+        inputs: (front.inputs || []).concat(back.inputs || []),
+        refInputs: (front.refInputs || []).concat(back.refInputs || []),
+        before: front.before !== undefined ? front.before : back.before,
+        after: front.after !== undefined ? front.after : back.after
+      }
+    }
+
+    function cost(req: extraRequirements): number {
+      const inputs = req.inputs?.length || 0;
+      const refInputs = req.refInputs?.length || 0;
+      const beforeAfter = (req.before || 0) + (req.after || 0);
+      return inputs * 10 + refInputs * 5 + beforeAfter;
+    }
+
+    const verify = (segment: SmartMultisigJson, signers: string[]): extraRequirements | false => {
+      if (memo.has(segment)) return memo.get(segment)!;
+
+      let result: extraRequirements | false;
+
+      switch (segment.Type) {
+        case SmartMultisigDescriptorType.KeyHash:
+          result = signers.includes(segment.keyHash) ? {} : false;
+          break;
+        case SmartMultisigDescriptorType.AtLeast:
+          const validSubRequirements = segment.scripts
+            .map(script => verify(script, signers))
+            .filter((req): req is extraRequirements => req !== false)
+            .sort((a, b) => cost(a) - cost(b));
+          
+          if (validSubRequirements.length < segment.m) {
+            result = false;
+          } else {
+            result = validSubRequirements.slice(0, segment.m).reduce(merge, {});
+          }
+          break;
+        case SmartMultisigDescriptorType.NftHolder:
+          const nftUtxo = this.nftUtxos.find(utxo => utxo.assets[segment.policy + segment.name] > 0n);
+          if(nftUtxo && signers.includes(getAddressDetails(nftUtxo?.address).paymentCredential?.hash || "")){
+            result = {inputs : [nftUtxo]};
+          } else {
+            result = false;
+          }
+          break;
+        case SmartMultisigDescriptorType.Before:
+          result = {before : segment.time};
+          break;
+        case SmartMultisigDescriptorType.After:
+          result = {after : segment.time};
+          break;
+        default:
+          result = false;
+      }
+
+      memo.set(segment, result);
+      return result;
+    }
+
+    return verify(config, signers);
   }
 
   getSigners(): {hash: string,  isDefault: boolean}[] {
-    console.log(this.signerNames)
     return this.signerNames
 
   }
