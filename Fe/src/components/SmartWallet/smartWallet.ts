@@ -18,6 +18,9 @@ class SmartWallet {
   private lucid!: LucidEvolution ;
   private script: Validator ;
   private utxos: UTxO[] = [];
+  private configUtxo: UTxO | null = null;
+  private scriptUtxo: UTxO | null = null;
+  private colateralUtxo : UTxO | null = null;
   private nftUtxos: UTxO[] = [];
   private delegation: Delegation = { poolId: null, rewards: BigInt(0) };
   private pendingTxs: { tx: TxSignBuilder; signatures: Record<string, string> }[] = [];
@@ -157,12 +160,22 @@ class SmartWallet {
   async loadConfig(): Promise<SmartMultisigJson> {
     try {
       const configUtxo = await this.getConfigUtxo();
-      const config : SmartMultisigJson = decode(configUtxo?.datum as string)
+      this.configUtxo = configUtxo
+
+        const config : SmartMultisigJson = decode(configUtxo?.datum as string)
       this.config = config
       const signers = await this.loadSigners(config)
       this.signerNames = signers.signers
       this.nftUtxos  =   signers.nftUtxos
       console.log("configUtxo", config)
+      try{
+        const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+        const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
+        this.scriptUtxo = scriptUtxo
+      }
+      catch(e){
+        console.error("Error getting script utxo:", e);
+      }
       return config
     } catch (e) {
       console.error("Error getting config:", e);
@@ -372,39 +385,42 @@ private isValidKeyHash(hash: string): boolean {
     }
     const localLucid = await getNewLucidInstance(this.settings);
     const collateralUtxo = await this.getColateralUtxo(signers);
-    const configUtxo = await this.getConfigUtxo();
-    const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
-
-    const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
-
+    const configUtxo = this.configUtxo ? this.configUtxo : await this.getConfigUtxo()
 
     localLucid.selectWallet.fromAddress(returnAddress ||this.getAddress(), [collateralUtxo]);
-    const readUtxos = [configUtxo, scriptUtxo]
+    const tx = localLucid.newTx()
+    
+    const readUtxos = [configUtxo]
+    if(this.scriptUtxo) {
+      readUtxos.push(this.scriptUtxo)
+    }else{
+      tx.attach.Script(this.script)
+    }
+    
     if (requrement.refInputs !== undefined) {
       readUtxos.push(...requrement.refInputs)
     }
 
-    const tx = localLucid.newTx()
-      .readFrom(readUtxos)
-
+    
     if(requrement.inputs !== undefined) {
-       requrement.inputs.forEach(input => {
+      requrement.inputs.forEach(input => {
         tx.collectFrom([input]).pay.ToAddress(input.address, input.assets)
-       })
+      })
     }
-
+    
     if(requrement.before !== undefined) {
       tx.validTo(requrement.before)
     }
-
+    
     if(requrement.after !== undefined) {
       tx.validFrom(requrement.after)
     }
-
+    
     signers.forEach(signer => {
       tx.addSignerKey(signer)
     })
-
+    
+    tx.readFrom(readUtxos)
     return tx;
     
   }
