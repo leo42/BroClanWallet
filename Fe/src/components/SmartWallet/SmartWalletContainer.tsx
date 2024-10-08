@@ -4,6 +4,7 @@ import MintingModule from './mintingModule';  // Changed to match the actual fil
 import UpdateWalletModal from './UpdateWalletModal';
 import SmartWallet from './smartWallet';
 import MWalletMain from './WalletMain'; 
+import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import './SmartWalletContainer.css';
 import { Settings , } from '../../types/app';
 import { SmartMultisigJson } from "./types";
@@ -84,7 +85,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   
   async loadState() {
-    this.loadWallets()
+    await this.loadWallets()
+    this.setState({loading: false})
   }
   
   modalType() {
@@ -234,15 +236,17 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   async loadWallets() {
-    const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]")
-    wallets.forEach(async (wallet: any) => {
-      const newWallet = new SmartWallet(wallet.id, this.props.settings)
-      await newWallet.initializeLucid()
+    const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]");
+    const loadedWallets = await Promise.all(wallets.map(async (wallet: any) => {
+      const newWallet = new SmartWallet(wallet.id, this.props.settings);
+      await newWallet.initializeLucid();
       wallet.txs.forEach((tx: any) => {
-        newWallet.addPendingTx(tx)
-      })
-      this.setState({wallets: [...this.state.wallets, newWallet]})
-    })
+        newWallet.addPendingTx(tx);
+      });
+      return newWallet;
+    }));
+
+    this.setState({ wallets: loadedWallets });
   }
 
   async createDelegationTx(pool: string, dRepId: string,signers: string[]) {
@@ -345,7 +349,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       {this.WalletList()}
       { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
       {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
-        {this.state.wallets.length === 0 ? this.walletsEmpty() : (
+       
+      {  this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
+         this.state.wallets.length === 0 ? this.walletsEmpty() : (
           <MWalletMain wallet={this.state.wallets[this.state.selectedWallet]} root={this.props.root} moduleRoot={this} />
         )}
       </div>
