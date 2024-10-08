@@ -59,8 +59,8 @@ function Receive(props){
             // add the unstaked address only if it is not already in the list of funded addresses 
             
             options.includes( props.wallet.getAddress())?   "" :  options.push(props.wallet.getAddress())
-            props.wallet.getAddress() in optionsNames && optionsNames[props.wallet.getAddress()] !== props.wallet.getAddress() ?  "" :  optionsNames[props.wallet.getAddress()] = "Regular Address" 
-        
+            optionsNames[props.wallet.getAddress()] = "Regular Address"
+      
 
 
             options.includes(props.wallet.getAddress(donationAddress))  ? "" : options.push(props.wallet.getAddress(donationAddress))

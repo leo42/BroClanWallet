@@ -88,10 +88,16 @@ class SmartWallet {
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
   }
 
-  getAddress(): string {
+  getAddress(stakingAddress: string = ""): string {
+    if(stakingAddress === ""){
     const stakeCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
 
     return validatorToAddress(this.lucid.config().network, this.script, stakeCredential);
+    }
+    else{
+      const stakeCredential = getAddressDetails(stakingAddress).stakeCredential
+      return validatorToAddress(this.lucid.config().network, this.script, stakeCredential);
+    }
   }
 
   getEnterpriseAddress(): string {
@@ -115,7 +121,6 @@ class SmartWallet {
         
        }
       )
-      
     return  [...new Set(result)]; 
   }
 
