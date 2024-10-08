@@ -101,7 +101,6 @@ class SmartWallet {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
     // const rewardAddress = credentialToRewardAddress(this.lucid.config().network, getAddressDetails("addr_test1xrujtjctsdvm43g633cc823ctyz3453t89qj0yj3evakdhheyh9shq6ehtz34rr3sw4rskg9rtfzkw2py7f9rjemvm0qnusdr8").stakeCredential as Credential)
     this.delegation = await this.lucid.config().provider.getDelegation(rewardAddress);
-    console.log("rewardAddress", rewardAddress, this.delegation)
     return this.delegation;
   }
 
@@ -188,6 +187,7 @@ class SmartWallet {
         break
       case SmartMultisigDescriptorType.NftHolder:
         const utxo = await this.lucid.config().provider.getUtxoByUnit(config.policy + config.name)
+        nftUtxos = [...nftUtxos, utxo]
         signers.push({ hash: getAddressDetails(utxo.address).paymentCredential?.hash as string, isDefault: false})
         try{
           const subConfig : SmartMultisigJson = decode(utxo?.datum as string)
@@ -565,6 +565,7 @@ private isValidKeyHash(hash: string): boolean {
           break;
         case SmartMultisigDescriptorType.NftHolder:
           const nftUtxo = this.nftUtxos.find(utxo => utxo.assets[segment.policy + segment.name] > 0n);
+          console.log(nftUtxo, this.nftUtxos)
           if(nftUtxo && signers.includes(getAddressDetails(nftUtxo?.address).paymentCredential?.hash || "")){
             result = {inputs : [nftUtxo]};
           } else {
@@ -584,8 +585,9 @@ private isValidKeyHash(hash: string): boolean {
       memo.set(segment, result);
       return result;
     }
-
-    return verify(config, signers);
+    const res = verify(config, signers);
+    console.log("res", res)
+    return res
   }
 
   getSigners(): {hash: string,  isDefault: boolean}[] {

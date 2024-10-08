@@ -92,8 +92,11 @@ function WalletDelegation(props) {
       <LoadingIcon className="loadingIcon"  > </LoadingIcon>
       </div>
   } 
+    const txSigners = signers.map((item, index) =>
+      item ? props.moduleRoot.getSigners()[index].hash : ""
+  )
+    const signersValid = wallet.checkSigners(txSigners.filter((element, index) => signers[index]))
 
- 
    const SignersSelect =  props.moduleRoot.getSigners().map( (item, index) => (
     <div key={index} >
    <label className='signerCheckbox'>
@@ -163,8 +166,8 @@ function WalletDelegation(props) {
       { SignersSelect}
       </div>
       </div>)}
-     {pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
-     {  delegation.poolId !== null &&   <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} /> }
+     { signersValid && pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
+     {  signersValid && delegation.poolId !== null &&   <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} /> }
 
     </form>
     </div>
