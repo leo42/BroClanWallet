@@ -76,7 +76,12 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   async reloadBalance() {
-    // Implementation similar to MultisigContainer
+    if (this.state.wallets.length > 0){
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    await wallet.loadUtxos()
+    this.setState({wallets: wallets})
+    }
   }
 
   storeState() {
