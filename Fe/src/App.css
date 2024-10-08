@@ -135,6 +135,7 @@ select{
 .WalletMain{
   align-items: center;
   margin: 20px;
+  width: 100%;
 }
 
 .tooltip:hover::after{

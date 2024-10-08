@@ -257,10 +257,10 @@ async setState(state){
     }
   }
 
-  async createDelegationTx(pool,signers){
+  async createDelegationTx(pool, dRepId, signers){
     try{
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createDelegationTx(pool,signers)
+     await this.state.wallets[this.state.selectedWallet].createDelegationTx(pool, dRepId, signers)
     this.setState({wallets})
     toast.info('Delegation Transaction created');
     }catch(e){

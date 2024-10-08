@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, Credential, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -389,24 +389,8 @@ private isValidKeyHash(hash: string): boolean {
     return collateralUtxo
   }
 
-  async createStakeUnregistrationTx(): Promise<TxSignBuilder> {
-    const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
-    const tx = this.lucid.newTx()
-      .deRegisterStake(rewardAddress)
-      .attach.SpendingValidator(this.script)
-      .collectFrom(this.utxos, Data.void());
-      
-    if (this.delegation.rewards && BigInt(this.delegation.rewards) > 0) {
-      tx.withdraw(rewardAddress, BigInt(this.delegation.rewards));
-    }
-
-    const completedTx = await tx.complete({ setCollateral : 1000000n, changeAddress:  this.getAddress()  });
-    this.pendingTxs.push({ tx : completedTx , signatures: {} });
-    return completedTx;
-  }
-
-  async createDelegationTx(pool: string, signers: string[]): Promise<TxSignBuilder> {
-    console.log("createDelegationTx", pool, signers)
+  async createStakeUnregistrationTx(signers: string[]): Promise<TxSignBuilder> {
+    console.log("createDelegationTx", signers)
     const rewardAddress = validatorToRewardAddress( this.lucid.config().network, this.script);
 
     const localLucid = await getNewLucidInstance(this.settings);
@@ -423,17 +407,59 @@ private isValidKeyHash(hash: string): boolean {
       .collectFrom(this.utxos, Data.void())
       .readFrom([configUtxo, scriptUtxo])
 
-    if (this.delegation.poolId === null) {
-      tx.registerStake(rewardAddress);
-    }
-
-    tx.delegateTo(rewardAddress, pool, Data.void())
+      tx.deregister.Stake(rewardAddress, Data.void())
+      tx.deregister.DRep(rewardAddress, Data.void())
 
     signers.forEach(signer => {
       tx.addSignerKey(signer)
     })
 
-    const completedTx = await tx.complete({ setCollateral : 10000000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
+    const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
+    this.pendingTxs.push({ tx: completedTx, signatures: {} });
+    return completedTx;
+
+  }
+
+  async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
+    console.log("createDelegationTx", pool, signers, dRepId);
+    const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
+    let dRep: DRep 
+    
+    if (dRepId === "Abstain") {
+      dRep = { __typename: "AlwaysAbstain" };
+    } else if (dRepId === "NoConfidence") {
+      dRep = { __typename: "AlwaysNoConfidence" };
+    } else {
+      dRep = { "type" : "Script" , "hash" : dRepId} ;
+    }
+
+    const localLucid = await getNewLucidInstance(this.settings);
+    const collateralUtxo = await this.getColateralUtxo(signers);
+    const configUtxo = await this.getConfigUtxo();
+    const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[this.settings.network].minting.script });
+
+    const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
+
+
+    localLucid.selectWallet.fromAddress(this.getAddress(), [collateralUtxo]);
+    
+    const tx = localLucid.newTx()
+      .collectFrom(this.utxos, Data.void())
+      .readFrom([configUtxo, scriptUtxo])
+
+    if (this.delegation.poolId === null) {
+      console.log("registerAndDelegate")
+      tx.registerStake(rewardAddress)
+    }
+    
+    tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep, Data.void())
+    
+
+    signers.forEach(signer => {
+      tx.addSignerKey(signer)
+    })
+
+    const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
   }
@@ -483,7 +509,6 @@ private isValidKeyHash(hash: string): boolean {
   }
 
   checkSigners(signers: string[]){
-    console.log(signers)
     return true
   }
   getSigners(): {hash: string, name: string, isDefault: boolean}[] {
@@ -575,7 +600,6 @@ private isValidKeyHash(hash: string): boolean {
         txBody.collateral_return = txBody.collateral_return[formatKeys[0]];
       }
     }
-    console.log(txBody)
     return txBody;
   }
 
@@ -585,7 +609,6 @@ private isValidKeyHash(hash: string): boolean {
   }
 
   getPendingTxDetails(index: number){
-      console.log(this.pendingTxs, index, this.pendingTxs[index])
       try {
 
         

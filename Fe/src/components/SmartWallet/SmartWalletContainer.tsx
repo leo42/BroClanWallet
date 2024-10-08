@@ -204,11 +204,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     })
   }
 
-  async createDelegationTx(pool: string, signers: string[]) {
+  async createDelegationTx(pool: string, dRepId: string,signers: string[]) {
     try{
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
-    await wallet.createDelegationTx(pool, signers)
+    await wallet.createDelegationTx(pool, dRepId, signers)
     this.setState({wallets: wallets})
     this.storeWallets()
   }
@@ -218,6 +218,19 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   }
 
+  async createStakeUnregistrationTx ( signers: string[]) {
+    try{
+      const wallets = [...this.state.wallets]
+      const wallet = wallets[this.state.selectedWallet]
+      await wallet.createStakeUnregistrationTx(signers)
+      this.setState({wallets: wallets})
+      this.storeWallets()
+    }
+    catch(error: any){
+      toast.error("Error creating stake unregistration transaction: " + error.message)
+      console.log("error", error)
+    }
+  }
 
   transmitTransaction(transaction: any, sigAdded: any) {
     // Implementation similar to MultisigContainer

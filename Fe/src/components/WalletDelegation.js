@@ -16,7 +16,9 @@ function WalletDelegation(props) {
   const [delegation, setDelegation] = useState({});
   const [pools, setPools] = useState([]);
   const [searching, setSearching] = useState(false);
-  
+  const [delegationType, setDelegationType] = useState('Abstain');
+  const [customDelegation, setCustomDelegation] = useState('');
+
   useEffect(() => {
     wallet.getDelegation().then( (delegation) => {;
       setDelegation(delegation);
@@ -53,8 +55,8 @@ function WalletDelegation(props) {
     const txSigners = signers.map((item, index) =>
         item ? wallet.getSigners()[index].hash : ""
     )
-
-    props.moduleRoot.createDelegationTx(pools[0], txSigners.filter((element, index) => signers[index]));
+    const dRepId = delegationType === 'custom' ? customDelegation : delegationType;
+    props.moduleRoot.createDelegationTx(pools[0], dRepId, txSigners.filter((element, index) => signers[index]));
   }
 
   const Undelegate = event => {
@@ -81,7 +83,6 @@ function WalletDelegation(props) {
         {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
 
         <p>Rewards : {Number(delegation.rewards)/1_000_000}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </p>
-        <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} />
       </div>
     }
   }
@@ -112,10 +113,12 @@ function WalletDelegation(props) {
 
   return (
     <div className="DelegationCenter">
-
-      {delegationInfo()}
+      <div className='DelegationInfo'>
+        {delegationInfo()}
+      </div>
+     <div className='DelegationUpdate'>
     <form onSubmit={handleSubmit}>
-
+      <h1> Manage Delegation </h1>
       <label>
        
         <input
@@ -134,6 +137,26 @@ function WalletDelegation(props) {
           </div>
         )
       )}
+     <div className='dRepDelegation'>
+      <label>
+        <select value={delegationType} onChange={event => setDelegationType(event.target.value)}>
+          <option value="Abstain">Auto Abstain</option>
+          <option value="NoConfidence">Auto Nonconfidence</option>
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+      {delegationType === 'custom' && (
+        <label>
+          <input
+            type="text"
+            name="customDelegation"
+            placeholder='dRep Hash'
+            value={customDelegation}
+            onChange={event => setCustomDelegation(event.target.value)}
+          />
+        </label>
+      )}
+</div>
       {wallet.getSigners().length !== 0 && (
       <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
@@ -141,7 +164,10 @@ function WalletDelegation(props) {
       </div>
       </div>)}
      {pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
+     {  delegation.poolId !== null &&   <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} /> }
+
     </form>
+    </div>
     </div>
   );
 

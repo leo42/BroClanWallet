@@ -682,7 +682,7 @@ setPendingTxs(pendingTxs){
     }
 
 
-    async createDelegationTx(pool, signers){ 
+    async createDelegationTx(pool, dRepId, signers){ 
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
       const sigCheck = this.checkSigners(signers)

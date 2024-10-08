@@ -62,7 +62,7 @@ fn configOutputValid( myUtxo: OutputReference, self: Transaction) -> Bool{
 validator smartMultisig (walletId: ByteArray)  {
 
   else( ctx: ScriptContext) -> Bool {
- 
+   
     multisigAproved(walletId, ctx.transaction)
 
   }
@@ -83,10 +83,8 @@ fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool{
 
 
 fn getDescriptorFromTokenName(policy: PolicyId, assetName: AssetName, transaction: Transaction) -> Option<SmartMultisigDescriptor> {
-  let hostUtxo = transaction.reference_inputs 
+  transaction.reference_inputs 
     |> list.find(fn(x) { quantity_of(x.output.value, policy, assetName) > 0 })
-  
-  hostUtxo
     |> option.and_then(fn(utxo) {
       when utxo.output.datum is {
         InlineDatum(data) ->
