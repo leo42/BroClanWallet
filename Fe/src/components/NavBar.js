@@ -39,7 +39,6 @@ function NavBar(props){
                 <div className="navMenuPop" ></div>
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("multisig")}>Multisig</div>
                 <div className="navMenuOption" onClick={() =>  props.root.setModule("smartWallets")}>Smart Wallets</div>
-                <div className="navMenuOption" onClick={() =>  props.root.setModule("minting")}>Minting</div>
                 <div className="navMenuOption" onClick={() => props.root.showModal("settings")}>Settings</div>
             </div>
             </div>
