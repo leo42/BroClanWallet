@@ -40,6 +40,16 @@
   width: 90%;
 }
 
+.valid{
+  color: green;
+  border-bottom: solid green 1px; 
+
+}
+
+.invalid{
+  color: red;
+  border-bottom: solid red 1px; 
+}
 .modalContainer .title {
   display: inline-block;
   text-align: center;

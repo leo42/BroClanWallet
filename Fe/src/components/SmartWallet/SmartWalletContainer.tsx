@@ -7,7 +7,7 @@ import MWalletMain from './WalletMain';
 import './SmartWalletContainer.css';
 import { Settings , } from '../../types/app';
 import { SmartMultisigJson } from "./types";
-
+import {getAddressDetails} from "@lucid-evolution/lucid";
 interface SmartWalletContainerProps {
   settings: Settings;
   root: any;
@@ -173,6 +173,47 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     console.log("wallets", this.state.wallets)
   }
 
+  getSigners(): { name: string; hash: string; isDefault: boolean }[] {
+    const wallets = [...this.state.wallets];
+    const wallet = wallets[this.state.selectedWallet];
+    const signers = wallet.getSigners();
+    
+    const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
+    
+    const result = signers.map((signer) => {
+      const name = storedSignerNames[signer.hash] || '';
+      return { name, hash: signer.hash, isDefault: signer.isDefault };
+    });
+    
+    return result;
+  }
+  
+  getSignerName(keyHash: string): string {
+    const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
+
+    try{
+    const details = getAddressDetails(keyHash)
+    if (details && details.paymentCredential) {
+        return storedSignerNames[details.paymentCredential.hash] || '';
+    }
+      return '';
+  }
+  catch(error: any){
+    console.log("error", error)
+    return storedSignerNames[keyHash] || '';
+  }
+  }
+
+
+  
+  updateSignerName(hash: string, name: string) {
+    const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
+    storedSignerNames[hash] = name;
+    localStorage.setItem('signerNames', JSON.stringify(storedSignerNames));
+    
+    this.forceUpdate();
+  }
+  
   removePendingTx(tx: number) {
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]

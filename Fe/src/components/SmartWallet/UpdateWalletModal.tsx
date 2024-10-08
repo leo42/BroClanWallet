@@ -6,12 +6,13 @@ import { TokenInfo } from "../../helpers/tokenInfo";
 import SmartWallet from "./smartWallet"; // Changed to default import
 import SmartWalletContainer from "./SmartWalletContainer";
 import { SmartMultisigJson, SmartMultisigDescriptorType } from "./types";
+import { getAddressDetails } from "@lucid-evolution/lucid";
 type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;
 
 type SmartMultisigDescriptor = 
-  | { type: "KeyHash"; keyHash: VerificationKeyHash , name: string}
+  | { type: "KeyHash"; keyHash: VerificationKeyHash }
   | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
   | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number }
   | { type: "Before"; time: number }
@@ -38,12 +39,12 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
       type: "AtLeast",
       scripts: [
         { type: "NftHolder", policy: "", name: "" , tokenData: null},
-        { type: "KeyHash", keyHash: "", name: "" },
+        { type: "KeyHash", keyHash: "" },
       ],
       m: 1
     },
     WName: "",
-    signers: this.props.wallet.getSigners(),
+    signers: this.props.moduleRoot.getSigners(),
   };
 
   policyMap : Map<string, string> = new Map([
@@ -72,8 +73,24 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   debouncedFunctions: Map<string, (...args: typeof debounce[]) => void> = new Map();
 
   isAddressValid = (address: string): boolean => {
-    return true //TODO
+     return this.ifValidKeyHash(this.keyHashOff(address))
   };
+
+  keyHashOff(addressOrKeyHash: string): string {
+    try{
+    const details = getAddressDetails(addressOrKeyHash)
+    return details.paymentCredential?.hash || ''
+  }
+  catch(error: any){
+    console.log("error", error)
+  }
+    return addressOrKeyHash
+  }
+
+  ifValidKeyHash(keyHash: string): boolean {
+    // KeyHash is fixed length hex string
+    return /^[0-9a-fA-F]{56}$/.test(keyHash);
+  }
 
   checkAllAddresses = (scripts: SmartMultisigDescriptor[]): boolean => {
     let valid = true;
@@ -112,7 +129,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
 toSmartMultisigDescriptor = (json: SmartMultisigJson): SmartMultisigDescriptor => {
   switch (json.Type) {
     case SmartMultisigDescriptorType.KeyHash:
-      return { type: "KeyHash", keyHash: json.keyHash, name: "" };
+      return { type: "KeyHash", keyHash: json.keyHash };
     case SmartMultisigDescriptorType.NftHolder:
       return { type: "NftHolder", policy: json.policy, name: json.name, tokenData: null };
     case SmartMultisigDescriptorType.AtLeast:
@@ -183,13 +200,13 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         json = {
           type: "AtLeast",
           scripts: [
-            { type: "KeyHash", keyHash: "", name: "" },
+            { type: "KeyHash", keyHash: "" },
             {
               type: "AtLeast",
               scripts: [
-                { type: "KeyHash", keyHash: "", name: "" },
-                { type: "KeyHash", keyHash: "", name: "" },
-                { type: "KeyHash", keyHash: "", name: "" }
+                { type: "KeyHash", keyHash: "" },
+                { type: "KeyHash", keyHash: "" },
+                { type: "KeyHash", keyHash: "" }
               ],
               m: 3
             }
@@ -201,9 +218,9 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         json = {
           type: "AtLeast",
           scripts: [
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" }
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" }
           ],
           m: 2
         };
@@ -212,8 +229,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         json = {
           type: "AtLeast",
           scripts: [
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" }
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" }
           ],
           m: 1
         };
@@ -222,13 +239,13 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         json = {
           type: "AtLeast",
           scripts: [
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" }
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" }
           ],
           m: 5
         };
@@ -249,7 +266,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       <div className="atLeast">
         <input
           required
-          type="number"
+          type="number" 
           name="amount"
           value={json.m}
           onChange={(event) => this.handleRequiredChange(event.target.value, coordinates)}
@@ -263,7 +280,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
   
 
   handleAddScript = (coordinates: number[]) => {
-
     const json = { ...this.state.json };
     let current = json;
 
@@ -273,12 +289,12 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         return;
       }
       current = current.scripts[index];
-    }
+    } 
     if (current.type !== "AtLeast") {
       return;
-    }
+      }
 
-    current.scripts.push({ type: "KeyHash", keyHash: "", name: ""  });
+    current.scripts.push({ type: "KeyHash", keyHash: ""  });
     this.setState({ json });
   };
 
@@ -306,12 +322,11 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         return;
       }
       current = current.scripts[index];
-      }
+    }
     if (current.type !== "KeyHash") {
       return;
     }
-    current.name = value;
-    this.setState({ json });
+    this.props.moduleRoot.updateSignerName(this.keyHashOff(current.keyHash), value)
   };
 
   handleSlotChange = (value: number, coordinates: number[]) => {
@@ -375,16 +390,17 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "KeyHash") {
       return null;
     }
+    const validAddress = this.isAddressValid(json.keyHash);
     return (
-      <div className="sigWrap">
-        <div className="input_wrap">
+      <div className={validAddress ? " sigWrap valid" : "sigWrap invalid"} >
+        <div className="input_wrap" > 
           <input
             className="createWalletName"
             required
             type="text"
             placeholder="Nickname"
             name="amount"
-            value={json.name}
+            value={this.props.moduleRoot.getSignerName(json.keyHash)}
             onChange={(event) => this.handleSignatoryNameChange(event.target.value, coordinates)}
           />
         </div>
@@ -662,8 +678,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         newElement = { 
           type: "AtLeast",
           scripts: [
-            { type: "KeyHash", keyHash: "", name: "" },
-            { type: "KeyHash", keyHash: "", name: "" }
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" }
           ],
           m: 1
         };
@@ -683,8 +699,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       case "KeyHash":
         newElement = {
           type: "KeyHash",
-          keyHash: "",
-          name: ""
+          keyHash: ""
         };
         break;
       case "NftHolder":
@@ -770,11 +785,11 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
   }
   
 
-  SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
+  SignersSelect = () => this.props.moduleRoot.getSigners().map( (item, index) => (
     
     <div key={index} >
    <label className='signerCheckbox'>
-     {this.props.wallet.getSigners()[index].name}:
+     {this.props.moduleRoot.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"

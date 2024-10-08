@@ -17,7 +17,7 @@ class SmartWallet {
   private utxos: UTxO[] = [];
   private delegation: Delegation = { poolId: null, rewards: BigInt(0) };
   private pendingTxs: { tx: TxSignBuilder; signatures: Record<string, string> }[] = [];
-  private signerNames: {hash: string, name: string, isDefault: boolean}[] = [];
+  private signerNames: {hash: string,  isDefault: boolean}[] = [];
   private defaultAddress: string = "";
   private addressNames: Record<string, string> = {};
   private config: SmartMultisigJson | null = null;
@@ -503,7 +503,6 @@ private isValidKeyHash(hash: string): boolean {
       throw new Error(errorMessage);
     }
   }
-
   getId(): string {
     return this.id;
   }
@@ -511,7 +510,8 @@ private isValidKeyHash(hash: string): boolean {
   checkSigners(signers: string[]){
     return true
   }
-  getSigners(): {hash: string, name: string, isDefault: boolean}[] {
+
+  getSigners(): {hash: string,  isDefault: boolean}[] {
     console.log(this.signerNames)
     return this.signerNames
 
