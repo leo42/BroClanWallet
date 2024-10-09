@@ -190,11 +190,12 @@ function WalletPendingTx(props) {
 
                             })}</span></div></div> : ""}
 
-               {transaction.withdrawals && <div className="pendingTxData"> <div > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></div> </div>}
-               {transaction.update &&  <div className="pendingTxData"> <div > <h4> Update:</h4> <span>  {transaction.update} </span></div> </div> }
-               {transaction.auxiliary_data_hash && <div className="pendingTxData"> <div > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></div> </div>}
-                {transaction.validity_start_interval &&  <div className="pendingTxData"> <div > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></div> </div>}
-
+              {transaction.withdrawals && <div className="pendingTxData"> <div > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></div> </div>}
+              {transaction.update &&  <div className="pendingTxData"> <div > <h4> Update:</h4> <span>  {transaction.update} </span></div> </div> }
+              {transaction.auxiliary_data_hash && <div className="pendingTxData"> <div > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></div> </div>}
+ {/*old */}   {transaction.validity_start_interval &&  <div className="pendingTxData"> <div > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></div> </div>} 
+              {transaction.validity_interval_start &&  <div className="pendingTxData"> <div > <h4>Validity Interval Start: </h4> <span>  {transaction.validity_interval_start} </span></div> </div>}
+              {transaction.ttl &&  <div className="pendingTxData"> <div > <h4>TTL: </h4> <span>  {transaction.ttl} </span></div> </div>}
               {transaction.script_data_hash &&  <div className="pendingTxData"> <div > <h4>Script Data Hash: </h4> <span>  {transaction.script_data_hash} </span></div> </div>}
 
               {transaction.collateral && <div key={collateralUtXos}> <div > <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></div> </div>}
@@ -202,7 +203,7 @@ function WalletPendingTx(props) {
               {transaction.collateral_return && <div className="pendingTxData"> <div > <h4>Collateral Return: </h4> <span>  {TransactionOutput(transaction.collateral_return)} </span></div> </div>}
               { transaction.total_collateral &&   <div className="pendingTxData"> <div > <h4>Total Collateral: </h4> <span>  {transaction.total_collateral} </span></div> </div> } 
               {transaction.invalid_before &&  <div className="pendingTxData"> <div > <h4>Invalid Before:</h4> <span>  {transaction.invalid_before} </span></div> </div>}
-              {transaction.invalid_hereafter &&  <div className="pendingTxData"> <div > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></div> </div>}
+{/*old */}    {transaction.invalid_hereafter &&  <div className="pendingTxData"> <div > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></div> </div>}
               {transaction.required_scripts &&  <div className="pendingTxData"> <div > <h4>Required Scripts: </h4> <span>  {transaction.required_scripts.map((script) => <div key={script}> {script}</div>)} </span></div> </div>}                         
 
               {collateralUtXos.length !== 0  && <div  className="pendingTxReferenceInputs"> <div > <h3>Collateral: </h3> <span> {collateralUtXos.map((input, index) =>

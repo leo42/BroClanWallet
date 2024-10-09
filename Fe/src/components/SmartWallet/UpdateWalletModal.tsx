@@ -328,9 +328,9 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     this.props.moduleRoot.updateSignerName(this.keyHashOff(current.keyHash), value)
   };
 
-  handleSlotChange = (value: number, coordinates: number[]) => {
+  handleTimeChange = (value: number, coordinates: number[]) => {
     const json = { ...this.state.json };
-    if (Number(value) < 0 || Number(value) > 214748364700) {
+    if (Number(value) < 0) {
       return;
     }
     let current = json;
@@ -433,13 +433,13 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
               placeholder="Before Slot"
               name="amount"
               value={json.time}
-              onChange={(event) => this.handleSlotChange(Number(event.target.value), coordinates)}
+              onChange={(event) => this.handleTimeChange(Number(event.target.value), coordinates)}
             />
             <input
               type="datetime-local"
               name="amount"
               value={new Date(json.time ).toISOString().slice(0, 16)}
-              onChange={(event) => this.handleSlotChange(Number(event.target.value), coordinates)}
+              onChange={(event) => this.handleTimeChange(new Date(new Date(event.target.value)).getTime(), coordinates)}
             />
           </div>
           <p> <span>Warning:</span> Using the "Before" type could result in a permanently locked wallet! You need to withdraw your money <span>before</span> the above date!</p>
@@ -461,13 +461,13 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             name="amount"
             value={json.time}
             placeholder="After Slot"
-            onChange={(event) => this.handleSlotChange(Number(event.target.value), coordinates)}
+            onChange={(event) => this.handleTimeChange(Number(event.target.value), coordinates)}
           />
           <input
             type="datetime-local"
             name="amount"
-            value={new Date(json.time - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16)}
-            onChange={(event) => this.handleSlotChange(new Date(new Date(event.target.value)).getTime(), coordinates)}
+            value={new Date(json.time ).toISOString().slice(0, 16)}
+            onChange={(event) => this.handleTimeChange(new Date(new Date(event.target.value)).getTime(), coordinates)}
           />
         </div>
       </React.Fragment>

@@ -121,7 +121,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   
   async importTransaction(transaction: any) {
-    // Implementation similar to MultisigContainer
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    await wallet.addPendingTx({tx: transaction, signatures: {}})
+    this.setState({wallets: wallets})
+    this.storeWallets()
   }
   
   async deleteWallet(index: number) {

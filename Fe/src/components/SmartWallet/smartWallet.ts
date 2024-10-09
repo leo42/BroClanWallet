@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -269,7 +269,6 @@ class SmartWallet {
     const tx = await this.createTemplateTx(signers, returnAddress)
 
     console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw,returnAddress)
-    console.time("createTx")
 
     //  .attach.Script(this.script)
     tx.collectFrom(this.utxos, Data.void())
@@ -385,6 +384,7 @@ private isValidKeyHash(hash: string): boolean {
 
   async createTemplateTx(signers: string[], returnAddress?: string): Promise<TxBuilder> {
     const requrement = this.checkSigners(signers)
+    console.log("requrement", requrement)
     if (requrement === false) {
       throw new Error("Invalid signers")
     }
@@ -414,11 +414,12 @@ private isValidKeyHash(hash: string): boolean {
     }
     
     if(requrement.before !== undefined) {
-      tx.validTo(requrement.before)
+      tx.validTo(requrement.before  -1000 ) 
     }
     
     if(requrement.after !== undefined) {
-      tx.validFrom(requrement.after)
+      console.log("after", requrement.after)
+      tx.validFrom( requrement.after + 1000 )
     }
     
     signers.forEach(signer => {
@@ -470,7 +471,8 @@ private isValidKeyHash(hash: string): boolean {
       console.log("registerAndDelegate")
       tx.registerStake(rewardAddress)
     }
-    tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep, Data.void())
+    tx.delegateTo(rewardAddress, pool,  Data.void())
+    tx.delegate.VoteToDRep(rewardAddress, dRep, Data.void())
     const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
@@ -528,11 +530,13 @@ private isValidKeyHash(hash: string): boolean {
     const memo = new Map<SmartMultisigJson, extraRequirements | false>();
 
     function merge(front: extraRequirements, back: extraRequirements): extraRequirements {
+      const newBefore = (front.before !== undefined && back.before !== undefined) ? Math.min(front.before, back.before) : (front.before !== undefined ? front.before : back.before);
+      const newAfter = (front.after !== undefined && back.after !== undefined) ? Math.max(front.after, back.after) : (front.after !== undefined ? front.after : back.after);
       return {
         inputs: (front.inputs || []).concat(back.inputs || []),
         refInputs: (front.refInputs || []).concat(back.refInputs || []),
-        before: front.before !== undefined ? front.before : back.before,
-        after: front.after !== undefined ? front.after : back.after
+        before: newBefore,
+        after: newAfter
       }
     }
 
@@ -547,6 +551,7 @@ private isValidKeyHash(hash: string): boolean {
       if (memo.has(segment)) return memo.get(segment)!;
 
       let result: extraRequirements | false;
+      const now = Date.now()  ;
 
       switch (segment.Type) {
         case SmartMultisigDescriptorType.KeyHash:
@@ -574,10 +579,12 @@ private isValidKeyHash(hash: string): boolean {
           }
           break;
         case SmartMultisigDescriptorType.Before:
-          result = {before : segment.time};
+         // result = {before :  segment.time  }
+          result = segment.time  > now ? {before :  segment.time } : false;          
           break;
         case SmartMultisigDescriptorType.After:
-          result = {after : segment.time};
+         // result ={after :  segment.time }
+           result = segment.time < now ? {after :  segment.time }: false;
           break;
         default:
           result = false;

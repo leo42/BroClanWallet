@@ -120,10 +120,10 @@ fn validate(segment: SmartMultisigDescriptor, transaction: Transaction) -> Bool 
       }
     AtLeast(scripts, m) ->
       list.count(scripts, fn(script) { validate(script, transaction) }) >= m
-    Before(slot) ->
-      interval.is_entirely_before(transaction.validity_range, slot)
-    After(slot) ->
-      interval.is_entirely_after(transaction.validity_range, slot)
+    Before(time) ->
+      interval.is_entirely_before(transaction.validity_range, time)
+    After(time) ->
+      interval.is_entirely_after(transaction.validity_range, time)
     ScriptRef(scriptHash) -> 
       has_key(transaction.withdrawals, Script(scriptHash))
   }
