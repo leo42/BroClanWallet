@@ -47,28 +47,7 @@ function Overview(props) {
     linkRef.current.download = "wallet.json";
     linkRef.current.click();
   }
-  
-  const AccountSelect = () => 
-    <div>
-   <br />
-       <select className="addressSelect" defaultValue={props.wallet.getDefaultAddress()} onChange={(event)=> setShowingAddress(event.target.value)} >  
-                <option value="" >All</option>
 
-                {props.wallet.getFundedAddress().map( (item, index) => (
-                  <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
-            ))}
-      </select>
-
-      <br />
-   </div>
-   
-  const handleCBORExport = () => {
-
-    const blob = new Blob([wallet.getCBOR()], { type: "application/octet-stream" });
-    linkRef.current.href = URL.createObjectURL(blob);
-    linkRef.current.download = "wallet.cbor";
-    linkRef.current.click();
-  }
 
   const settingsMenu = (address) => 
     <div className="settingsMenu">
@@ -203,6 +182,7 @@ function Overview(props) {
           moduleRoot={props.moduleRoot}
           selectedAddress={showingAddress}
           onAddressChange={setShowingAddress}
+          setName={true}
         />}
       <br />
       <button className={`overviewTab` + ( showing === "All" ? " overviewTabSelected" : " " )} value="All"  onClick={(event) => setShowing(event.target.value )}>All</button>

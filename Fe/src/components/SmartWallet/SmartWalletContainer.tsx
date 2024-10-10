@@ -166,7 +166,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   setDefaultAddress(address: string) {
-    // Implementation similar to MultisigContainer
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    wallet.setDefaultAddress(address)
+    this.setState({wallets: wallets})
+    this.storeWallets()
   }
   
   changeAddressName(address: string, name: string) {
@@ -179,7 +183,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   storeWallets() {
     const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId(), 
-                                                                  txs: wallet.getPendingTxs()
+                                                                  txs: wallet.getPendingTxs(),
+                                                                  defaultAddress: wallet.getDefaultAddress(),
+                                                                  addressNames: wallet.getAddressNames()
       
 
     }})
@@ -255,6 +261,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       wallet.txs.forEach((tx: any) => {
         newWallet.addPendingTx(tx);
       });
+      newWallet.setDefaultAddress(wallet.defaultAddress)
+      newWallet.setAddressNames(wallet.addressNames)
       await newWallet.checkTransactions()
       return newWallet;
     }));

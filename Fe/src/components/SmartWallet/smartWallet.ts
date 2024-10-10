@@ -307,14 +307,16 @@ class SmartWallet {
     withdraw: boolean = true
   ) {
 
-    const returnAddress = sendAll !== null ? recipients[sendAll].address : this.getAddress();
+    const returnAddress = sendAll !== null ? recipients[sendAll].address : sendFrom ? sendFrom : this.getAddress();
     const tx = await this.createTemplateTx(signers, returnAddress)
 
     console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw,returnAddress)
-
+    let spendUtxos: UTxO[] = this.utxos;
+    if (sendFrom !== "") {
+      spendUtxos =spendUtxos.filter(utxo => utxo.address === sendFrom)
+    }
     //  .attach.Script(this.script)
-    tx.collectFrom(this.utxos, Data.void())
-      
+    tx.collectFrom(spendUtxos, Data.void());
     recipients.forEach((recipient, index) => {
       if (sendAll !== index) {
         tx.pay.ToAddress(recipient.address, recipient.amount);
@@ -792,7 +794,17 @@ private isValidKeyHash(hash: string): boolean {
   }
 
   getAddressName(address: string) {
-
+    if (!this.addressNames) {
+      this.addressNames = {}; // Initialize addressNames if it's undefined
+    }
+    
+    const result = address in this.addressNames 
+      ? this.addressNames[address] 
+      : address === this.getAddress() 
+        ? "Regular Address"  
+        : address;
+        
+    return result;
   }
 }
 

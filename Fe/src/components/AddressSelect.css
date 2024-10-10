@@ -1,6 +1,6 @@
 .address-select-container{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -16,7 +16,9 @@
     margin-left: 10px;
 }
 
-
+.address-select-container input{
+    margin-left: 10px;
+}
 .addressSelect{
     max-width: 80vw;
 

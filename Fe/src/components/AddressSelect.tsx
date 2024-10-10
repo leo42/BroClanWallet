@@ -6,11 +6,13 @@ interface AddressSelectProps {
     selectedAddress: string;
     onAddressChange: (address: string) => void;
     showAll?: boolean;
+    setName?: boolean;  
 }
 
-const AddressSelect: React.FC<AddressSelectProps> = ({ wallet, moduleRoot, selectedAddress, onAddressChange, showAll = true }) => {
+const AddressSelect: React.FC<AddressSelectProps> = ({ wallet, moduleRoot, selectedAddress, onAddressChange, showAll = true  , setName = false}) => {
   return (
     <div className="address-select-container">
+        <div>
       <select
         className="addressSelect"
         value={selectedAddress}
@@ -23,11 +25,13 @@ const AddressSelect: React.FC<AddressSelectProps> = ({ wallet, moduleRoot, selec
           </option>
         ))}
       </select>
-        {selectedAddress !== wallet.getDefaultAddress() && (
+      {selectedAddress !== wallet.getDefaultAddress() && (
         <button className="defaultButton" onClick={() => moduleRoot.setDefaultAddress(selectedAddress)}>
           Make Default
         </button>
       )}
+      </div>
+      {setName &&  !["",wallet.getAddress()].includes(selectedAddress) && <input type="text" placeholder="Name" onChange={(event) => moduleRoot.changeAddressName(selectedAddress, event.target.value)} />}
     </div>
   );
 };
