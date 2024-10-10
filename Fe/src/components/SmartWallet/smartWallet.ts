@@ -25,7 +25,7 @@ class SmartWallet {
   private delegation: Delegation = { poolId: null, rewards: BigInt(0) };
   private pendingTxs: { tx: TxSignBuilder; signatures: Record<string, string> }[] = [];
   private signerNames: {hash: string,  isDefault: boolean}[] = [];
-  private defaultAddress: string = "";
+  private defaultAddress: string | null = null;
   private addressNames: Record<string, string> = {};
   private config: SmartMultisigJson  = {Type: SmartMultisigDescriptorType.KeyHash, keyHash: ""}
   private id: string;
@@ -814,7 +814,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     }
   }
 
-  setDefaultAddress(address: string): void {
+  setDefaultAddress(address: string | null): void {
     this.defaultAddress = address;
   }
 
@@ -826,9 +826,13 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     this.addressNames[address] = name;
   }
 
-  getDefaultAddress(): string {
-    return this.defaultAddress || this.getAddress();
-  }
+  getDefaultAddress(){
+    if (this.defaultAddress === null) {
+        this.defaultAddress = this.getAddress();
+    }
+    return this.defaultAddress;
+}
+
 
   getAddressNames(): Record<string, string> {
     return this.addressNames;
