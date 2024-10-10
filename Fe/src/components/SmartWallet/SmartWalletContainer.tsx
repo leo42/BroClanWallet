@@ -165,6 +165,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }
   }
 
+  setDefaultSigners (signers: string[]) {
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    wallet.setDefaultSigners(signers)
+    this.setState({wallets: wallets})
+    this.storeWallets()
+  }
+
   setDefaultAddress(address: string) {
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
@@ -185,7 +193,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId(), 
                                                                   txs: wallet.getPendingTxs(),
                                                                   defaultAddress: wallet.getDefaultAddress(),
-                                                                  addressNames: wallet.getAddressNames()
+                                                                  addressNames: wallet.getAddressNames(),
+                                                                  defaultSigners: wallet.getDefaultSigners()
       
 
     }})
@@ -253,6 +262,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
 
+  setCollateralDonor (address: string) {
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    wallet.setCollateralDonor(address)
+    this.setState({wallets: wallets})
+    this.storeWallets()
+  }
+  
   async loadWallets() {
     const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]");
     const loadedWallets = await Promise.all(wallets.map(async (wallet: any) => {
@@ -263,6 +280,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       });
       newWallet.setDefaultAddress(wallet.defaultAddress)
       newWallet.setAddressNames(wallet.addressNames)
+       newWallet.setDefaultSigners(wallet.defaultSigners || [])
       await newWallet.checkTransactions()
       return newWallet;
     }));

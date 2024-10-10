@@ -30,6 +30,7 @@ class SmartWallet {
   private config: SmartMultisigJson  = {Type: SmartMultisigDescriptorType.KeyHash, keyHash: ""}
   private id: string;
   private settings: Settings;
+  private collateralDonor: string | null = null;
   constructor(id: string, settings: Settings) {
     this.settings = settings
     this.id = id;
@@ -188,7 +189,8 @@ class SmartWallet {
   }
 
   getCollateralDonor() : string{
-    return this.signerNames[0]? this.signerNames[0].hash : ""
+
+    return this.collateralDonor ? this.collateralDonor : ""
   }
 
   defaultSignersValid (signers: string[]) : boolean {
@@ -335,7 +337,38 @@ class SmartWallet {
      return completedTx;
 }
 
+getDefaultSigners() : string[] {
+  return this.signerNames.filter(signer => signer.isDefault).map(signer => signer.hash)
+}
 
+async setCollateralDonor(paymentKeyHash: string){
+  this.collateralDonor = paymentKeyHash
+  await this.loadCollateralUtxos()
+}
+
+async loadCollateralUtxos(){
+  if (this.collateralDonor) {
+    try{
+      this.colateralUtxo = (await this.lucid.config().provider.getUtxos({type: "Key", hash: this.collateralDonor})).filter( (utxo,index) => (Object.keys(utxo.assets).length === 1 ) )[0]
+     }catch(e){
+      console.error("Error getting collateral utxos:", e);
+    }
+  }
+}
+
+setDefaultSigners(signers: string[]) {
+   this.signerNames = this.signerNames.map(signer => {
+    if (signers.includes(signer.hash)) {
+      return {...signer, isDefault: true}
+    }else{
+      return {...signer, isDefault: false}
+    }
+   })
+   if (!signers.includes(this.collateralDonor as string )) {
+    this.collateralDonor = signers[0]
+    this.loadCollateralUtxos()
+   }
+}
 
 
 async createUpdateTx(

@@ -70,7 +70,7 @@ function Overview(props) {
   };
 
   const toggleDefultSigner = (ChangedSigner) => {
-    const defaultSigners =  wallet.getSigners().map((signer) => { 
+    const defaultSigners =  props.moduleRoot.getSigners().map((signer) => { 
       if(signer.hash === ChangedSigner){
         signer.isDefault = !signer.isDefault
       }
@@ -83,6 +83,7 @@ function Overview(props) {
     
   const walletSettings = () =>
     <div className="walletSettings">
+      <h2>Wallet Settings</h2>
       <label>
         <span>Wallet Name</span>
         <input type="text"  value={wallet.getName()} onChange={(event) => props.moduleRoot.changeWalletName(event.target.value)}></input>
@@ -91,7 +92,7 @@ function Overview(props) {
       <label>Default Signers</label>
       <br/>
       <div className='signerContainer'>    
-        {wallet.getSigners().map((signer, index) => (
+        {props.moduleRoot.getSigners().map((signer, index) => (
         <div className='signerContainerItem' key={index}  >
           <input type="checkbox" checked={signer.isDefault} onChange={() => toggleDefultSigner(signer.hash)}></input>
           <label> {signer.name}</label>
@@ -103,7 +104,7 @@ function Overview(props) {
       <label>Collateral Donor:
         <select key={wallet.getCollateralDonor()} value={wallet.getCollateralDonor()} onChange={(event)=> props.moduleRoot.setCollateralDonor(event.target.value)} >
           <option value="" >None</option>
-          {wallet.getSigners().filter((sighener) => sighener.isDefault).map( (item, index) => (
+          {props.moduleRoot.getSigners().filter((sighener) => sighener.isDefault).map( (item, index) => (
             <option key={index} value={item.hash} >{item.name}</option>
           ))}
         </select>
