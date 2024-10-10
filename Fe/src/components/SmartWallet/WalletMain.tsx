@@ -19,7 +19,7 @@ interface WalletMainState {
 
 class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
   state: WalletMainState = {
-    showing: "receive"
+    showing: "overview"
   }
 
   mainView() {
@@ -36,7 +36,7 @@ class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
       case "pendingTxs":
         return <PendingTxs key={`${key}pendingTxs`} wallet={wallet} root={root} moduleRoot={moduleRoot} />;
       case "transactions":
-        return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.moduleRoot.state.selectedWallet}>  moduleRoot={this.props.moduleRoot} </TransactionHistory> 
+        return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}  moduleRoot={this.props.moduleRoot} key={this.props.moduleRoot.state.selectedWallet} /> 
     case "receive":
         return <Receive root={root} wallet={wallet} key={key} moduleRoot={moduleRoot} />;
     }

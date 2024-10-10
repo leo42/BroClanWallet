@@ -4,6 +4,7 @@ import TokenDropdownMenu from './TokenDropdownList.js';
 import TokenElement from "./TokenElement";
 import { ReactComponent as RecipientIcon } from '../html/assets/recipient.svg';
 import "./WalletCreateTx.css"
+import AddressSelect from './AddressSelect';
 class WalletCreateTx extends React.Component {
 
   state = {
@@ -76,8 +77,8 @@ class WalletCreateTx extends React.Component {
     this.setState({signers});
   };
 
-  handleChangeFrom = (event) => {
-    const newBalance = this.props.wallet.getBalanceFull(event.target.value)
+  handleChangeFrom = (value ) => {
+    const newBalance = this.props.wallet.getBalanceFull(value)
     this.state.recipients.map( (recipient,index) => {
        Object.keys(recipient.amount).map( (token) => {
         if (newBalance[token] < recipient.amount[token]) {
@@ -93,7 +94,7 @@ class WalletCreateTx extends React.Component {
 
        })
     })
-    this.setState({sendFrom : event.target.value})
+    this.setState({sendFrom : value})
   }
 
   handleSubmit = event => {
@@ -234,29 +235,20 @@ class WalletCreateTx extends React.Component {
    </label>
    </div>
   ) ) 
-
-  
-  AccountSelect = () => 
-    <div>
-   <br />
-      <span>Send From</span>
-      <select className="addressSelect" defaultValue={this.props.wallet.getDefaultAddress()} onChange={this.handleChangeFrom} >
-                <option value="" >All</option>
-
-                {this.props.wallet.getFundedAddress().map( (item, index) => (
-                  <option key={index} value={item} >{this.props.wallet.getAddressName(item)}</option>
-            ))}
-      </select>
-
-      <br />
-   </div>
-  
   
   render(){
 
   return (
     <div className='CreateTransactionContainer'>
       <h1> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} {this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </h1>
+      { this.props.wallet.getFundedAddress().length > 1 && <AddressSelect
+          wallet={this.props.wallet}
+          moduleRoot={this.props.moduleRoot}
+          selectedAddress={this.state.sendFrom}
+          onAddressChange={this.handleChangeFrom}
+        />}
+     
+     
       { this.RecipientJSX()}
 
       <div onMouseEnter={() => this.setHovering("recipient")} onMouseLeave={() => this.setHovering("") } onClick={() => this.addRecipient()} className='addRecipientWraper recipientButton'>
@@ -270,7 +262,6 @@ class WalletCreateTx extends React.Component {
       </div>
       </div>
   }
-      { this.props.wallet.getFundedAddress().length > 1 ? this.AccountSelect(): ""}
       <br/>
 
       <button className='commonBtn' type="submit" onClick={this.handleSubmit}>Create Transaction</button>

@@ -25,7 +25,7 @@ class WalletMain extends React.Component {
             case "pendingTxs": 
                 return( <PendingTxs key={this.props.moduleRoot.state.selectedWallet+"pendingTxs"} wallet={this.props.wallet} root={this.props.root}  moduleRoot={this.props.moduleRoot}></PendingTxs>)
             case "transactions": 
-                return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.moduleRoot.state.selectedWallet}>  moduleRoot={this.props.moduleRoot} </TransactionHistory> 
+                return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}  moduleRoot={this.props.moduleRoot} key={this.props.moduleRoot.state.selectedWallet}>  moduleRoot={this.props.moduleRoot} </TransactionHistory> 
             case "receive": 
                 return  <Receive root={this.props.root}  wallet={this.props.wallet}  key={this.props.moduleRoot.state.selectedWallet}> moduleRoot={this.props.moduleRoot} </Receive> 
         }

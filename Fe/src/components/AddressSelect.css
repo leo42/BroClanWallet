@@ -1,0 +1,23 @@
+.address-select-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.address-select-container button{
+    margin-left: 10px;
+    border-radius: 10px; /* Rounding the right corners */
+    background-color: var(--clrInputs); /* Setting background color according to project defaults */
+    color: var(--clrNavText); /* Setting text color according to project defaults */
+}
+
+.address-select-container select{
+    margin-left: 10px;
+}
+
+
+.addressSelect{
+    max-width: 80vw;
+
+}

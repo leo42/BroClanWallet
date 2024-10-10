@@ -126,6 +126,7 @@ select{
   width: 100vw;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   margin: 0px;
   position: absolute;
   top: 200px;
