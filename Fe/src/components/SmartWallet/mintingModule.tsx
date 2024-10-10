@@ -299,7 +299,7 @@ toggleTerm = (index: number) => {
                     <button onClick={() => this.closeModule()}>X</button>
                 </div>                    
                 {this.description}
-                    {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Tokenized Wallets are only supported on the preprod testnet.</span>}
+                    {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Smart Wallets are only supported on the preprod testnet.</span>}
                     <button className="commonBtn" onClick={this.startMint}>Mint Now</button>
                 </div>
                 <div className="ImportFromId">

@@ -44,6 +44,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }, 15000);
   }
 
+  
+
   componentWillUnmount() {
     if (this.state.dAppConnector) {
       this.state.dAppConnector.disconnect();
@@ -56,6 +58,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   componentDidUpdate(prevProps: SmartWalletContainerProps) {
     if (this.props.settings !== prevProps.settings) {
       this.newSettings(this.props.settings);
+      
+      // Check if the network has changed
+      if (this.props.settings.network !== prevProps.settings.network) {
+        this.loadWallets();
+      }
     }
   }
 
@@ -192,7 +199,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       
 
     }})
-    localStorage.setItem("smartWallets", JSON.stringify(wallets))
+    localStorage.setItem(this.props.settings.network + "smartWallets", JSON.stringify(wallets))
     console.log("wallets", this.state.wallets)
   }
 
@@ -265,7 +272,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   async loadWallets() {
-    const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]");
+    const wallets = JSON.parse(localStorage.getItem(this.props.settings.network + "smartWallets") || "[]");
     const loadedWallets = await Promise.all(wallets.map(async (wallet: any) => {
       const newWallet = new SmartWallet(wallet.id, this.props.settings);
       await newWallet.initializeLucid();
