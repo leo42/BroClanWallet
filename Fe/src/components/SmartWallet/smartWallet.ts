@@ -243,6 +243,8 @@ class SmartWallet {
         this.utxos = utxos;
         await this.getDelegation();
         await this.loadConfig()
+        await this.checkTransactions()
+
     } catch (e) {
       console.error("Error loading UTXOs:", e);
     }
@@ -256,7 +258,38 @@ class SmartWallet {
     );
   }
 
+  async checkTransactions(){
+
+    for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
+      const isValid = await this.checkTransaction(this.pendingTxs[i].tx.toCBOR({canonical: true}))
+      if (!isValid){
+        this.removePendingTx(i)
+      }
+    }
+  }
   
+  async checkTransaction(tx: string){
+    const utxos = this.utxos
+    const transactionDetails = this.decodeTransaction(tx)
+    
+      const inputsUtxos =  await this.getUtxosByOutRef(transactionDetails.inputs)
+
+
+      for (let i = 0; i < inputsUtxos.length; i++) {  
+      if (this.isAddressMine(inputsUtxos[i].address)){
+
+
+        // if the utxo is not in my this.utxos return false
+        if (utxos.find(WalletUtxo => WalletUtxo.txHash === inputsUtxos[i].txHash && WalletUtxo.outputIndex === inputsUtxos[i].outputIndex)){
+         
+        }else{
+          return false
+        }
+      }
+    }
+    return true
+     }
+
   async createTx(
     recipients: Recipient[],
     signers: string[],
