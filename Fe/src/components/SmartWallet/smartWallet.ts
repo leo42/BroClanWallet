@@ -298,6 +298,10 @@ async createUpdateTx(
   signers: string[],
   newConfig: SmartMultisigJson
 ) {
+  const requrement = this.checkSigners(signers)
+  if (requrement === false) {
+    throw new Error("Invalid signers")
+  }
   const configUtxo = await this.getConfigUtxo();
   const enterpriseAddress = this.getEnterpriseAddress()
 
@@ -315,6 +319,23 @@ async createUpdateTx(
   .collectFrom([collateralUtxo])
   .attach.Script({ type: "PlutusV3", script: contracts[this.settings.network].configHost})
   .pay.ToAddressWithData( configUtxo.address, {kind : "inline" , value : encodedConfig}, configUtxo.assets)
+
+  if (requrement.refInputs !== undefined && requrement.refInputs.length > 0) {
+    console.log("refInputs", requrement.refInputs)
+    tx.readFrom(requrement.refInputs)
+  }
+  if(requrement.inputs !== undefined && requrement.inputs.length > 0) {
+    requrement.inputs.forEach(input => {
+      tx.collectFrom([input]).pay.ToAddress(input.address, input.assets)
+    })
+  }
+  if(requrement.before !== undefined) {
+    tx.validTo(requrement.before  -1000 ) 
+  }
+  
+  if(requrement.after !== undefined) {
+    tx.validFrom( requrement.after + 1000 )
+  }
 
   signers.forEach(signer => {
     tx.addSignerKey(signer)
@@ -402,12 +423,12 @@ private isValidKeyHash(hash: string): boolean {
       tx.attach.Script(this.script)
     }
     
-    if (requrement.refInputs !== undefined) {
+    if (requrement.refInputs !== undefined && requrement.refInputs.length > 0) {
       readUtxos.push(...requrement.refInputs)
     }
 
     
-    if(requrement.inputs !== undefined) {
+    if(requrement.inputs !== undefined && requrement.inputs.length > 0) {
       requrement.inputs.forEach(input => {
         tx.collectFrom([input]).pay.ToAddress(input.address, input.assets)
       })
@@ -418,7 +439,6 @@ private isValidKeyHash(hash: string): boolean {
     }
     
     if(requrement.after !== undefined) {
-      console.log("after", requrement.after)
       tx.validFrom( requrement.after + 1000 )
     }
     
@@ -452,7 +472,6 @@ private isValidKeyHash(hash: string): boolean {
   }
 
   async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
-    console.log("createDelegationTx", pool, signers, dRepId);
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network, this.script);
     let dRep: DRep 
     
