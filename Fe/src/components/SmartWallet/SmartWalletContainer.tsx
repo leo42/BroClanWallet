@@ -77,10 +77,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   async reloadBalance() {
     if (this.state.wallets.length > 0){
-    const wallets = [...this.state.wallets]
-    const wallet = wallets[this.state.selectedWallet]
-    await wallet.loadUtxos()
-    this.setState({wallets: wallets})
+      const wallets = [...this.state.wallets]
+      const wallet = wallets[this.state.selectedWallet]
+      const result = await wallet.loadUtxos()
+      this.setState({wallets: wallets})
+      if (result){
+        this.storeWallets()
+      }
     }
   }
 
@@ -252,6 +255,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       wallet.txs.forEach((tx: any) => {
         newWallet.addPendingTx(tx);
       });
+      await newWallet.checkTransactions()
       return newWallet;
     }));
 

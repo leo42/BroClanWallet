@@ -172,7 +172,6 @@ class SmartWallet {
       const signers = await this.loadSigners(config)
       this.signerNames = signers.signers
       this.nftUtxos  =   signers.nftUtxos
-      console.log("configUtxo", config)
       try{
         const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
         const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
@@ -229,24 +228,27 @@ class SmartWallet {
       case SmartMultisigDescriptorType.After:
         break
     }
-    console.log(signers)
     return {signers, nftUtxos}
 
   }
 
-  async loadUtxos(): Promise<void> {
+  async loadUtxos(): Promise<boolean> {
     try {
       const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
       const utxos = await this.lucid.utxosAt(scriptCredential);
-      console.log("utxos", utxos)
-      if (this.compareUtxos(utxos, this.utxos)) return;
-        this.utxos = utxos;
-        await this.getDelegation();
-        await this.loadConfig()
-        await this.checkTransactions()
+      if (this.compareUtxos(utxos, this.utxos)) return false;
+      
+      this.utxos = utxos;
+      await Promise.all([
+        this.getDelegation(),
+        this.loadConfig(),
+        this.checkTransactions()
+      ]);
 
+      return true
     } catch (e) {
       console.error("Error loading UTXOs:", e);
+      return false
     }
   }
 
@@ -258,16 +260,23 @@ class SmartWallet {
     );
   }
 
-  async checkTransactions(){
-
-    for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
-      const isValid = await this.checkTransaction(this.pendingTxs[i].tx.toCBOR({canonical: true}))
-      if (!isValid){
-        this.removePendingTx(i)
+  async checkTransactions() {
+    
+    const checkPromises = this.pendingTxs.map(async (pendingTx, index) => {
+      const isValid = await this.checkTransaction(pendingTx.tx.toCBOR({canonical: true}));
+      return { index, isValid };
+    });
+  
+    const results = await Promise.all(checkPromises);
+  
+    // Remove invalid transactions in reverse order to avoid index issues
+    for (let i = results.length - 1; i >= 0; i--) {
+      if (!results[i].isValid) {
+        this.removePendingTx(results[i].index);
       }
     }
   }
-  
+
   async checkTransaction(tx: string){
     const utxos = this.utxos
     const transactionDetails = this.decodeTransaction(tx)
