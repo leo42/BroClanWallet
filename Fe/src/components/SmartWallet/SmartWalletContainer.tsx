@@ -182,13 +182,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
   
-  changeAddressName(address: string, name: string) {
-    // Implementation similar to MultisigContainer
-  }
-  
-  getTransactionHistory(address: string) {
-    // Implementation similar to MultisigContainer
-  }
 
   storeWallets() {
     const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId(), 
@@ -211,7 +204,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
     
     const result = signers.map((signer) => {
-      const name = storedSignerNames[signer.hash] || '';
+      const name = storedSignerNames[signer.hash] || signer.hash;
       return { name, hash: signer.hash, isDefault: signer.isDefault };
     });
     
@@ -224,13 +217,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
     const details = getAddressDetails(keyHash)
     if (details && details.paymentCredential) {
-        return storedSignerNames[details.paymentCredential.hash] || '';
+        return storedSignerNames[details.paymentCredential.hash] || keyHash;
     }
-      return '';
+      return keyHash;
   }
   catch(error: any){
     console.log("error", error)
-    return storedSignerNames[keyHash] || '';
+    return storedSignerNames[keyHash] || keyHash;
   }
   }
 

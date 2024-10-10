@@ -342,6 +342,11 @@ async setState(state){
   }
 
 
+  updateSignerName(keyHash, name){
+    const wallets = this.state.wallets
+    wallets[this.state.selectedWallet].updateSignerName(keyHash, name)
+    this.setState({wallets})
+  }
 
   changeAddressName(address,name){
     try {

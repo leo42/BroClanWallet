@@ -95,7 +95,8 @@ function Overview(props) {
         {props.moduleRoot.getSigners().map((signer, index) => (
         <div className='signerContainerItem' key={index}  >
           <input type="checkbox" checked={signer.isDefault} onChange={() => toggleDefultSigner(signer.hash)}></input>
-          <label> {signer.name}</label>
+          <label> {signer.name}</label><br/>
+        { <input type="text" value={signer.name} onChange={(event) => props.moduleRoot.updateSignerName(signer.hash, event.target.value)}></input> }
         </div>
       ))}
        </div>

@@ -832,6 +832,29 @@ setPendingTxs(pendingTxs){
       
     }
 
+    updateSignerName(keyHash, name){
+
+      function changeName(json, keyHash, name){
+          if (json.keyHash === keyHash){
+            json.name = name
+          } 
+          if (json.type === "all" || json.type === "any" || json.type === "atLeast"){
+            json.scripts.map( (script,index) => {
+              changeName(script, keyHash, name)
+            })
+          }
+      }
+      
+      changeName(this.wallet_script, keyHash, name)
+
+      this.signersNames.map( (signer,index) => {
+        if (signer.hash === keyHash){
+          this.signersNames[index].name = name
+        }
+      })
+    }
+
+
     resetDefaultSigners(){  
       const signersNames = this.signersNames.map( (signer) => {
         signer.isDefault = false
