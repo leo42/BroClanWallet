@@ -297,6 +297,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   }
 
+  changeAddressName (address: string, name: string) {
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    wallet.changeAddressName(address, name)
+    this.setState({wallets: wallets})
+    this.storeWallets()
+  }
+
   async createStakeUnregistrationTx ( signers: string[]) {
     try{
       const wallets = [...this.state.wallets]

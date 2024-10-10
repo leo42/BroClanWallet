@@ -823,7 +823,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   }
 
   changeAddressName(address: string, name: string): void {
-
+    this.addressNames[address] = name;
   }
 
   getDefaultAddress(): string {
