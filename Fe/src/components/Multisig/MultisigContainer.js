@@ -179,7 +179,7 @@ async setState(state){
       myWallet.setAddressNamess(wallets[index].addressNames)
       myWallet.setDefaultSigners(wallets[index].defaultSigners)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
-      await myWallet.checkTransactions()
+      await myWallet.loadUtxos()
       await myWallet.setCollateralDonor(wallets[index].collateralDonor)
       state.wallets.push(myWallet)
     }
