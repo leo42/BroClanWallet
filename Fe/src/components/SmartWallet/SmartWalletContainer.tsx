@@ -108,6 +108,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       await wallet.createTx(recipients, signers, sendFrom, sendAll, withdraw)
       this.setState({wallets: wallets})
       this.storeWallets()
+      toast.info("Transaction created successfully!")
     } catch (error: any) {
       toast.error("Error creating transaction: " + error.message)
       console.log("error", error)
@@ -269,7 +270,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({wallets: wallets})
     this.storeWallets()
   }
-  
+
   async loadWallets() {
     const wallets = JSON.parse(localStorage.getItem("smartWallets") || "[]");
     const loadedWallets = await Promise.all(wallets.map(async (wallet: any) => {
@@ -295,6 +296,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     await wallet.createDelegationTx(pool, dRepId, signers)
     this.setState({wallets: wallets})
     this.storeWallets()
+    toast.info("Delegation transaction created successfully!")
   }
   catch(error: any){
     toast.error("Error creating delegation transaction: " + error.message)
@@ -309,6 +311,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       await wallet.createStakeUnregistrationTx(signers)
       this.setState({wallets: wallets})
       this.storeWallets()
+      toast.info("Stake unregistration transaction created successfully!")
     }
     catch(error: any){
       toast.error("Error creating stake unregistration transaction: " + error.message)

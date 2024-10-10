@@ -9,7 +9,7 @@ class WalletCreateTx extends React.Component {
 
   state = {
     recipients: [{address :"", amount: {lovelace:0n}}],
-    signers: this.props.wallet.getSigners().filter( (signer) => (signer.isDefault) ),
+    signers: this.props.moduleRoot.getSigners().map( (signer) => (signer.isDefault) ),
     tokenData: {},
     sendFrom : this.props.wallet.getDefaultAddress(),
     sendAll: null,
@@ -41,7 +41,7 @@ class WalletCreateTx extends React.Component {
         })
       }
     }
-    console.log(this.props.wallet.getSigners())
+    console.log(this.props.moduleRoot.getSigners())
   }
 
    
@@ -101,7 +101,7 @@ class WalletCreateTx extends React.Component {
     event.preventDefault();
    
     const txSigners = this.state.signers.map((item, index) =>
-        item ? this.props.wallet.getSigners()[index].hash : ""
+        item ? this.props.moduleRoot.getSigners()[index].hash : ""
     )
 
 
@@ -219,10 +219,10 @@ class WalletCreateTx extends React.Component {
   ))
     
 
-   SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
+   SignersSelect = () => this.props.moduleRoot.getSigners().map( (item, index) => (
     <div key={index} >
    <label className='signerCheckbox'>
-     {this.props.wallet.getSigners()[index].name}:
+     {this.props.moduleRoot.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"
@@ -256,7 +256,7 @@ class WalletCreateTx extends React.Component {
         {  <label className='iconLabel'>Add Recipient</label> }
         < br/>   
       </div>
-      {this.props.wallet.getSigners().length !== 0 && <div className='SignersSelect' ><h2> Signers:</h2>
+      {this.props.moduleRoot.getSigners().length !== 0 && <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
       { this.SignersSelect()}
       </div>

@@ -349,7 +349,7 @@ async setCollateralDonor(paymentKeyHash: string){
 async loadCollateralUtxos(){
   if (this.collateralDonor) {
     try{
-      this.colateralUtxo = (await this.lucid.config().provider.getUtxos({type: "Key", hash: this.collateralDonor})).filter( (utxo,index) => (Object.keys(utxo.assets).length === 1 ) )[0]
+      this.colateralUtxo = await this.pullCollateralUtxo(this.collateralDonor as string)
      }catch(e){
       console.error("Error getting collateral utxos:", e);
     }
@@ -465,20 +465,27 @@ private isValidKeyHash(hash: string): boolean {
   // A valid key hash is a 28-byte (56 character) hexadecimal string
   return /^[0-9a-fA-F]{56}$/.test(hash);
 }
-
   
-  private async getColateralUtxo(signers: string[]) : Promise<UTxO>{
-    const collateralProvider = signers[0];
-    const collateralUtxos = (await this.lucid.config().provider.getUtxos({ type: "Key", hash: collateralProvider }))
-      .filter(utxo => Object.keys(utxo.assets).length === 1 && utxo.assets.lovelace > 5000000n);
-
-    if (collateralUtxos.length === 0) {
-      throw new Error("No valid collateral UTXO found");
+async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
+  if(this.colateralUtxo && signers?.includes(this.collateralDonor as string)) {
+    return this.colateralUtxo
+  }else if (signers) {
+    for (const signer of signers) {
+        const collateralUtxo = await this.pullCollateralUtxo(signer);
+        if (collateralUtxo) {
+            return collateralUtxo;
+        }
     }
-
-    const collateralUtxo = collateralUtxos[0];
-    return collateralUtxo
+    return await this.pullCollateralUtxo(this.collateralDonor as string);
   }
+  throw new Error("No collateral utxo found")
+}         
+
+
+   async pullCollateralUtxo(collateralProvider: string) : Promise<UTxO> {
+    return ( await this.lucid.config().provider.getUtxos({ type: "Key", hash: collateralProvider }))
+      .filter(utxo => Object.keys(utxo.assets).length === 1 && utxo.assets.lovelace > 5000000n)[0];
+   }
 
   async createTemplateTx(signers: string[], returnAddress?: string): Promise<TxBuilder> {
     const requrement = this.checkSigners(signers)
@@ -486,6 +493,7 @@ private isValidKeyHash(hash: string): boolean {
     if (requrement === false) {
       throw new Error("Invalid signers")
     }
+    
     const localLucid = await getNewLucidInstance(this.settings);
     const collateralUtxo = await this.getColateralUtxo(signers);
     const configUtxo = this.configUtxo ? this.configUtxo : await this.getConfigUtxo()
