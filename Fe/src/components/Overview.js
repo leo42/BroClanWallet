@@ -52,19 +52,10 @@ function Overview(props) {
   const settingsMenu = (address) => 
     <div className="settingsMenu">
       {walletSettings()} 
-       {address === "" ? "" : addressSettings(address)}
     </div>
     
 
-  const addressSettings = (address) =>
-    <div className="addressSettings">
-      { wallet.getDefaultAddress() === address ? "" : <button className='defaultButton' onClick={() => props.moduleRoot.setDefaultAddress(address)}> Make Default</button> }
-      <br/>
-      <label>
-        <span>Name</span>
-        <input type="text"  value={wallet.getAddressName(address)} onChange={(event) => props.moduleRoot.changeAddressName(address,event.target.value)}></input>
-      </label>
-    </div>
+
   
   
   const walletJson = (json) => {
