@@ -327,17 +327,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }
   }
 
-  transmitTransaction(transaction: any, sigAdded: any) {
-    // Implementation similar to MultisigContainer
-  }
-
-  transmitWallet(script: any) {
-    // Implementation similar to MultisigContainer
-  }
-
-  async loadTransaction(transaction: any, walletIndex: number) {
-    // Implementation similar to MultisigContainer
-  }
 
   selectWallet(key: number) {
     this.setState({selectedWallet: key})
@@ -368,7 +357,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
         <h2>No Smart Wallets Found</h2>
         <p>Create or Import a new smart wallet to start using this APP.</p>
         <button className="commonBtn" onClick={() => this.setState({modal: "newWallet"})}>Add Smart Wallet</button>
-        <button className="commonBtn" onClick={() => this.setState({modal: "importWallet"})}>Import Smart Wallet</button>
       </div>
     );
   }
