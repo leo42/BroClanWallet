@@ -799,6 +799,9 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     return new Uint8Array(bytes);
   }
 
+  getSignature(index: number, keyHash: string){
+    return this.pendingTxs[index].signatures[keyHash]
+  }
   
   addSignature(signature: string) {
     const signatureInfo = this.decodeSignature(signature);
