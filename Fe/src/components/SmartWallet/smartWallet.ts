@@ -243,12 +243,12 @@ class SmartWallet {
     try {
       const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
       const utxos = await this.lucid.utxosAt(scriptCredential);
+      await this.loadConfig()
       if (this.compareUtxos(utxos, this.utxos)) return false;
       
       this.utxos = utxos;
       await Promise.all([
         this.getDelegation(),
-        this.loadConfig(),
         this.checkTransactions()
       ]);
 
