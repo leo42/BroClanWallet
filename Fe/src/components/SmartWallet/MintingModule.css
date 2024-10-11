@@ -1,6 +1,7 @@
 .MintingModule {
     display: flex;
     min-width: 4500px;
+    height: fit-content;
     width: fit-content;
     flex-direction: column;
     align-items: center;
@@ -17,6 +18,43 @@
     border: none;
     cursor: pointer;
 }
+
+.ImportFromId{
+    border-top: 1px solid var(--clrorange);
+    margin-top: 1rem;
+    margin-bottom: 10px;
+}
+
+.mintingPrice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.mintingPrice span {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.mintingPrice span::before {
+    content: attr(data-label);
+    margin-right: 0.5rem;
+    text-align: right;
+    flex: 1;
+}
+
+.mintingPrice span::after {
+    content: attr(data-value);
+    text-align: left;
+    flex: 1;
+}
+
+/* End Generation Here */
 
 .ModuleBackground{
     display: flex;
@@ -36,9 +74,8 @@
     background-color: var(--clrModal);
     padding: 2rem;
     border-radius: 8px;
+    height: fit-content;
     max-width: 80%;
-    max-height: 80%;
-    overflow-y: auto;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

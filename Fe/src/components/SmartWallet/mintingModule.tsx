@@ -4,7 +4,7 @@ import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
 import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptor , SmartMultisigDescriptorSchema , SmartMultisigDescriptorKeyHash  , SmartMultisigDescriptorKeyHashSchema} from "./types";
-import "./mintingModule.css"
+import "./MintingModule.css"
 import CryptoJS from 'crypto-js';
 import { encode , decode } from "./encoder";
 import SmartWallet from "./smartWallet";
@@ -38,7 +38,7 @@ class MintingModule extends React.Component<MintingProps> {
   mintingInfo = ["This token represents a tokenized Wallet", "the holder of this token can access the funds of the wallet", "access your tokenized wallet or mint your own", "at broclan.io"]
 
   state : MintingState  = {
-         termsAccepted: (this.terms.map(() => true)),
+         termsAccepted: this.terms.map(() => false),
          price : null,
          walletId : ""
     }
@@ -125,16 +125,12 @@ class MintingModule extends React.Component<MintingProps> {
         consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
         const assetsConfigToken : Assets = {}
-        const assetsSubscriptionToken : Assets = {}
         const assetsRefferenceToken : Assets = {}
         const walletConfigToken = policyId + "00" + tokenNameSuffix
-        const walletSubscriptionToken = policyId + "01" + tokenNameSuffix
         const walletRefferenceToken = policyId + "02" + tokenNameSuffix
         assets[walletConfigToken] = 1n;
         assetsConfigToken[walletConfigToken] = 1n
         assetsConfigToken["lovelace"] = 2_500_000n
-        assets[walletSubscriptionToken] = 1n;
-        assetsSubscriptionToken[walletSubscriptionToken] = 1n
         assets[walletRefferenceToken] = 1n;
         assetsRefferenceToken[walletRefferenceToken] = 1n
         const smartWallet = new SmartWallet(tokenNameSuffix,settings)
@@ -155,23 +151,18 @@ class MintingModule extends React.Component<MintingProps> {
         })
         console.log(initialMultisigConfig)
         const metadata : any =  {}
-        metadata[`0x${policyId}`] ={}
+        metadata[policyId] ={}
         metadata["version"] = 2
-        metadata[`0x${policyId}`]["00" + tokenNameSuffix] =  
+
+        metadata[policyId]["00" + tokenNameSuffix] =  
         { 
           name: name+ "-Config" , 
           description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
           image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
           information: this.mintingInfo 
         }
-        metadata[`0x${policyId}`]["01" + tokenNameSuffix] =  
-        { 
-          name: name+ "-Subscription" , 
-          description: stringToChunks(`The subscription token for the smart wallet ${name}, attached to this token you will find the current subscriptions of the smart wallet`) , 
-          image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-          information: this.mintingInfo 
-        }
-        metadata[`0x${policyId}`]["03" + tokenNameSuffix] =  
+ 
+        metadata[policyId]["02" + tokenNameSuffix] =  
         { 
           name: name+ "-Refference" , 
           description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
@@ -190,7 +181,6 @@ class MintingModule extends React.Component<MintingProps> {
         
         consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-        consumingTx.pay.ToAddressWithData(smartWallet.getEnterpriseAddress(), {kind : "inline" , value : Data.to(new Constr(0,[]))}, assetsSubscriptionToken)
         const completedTx = await consumingTx.complete()
         
         const signature = await completedTx.sign.withWallet()
@@ -256,31 +246,13 @@ class MintingModule extends React.Component<MintingProps> {
 
     }
 
-    description = <div id="mintingDescription"><h1>Mint your Smart Wallet</h1>
-    <br/>
-    <div className="mintingTerms">
-      {this.terms.map((term, index) => (
-        <div key={index.toString() + term} id={`mintingTerm${index}`} className="mintingTerm" onClick={() => this.toggleTerm(index)}>
-          <input
-            type="checkbox" 
-            id={`mintingTermCheckbox${index}`}
-            value={this.state.termsAccepted[index].toString()}
-            onChange={() => this.toggleTerm(index)}
-            className="mintingTermCheckbox"
-          />        
-            {term}
-        </div>
-      ))}
-      <span>Price: {Number(this.state.price).toFixed(2)} ADA</span>
-      {this.state.price !== null && <span>Price: {this.state.price} ADA</span>}  
-    </div>
-</div>
 
-toggleTerm = (index: number) => { 
-        let termsAccepted = [...this.state.termsAccepted];
-        termsAccepted[index] = !termsAccepted[index];
-        this.setState({termsAccepted});
-    }    
+
+toggleTerm = (index: number) => {   console.log("toggleTerm", index);
+  const termsAccepted = [...this.state.termsAccepted];
+  termsAccepted[index] = !termsAccepted[index];
+  this.setState({termsAccepted})
+}
 
     closeModule = () => {
       this.props.showModal()
@@ -291,6 +263,7 @@ toggleTerm = (index: number) => {
     }
 
     render() {
+        console.log("Rendering MintingModule, termsAccepted:", this.state.termsAccepted);
         return (
           <div className="ModuleBackground" onClick={() => this.closeModule()}>
             <div className='MintingModule' onClick={(e) => e.stopPropagation()}>
@@ -298,13 +271,43 @@ toggleTerm = (index: number) => {
                 <div className="titleCloseBtn">
                     <button onClick={() => this.closeModule()}>X</button>
                 </div>                    
-                {this.description}
-                    {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Smart Wallets are only supported on the preprod testnet.</span>}
+                <div id="mintingDescription">
+    <h1>Mint your Smart Wallet</h1>
+    <br/>
+    <div className="mintingTerms">
+      {this.terms.map((term, index) => (
+        <div key={`term-${index}-${this.state.termsAccepted[index]}`} id={`mintingTerm${index}`} className="mintingTerm">
+          <input
+            type="checkbox" 
+            id={`mintingTermCheckbox${index}`}
+            value={index}
+            checked={this.state.termsAccepted[index]}
+            onChange={(e) => {
+              e.stopPropagation();
+              this.toggleTerm(index);
+            }}
+            className="mintingTermCheckbox"
+          />        
+          {term}
+        </div>
+      ))}
+    </div>
+    {this.state.price !== null && <div className="mintingPrice">
+        <span data-label="Price:" data-value={`${this.state.price/1_000_000} ADA`}></span>
+        <span data-label="Registration Cost:" data-value={`${contracts[this.props.root.state.settings.network].registrationCost/1_000_000} ADA`}></span>
+        <span data-label="Tx Fee:" data-value={`${contracts[this.props.root.state.settings.network].txFee/1_000_000} ADA`}></span>
+        <span data-label="Config Utxo:" data-value={`${contracts[this.props.root.state.settings.network].configUtxo/1_000_000} ADA`}></span>
+        <span data-label="Total:" data-value={`${(this.state.price + contracts[this.props.root.state.settings.network].registrationCost + contracts[this.props.root.state.settings.network].txFee + contracts[this.props.root.state.settings.network].configUtxo)/1_000_000} ADA`}></span>
+    </div>}  
+      </div>
+                    
+              {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Smart Wallets are only supported on the preprod testnet.</span>}
                     <button className="commonBtn" onClick={this.startMint}>Mint Now</button>
-                </div>
                 <div className="ImportFromId">
+                <h1>Import from ID</h1>
                   <input type="text" placeholder="Enter your wallet ID" value={this.state.walletId} onChange={(e) => this.setState({walletId: e.target.value})}/>
                       <button className="commonBtn" onClick={this.importWallet}>Import</button>
+                </div>
                 </div>
             </div>
           </div>

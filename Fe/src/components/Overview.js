@@ -88,6 +88,8 @@ function Overview(props) {
         <span>Wallet Name</span>
         <input type="text"  value={wallet.getName()} onChange={(event) => props.moduleRoot.changeWalletName(event.target.value)}></input>
       </label>
+      {props.root.state.module === "smartWallets" && <span className="smartWalletLabel">Id : {props.wallet.getId()}</span>}
+
       <div key= {JSON.stringify(wallet.defaultSignersValid())} className={wallet.defaultSignersValid() !== false ? "validSignerContainer" : "invalidSignerContainer" }> 
       <label>Default Signers</label>
       <br/>
