@@ -20,7 +20,8 @@
 
 .modalContainer {
   width: max-content;
-  max-height: 85vh;
+  margin-top: 40px;
+  max-height: calc(85vh - 40px);
   overflow-y: scroll;
   border-radius: 1vw;
   background-color: var(--clrModal);
