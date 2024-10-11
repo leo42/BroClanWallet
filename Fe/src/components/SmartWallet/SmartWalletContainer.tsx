@@ -157,7 +157,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
 
   changeWalletName(name: string) {
-    // Implementation similar to MultisigContainer
+    const wallets = [...this.state.wallets]
+    const wallet = wallets[this.state.selectedWallet]
+    wallet.setName(name)
+    this.setState({wallets: wallets})
+    this.storeWallets()
   }
   
   addSignature(signature: string) {
@@ -195,7 +199,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
                                                                   txs: wallet.getPendingTxs(),
                                                                   defaultAddress: wallet.getDefaultAddress(),
                                                                   addressNames: wallet.getAddressNames(),
-                                                                  defaultSigners: wallet.getDefaultSigners()
+                                                                  defaultSigners: wallet.getDefaultSigners(),
+                                                                  name: wallet.getName()
       
 
     }})
@@ -282,6 +287,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       newWallet.setDefaultAddress(wallet.defaultAddress)
       newWallet.setAddressNames(wallet.addressNames)
        newWallet.setDefaultSigners(wallet.defaultSigners || [])
+       newWallet.setName(wallet.name || "New Wallet")
       await newWallet.checkTransactions()
       return newWallet;
     }));

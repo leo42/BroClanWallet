@@ -85,7 +85,7 @@ class MintingModule extends React.Component<MintingProps> {
     }
 
     mintWithWallet = (wallet : string) =>{
-        this.mint( wallet , this.props.root.state.settings, "TODO")
+        this.mint( wallet , this.props.root.state.settings, "New Wallet")
     }
 
 

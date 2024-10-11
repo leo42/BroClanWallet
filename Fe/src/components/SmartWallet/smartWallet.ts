@@ -17,6 +17,7 @@ type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number,
 class SmartWallet {
   private lucid!: LucidEvolution ;
   private script: Validator ;
+  private name: string = "New Wallet";
   private utxos: UTxO[] = [];
   private configUtxo: UTxO | null = null;
   private scriptUtxo: UTxO | null = null;
@@ -73,7 +74,11 @@ class SmartWallet {
   }
 
   getName(): string {
-    return "Todo"
+    return this.name
+  }
+
+  setName(name: string){
+    this.name = name
   }
 
   removePendingTx(tx: number) {
@@ -193,8 +198,8 @@ class SmartWallet {
     return this.collateralDonor ? this.collateralDonor : ""
   }
 
-  defaultSignersValid (signers: string[]) : boolean {
-    return true //TODO
+  defaultSignersValid () : boolean {
+    return this.checkSigners(this.getDefaultSigners()) !== false
   }
 
   async loadSigners(config : SmartMultisigJson): Promise<{ nftUtxos: UTxO[], signers: {hash: string,  isDefault: boolean}[]}> {
