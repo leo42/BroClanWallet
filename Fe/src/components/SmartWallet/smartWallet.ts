@@ -301,6 +301,14 @@ class SmartWallet {
     return true
      }
 
+  mergeAssets(assets1: Assets, assets2: Assets): Assets {
+     //assets are object Key value pair s we want to add the values of the second object to the first
+     Object.keys(assets2).forEach(asset => {
+      assets1[asset as keyof Assets] = (assets1[asset as keyof Assets] || 0n) + assets2[asset as keyof Assets]
+     })
+     return assets1;
+  }
+  
   async createTx(
     recipients: Recipient[],
     signers: string[],
@@ -317,6 +325,13 @@ class SmartWallet {
     if (sendFrom !== "") {
       spendUtxos =spendUtxos.filter(utxo => utxo.address === sendFrom)
     }
+
+
+    if(sendAll === null){
+      const value = recipients.reduce((total, recipient) => ( this.mergeAssets(total, recipient.amount) ), {} as Assets)
+      spendUtxos = await this.coinSelection(value, spendUtxos)
+    }
+    
     //  .attach.Script(this.script)
     tx.collectFrom(spendUtxos, Data.void());
     recipients.forEach((recipient, index) => {
@@ -368,6 +383,61 @@ setDefaultSigners(signers: string[]) {
     this.collateralDonor = signers[0]
     this.loadCollateralUtxos()
    }
+}
+
+async coinSelection(value: Assets, utxos: UTxO[]): Promise<UTxO[]> {
+
+  function isEnoughValue(remaining: Assets): boolean {
+    for (const asset in value) {
+      if (remaining[asset] > 0n) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function sortByLeft(utxos: UTxO[], value: Assets ) : UTxO[] {
+    const targetAssets: string[] = Object.keys(value).filter(asset => value[asset] > 0n);
+
+    const sortedUtxos = utxos.sort((a, b) => {
+      //sort the utxos by the amount of the target assets left
+      const aLeft = targetAssets.reduce((acc, asset) => acc + BigInt(a.assets[asset as keyof Assets] || 0), 0n);
+      const bLeft = targetAssets.reduce((acc, asset) => acc + BigInt(b.assets[asset as keyof Assets] || 0), 0n);
+      return Number(bLeft - aLeft);
+    });
+    return sortedUtxos
+  }
+
+
+  // Sort UTXOs in descending order of lovelace value
+  let availableUtxos = utxos
+  let selectedUtxos: UTxO[] = [];
+  let totalRemaining: Assets = value;
+
+  // Iterate through sorted UTXOs
+  while (availableUtxos.length > 0) {
+    let sortedUtxos = sortByLeft(availableUtxos, value);
+    const utxo = sortedUtxos[0]
+    selectedUtxos.push(utxo);
+    availableUtxos = availableUtxos.filter(utxo => utxo.txHash !== utxo.txHash && utxo.outputIndex !== utxo.outputIndex)
+  
+    // Add all assets from the current UTXO to totalRemaining
+    for (const asset in utxo.assets) {
+        if (!totalRemaining[asset]) {
+        totalRemaining[asset] = 0n;
+      }
+      totalRemaining[asset] -= BigInt(utxo.assets[asset]);
+    }
+
+    // Check if we have enough to cover the requested value
+    if (isEnoughValue(totalRemaining)) {
+      return selectedUtxos;
+    }
+    console.log("sortedUtxos", sortedUtxos, totalRemaining, selectedUtxos)
+  }
+
+  // If we reach here, it means we don't have enough UTXOs to cover the value
+  throw new Error('Insufficient funds to cover the requested value');
 }
 
 
