@@ -7,7 +7,7 @@ async function getTransactionHistory(address, settings, page=0 , limit = 10){
     }
 
     if ( settings.metadataProvider === "Koios"){
-        const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/address_txs" : `https://${settings.network}.koios.rest/api/v0/address_txs`
+        const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v1/address_txs" : `https://${settings.network}.koios.rest/api/v1/address_txs`
         const response = await fetch(
             `${api}`,
             {
@@ -88,7 +88,7 @@ async function getTransactionDetails(transactionIds, settings, address){
         else
         {
             if ( settings.metadataProvider === "Koios"){
-                const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/tx_utxos" : `https://${settings.network}.koios.rest/api/v0/tx_utxos`
+                const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v1/tx_utxos" : `https://${settings.network}.koios.rest/api/v1/tx_utxos`
                 const response = await fetch(
                     `${api}`,
                     {

@@ -3,6 +3,7 @@ import "./TransactionHistory.css"
 import  getTransactionHistory  from "../helpers/TransactionHistory.js";
 import { toast } from "react-toastify";
 import TokenElement from "./TokenElement";
+import AddressSelect from "./AddressSelect";
 
 function TransactionHistory (props) {
     const [transactions, setTransactions] = useState([]);
@@ -100,11 +101,13 @@ function TransactionHistory (props) {
        <div className="TransactionHistory"> 
         {props.wallet.getFundedAddress().length === 0 && <h1>No funds in this wallet</h1>}
         {props.wallet.getFundedAddress().length > 1 && <div className="TransactionHistorySelectAddress">
-      <select className="addressSelect" defaultValue={props.wallet.getDefaultAddress()} onChange={handleChangeFrom} >
-                 {props.wallet.getFundedAddress().map( (item, index) => (
-                  <option key={index} value={item} >{props.wallet.getAddressName(item)}</option>
-            ))}
-      </select>
+      <AddressSelect
+          wallet={props.wallet}
+          moduleRoot={props.moduleRoot}
+          selectedAddress={address}
+          onAddressChange={setAddress}
+          showAll={false}
+        />
       </div>}
          <div className="TransactionHistoryList">
             { props.root.state.settings.metadataProvider === "None" ? <div className="TransactionHistoryNoMetadata">No Metadata Provider Selected</div> :

@@ -8,7 +8,7 @@ function WalletDelegation(props) {
   const wallet = props.wallet
   const initialState = []
 
-  wallet.getSigners().map( (signer) =>
+  props.moduleRoot.getSigners().map( (signer) =>
     initialState.push(signer.isDefault)
   ) 
   const [pool, setPool] = useState('');
@@ -16,7 +16,9 @@ function WalletDelegation(props) {
   const [delegation, setDelegation] = useState({});
   const [pools, setPools] = useState([]);
   const [searching, setSearching] = useState(false);
-  
+  const [delegationType, setDelegationType] = useState('Abstain');
+  const [customDelegation, setCustomDelegation] = useState('');
+
   useEffect(() => {
     wallet.getDelegation().then( (delegation) => {;
       setDelegation(delegation);
@@ -51,17 +53,17 @@ function WalletDelegation(props) {
     event.preventDefault();
    
     const txSigners = signers.map((item, index) =>
-        item ? wallet.getSigners()[index].hash : ""
+        item ?  props.moduleRoot.getSigners()[index].hash : ""
     )
-
-    props.moduleRoot.createDelegationTx(pools[0], txSigners.filter((element, index) => signers[index]));
+    const dRepId = delegationType === 'custom' ? customDelegation : delegationType;
+    props.moduleRoot.createDelegationTx(pools[0], dRepId, txSigners.filter((element, index) => signers[index]));
   }
 
   const Undelegate = event => {
     event.preventDefault();
 
     const txSigners = signers.map((item, index) =>
-        item ? wallet.getSigners()[index].hash : ""
+        item ? props.moduleRoot.getSigners()[index].hash : ""
     )
 
     props.moduleRoot.createStakeUnregistrationTx(txSigners.filter((element, index) => signers[index]));
@@ -81,7 +83,6 @@ function WalletDelegation(props) {
         {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
 
         <p>Rewards : {Number(delegation.rewards)/1_000_000}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </p>
-        <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} />
       </div>
     }
   }
@@ -91,12 +92,15 @@ function WalletDelegation(props) {
       <LoadingIcon className="loadingIcon"  > </LoadingIcon>
       </div>
   } 
+    const txSigners = signers.map((item, index) =>
+      item ? props.moduleRoot.getSigners()[index].hash : ""
+  )
+    const signersValid = wallet.checkSigners(txSigners.filter((element, index) => signers[index]))
 
- 
-   const SignersSelect =  wallet.getSigners().map( (item, index) => (
+   const SignersSelect =  props.moduleRoot.getSigners().map( (item, index) => (
     <div key={index} >
    <label className='signerCheckbox'>
-     {wallet.getSigners()[index].name}:
+     {props.moduleRoot.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"
@@ -112,10 +116,12 @@ function WalletDelegation(props) {
 
   return (
     <div className="DelegationCenter">
-
-      {delegationInfo()}
+      <div className='DelegationInfo'>
+        {delegationInfo()}
+      </div>
+     <div className='DelegationUpdate'>
     <form onSubmit={handleSubmit}>
-
+      <h1> Manage Delegation </h1>
       <label>
        
         <input
@@ -134,14 +140,37 @@ function WalletDelegation(props) {
           </div>
         )
       )}
-      {wallet.getSigners().length !== 0 && (
+     <div className='dRepDelegation'>
+      <label>
+        <select value={delegationType} onChange={event => setDelegationType(event.target.value)}>
+          <option value="Abstain">Auto Abstain</option>
+          <option value="NoConfidence">Auto Nonconfidence</option>
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+      {delegationType === 'custom' && (
+        <label>
+          <input
+            type="text"
+            name="customDelegation"
+            placeholder='dRep Hash'
+            value={customDelegation}
+            onChange={event => setCustomDelegation(event.target.value)}
+          />
+        </label>
+      )}
+</div>
+      { props.moduleRoot.getSigners().length !== 0 && (
       <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
       { SignersSelect}
       </div>
       </div>)}
-     {pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
+     { signersValid && pools.length === 1 && <button  className='commonBtn' type="submit">Delegate</button> }
+     {  signersValid && delegation.poolId !== null &&   <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} /> }
+
     </form>
+    </div>
     </div>
   );
 

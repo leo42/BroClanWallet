@@ -5,9 +5,11 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const argv = require('yargs').argv;
 const isProduction = argv.mode === 'production';
 
-
-
 var webAppConfig = {
+	resolve: {
+		fallback: { crypto: false },
+		extensions: ['.js', '.jsx', '.ts', '.tsx'],  // Add .tsx here
+	},
     entry: './src/index.js',
     output: {
 		crossOriginLoading: 'anonymous',
@@ -36,6 +38,11 @@ var webAppConfig = {
 				test: /\.css$/i,
 				use: ["style-loader", "css-loader"],
 			  },
+				{
+					test: /\.(ts|tsx)$/,
+					use: 'ts-loader',
+					exclude: /node_modules/,
+				},
 		]
     },
 	mode : isProduction ? 'production' : 'development',
@@ -57,7 +64,6 @@ var webAppConfig = {
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
 		}
 };
-
 
 var extensionConfig = {
 	entry:  './src/extension/extension.js',
@@ -87,8 +93,8 @@ var extensionConfig = {
 			test: /\.css$/i,
 			use: ["style-loader", "css-loader"],
 		  },
-	]
-},
+		]
+	},
 	  plugins: [
 		new CopyWebpackPlugin({
 			patterns: [
@@ -186,7 +192,6 @@ var workerConfig = {
 				}
 		};	
 	
-
 module.exports = [webAppConfig, extensionConfig , workerConfig, injectionConfig, approvalConfig]
 if(isProduction) {
 	module.exports[0].plugins.push(new HtmlWebpackPlugin({

@@ -126,6 +126,7 @@ select{
   width: 100vw;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   margin: 0px;
   position: absolute;
   top: 200px;
@@ -135,6 +136,7 @@ select{
 .WalletMain{
   align-items: center;
   margin: 20px;
+  width: 100%;
 }
 
 .tooltip:hover::after{

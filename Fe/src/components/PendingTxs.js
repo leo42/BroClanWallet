@@ -23,7 +23,7 @@ function PendingTxs(props){
         <div className="pendingTxs"  key={pending}>
             <h1>Pending Transactions</h1>
             {props.wallet.getPendingTxs().map( (pendingTx, index) => (
-                <WalletPendingTx moduleRoot={props.moduleRoot} root={props.root} tx={pendingTx} index={index}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>
+                <WalletPendingTx moduleRoot={props.moduleRoot} root={props.root} index={index} tx={pendingTx}  wallet={props.wallet}  key={pendingTx.tx.toString()}></WalletPendingTx>
                 ) )}
             <button className="commonBtn" onClick={() =>setImportTransaction(!importTransaction)}>Import Transaction</button>
             {importTransaction ? <div>

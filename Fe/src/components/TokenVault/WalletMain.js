@@ -22,7 +22,7 @@ class WalletMain extends React.Component {
             case "delegation":
                 return  <WalletDelegation key={this.props.moduleRoot.state.selectedWallet+"delegation"} wallet={this.props.wallet} root={this.props.root} moduleRoot={this.props.moduleRoot} ></WalletDelegation>
             case "transactions": 
-                return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}   key={this.props.moduleRoot.state.selectedWallet}>  moduleRoot={this.props.moduleRoot} </TransactionHistory> 
+                return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}  moduleRoot={this.props.moduleRoot}  key={this.props.moduleRoot.state.selectedWallet}>  moduleRoot={this.props.moduleRoot} </TransactionHistory> 
             case "receive": 
                 return  <Deposit root={this.props.root}  wallet={this.props.wallet}  key={this.props.moduleRoot.state.selectedWallet} moduleRoot={this.props.moduleRoot}> </Deposit> 
         }

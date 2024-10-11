@@ -1,8 +1,4 @@
-.addressSelect{
-    margin-top: 40px;
-    max-width: 80vw;
 
-}
 
 .overviewTokensContainer {
     
@@ -20,6 +16,34 @@
     align-items: center;
 
 }
+
+.settingsMenu{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    border: 1px;
+    align-self: center;
+    border-radius: 10px;
+}
+
+.walletSettings{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    border: 1px;
+    align-self: center;
+    border-radius: 10px;
+    width: 80vw;
+    border-color: var(--clrorange);
+    border-style: solid;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
 
 .validSignerContainer{
     color: green;

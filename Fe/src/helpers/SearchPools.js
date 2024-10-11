@@ -7,7 +7,7 @@ async function SearchPools(string){
    //     return []
    // }
 
-    const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v0/pool_list" : `https://${settings.network}.koios.rest/api/v0/pool_list`
+    const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v1/pool_list" : `https://${settings.network}.koios.rest/api/v1/pool_list`
     try{
     const responseTicker = await fetch(
         `${api}?ticker=like.${string}*`,

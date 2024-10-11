@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+      "target": "ES2020",
+      "composite": true,
+      "lib": ["ES2020", "DOM", "DOM.Iterable"],
+      
+      "allowJs": false,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": false,  // Set noEmit to false
+      "emitDeclarationOnly": false,  // Change this to false
+      "jsx": "react-jsx",
+      "paths": {
+        "@lucid-evolution/*": ["./node_modules/@lucid-evolution/*"]
+      }
+      
+    },
+    "include": ["src", "src/svg.d.ts", "src/custom.d.ts"]
+  }

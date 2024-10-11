@@ -1,6 +1,6 @@
 import React, { useEffect }     from "react";
 import TokenElement from "../../components/TokenElement";
-import "../../components/Multisig/PendingTx.css"
+import "../../components/PendingTx.css"
 import "./PendingTx.css"
 
 

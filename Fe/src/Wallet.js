@@ -238,7 +238,6 @@ setPendingTxs(pendingTxs){
     
     async checkTransactions(){
 
-      await this.loadUtxos()
       for (let i = this.pendingTxs.length-1 ; i >= 0 ; i--) {
         const isValid = await this.checkTransaction(this.pendingTxs[i].tx)
         if (!isValid){
@@ -681,8 +680,11 @@ setPendingTxs(pendingTxs){
       return "Sucsess"
     }
 
+    getSignerName(keyHash){
+        return this.signersNames.find(signer => signer.hash === keyHash)?.name || '';
+    }
 
-    async createDelegationTx(pool, signers){ 
+    async createDelegationTx(pool, dRepId, signers){ 
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  this.lucid.utils.validatorToRewardAddress(this.lucidNativeScript)
       const sigCheck = this.checkSigners(signers)
@@ -829,6 +831,29 @@ setPendingTxs(pendingTxs){
         setCollateralDonor()
       
     }
+
+    updateSignerName(keyHash, name){
+
+      function changeName(json, keyHash, name){
+          if (json.keyHash === keyHash){
+            json.name = name
+          } 
+          if (json.type === "all" || json.type === "any" || json.type === "atLeast"){
+            json.scripts.map( (script,index) => {
+              changeName(script, keyHash, name)
+            })
+          }
+      }
+      
+      changeName(this.wallet_script, keyHash, name)
+
+      this.signersNames.map( (signer,index) => {
+        if (signer.hash === keyHash){
+          this.signersNames[index].name = name
+        }
+      })
+    }
+
 
     resetDefaultSigners(){  
       const signersNames = this.signersNames.map( (signer) => {

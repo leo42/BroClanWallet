@@ -4,11 +4,12 @@ import TokenDropdownMenu from './TokenDropdownList.js';
 import TokenElement from "./TokenElement";
 import { ReactComponent as RecipientIcon } from '../html/assets/recipient.svg';
 import "./WalletCreateTx.css"
+import AddressSelect from './AddressSelect';
 class WalletCreateTx extends React.Component {
 
   state = {
-    recipients: [{address :"", amount: {lovelace:0}}],
-    signers: this.props.wallet.getSigners().filter( (signer) => (signer.isDefault) ),
+    recipients: [{address :"", amount: {lovelace:0n}}],
+    signers: this.props.moduleRoot.getSigners().map( (signer) => (signer.isDefault) ),
     tokenData: {},
     sendFrom : this.props.wallet.getDefaultAddress(),
     sendAll: null,
@@ -40,7 +41,7 @@ class WalletCreateTx extends React.Component {
         })
       }
     }
-    console.log(this.props.wallet.getSigners())
+    console.log(this.props.moduleRoot.getSigners())
   }
 
    
@@ -63,8 +64,8 @@ class WalletCreateTx extends React.Component {
     }
 
     let valueNew = token === "lovelace" ? value * 1000000 : (token in this.state.tokenData)  ? value * (10**this.state.tokenData[token].decimals)  : value 
-    valueNew = Math.round(valueNew)
-    valueNew= valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
+    valueNew = BigInt(Math.round(valueNew))
+    valueNew= valueNew < 0n ? 0n : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
     recipients[index].amount[token] = valueNew
     this.setState({recipients})
   }
@@ -76,8 +77,8 @@ class WalletCreateTx extends React.Component {
     this.setState({signers});
   };
 
-  handleChangeFrom = (event) => {
-    const newBalance = this.props.wallet.getBalanceFull(event.target.value)
+  handleChangeFrom = (value ) => {
+    const newBalance = this.props.wallet.getBalanceFull(value)
     this.state.recipients.map( (recipient,index) => {
        Object.keys(recipient.amount).map( (token) => {
         if (newBalance[token] < recipient.amount[token]) {
@@ -93,14 +94,14 @@ class WalletCreateTx extends React.Component {
 
        })
     })
-    this.setState({sendFrom : event.target.value})
+    this.setState({sendFrom : value})
   }
 
   handleSubmit = event => {
     event.preventDefault();
    
     const txSigners = this.state.signers.map((item, index) =>
-        item ? this.props.wallet.getSigners()[index].hash : ""
+        item ? this.props.moduleRoot.getSigners()[index].hash : ""
     )
 
 
@@ -182,7 +183,7 @@ class WalletCreateTx extends React.Component {
       type="number"
       name="amount"
       placeholder='ADA'
-      value={this.state.recipients[index].amount.lovelace === 0 ? "" :this.state.recipients[index].amount.lovelace/1_000_000 }
+      value={this.state.recipients[index].amount.lovelace === 0n ? "" : Number(this.state.recipients[index].amount.lovelace)/1_000_000   }
       onChange={event => this.setAmount(event.target.value,"lovelace",index)}
     /> </span>
     </div>
@@ -199,7 +200,7 @@ class WalletCreateTx extends React.Component {
        {!this.state.tokenData[item].isNft && <div className='tokenAmount'> <input
           type="number"
           name="amount"
-          value={ this.state.recipients[index].amount[item] === 0 ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
+          value={ this.state.recipients[index].amount[item] === 0n ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
           onChange={event => this.setAmount(event.target.value,item,index)}
           /> 
           <button type="submit" className='maxButton' onClick={ () =>  this.setMax(item,index)}>max</button>
@@ -218,10 +219,10 @@ class WalletCreateTx extends React.Component {
   ))
     
 
-   SignersSelect = () => this.props.wallet.getSigners().map( (item, index) => (
+   SignersSelect = () => this.props.moduleRoot.getSigners().map( (item, index) => (
     <div key={index} >
    <label className='signerCheckbox'>
-     {this.props.wallet.getSigners()[index].name}:
+     {this.props.moduleRoot.getSigners()[index].name}:
      <input
        type="checkbox"
        name="value"
@@ -234,29 +235,20 @@ class WalletCreateTx extends React.Component {
    </label>
    </div>
   ) ) 
-
-  
-  AccountSelect = () => 
-    <div>
-   <br />
-      <span>Send From</span>
-      <select className="addressSelect" defaultValue={this.props.wallet.getDefaultAddress()} onChange={this.handleChangeFrom} >
-                <option value="" >All</option>
-
-                {this.props.wallet.getFundedAddress().map( (item, index) => (
-                  <option key={index} value={item} >{this.props.wallet.getAddressName(item)}</option>
-            ))}
-      </select>
-
-      <br />
-   </div>
-  
   
   render(){
 
   return (
     <div className='CreateTransactionContainer'>
       <h1> Account Balance : {this.props.wallet.getBalance(this.state.sendFrom)/1_000_000} {this.props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </h1>
+      { this.props.wallet.getFundedAddress().length > 1 && <AddressSelect
+          wallet={this.props.wallet}
+          moduleRoot={this.props.moduleRoot}
+          selectedAddress={this.state.sendFrom}
+          onAddressChange={this.handleChangeFrom}
+        />}
+     
+     
       { this.RecipientJSX()}
 
       <div onMouseEnter={() => this.setHovering("recipient")} onMouseLeave={() => this.setHovering("") } onClick={() => this.addRecipient()} className='addRecipientWraper recipientButton'>
@@ -264,13 +256,12 @@ class WalletCreateTx extends React.Component {
         {  <label className='iconLabel'>Add Recipient</label> }
         < br/>   
       </div>
-      {this.props.wallet.getSigners().length !== 0 && <div className='SignersSelect' ><h2> Signers:</h2>
+      {this.props.moduleRoot.getSigners().length !== 0 && <div className='SignersSelect' ><h2> Signers:</h2>
       <div className='SignersSelectList'>
       { this.SignersSelect()}
       </div>
       </div>
   }
-      { this.props.wallet.getFundedAddress().length > 1 ? this.AccountSelect(): ""}
       <br/>
 
       <button className='commonBtn' type="submit" onClick={this.handleSubmit}>Create Transaction</button>

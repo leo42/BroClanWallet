@@ -179,7 +179,7 @@ async setState(state){
       myWallet.setAddressNamess(wallets[index].addressNames)
       myWallet.setDefaultSigners(wallets[index].defaultSigners)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
-      await myWallet.checkTransactions()
+      await myWallet.loadUtxos()
       await myWallet.setCollateralDonor(wallets[index].collateralDonor)
       state.wallets.push(myWallet)
     }
@@ -256,11 +256,20 @@ async setState(state){
 
     }
   }
+  getSigners(){
+    const wallets = this.state.wallets
+    return wallets[this.state.selectedWallet].getSigners()
+  }
 
-  async createDelegationTx(pool,signers){
+  getSignerName(keyHash){
+    const wallets = this.state.wallets
+    return wallets[this.state.selectedWallet].getSignerName(keyHash)
+  }
+  
+  async createDelegationTx(pool, dRepId, signers){
     try{
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createDelegationTx(pool,signers)
+     await this.state.wallets[this.state.selectedWallet].createDelegationTx(pool, dRepId, signers)
     this.setState({wallets})
     toast.info('Delegation Transaction created');
     }catch(e){
@@ -333,6 +342,11 @@ async setState(state){
   }
 
 
+  updateSignerName(keyHash, name){
+    const wallets = this.state.wallets
+    wallets[this.state.selectedWallet].updateSignerName(keyHash, name)
+    this.setState({wallets})
+  }
 
   changeAddressName(address,name){
     try {

@@ -2,16 +2,17 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MultisigContainer from './components/Multisig/MultisigContainer';
+import SmartWalletContainer from './components/SmartWallet/SmartWalletContainer';
 import { ToastContainer, toast } from 'react-toastify';
 import './components/ReactToastify.css';
 import TermsAndConditionsBanner from './components/TermsBanner';
 import NavBar from './components/NavBar';
 import { getNewLucidInstance } from './helpers/newLucid.js';
 import SettingsModal from "./components/SettingsModal";
-import TokenVaultsContainer from './components/TokenVault/TokenVaultContainer';
 import Minting from './components/Minting/minting';
 import WalletPicker from "./components/WalletPicker"
 import AffiliateModal from "./components/Minting/affiliateModal";
+
 
 class App extends React.Component {
   state= {
@@ -148,7 +149,7 @@ class App extends React.Component {
           />
         <br/>
      {this.state.module === "multisig" &&  <MultisigContainer root={this} settings={this.state.settings} /> }
-     {this.state.module === "tokenVault" &&  <TokenVaultsContainer root={this} settings={this.state.settings} /> }
+     {this.state.module === "smartWallets" &&  <SmartWalletContainer root={this} settings={this.state.settings} /> }
      {this.state.module === "minting" &&  <Minting root={this} settings={this.state.settings} /> }
       <TermsAndConditionsBanner key={this.state.settings} root={this}/>
         <NavBar root={this} />

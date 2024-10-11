@@ -1,10 +1,10 @@
 import React, { useEffect }     from "react";
-import TokenElement from "../TokenElement";
+import TokenElement from "./TokenElement";
 import {  toast } from 'react-toastify';
-import { ReactComponent as SignIcon } from "../../html/assets/sign.svg";
-import { ReactComponent as ImportSigIcon } from "../../html/assets/importSig.svg";
-import { ReactComponent as ExpandIcon } from "../../html/assets/details.svg";
-import copyTextToClipboard from "../../helpers/copyTextToClipboard";
+import { ReactComponent as SignIcon } from "./../html/assets/sign.svg";
+import { ReactComponent as ImportSigIcon } from "./../html/assets/importSig.svg";
+import { ReactComponent as ExpandIcon } from "./../html/assets/details.svg";
+import copyTextToClipboard from "./../helpers/copyTextToClipboard";
 import "./PendingTx.css"
 
 function WalletPendingTx(props) {
@@ -30,7 +30,7 @@ function WalletPendingTx(props) {
     }, [isMobile]);
     
     const txDetails = props.moduleRoot.state.wallets[props.moduleRoot.state.selectedWallet].getPendingTxDetails(props.index)
-    
+    console.log(txDetails)
     
     useEffect(() => {
         // get Utxo for each input
@@ -190,11 +190,12 @@ function WalletPendingTx(props) {
 
                             })}</span></div></div> : ""}
 
-               {transaction.withdrawals && <div className="pendingTxData"> <div > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></div> </div>}
-               {transaction.update &&  <div className="pendingTxData"> <div > <h4> Update:</h4> <span>  {transaction.update} </span></div> </div> }
-               {transaction.auxiliary_data_hash && <div className="pendingTxData"> <div > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></div> </div>}
-                {transaction.validity_start_interval &&  <div className="pendingTxData"> <div > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></div> </div>}
-
+              {transaction.withdrawals && <div className="pendingTxData"> <div > <h4>Withdrawals: </h4> <span> {JSON.stringify( transaction.withdrawals)} </span></div> </div>}
+              {transaction.update &&  <div className="pendingTxData"> <div > <h4> Update:</h4> <span>  {transaction.update} </span></div> </div> }
+              {transaction.auxiliary_data_hash && <div className="pendingTxData"> <div > <h4>Auxiliary Data Hash:</h4> <span>  {transaction.auxiliary_data_hash} </span></div> </div>}
+ {/*old */}   {transaction.validity_start_interval &&  <div className="pendingTxData"> <div > <h4>Validity Start Interval: </h4> <span>  {transaction.validity_start_interval} </span></div> </div>} 
+              {transaction.validity_interval_start &&  <div className="pendingTxData"> <div > <h4>Validity Interval Start: </h4> <span>  {transaction.validity_interval_start} </span></div> </div>}
+              {transaction.ttl &&  <div className="pendingTxData"> <div > <h4>TTL: </h4> <span>  {transaction.ttl} </span></div> </div>}
               {transaction.script_data_hash &&  <div className="pendingTxData"> <div > <h4>Script Data Hash: </h4> <span>  {transaction.script_data_hash} </span></div> </div>}
 
               {transaction.collateral && <div key={collateralUtXos}> <div > <span>  {collateralUtXos.map((input, index) =>{ TransactionInput(input)})} </span></div> </div>}
@@ -202,7 +203,7 @@ function WalletPendingTx(props) {
               {transaction.collateral_return && <div className="pendingTxData"> <div > <h4>Collateral Return: </h4> <span>  {TransactionOutput(transaction.collateral_return)} </span></div> </div>}
               { transaction.total_collateral &&   <div className="pendingTxData"> <div > <h4>Total Collateral: </h4> <span>  {transaction.total_collateral} </span></div> </div> } 
               {transaction.invalid_before &&  <div className="pendingTxData"> <div > <h4>Invalid Before:</h4> <span>  {transaction.invalid_before} </span></div> </div>}
-              {transaction.invalid_hereafter &&  <div className="pendingTxData"> <div > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></div> </div>}
+{/*old */}    {transaction.invalid_hereafter &&  <div className="pendingTxData"> <div > <h4>Invalid Hereafter:  </h4> <span> {transaction.invalid_hereafter} </span></div> </div>}
               {transaction.required_scripts &&  <div className="pendingTxData"> <div > <h4>Required Scripts: </h4> <span>  {transaction.required_scripts.map((script) => <div key={script}> {script}</div>)} </span></div> </div>}                         
 
               {collateralUtXos.length !== 0  && <div  className="pendingTxReferenceInputs"> <div > <h3>Collateral: </h3> <span> {collateralUtXos.map((input, index) =>
@@ -277,8 +278,8 @@ function WalletPendingTx(props) {
             {txDetails.signatures.map( (item, index) => (
                 <div key={index} className={"pendingTx_signer"+ (item.haveSig ? " pendingTx_signer_signed" : "")} >
                    
-                    {item.haveSig ? <span className="pendingTxCompletedSig">{item.name} Signed <svg className="copyIcon" onClick={() => copySignature(props.wallet.getSignature(props.index,item.keyHash))}  id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg> </span> :
-                      <span className="pendingTxMissingSig"> Signature missing for: {item.name}</span> }
+                    {item.haveSig ? <span className="pendingTxCompletedSig">{props.moduleRoot.getSignerName(item.keyHash)} Signed <svg className="copyIcon" onClick={() => copySignature(props.wallet.getSignature(props.index,item.keyHash))}  id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg> </span> :
+                      <span className="pendingTxMissingSig"> Signature missing for: {props.moduleRoot.getSignerName(item.keyHash)}</span> }
                 </div>))}
 
 
