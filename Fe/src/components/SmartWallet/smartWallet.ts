@@ -168,16 +168,17 @@ class SmartWallet {
     return this.config
   }
 
-  async loadConfig(): Promise<SmartMultisigJson> {
+  async loadConfig()  {
     try {
       const configUtxo = await this.getConfigUtxo();
-      this.configUtxo = configUtxo
-
+      if(this.configUtxo?.txHash !== configUtxo?.txHash || this.configUtxo?.outputIndex !== configUtxo?.outputIndex){
+        this.configUtxo = configUtxo
         const config : SmartMultisigJson = decode(configUtxo?.datum as string)
-      this.config = config
-      const signers = await this.loadSigners(config)
-      this.signerNames = signers.signers
-      this.nftUtxos  =   signers.nftUtxos
+        this.config = config
+        const signers = await this.loadSigners(config)
+        this.signerNames = signers.signers
+        this.nftUtxos  =   signers.nftUtxos
+      }
       try{
         const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
         const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
@@ -186,7 +187,6 @@ class SmartWallet {
       catch(e){
         console.error("Error getting script utxo:", e);
       }
-      return config
     } catch (e) {
       console.error("Error getting config:", e);
       return Promise.reject(e);
@@ -204,22 +204,24 @@ class SmartWallet {
 
   async loadSigners(config : SmartMultisigJson): Promise<{ nftUtxos: UTxO[], signers: {hash: string,  isDefault: boolean}[]}> {
     let signers : {hash: string,  isDefault: boolean}[] = []
+    const defaultSigners = this.getDefaultSigners()
     let nftUtxos : UTxO[] = []
     switch (config.Type) {
       case SmartMultisigDescriptorType.KeyHash:
-        signers.push({ hash: config.keyHash, isDefault: false})
+        signers.push({ hash: config.keyHash, isDefault: defaultSigners.includes(config.keyHash)})
         break
       case SmartMultisigDescriptorType.NftHolder:
         const utxo = await this.lucid.config().provider.getUtxoByUnit(config.policy + config.name)
         nftUtxos = [...nftUtxos, utxo]
-        signers.push({ hash: getAddressDetails(utxo.address).paymentCredential?.hash as string, isDefault: false})
+        const keyHash = getAddressDetails(utxo.address).paymentCredential?.hash as string
+        signers.push({ hash: keyHash, isDefault: defaultSigners.includes(keyHash)})
         try{
           const subConfig : SmartMultisigJson = decode(utxo?.datum as string)
           const subAddresses = await this.loadSigners(subConfig)
           signers = [...signers, ...subAddresses.signers] // Correctly spread the array of addresses
           nftUtxos = [...nftUtxos, ...subAddresses.nftUtxos]
         } catch (e) {
-          console.error("Error loading signers:", e) // Use console.error for consistency
+          console.log("Error loading signers:", e) // Use console.error for consistency
         }
         
         break
