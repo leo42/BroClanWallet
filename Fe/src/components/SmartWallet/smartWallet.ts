@@ -623,7 +623,6 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     tx.collectFrom(this.utxos, Data.void())
 
     tx.deregister.Stake(rewardAddress, Data.void())
-    tx.deregister.DRep(rewardAddress, Data.void())
 
 
 
