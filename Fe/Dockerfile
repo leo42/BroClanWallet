@@ -4,15 +4,13 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN cd Fe && npm ci 
+RUN  npm ci 
 
-RUN cd shared/wallets && npm ci --only=production
-
-RUN cd Fe && npm run build
+RUN  npm run build
 
 FROM nginx:latest
 
-COPY --from=builder /usr/src/app/Fe/build/public/ /usr/share/nginx/html
+COPY --from=builder /usr/src/app/build/public/ /usr/share/nginx/html
 
 # Expose port 80 so that it can be accessed from outside the container
 EXPOSE 80
