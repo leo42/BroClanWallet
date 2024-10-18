@@ -809,8 +809,14 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   getSignature(index: number, keyHash: string){
     return this.pendingTxs[index].signatures[keyHash]
   }
+
+  signersCompleted(index: number) : boolean {
+   const txDetails = this.getPendingTxDetails(index)
+   console.log(txDetails,txDetails.signatures.length , txDetails.required_signers)
+    return txDetails.signatures.length === txDetails.required_signers.length
+  }
   
-  addSignature(signature: string) {
+  addSignature(signature: string) : number {
     const signatureInfo = this.decodeSignature(signature);
     let valid = false;
     console.log(signatureInfo);
@@ -824,7 +830,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
           valid = true;
           if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
             this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature;
-            return this.pendingTxs[index];
+            return index;
           } else {
             throw new Error('Signature already registered');
           }
@@ -835,6 +841,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     if (!valid) {
       throw new Error('Invalid Signature');
     }
+    return -1
   }
 
 

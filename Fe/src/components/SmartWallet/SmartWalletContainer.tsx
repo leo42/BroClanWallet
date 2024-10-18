@@ -168,9 +168,12 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
         const wallets = [...this.state.wallets]
         const wallet = wallets[this.state.selectedWallet]
-        wallet.addSignature(signature)
+        const index = wallet.addSignature(signature)
         this.setState({wallets: wallets})
         this.storeWallets()
+        if(wallet.signersCompleted(index)){
+          this.submit(index)
+        }
       }catch(error: any){
         toast.error("Error adding signature: " + error.message)
         console.log("error", error)
