@@ -168,16 +168,17 @@ class SmartWallet {
     return this.config
   }
 
-  async loadConfig(): Promise<SmartMultisigJson> {
+  async loadConfig()  {
     try {
       const configUtxo = await this.getConfigUtxo();
-      this.configUtxo = configUtxo
-
+      if(this.configUtxo?.txHash !== configUtxo?.txHash || this.configUtxo?.outputIndex !== configUtxo?.outputIndex){
+        this.configUtxo = configUtxo
         const config : SmartMultisigJson = decode(configUtxo?.datum as string)
-      this.config = config
-      const signers = await this.loadSigners(config)
-      this.signerNames = signers.signers
-      this.nftUtxos  =   signers.nftUtxos
+        this.config = config
+        const signers = await this.loadSigners(config)
+        this.signerNames = signers.signers
+        this.nftUtxos  =   signers.nftUtxos
+      }
       try{
         const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
         const scriptUtxo = await this.lucid.config().provider.getUtxoByUnit(policyId + "02" + this.id);
@@ -186,7 +187,6 @@ class SmartWallet {
       catch(e){
         console.error("Error getting script utxo:", e);
       }
-      return config
     } catch (e) {
       console.error("Error getting config:", e);
       return Promise.reject(e);
@@ -204,22 +204,24 @@ class SmartWallet {
 
   async loadSigners(config : SmartMultisigJson): Promise<{ nftUtxos: UTxO[], signers: {hash: string,  isDefault: boolean}[]}> {
     let signers : {hash: string,  isDefault: boolean}[] = []
+    const defaultSigners = this.getDefaultSigners()
     let nftUtxos : UTxO[] = []
     switch (config.Type) {
       case SmartMultisigDescriptorType.KeyHash:
-        signers.push({ hash: config.keyHash, isDefault: false})
+        signers.push({ hash: config.keyHash, isDefault: defaultSigners.includes(config.keyHash)})
         break
       case SmartMultisigDescriptorType.NftHolder:
         const utxo = await this.lucid.config().provider.getUtxoByUnit(config.policy + config.name)
         nftUtxos = [...nftUtxos, utxo]
-        signers.push({ hash: getAddressDetails(utxo.address).paymentCredential?.hash as string, isDefault: false})
+        const keyHash = getAddressDetails(utxo.address).paymentCredential?.hash as string
+        signers.push({ hash: keyHash, isDefault: defaultSigners.includes(keyHash)})
         try{
           const subConfig : SmartMultisigJson = decode(utxo?.datum as string)
           const subAddresses = await this.loadSigners(subConfig)
           signers = [...signers, ...subAddresses.signers] // Correctly spread the array of addresses
           nftUtxos = [...nftUtxos, ...subAddresses.nftUtxos]
         } catch (e) {
-          console.error("Error loading signers:", e) // Use console.error for consistency
+          console.log("Error loading signers:", e) // Use console.error for consistency
         }
         
         break
@@ -621,7 +623,6 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     tx.collectFrom(this.utxos, Data.void())
 
     tx.deregister.Stake(rewardAddress, Data.void())
-    tx.deregister.DRep(rewardAddress, Data.void())
 
 
 
@@ -807,8 +808,14 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   getSignature(index: number, keyHash: string){
     return this.pendingTxs[index].signatures[keyHash]
   }
+
+  signersCompleted(index: number) : boolean {
+   const txDetails = this.getPendingTxDetails(index)
+   console.log(txDetails,txDetails.signatures.length , txDetails.required_signers)
+    return txDetails.signatures.length === txDetails.required_signers.length
+  }
   
-  addSignature(signature: string) {
+  addSignature(signature: string) : number {
     const signatureInfo = this.decodeSignature(signature);
     let valid = false;
     console.log(signatureInfo);
@@ -822,7 +829,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
           valid = true;
           if (!(signatureInfo.signer in this.pendingTxs[index].signatures)) {
             this.pendingTxs[index].signatures[signatureInfo.signer] = signatureInfo.signature;
-            return this.pendingTxs[index];
+            return index;
           } else {
             throw new Error('Signature already registered');
           }
@@ -833,6 +840,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     if (!valid) {
       throw new Error('Invalid Signature');
     }
+    return -1
   }
 
 
