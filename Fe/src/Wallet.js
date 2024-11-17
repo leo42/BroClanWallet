@@ -134,7 +134,7 @@ class Wallet {
       } 
     }
      )
-    if (result["lovelace"]) result["lovelace"] = Number(result["lovelace"]) + (this.delegation.rewards ?  Number(this.delegation.rewards) : 0)
+    if (result["lovelace"]) result["lovelace"] = BigInt(result["lovelace"]) + (BigInt(this.delegation.rewards) ?  BigInt(this.delegation.rewards) : 0n)
     return result
  }
  

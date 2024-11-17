@@ -1,8 +1,7 @@
 
 import {Buffer} from 'buffer';
  
-import {  utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
-
+import { utxoToCore , CML , assetsToValue , scriptFromNative } from '@lucid-evolution/lucid';
 function toHexString(byteArray) {
     return Array.from(byteArray, function(byte) {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
@@ -66,23 +65,24 @@ class Messaging {
                             response = this.wallet.getNetworkId();
                             break;
                         case "getBalance": 
-                            response =Buffer.from(assetsToValue(this.wallet.getBalanceFull()).to_bytes(), 'hex').toString('hex');
+                        console.log(this.wallet.getBalanceFull())
+                            response = assetsToValue(this.wallet.getBalanceFull()).to_cbor_hex();
                            // response = assetsToValue(this.wallet.getBalanceFull());
                             break;
                         case "getUtxos":
-                            response = this.wallet.getUtxos().map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                            response = this.wallet.getUtxos().map((utxo) => (utxoToCore(utxo).to_cbor_hex()));
                             break;    
                         case "getUsedAddresses":
-                            response =  [Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
+                            response =  [CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
                             break;
                         case "getUnusedAddresses":
-                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
+                            response =[ CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
                             break;
                         case "getChangeAddress":
-                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
+                            response =[ CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
                             break;
                         case "getRewardAddresses":
-                            response = [Buffer.from( C.Address.from_bech32( this.wallet.getStakingAddress()).to_bytes(), 'hex').toString('hex')]; 
+                            response = [ CML.Address.from_bech32( this.wallet.getStakingAddress()).to_hex()]; 
                             break;
                         case "submitTx":
                             response = await this.wallet.submitTx(message.tx);
@@ -116,7 +116,7 @@ class Messaging {
                             break;
                         
                         case "getScript":
-                            response = nativeScriptFromJson(this.wallet.getJson()).script
+                            response = scriptFromNative(this.wallet.getJson()).script
                             break;
    
                         case "getCompletedTx":
@@ -136,11 +136,11 @@ class Messaging {
                             }
                             break;
                         case "getCollateralAddress":
-                            response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes(), 'hex').toString('hex')];
+                            response = [    CML.Address.from_bech32(this.wallet.getCollateralAddress()).to_hex()];
                             break;
                         case "getCollateral":
                         
-                            response = (await this.wallet.getCollateral()).map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                            response = (await this.wallet.getCollateral()).map((utxo) => (utxoToCore(utxo).to_cbor_hex()));
                             break;
                         case "getUtxoByOutRef":
                             const replacer = (key, value) => {
