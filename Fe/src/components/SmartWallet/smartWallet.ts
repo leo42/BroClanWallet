@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, Script} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -912,6 +912,14 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     this.addressNames[address] = name;
   }
 
+  getNetworkId() : number {
+    return this.lucid.config().network === "Mainnet" ? 1 : 0 
+}
+
+getUtxos() : UTxO[]{
+  return this.utxos
+}
+
   getDefaultAddress(){
     if (this.defaultAddress === null) {
         this.defaultAddress = this.getAddress();
@@ -919,6 +927,21 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     return this.defaultAddress;
 }
 
+  getScript() : Script {
+      return this.script
+  }
+
+  getCompletedTx(txId: string) : {tx: string, signatures: Record<string, string>} | null {
+    const tx = this.pendingTxs.find(tx => tx.tx.toHash() === txId)
+    if (tx){
+      return {tx: tx.tx.toCBOR({canonical: true}), signatures: tx.signatures}
+    }
+    return null
+  }
+
+  getJson() : SmartMultisigJson {
+    return this.config
+  }
 
   getAddressNames(): Record<string, string> {
     return this.addressNames;
