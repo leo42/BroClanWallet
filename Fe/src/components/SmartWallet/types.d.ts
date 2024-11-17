@@ -14,7 +14,8 @@ export declare enum SmartMultisigDescriptorType {
     NftHolder = "NftHolder",
     AtLeast = "AtLeast",
     Before = "Before",
-    After = "After"
+    After = "After",
+    ScriptRef = "ScriptRef"
 }
 export declare const SmartMultisigDescriptorKeyHashSchema: import("@lucid-evolution/lucid").TObject<{
     keyHash: import("@lucid-evolution/lucid").TUnsafe<string>;
@@ -27,30 +28,22 @@ export type SmartMultisigDescriptorNftHolder = {
 };
 export type SmartMultisigJson = {
     Type: SmartMultisigDescriptorType.KeyHash;
-    keyHash: {
-        name: string;
-        keyHash: string;
-    };
+    keyHash: string;
 } | {
     Type: SmartMultisigDescriptorType.NftHolder;
-    nftHolder: {
-        name: string;
-        policy: string;
-    };
+    name: string;
+    policy: string;
 } | {
     Type: SmartMultisigDescriptorType.AtLeast;
-    atLeast: {
-        m: number;
-        scripts: SmartMultisigJson[];
-    };
+    m: number;
+    scripts: SmartMultisigJson[];
 } | {
     Type: SmartMultisigDescriptorType.Before;
-    before: {
-        time: number;
-    };
+    time: number;
 } | {
     Type: SmartMultisigDescriptorType.After;
-    after: {
-        time: number;
-    };
+    time: number;
+} | {
+    Type: SmartMultisigDescriptorType.ScriptRef;
+    scriptHash: string;
 };
