@@ -223,17 +223,9 @@ function getUserApproval(data) {
 }
   
 
-let isConnecting = false; // Mutex flag
 
 function connectBroClan() {
     return new Promise((resolve, reject) => {
-        if (isConnecting) {
-            // If already connecting, return immediately
-            resolve(false);
-            return;
-        }
-
-        isConnecting = true; // Set the mutex
 
         chrome.storage.local.get('appURL', function(result) {
             let appDomain = new URL(result.appURL);
@@ -257,7 +249,6 @@ function connectBroClan() {
                     await new Promise(r => setTimeout(r, 1000));
                 }
 
-                isConnecting = false; // Release the mutex
                 resolve(true);
             });
         });

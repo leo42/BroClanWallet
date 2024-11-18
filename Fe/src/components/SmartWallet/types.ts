@@ -1,4 +1,4 @@
-import {  Data, TSchema } from "@lucid-evolution/lucid";
+import {  Data, Hash, KeyHash, Redeemer, TSchema } from "@lucid-evolution/lucid";
 
 
 export const adminDatumSchema = Data.Object({
@@ -49,6 +49,26 @@ export type SmartMultisigDescriptorNftHolder = {
   Type: SmartMultisigDescriptorType.NftHolder;
   policy: PolicyId;
   name: AssetName;
+}
+
+export type ScriptRequirement = {
+  collateral?: string[],
+  inputs?: string[],
+  reference_inputs?: string[],
+  outputs?: string[],
+  mint?: string,
+  certificates?: string[],
+  withdrawals?: string[],
+  validity_range?: ValidityRange,
+  signatories?: KeyHash[],
+  redeemers?: {ScriptPurpose: string, Redeemer: string}[],
+  datums?: {string: string}[],
+  script?: string
+}
+
+export type ValidityRange = {
+  from?: number,
+  to?: number
 }
 
 export type SmartMultisigJson = 

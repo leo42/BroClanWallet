@@ -1,9 +1,9 @@
-import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, Script} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, utxoToCore, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, Script, Network} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
 import { encode , decode } from "./encoder";
-import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
+import { SmartMultisigJson , SmartMultisigDescriptorType, ScriptRequirement} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 interface Recipient {
   address: string;
@@ -135,13 +135,33 @@ class SmartWallet {
   }
 
   getBalance(address: string = ""): number {
-    let result = BigInt(0);
+    let result = Number(0);
     this.utxos.forEach(utxo => {
       if (address === "" || utxo.address === address) {
-        result += BigInt(utxo.assets.lovelace);
+        result += Number(utxo.assets.lovelace);
       }
     });
-    return Number(result + BigInt(this.delegation.rewards || 0));
+    return Number(result + Number(this.delegation.rewards || 0));
+  }
+
+ async getScriptRequirements(): Promise<ScriptRequirement[]> {
+    const requirements =  this.checkSigners(this.getDefaultSigners())
+    let scriptRequirement : ScriptRequirement = {}
+    if (requirements === false) return []
+    scriptRequirement.signatories = this.getDefaultSigners()
+    const configUtxo = this.configUtxo ? this.configUtxo : await this.getConfigUtxo()
+    scriptRequirement.reference_inputs = [utxoToCore(configUtxo).to_cbor_hex()]
+    if(this.scriptUtxo) {
+      scriptRequirement.reference_inputs.push(utxoToCore(this.scriptUtxo).to_cbor_hex())
+    }else{
+       scriptRequirement.script = this.script.script
+    }
+    if(this.colateralUtxo){
+      scriptRequirement.collateral = [utxoToCore(this.colateralUtxo).to_cbor_hex()]
+    }
+    
+
+    return [scriptRequirement]
   }
   getContract() : Validator {
     return this.script
@@ -198,7 +218,6 @@ class SmartWallet {
   }
 
   getCollateralDonor() : string{
-
     return this.collateralDonor ? this.collateralDonor : ""
   }
 
@@ -547,7 +566,7 @@ private isValidKeyHash(hash: string): boolean {
   return /^[0-9a-fA-F]{56}$/.test(hash);
 }
   
-async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
+async getColateralUtxo(signers : string[]= this.getDefaultSigners()) : Promise<UTxO> {
   if(this.colateralUtxo && signers?.includes(this.collateralDonor as string)) {
     return this.colateralUtxo
   }else if (signers) {
@@ -918,6 +937,9 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
 
   getNetworkId() : number {
     return this.lucid.config().network === "Mainnet" ? 1 : 0 
+}
+getNetwork() : Network {
+  return this.lucid.config().network
 }
 
 getUtxos() : UTxO[]{

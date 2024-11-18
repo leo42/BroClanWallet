@@ -1,6 +1,6 @@
-import { TxSignBuilder, CBORHex, Validator, Assets, UTxO, Delegation, TxBuilder, Script } from "@lucid-evolution/lucid";
+import { TxSignBuilder, CBORHex, Validator, Assets, UTxO, Delegation, TxBuilder, Script, Network } from "@lucid-evolution/lucid";
 import { Settings } from "../../types/app";
-import { SmartMultisigJson } from "./types";
+import { SmartMultisigJson, ScriptRequirement } from "./types";
 import { TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 interface Recipient {
     address: string;
@@ -50,6 +50,7 @@ declare class SmartWallet {
     getDelegation(): Promise<Delegation>;
     getFundedAddress(): string[];
     getBalance(address?: string): number;
+    getScriptRequirements(): Promise<ScriptRequirement[]>;
     getContract(): Validator;
     getBalanceFull(address?: string): Assets;
     getConfigUtxo(): Promise<UTxO>;
@@ -112,6 +113,7 @@ declare class SmartWallet {
     setAddressNames(names: Record<string, string>): void;
     changeAddressName(address: string, name: string): void;
     getNetworkId(): number;
+    getNetwork(): Network;
     getUtxos(): UTxO[];
     getDefaultAddress(): string;
     getScript(): Script;

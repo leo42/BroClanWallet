@@ -1,4 +1,4 @@
-import { Data, TSchema } from "@lucid-evolution/lucid";
+import { Data, KeyHash, TSchema } from "@lucid-evolution/lucid";
 export declare const adminDatumSchema: import("@lucid-evolution/lucid").TObject<{
     mintAmount: import("@lucid-evolution/lucid").TUnsafe<bigint>;
     paymentAddressCredential: import("@lucid-evolution/lucid").TUnsafe<string>;
@@ -25,6 +25,29 @@ export type SmartMultisigDescriptorNftHolder = {
     Type: SmartMultisigDescriptorType.NftHolder;
     policy: PolicyId;
     name: AssetName;
+};
+export type ScriptRequirement = {
+    collateral?: string[];
+    inputs?: string[];
+    reference_inputs?: string[];
+    outputs?: string[];
+    mint?: string;
+    certificates?: string[];
+    withdrawals?: string[];
+    validity_range?: ValidityRange;
+    signatories?: KeyHash[];
+    redeemers?: {
+        ScriptPurpose: string;
+        Redeemer: string;
+    }[];
+    datums?: {
+        string: string;
+    }[];
+    script?: string;
+};
+export type ValidityRange = {
+    from?: number;
+    to?: number;
 };
 export type SmartMultisigJson = {
     Type: SmartMultisigDescriptorType.KeyHash;

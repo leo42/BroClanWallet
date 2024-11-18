@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { utxoToCore, CML, assetsToValue, scriptFromNative } from '@lucid-evolution/lucid';
+import { utxoToCore, CML, assetsToValue, scriptFromNative, credentialToAddress } from '@lucid-evolution/lucid';
 import SmartWallet from '../components/SmartWallet/smartWallet';
 
 class SmartWalletMessaging {
@@ -38,8 +38,8 @@ class SmartWalletMessaging {
                             }
                             response = {
                                 walletName: this.wallet.getName(),
-                                balance: this.wallet.getBalance(),
-                                signers: this.wallet.getSigners(),
+                                ballance: this.wallet.getBalance(),
+                                signers: this.root.getSigners(),
                                 signersValid: this.wallet.defaultSignersValid()
                             };
                             break;
@@ -53,7 +53,7 @@ class SmartWalletMessaging {
                             response = this.wallet.getUtxos().map((utxo) => (utxoToCore(utxo).to_cbor_hex()));
                             break;
                         case "getScriptRequirements":
-                            response = "TODO" // this.wallet.getScriptRequirements();
+                            response = await this.wallet.getScriptRequirements(); // this.wallet.getScriptRequirements();
                             break;
                         case "getUsedAddresses":
                             response =  [CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
@@ -68,7 +68,8 @@ class SmartWalletMessaging {
                             response = [ CML.Address.from_bech32( this.wallet.getStakingAddress()).to_hex()]; 
                             break;
                         case "getScript":
-                            response = this.wallet.getScript();
+                            const script = await this.wallet.getScript()
+                            response = [Number(script.type.replace("PlutusV", "")), script.script]
                             break;
                         case "submitUnsignedTx":
                             try {
@@ -92,7 +93,17 @@ class SmartWalletMessaging {
                                 }
                             }
                             break;
+                        case "getCollateralAddress":
+                            response = [    CML.Address.from_bech32(credentialToAddress(await this.wallet.getNetwork(), 
+                                                                                        {type: "Key", hash: this.wallet.getCollateralDonor()}))
+                                                                                        .to_hex()];
+                            break;
+                        case "getCollateral":
+                        
+                            response = (utxoToCore(await this.wallet.getColateralUtxo())).to_cbor_hex();
+                            break;
                         // Add additional cases for new API endpoints as per CIP-0106 and the new connector
+                  
                     }
                 } catch (e : any) {
                     console.log(e);

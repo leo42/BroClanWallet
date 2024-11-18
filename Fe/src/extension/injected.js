@@ -90,9 +90,11 @@ function enable(extensions = []) {
                     api.cipxxx = {
                         getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
                         getScript: () => promiseMessage({ action: 'getScript' }),
+                        getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
                         submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
                         getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId }),
-                        getSecret: (secretId, data = undefined) => promiseMessage({ action: 'getSecret', secret: secretId, data: data })
+                        getSecret: (secretId, data = undefined) => promiseMessage({ action: 'getSecret', secret: secretId, data: data }),
+                        signRedeemer: (redeemer) => reject('not supported') 
                     }
                 }
                 connectedWallet = extensions[0]
