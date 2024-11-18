@@ -4,6 +4,15 @@ chrome.storage.local.get('appURL', function(result) {
     }
 });
 
+let walletType 
+chrome.storage.local.get('walletType', function(result) {
+    if (result.walletType === undefined) {
+        chrome.storage.local.set({walletType: 106});
+        walletType = 106
+    }else{
+        walletType = result.walletType
+    }
+});
 let BroPort = null;
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -84,7 +93,11 @@ function loadApprovedUrls() {
 }
 
 chrome.runtime.onMessageExternal.addListener(async function(request, sender, sendResponse) {
-
+    
+    if(request && request.action && request.action === "walletType"){
+        sendResponse({ walletType });
+        return false;
+    }
     let approvedUrls = await loadApprovedUrls()
 
     if (approvedUrls.includes(sender.origin)) {
@@ -98,7 +111,7 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
                 return false;
             }
         }
-        if(request && request.action && request.action !== "enable"){
+        else if(request && request.action && request.action !== "enable"){
                BroPort.postMessage(request);
                const messageListener = (message) => { 
                      if( request.action === message.action){
@@ -150,14 +163,17 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
             return
         }
         
+        port.onMessage.addListener((message) => {
+            if(message.action === "walletType"){
+                walletType = message.walletType
+            }
+        })
         BroPort = port; 
         startPing();
         
         return
     }
 });
-    
-
 });
 
 function getUserApproval(data) {
@@ -206,9 +222,18 @@ function getUserApproval(data) {
 }
   
 
+let isConnecting = false; // Mutex flag
 
 function connectBroClan() {
     return new Promise((resolve, reject) => {
+        if (isConnecting) {
+            // If already connecting, return immediately
+            resolve(false);
+            return;
+        }
+
+        isConnecting = true; // Set the mutex
+
         chrome.storage.local.get('appURL', function(result) {
             let appDomain = new URL(result.appURL);
 
@@ -231,6 +256,7 @@ function connectBroClan() {
                     await new Promise(r => setTimeout(r, 1000));
                 }
 
+                isConnecting = false; // Release the mutex
                 resolve(true);
             });
         });

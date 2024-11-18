@@ -15,8 +15,15 @@ class SmartWalletMessaging {
     }
 
     async connect() {
-        this.port = chrome.runtime.connect("your-extension-id"); // Update with your extension ID
-        this.port.onMessage.addListener(async (message : any) => {
+        this.port =await chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
+        this.port.postMessage({action: "walletType", walletType: 1})
+        try{
+         //this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
+        }catch(e){
+               console.log(e)
+               return
+          } 
+         this.port.onMessage.addListener(async (message : any) => {
             if (message.action) {
                 let response;
                 try {
@@ -47,6 +54,18 @@ class SmartWalletMessaging {
                             break;
                         case "getScriptRequirements":
                             response = "TODO" // this.wallet.getScriptRequirements();
+                            break;
+                        case "getUsedAddresses":
+                            response =  [CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
+                            break;
+                        case "getUnusedAddresses":
+                            response =[ CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
+                            break;
+                        case "getChangeAddress":
+                            response =[ CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
+                            break;
+                        case "getRewardAddresses":
+                            response = [ CML.Address.from_bech32( this.wallet.getStakingAddress()).to_hex()]; 
                             break;
                         case "getScript":
                             response = this.wallet.getScript();

@@ -9,6 +9,8 @@ import './SmartWalletContainer.css';
 import { Settings , } from '../../types/app';
 import { SmartMultisigJson } from "./types";
 import {getAddressDetails} from "@lucid-evolution/lucid";
+import SmartWalletMessaging from '../../helpers/smartWalletMessaging';
+
 interface SmartWalletContainerProps {
   settings: Settings;
   root: any;
@@ -48,7 +50,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   componentWillUnmount() {
     if (this.state.dAppConnector) {
-      this.state.dAppConnector.disconnect();
+      this.state.dAppConnector ? this.state.dAppConnector.disconnect() : null
+      this.setState({dAppConnector: null})
     }
     if (this.interval) {
       clearInterval(this.interval);
@@ -101,6 +104,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   
   async loadState() {
     await this.loadWallets()
+    const dAppConnector = new SmartWalletMessaging(this.state.wallets[this.state.selectedWallet], this)
+    this.setState({dAppConnector})
     this.setState({loading: false})
   }
   
@@ -264,11 +269,17 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     const newWallet = new SmartWallet(id, this.props.settings)
     await newWallet.initializeLucid()
     this.setState({wallets: [...this.state.wallets, newWallet]})
+    if(this.state.wallets.length === 1){
+      const dAppConnector = this.state.dAppConnector
+      dAppConnector.changeWallet(newWallet)
+      this.setState({dAppConnector})
+    }
   }
 
   async addWallet(id: any) {
     await this.loadWallet(id)
     this.storeWallets()
+
   }
 
   setCollateralDonor (address: string) {
@@ -339,6 +350,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   selectWallet(key: number) {
     this.setState({selectedWallet: key})
+    const dAppConnector = this.state.dAppConnector
+    dAppConnector.changeWallet(this.state.wallets[key])
+    this.setState({dAppConnector})
   }
 
   async submit(index: number) {

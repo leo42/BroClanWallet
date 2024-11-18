@@ -106,6 +106,10 @@ class SmartWallet {
     }
   }
 
+  getStakingAddress(): string {
+    return validatorToRewardAddress(this.lucid.config().network, this.script);
+  }
+
   getEnterpriseAddress(): string {
     return validatorToAddress(this.lucid.config().network, this.script);
   }
