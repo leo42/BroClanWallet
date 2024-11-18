@@ -166,6 +166,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         port.onMessage.addListener((message) => {
             if(message.action === "walletType"){
                 walletType = message.walletType
+                chrome.storage.local.set({walletType});
             }
         })
         BroPort = port; 

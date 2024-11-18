@@ -34,7 +34,8 @@ class Messaging {
 
    async connect() {
 
-       this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
+       this.port =await chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
+    this.port.postMessage({action: "walletType", walletType: 106})
        try{
         //this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
        }catch(e){
