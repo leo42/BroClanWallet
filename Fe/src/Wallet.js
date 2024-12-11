@@ -413,7 +413,7 @@ setPendingTxs(pendingTxs){
               sumOfRecipientsMinusSendAll[key] = recipient.amount[key]
             }
           } ) 
-    }})
+        }})
       
         const balance = this.getBalanceFull()
 

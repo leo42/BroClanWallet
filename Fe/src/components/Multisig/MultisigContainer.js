@@ -204,7 +204,7 @@ async setState(state){
   async createTx(recipients,signers,sendFrom, sendAll=null){
     try{
     const wallets = this.state.wallets
-     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll)
+     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll, false)
     
     this.setState({wallets})
     toast.info('Transaction created');
