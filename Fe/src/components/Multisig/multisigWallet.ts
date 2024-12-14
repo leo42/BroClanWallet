@@ -197,13 +197,15 @@ setPendingTxs(pendingTxs: any){
 
 
     getAddress(stakingAddress="") {
+      console.log("lucidNativeScript", this.lucidNativeScript)
+      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript.to_cbor_hex()}
       const rewardAddress = stakingAddress === "" ? 
-        {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(this.lucidNativeScript)} : 
+        {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(script)} : 
         LucidEvolution.getAddressDetails(stakingAddress)!.stakeCredential;
         
       return LucidEvolution.credentialToAddress(
         this.lucid!.config().network,
-        {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(this.lucidNativeScript)}, 
+        {type: "Script" , hash: LucidEvolution.validatorToScriptHash(script) }, 
         rewardAddress
       );
     }
@@ -504,7 +506,7 @@ setPendingTxs(pendingTxs: any){
 
         
         this.pendingTxs.map( (PendingTx) => {
-          if (PendingTx.tx.toHash() === completedTx.toHash()) {
+          if (PendingTx.tx.toHash() === completedTx.toHash()){
             throw new Error('Transaction already registerd');
           }
       })

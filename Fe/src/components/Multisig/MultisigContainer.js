@@ -1,5 +1,5 @@
 
-import Wallet from '../../Wallet';
+import Wallet from './multisigWallet';
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
 import WalletConnector from './walletConnector';
