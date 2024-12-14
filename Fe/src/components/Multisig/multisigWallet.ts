@@ -15,7 +15,7 @@ class Wallet {
     addressNames: any
     utxos: any[]
     lucid: LucidEvolution.LucidEvolution | undefined 
-  lucidNativeScript: any;
+  lucidNativeScript: LucidEvolution.CML.NativeScript | undefined;
   collateralDonor: any;
   collateralUtxo: any;
   collateralAddress: any;
@@ -81,7 +81,7 @@ class Wallet {
 
       this.extractSignerNames(this.wallet_script)
       this.lucidNativeScript = LucidEvolution.toCMLNativeScript(this.wallet_script )
-      this.lucid.selectWallet.fromAddress(  this.getAddress(), await this.lucid.config().provider.getUtxos(this.getAddress()) )
+      this.lucid.selectWallet.fromAddress(  this.getAddress(), [] )
 
     } 
 
@@ -198,7 +198,7 @@ setPendingTxs(pendingTxs: any){
 
     getAddress(stakingAddress="") {
       console.log("lucidNativeScript", this.lucidNativeScript)
-      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript.to_cbor_hex()}
+      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}
       const rewardAddress = stakingAddress === "" ? 
         {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(script)} : 
         LucidEvolution.getAddressDetails(stakingAddress)!.stakeCredential;
@@ -211,7 +211,7 @@ setPendingTxs(pendingTxs: any){
     }
 
     getStakingAddress(): string {
-      return LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, this.lucidNativeScript);
+      return LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()});
     }
       
  
@@ -451,7 +451,7 @@ setPendingTxs(pendingTxs: any){
         }})
       
         const balance = this.getBalanceFull()
-
+        console.log("balance", balance)
 
           for (const [key, value ] of Object.entries(sumOfRecipientsMinusSendAll)) {
             if (key in balance){
@@ -462,29 +462,44 @@ setPendingTxs(pendingTxs: any){
               throw new Error('Not enough funds');
             }
           }
-    
+          console.log("sumOfRecipientsMinusSendAll", sumOfRecipientsMinusSendAll)
         
-        if(sendFrom!==""){
-          let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-          this.lucid!.selectWallet.fromAddress(sendFrom,utxos)
-        }else{
-          this.lucid!.selectWallet.fromAddress(this.getAddress(), this.utxos)
-        }
-        const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
-        sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
+
+        
+          console.log("sendFrom", sendFrom)
+          const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
+          sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
+          console.log("sendAllAmount", sendAllAmount)
 
         const tx = this.lucid!.newTx()
         recipients.map( (recipient: any,index: number) => {
+          console.log("recipient", index,recipient)
           // sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) :
+          const convertedAmount: Record<string, bigint> = {}
+          for (const [key, value] of Object.entries(recipient.amount)) {
+            convertedAmount[key] = BigInt(value as number)
+          }
+          recipient.amount = convertedAmount
           const localAmount = sendAll === index ? sendAllAmount : recipient.amount
+
           tx.pay.ToAddress(recipient.address,localAmount)
       })
 
+      if(sendFrom!==""){
+        let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
+        tx.collectFrom(utxos, LucidEvolution.Data.void())  
+        // this.lucid!.selectWallet.fromAddress(sendFrom,utxos)
+      }else{
+        tx.collectFrom(this.utxos, LucidEvolution.Data.void())
+        // this.lucid!.selectWallet.fromAddress(this.getAddress(), this.utxos)
+      }
+      console.log("utxos", await this.lucid!.config().wallet!.getUtxos())
 
         if(withdraw && Number(this.delegation.rewards) > 0 ){
-          tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, this.lucidNativeScript), this.delegation.rewards)
+          tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards, LucidEvolution.Data.void())
         }
 
+        console.log("sigCheck2", sigCheck)
         if (sigCheck.requires_after !== false){
           tx.validFrom( LucidEvolution.slotToUnixTime(this.lucid!.config().network, sigCheck.requires_after ))
           
@@ -493,23 +508,29 @@ setPendingTxs(pendingTxs: any){
         if (sigCheck.requires_before !== false){
           tx.validTo( LucidEvolution.slotToUnixTime(this.lucid!.config().network, sigCheck.requires_before))
         }
+        console.log("sigCheck3", sigCheck)
 
         signers.map( (value: any) => (
           tx.addSignerKey(value)
         ))
+        console.log("sigCheck4", sigCheck)
 
 
-        tx.attach.SpendingValidator(this.lucidNativeScript)
+        tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
         let returnAddress = sendFrom==="" ? this.getAddress() : sendFrom 
         returnAddress = sendAll === null ? returnAddress : recipients[sendAll].address
-        const completedTx = await tx.complete({ changeAddress :returnAddress}) 
+        console.log("returnAddress", returnAddress)
+        const completedTx = await tx.complete({ coinSelection : false,
+                                                localUPLCEval: true, 
+                                                changeAddress :returnAddress}) 
 
+        console.log("completedTx", completedTx)
         
         this.pendingTxs.map( (PendingTx) => {
           if (PendingTx.tx.toHash() === completedTx.toHash()){
             throw new Error('Transaction already registerd');
           }
-      })
+        })
 
         this.pendingTxs.push({tx:completedTx, signatures:{}})
         return "Sucsess"
@@ -666,7 +687,7 @@ setPendingTxs(pendingTxs: any){
 
     async createStakeUnregistrationTx(signers: any){
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, this.lucidNativeScript)
+      const rewardAddress =  LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       const sigCheck = this.checkSigners(signers)
       if (!sigCheck){
         throw new Error('Not enough signers');
@@ -685,7 +706,7 @@ setPendingTxs(pendingTxs: any){
       }
 
       if(Number(this.delegation.rewards) > 0 ){
-        tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, this.lucidNativeScript), this.delegation.rewards)
+        tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards)
       }
 
       if (sigCheck.requires_after !== false){
@@ -698,7 +719,7 @@ setPendingTxs(pendingTxs: any){
       }
 
 
-      const completedTx = await tx.attach.SpendingValidator(this.lucidNativeScript)
+      const completedTx = await tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       .complete()
       
       this.pendingTxs.map( (PendingTx) => {
@@ -717,7 +738,7 @@ setPendingTxs(pendingTxs: any){
 
     async createDelegationTx(pool: any, dRepId: any, signers: any){ 
       const curentDelegation = await this.getDelegation()
-      const rewardAddress =  LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, this.lucidNativeScript)
+      const rewardAddress =  LucidEvolution.validatorToRewardAddress(this.lucid!.config().network, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       const sigCheck = this.checkSigners(signers)
       if (!sigCheck){
         throw new Error('Not enough signers');
@@ -744,10 +765,10 @@ setPendingTxs(pendingTxs: any){
 
       // const completedTx = await tx.pay.ToAddress(this.getAddress())
       const completedTx = await tx.delegateTo(rewardAddress,pool)
-      .attach.SpendingValidator(this.lucidNativeScript)
+      .attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       .complete()
       
-      this.pendingTxs.push({tx:completedTx, signatures:{}})
+      this.pendingTxs.push({tx:completedTx, signatures:{}}) 
       return "Sucsess"
     }
 
