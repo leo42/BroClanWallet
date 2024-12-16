@@ -181,7 +181,7 @@ class MintingModule extends React.Component<MintingProps> {
         
         consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-        const completedTx = await consumingTx.complete()
+        const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true, localUPLCEval : true, coinSelection : false})
         
         const signature = await completedTx.sign.withWallet()
         
