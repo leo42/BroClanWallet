@@ -120,7 +120,7 @@ class MintingModule extends React.Component<MintingProps> {
         const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
         const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
         const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
-        const consumingTx =  lucid.newTx().collectFrom([utxos[0]])
+        const consumingTx =  lucid.newTx().collectFrom(utxos)
         const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
         consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
@@ -181,7 +181,7 @@ class MintingModule extends React.Component<MintingProps> {
         
         consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-        const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true, localUPLCEval : true, coinSelection : false})
+        const completedTx = await consumingTx.complete({setCollateral : 4_000_000n})
         
         const signature = await completedTx.sign.withWallet()
         

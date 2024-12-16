@@ -22,6 +22,7 @@
     "@lucid-evolution/lucid": "^0.4.15",
     "axios": "^1.2.2",
     "babel-loader": "^8.0.6",
+    "bech32": "^2.0.0",
     "buffer": "^6.0.3",
     "crypto-js": "^4.2.0",
     "lucid-cardano": "^0.10.10",

@@ -2,6 +2,8 @@ import * as LucidEvolution from "@lucid-evolution/lucid";
 
 import {  toast } from 'react-toastify';
 import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution.js"
+import { DRep } from "@lucid-evolution/lucid";
+import { decodeCIP129 } from "../../helpers/decodeCIP129";
 
 class Wallet {
     signersNames: any[] = []
@@ -354,7 +356,7 @@ setPendingTxs(pendingTxs: any){
       return txDetails
     }
 
-    checkSigners(signers: any): any{
+    checkSigners(signers: string[]): any{
         const json=this.wallet_script
         const that = this
         let requires_before = false
@@ -457,13 +459,33 @@ setPendingTxs(pendingTxs: any){
       }
 
       
+    async createTemplateTx(signers: string[]) : Promise<LucidEvolution.TxBuilder>{
+      const sigCheck = this.checkSigners(signers)
+      if (!sigCheck){
+        throw new Error('Not enough signers');
+      }
+
+      const tx = this.lucid!.newTx()
+      if (sigCheck.requires_after !== false){
+        tx.validFrom( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_after ))
+        
+      }
+
+      if (sigCheck.requires_before !== false){
+        tx.validTo( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_before))
+      }
+
+      signers.map( (value: any) => (
+        tx.addSignerKey(value)
+      ))
+      tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
+
+      return tx
+    }
     
     
-    async createTx(recipients: any, signers: any,sendFrom: string="" , sendAll: number | null = null , withdraw: boolean = true) { 
-        const sigCheck = this.checkSigners(signers)
-        if (!sigCheck){
-          throw new Error('Not enough signers');
-        }
+    async createTx(recipients: any, signers: string[],sendFrom: string="" , sendAll: number | null = null , withdraw: boolean = true) { 
+  
 
         var sumOfRecipientsMinusSendAll: Record<string, number> = {};
         recipients.map( (recipient: any,index: number) => {
@@ -480,7 +502,6 @@ setPendingTxs(pendingTxs: any){
         }})
       
         const balance = this.getBalanceFull()
-        console.log("balance", balance)
 
           for (const [key, value ] of Object.entries(sumOfRecipientsMinusSendAll)) {
             if (key in balance){
@@ -495,12 +516,11 @@ setPendingTxs(pendingTxs: any){
         
 
         
-          console.log("sendFrom", sendFrom)
           const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
           sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
           console.log("sendAllAmount", sendAllAmount)
 
-        const tx = this.lucid!.newTx()
+        const tx = await this.createTemplateTx(signers)
         recipients.map( (recipient: any,index: number) => {
           console.log("recipient", index,recipient)
           // sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) :
@@ -522,38 +542,18 @@ setPendingTxs(pendingTxs: any){
         tx.collectFrom(this.utxos, LucidEvolution.Data.void())
         // this.lucid!.selectWallet.fromAddress(this.getAddress(), this.utxos)
       }
-      console.log("utxos", await this.lucid!.config().wallet!.getUtxos())
 
         if(withdraw && Number(this.delegation.rewards) > 0 ){
           tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards, LucidEvolution.Data.void())
         }
 
-        console.log("sigCheck2", sigCheck)
-        if (sigCheck.requires_after !== false){
-          tx.validFrom( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_after ))
-          
-        }
 
-        if (sigCheck.requires_before !== false){
-          tx.validTo( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_before))
-        }
-        console.log("sigCheck3", sigCheck)
-
-        signers.map( (value: any) => (
-          tx.addSignerKey(value)
-        ))
-        console.log("sigCheck4", sigCheck)
-
-
-        tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
         let returnAddress = sendFrom==="" ? this.getAddress() : sendFrom 
         returnAddress = sendAll === null ? returnAddress : recipients[sendAll].address
-        console.log("returnAddress", returnAddress)
         const completedTx = await tx.complete({ coinSelection : false,
                                                 localUPLCEval: true, 
                                                 changeAddress :returnAddress}) 
 
-        console.log("completedTx", completedTx)
         
         this.pendingTxs.map( (PendingTx) => {
           if (PendingTx.tx.toHash() === completedTx.toHash()){
@@ -592,8 +592,6 @@ setPendingTxs(pendingTxs: any){
         return {error: 'Transaction already registered', tx:tx.toHash()};
       }
     }
-
-
 
     async setCollateralDonor(paymentKeyHash: any){
       this.collateralDonor  = paymentKeyHash
@@ -765,36 +763,35 @@ setPendingTxs(pendingTxs: any){
         return this.signersNames.find((signer: any) => signer.hash === keyHash)?.name || '';
     }
 
-    async createDelegationTx(pool: any, dRepId: any, signers: any){ 
+    async createDelegationTx(pool: string, dRepId: string, signers: any){ 
       const curentDelegation = await this.getDelegation()
+      console.log("dRepId", dRepId)
+      console.log("createDelegationTx")
       const rewardAddress =  LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
-      const sigCheck = this.checkSigners(signers)
-      if (!sigCheck){
-        throw new Error('Not enough signers');
+
+      let dRep: DRep 
+    
+      if (dRepId === "Abstain") {
+        dRep = { __typename: "AlwaysAbstain" } as DRep;
+      } else if (dRepId === "NoConfidence") {
+        dRep = { __typename: "AlwaysNoConfidence" } as DRep;
+      } else {
+        dRep = decodeCIP129(dRepId);
       }
+      console.log("dRep", dRep)
+      const tx = await this.createTemplateTx(signers)
 
-      const tx = this.lucid!.newTx()
-
-      signers.map( (value: any) => (
-        tx.addSignerKey(value)
-      ))
-      if (curentDelegation.poolId === pool){
-        throw new Error('Already delegated to this pool');
+      if (curentDelegation.poolId === pool && curentDelegation.dRepId === dRepId){
+        throw new Error('Delegation unchanged');
       } else if (curentDelegation.poolId === null){
         tx.registerStake(rewardAddress) 
       }
       
-      if (sigCheck.requires_after !== false){
-        tx.validFrom( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_after))
-      }
-
-      if (sigCheck.requires_before !== false){
-        tx.validTo( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_before))
-      }
-
+      tx.collectFrom(this.utxos, LucidEvolution.Data.void())
       // const completedTx = await tx.pay.ToAddress(this.getAddress())
+      console.log("dRep", dRep)
       const completedTx = await tx.delegateTo(rewardAddress,pool)
-      .attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
+      .delegate.VoteToDRep(rewardAddress,dRep, LucidEvolution.Data.void())
       .complete()
       
       this.pendingTxs.push({tx:completedTx, signatures:{}}) 

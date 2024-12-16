@@ -496,10 +496,10 @@ async createUpdateTx(
   })
 
   const completedTx = await tx.complete({ 
+    changeAddress: collateralUtxo.address,
     setCollateral : 1000000n,
     coinSelection : false,
     localUPLCEval: true,
-    changeAddress: this.getAddress(),
   });
   const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
@@ -635,13 +635,13 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network!, this.script);
     let dRep: DRep 
-    
+    console.log("dRepId", dRepId)
     if (dRepId === "Abstain") {
       dRep = { __typename: "AlwaysAbstain" };
     } else if (dRepId === "NoConfidence") {
       dRep = { __typename: "AlwaysNoConfidence" };
     } else {
-      dRep = { "type" : "Script" , "hash" : dRepId} ;
+      dRep = { type : "Script" , hash : dRepId} ;
     }
     const tx = await this.createTemplateTx(signers)
 
