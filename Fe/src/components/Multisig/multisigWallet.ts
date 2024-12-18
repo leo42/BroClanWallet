@@ -4,6 +4,7 @@ import {  toast } from 'react-toastify';
 import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution.js"
 import { DRep } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
+import { AlwaysAbstain, AlwaysNoConfidence } from "@lucid-evolution/core-types";
 
 class Wallet {
     signersNames: any[] = []
@@ -720,11 +721,8 @@ setPendingTxs(pendingTxs: any){
         throw new Error('Not enough signers');
       }
 
-      const tx = this.lucid!.newTx()
+      const tx =await this.createTemplateTx(signers)
 
-      signers.map( (value: any) => (
-        tx.addSignerKey(value)
-      ))
         
       if (curentDelegation.poolId === null){
         throw new Error('Not delegated');
@@ -736,16 +734,7 @@ setPendingTxs(pendingTxs: any){
         tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards)
       }
 
-      if (sigCheck.requires_after !== false){
-        tx.validFrom( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_after))
-        
-      }
-
-      if (sigCheck.requires_before !== false){
-        tx.validTo( LucidEvolution.slotToUnixTime(this.lucid!.config().network!, sigCheck.requires_before))
-      }
-
-
+      tx.collectFrom(this.utxos, LucidEvolution.Data.void())
       const completedTx = await tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       .complete()
       
@@ -772,13 +761,13 @@ setPendingTxs(pendingTxs: any){
       let dRep: DRep 
     
       if (dRepId === "Abstain") {
-        dRep = { __typename: "AlwaysAbstain" } as DRep;
+        dRep = { __typename: "AlwaysAbstain" } as AlwaysAbstain;
       } else if (dRepId === "NoConfidence") {
-        dRep = { __typename: "AlwaysNoConfidence" } as DRep;
+        dRep = { __typename: "AlwaysNoConfidence" } as AlwaysNoConfidence;
       } else {
         dRep = decodeCIP129(dRepId);
       }
-      console.log("dRep", dRep)
+      console.log("dRep", dRep, typeof dRep)
       const tx = await this.createTemplateTx(signers)
 
       if (curentDelegation.poolId === pool && curentDelegation.dRepId === dRepId){

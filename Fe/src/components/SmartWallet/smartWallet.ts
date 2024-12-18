@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -637,11 +637,11 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     let dRep: DRep 
     console.log("dRepId", dRepId)
     if (dRepId === "Abstain") {
-      dRep = { __typename: "AlwaysAbstain" };
+      dRep = { __typename: "AlwaysAbstain" } as AlwaysAbstain;
     } else if (dRepId === "NoConfidence") {
-      dRep = { __typename: "AlwaysNoConfidence" };
+      dRep = { __typename: "AlwaysNoConfidence" } as AlwaysNoConfidence;
     } else {
-      dRep = { type : "Script" , hash : dRepId} ;
+      dRep = { type : "Script" , hash : dRepId} as Credential;
     }
     const tx = await this.createTemplateTx(signers)
 
