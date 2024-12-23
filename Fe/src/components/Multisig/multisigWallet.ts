@@ -14,7 +14,7 @@ class Wallet {
     delegation: any
     defaultAddress: string
     txDetails: any
-    pendingTxs: any[]
+    pendingTxs: {tx: LucidEvolution.TxSignBuilder, signatures:  {[key: string]: string }}[]
     addressNames: any
     utxos: any[]
     lucid: LucidEvolution.LucidEvolution | undefined 
@@ -781,9 +781,8 @@ setPendingTxs(pendingTxs: any){
       console.log("dRep", dRep)
       const completedTx = await tx.delegateTo(rewardAddress,pool)
       .delegate.VoteToDRep(rewardAddress,dRep, LucidEvolution.Data.void())
-      .complete()
-      
-      this.pendingTxs.push({tx:completedTx, signatures:{}}) 
+      .complete({presetWalletInputs : []})
+     // this.pendingTxs.push({tx:completedTx, signatures:{}}) 
       return "Sucsess"
     }
 
@@ -831,7 +830,7 @@ setPendingTxs(pendingTxs: any){
             const signature = signatureInfo.witness.vkeywitnesses()?.get(0)
             if (!signature)
               throw new Error('Invalid Signature');
-            if (signature.vkey()?.verify( this.pendingTxs[index].tx.to_cbor_bytes(), 
+            if (signature.vkey()?.verify( this.pendingTxs[index].tx.toTransaction().to_canonical_cbor_bytes(), 
                                                                                signature.ed25519_signature() ))
             {
               valid = true

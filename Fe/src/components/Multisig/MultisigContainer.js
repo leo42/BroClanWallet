@@ -159,7 +159,7 @@ async setState(state){
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames(),
                                                                collateralDonor: wallet.getCollateralDonor(),
-                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ), 
+                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toCBOR(), signatures: tx.signatures } ) ), 
                                                                 defaultSigners: wallet.getDefaultSigners()
                                                               }) )
     localStorage.setItem("wallets", JSON.stringify(dataPack))

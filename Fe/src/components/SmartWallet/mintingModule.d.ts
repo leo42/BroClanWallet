@@ -1,6 +1,6 @@
 import React from "react";
 import { UTxO } from "@lucid-evolution/lucid";
-import "./mintingModule.css";
+import "./MintingModule.css";
 import { Settings } from "../../types/app";
 interface MintingProps {
     root: {
@@ -16,6 +16,7 @@ interface MintingProps {
 interface MintingState {
     termsAccepted: boolean[];
     price: number | null;
+    walletId: string;
 }
 declare class MintingModule extends React.Component<MintingProps> {
     terms: import("react/jsx-runtime").JSX.Element[];
@@ -29,11 +30,11 @@ declare class MintingModule extends React.Component<MintingProps> {
     inputCheck: () => boolean;
     startMint: () => void;
     mintWithWallet: (wallet: string) => void;
-    mint(wallet: string, settings: any): Promise<void>;
+    mint(wallet: string, settings: any, name: string): Promise<void>;
     getTokenName(utxo: UTxO): string;
-    description: import("react/jsx-runtime").JSX.Element;
     toggleTerm: (index: number) => void;
     closeModule: () => void;
+    importWallet: () => void;
     render(): import("react/jsx-runtime").JSX.Element;
 }
 export default MintingModule;
