@@ -192,7 +192,7 @@ class Wallet {
 setPendingTxs(pendingTxs: any){
 
   this.pendingTxs = pendingTxs.map( (tx: {tx: string, signatures: string[]}) => { 
-      const txParced =  LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(tx.tx)) 
+      const txParced =  LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(tx.tx)) 
       return({tx:txParced, signatures:tx.signatures})
   })
 }
@@ -543,7 +543,7 @@ setPendingTxs(pendingTxs: any){
       if (!await this.checkTransaction(transaction)){
         throw new Error("Transaction invalid")
       }
-      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
+      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
       }catch(e){
         console.log(e)
         throw new Error('Invalid Transaction data');
@@ -742,9 +742,9 @@ setPendingTxs(pendingTxs: any){
       if (curentDelegation.poolId === pool && curentDelegation.dRepId === dRepId){
         throw new Error('Delegation unchanged');
       } else if (curentDelegation.poolId === null){
-        tx.registerAndDelegate.ToPool(rewardAddress, pool) 
+        tx.registerAndDelegate.ToPoolAndDRep(rewardAddress, pool, dRep) 
       }else {
-        tx.delegateTo(rewardAddress, pool, LucidEvolution.Data.void())
+        tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep)
       }
       
       tx.collectFrom(this.utxos, LucidEvolution.Data.void())

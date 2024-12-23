@@ -226,6 +226,8 @@ function WalletPendingTx(props) {
                                 return (<div key={index}>Move Instantaneous Rewards Cert {JSON.stringify(cert.MoveInstantaneousRewardsCert)}</div>);
                             case 'StakeRegDelegCert':
                                 return (<div key={index}>Stake Reg Delegation {JSON.stringify(cert.StakeRegDelegCert)}</div>);
+                            case 'StakeVoteDelegCert':
+                                return (<div key={index}>Stake Vote Delegation {JSON.stringify(cert.StakeVoteDelegCert)}</div>);
                             default:
                                 return (<div key={index}>Unknown Certificate Type: {JSON.stringify(cert)}</div>);
                         }

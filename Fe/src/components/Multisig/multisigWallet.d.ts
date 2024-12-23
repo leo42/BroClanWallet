@@ -7,7 +7,12 @@ declare class Wallet {
     delegation: any;
     defaultAddress: string;
     txDetails: any;
-    pendingTxs: any[];
+    pendingTxs: {
+        tx: LucidEvolution.TxSignBuilder;
+        signatures: {
+            [key: string]: string;
+        };
+    }[];
     addressNames: any;
     utxos: any[];
     lucid: LucidEvolution.LucidEvolution | undefined;
@@ -23,7 +28,12 @@ declare class Wallet {
     removePendingTx(index: number): void;
     getJson(): any;
     getScript(): LucidEvolution.CML.NativeScript | undefined;
-    getCompletedTx(txId: string): any;
+    getCompletedTx(txId: string): {
+        tx: LucidEvolution.TxSignBuilder;
+        signatures: {
+            [key: string]: string;
+        };
+    } | undefined;
     getCBOR(): string;
     getName(): string;
     getDelegation(): Promise<any>;
@@ -42,7 +52,12 @@ declare class Wallet {
     compareUtxos(a: any, b: any): boolean;
     checkTransactions(): Promise<void>;
     checkTransaction(tx: any): Promise<boolean>;
-    getPendingTxs(): any[];
+    getPendingTxs(): {
+        tx: LucidEvolution.TxSignBuilder;
+        signatures: {
+            [key: string]: string;
+        };
+    }[];
     decodeTransaction(tx: LucidEvolution.TxSignBuilder): any;
     getPendingTxDetails(index: number): any;
     checkSigners(signers: string[]): any;
@@ -72,8 +87,13 @@ declare class Wallet {
         witness: LucidEvolution.CML.TransactionWitnessSet;
     };
     hexToBytes(hex: string): Uint8Array;
-    addSignature(signature: string): any;
-    getSignature(index: number, keyHash: string): any;
+    addSignature(signature: string): {
+        tx: LucidEvolution.TxSignBuilder;
+        signatures: {
+            [key: string]: string;
+        };
+    } | undefined;
+    getSignature(index: number, keyHash: string): string;
     submitTx(tx: any): Promise<any>;
     submitTransaction(index: number): Promise<boolean>;
     setDefaultSigners(signers: any): void;
