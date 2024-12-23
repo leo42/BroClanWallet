@@ -88,21 +88,17 @@ function WalletPendingTx(props) {
         amountOut["lovelace"] = amount.coin;
 
         if (amount.multiasset) {
-            console.log("multiasset", amount.multiasset);
 
             // Iterate over the multiasset Map
             amount.multiasset.forEach((assetsMap, policy) => {
-                console.log("Policy", policy);
 
                 // Iterate over the assets Map
                 assetsMap.forEach((value, asset) => {
-                    console.log("Asset", asset);
                     amountOut[policy + asset] = BigInt(value);
                 });
             });
         }
 
-        console.log(amountOut, amount);
         return amountOut;
     }
 
