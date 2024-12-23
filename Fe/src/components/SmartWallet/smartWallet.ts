@@ -652,7 +652,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
       tx.registerStake(rewardAddress)
     }
     tx.delegateTo(rewardAddress, pool,  Data.void())
-    tx.delegate.VoteToDRep(rewardAddress, dRep, Data.void())
+   // tx.delegate.VoteToDRep(rewardAddress, dRep, Data.void())
     const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
@@ -848,34 +848,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     const txBody = Transaction.from_cbor_hex(tx).body().to_js_value();
     
     // Simplify the outputs
-    if (txBody.outputs) {
-      txBody.outputs = txBody.outputs.map((output: any) => {
-        // Check if the output is an object with a single key (format type)
-        const formatKeys = Object.keys(output);
-        if (formatKeys.length === 1 && typeof output[formatKeys[0]] === 'object') {
-          // Return the inner object, which contains the actual output data
-          return output[formatKeys[0]];
-        }
-        return output;
-      });
-    }
-    if (txBody.inputs) {
-      txBody.inputs = txBody.inputs.map((input: any) => {
-        // Check if the input is an object with a single key (format type)
-        const formatKeys = Object.keys(input);
-        if (formatKeys.length === 1 && typeof input[formatKeys[0]] === 'object') {
-          // Return the inner object, which contains the actual input data
-          return input[formatKeys[0]];
-        }
-        return input;
-      });
-    }
-    if (txBody.collateral_return) {
-      const formatKeys = Object.keys(txBody.collateral_return);
-      if (formatKeys.length === 1 && typeof txBody.collateral_return[formatKeys[0]] === 'object') {
-        txBody.collateral_return = txBody.collateral_return[formatKeys[0]];
-      }
-    }
+
     return txBody;
   }
 

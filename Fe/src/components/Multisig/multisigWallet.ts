@@ -316,36 +316,6 @@ setPendingTxs(pendingTxs: any){
     decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
       console.log("Decoding tx", tx)
       const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx.toCBOR({canonical: true})).body().to_js_value();
-      
-      // Simplify the outputs
-      if (txBody.outputs) {
-        txBody.outputs = txBody.outputs.map((output: any) => {
-          // Check if the output is an object with a single key (format type)
-          const formatKeys = Object.keys(output);
-          if (formatKeys.length === 1 && typeof output[formatKeys[0]] === 'object') {
-            // Return the inner object, which contains the actual output data
-            return output[formatKeys[0]];
-          }
-          return output;
-        });
-      }
-      if (txBody.inputs) {
-        txBody.inputs = txBody.inputs.map((input: any) => {
-          // Check if the input is an object with a single key (format type)
-          const formatKeys = Object.keys(input);
-          if (formatKeys.length === 1 && typeof input[formatKeys[0]] === 'object') {
-            // Return the inner object, which contains the actual input data
-            return input[formatKeys[0]];
-          }
-          return input;
-        });
-      }
-      if (txBody.collateral_return) {
-        const formatKeys = Object.keys(txBody.collateral_return);
-        if (formatKeys.length === 1 && typeof txBody.collateral_return[formatKeys[0]] === 'object') {
-          txBody.collateral_return = txBody.collateral_return[formatKeys[0]];
-        }
-      }
       return txBody;
     }
 
@@ -773,16 +743,16 @@ setPendingTxs(pendingTxs: any){
       if (curentDelegation.poolId === pool && curentDelegation.dRepId === dRepId){
         throw new Error('Delegation unchanged');
       } else if (curentDelegation.poolId === null){
-        tx.registerStake(rewardAddress) 
+        tx.registerAndDelegate.ToPool(rewardAddress, pool) 
+      }else {
+        tx.delegateTo(rewardAddress, pool, LucidEvolution.Data.void())
       }
       
       tx.collectFrom(this.utxos, LucidEvolution.Data.void())
       // const completedTx = await tx.pay.ToAddress(this.getAddress())
       console.log("dRep", dRep)
-      const completedTx = await tx.delegateTo(rewardAddress,pool)
-      .delegate.VoteToDRep(rewardAddress,dRep, LucidEvolution.Data.void())
-      .complete({presetWalletInputs : []})
-     // this.pendingTxs.push({tx:completedTx, signatures:{}}) 
+        const completedTx = await tx.complete({presetWalletInputs : []})
+      this.pendingTxs.push({tx:completedTx, signatures:{}}) 
       return "Sucsess"
     }
 
