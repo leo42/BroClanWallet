@@ -200,7 +200,6 @@ setPendingTxs(pendingTxs: any){
 
 
     getAddress(stakingAddress="") {
-      console.log("lucidNativeScript", this.lucidNativeScript)
       const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}
       const rewardAddress = stakingAddress === "" ? 
         {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(script)} : 

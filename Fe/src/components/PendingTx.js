@@ -31,7 +31,6 @@ function WalletPendingTx(props) {
     }, [isMobile]);
     
     const txDetails =normalizeTxDetails(props.moduleRoot.state.wallets[props.moduleRoot.state.selectedWallet].getPendingTxDetails(props.index))
-    console.log(txDetails)
     
     useEffect(() => {
         // get Utxo for each input
@@ -84,16 +83,27 @@ function WalletPendingTx(props) {
 
     const signaturesCompleted = props.wallet.checkSigners(txDetails.signatures.map( (signature) => signature.haveSig ? signature.keyHash : "  "))
 
-    function transformAmount(amount){
-        const amountOut = {}
-        amountOut["lovelace"] = amount.coin
-        if(amount.multiasset) { 
-            Object.keys(amount.multiasset).map( (policy) => {
-                Object.keys(amount.multiasset[policy]).map( (asset) => {
-                    amountOut[policy+asset] = BigInt(amount.multiasset[policy][asset])
-                })
-        })}
-        return amountOut
+    function transformAmount(amount) {
+        const amountOut = {};
+        amountOut["lovelace"] = amount.coin;
+
+        if (amount.multiasset) {
+            console.log("multiasset", amount.multiasset);
+
+            // Iterate over the multiasset Map
+            amount.multiasset.forEach((assetsMap, policy) => {
+                console.log("Policy", policy);
+
+                // Iterate over the assets Map
+                assetsMap.forEach((value, asset) => {
+                    console.log("Asset", asset);
+                    amountOut[policy + asset] = BigInt(value);
+                });
+            });
+        }
+
+        console.log(amountOut, amount);
+        return amountOut;
     }
 
     function transactionBalance(transaction){
