@@ -520,9 +520,7 @@ setPendingTxs(pendingTxs: any){
 
         let returnAddress = sendFrom==="" ? this.getAddress() : sendFrom 
         returnAddress = sendAll === null ? returnAddress : recipients[sendAll].address
-        const completedTx = await tx.complete({ coinSelection : false,
-                                                localUPLCEval: true, 
-                                                changeAddress :returnAddress}) 
+        const completedTx = await tx.complete({changeAddress :returnAddress}) 
 
         
         this.pendingTxs.map( (PendingTx) => {
