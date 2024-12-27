@@ -153,7 +153,7 @@ function WalletDelegation(props) {
           <input
             type="text"
             name="customDelegation"
-            placeholder='dRep Hash'
+            placeholder='dRep CIP129 Id'
             value={customDelegation}
             onChange={event => setCustomDelegation(event.target.value)}
           />

@@ -5,6 +5,7 @@ import { Settings } from "../../types/app";
 import { encode , decode } from "./encoder";
 import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
+import { decodeCIP129 } from "../../helpers/decodeCIP129";
 interface Recipient {
   address: string;
   amount: Assets;
@@ -39,8 +40,6 @@ class SmartWallet {
       type: "PlutusV3",
       script: applyParamsToScript(applyDoubleCborEncoding(contracts[this.settings.network].wallet), [id])
     };
-
-
     
   }
 
@@ -641,7 +640,7 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     } else if (dRepId === "NoConfidence") {
       dRep = { __typename: "AlwaysNoConfidence" } as AlwaysNoConfidence;
     } else {
-      dRep = { type : "Script" , hash : dRepId} as Credential;
+      dRep = decodeCIP129(dRepId);
     }
     const tx = await this.createTemplateTx(signers)
 
