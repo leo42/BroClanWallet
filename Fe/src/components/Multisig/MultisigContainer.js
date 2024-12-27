@@ -188,7 +188,8 @@ async setState(state){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
 
-    state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet"))
+    state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet")) || 0
+    if (state.selectedWallet >= state.wallets.length) state.selectedWallet = 0
     
     super.setState(state) 
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
