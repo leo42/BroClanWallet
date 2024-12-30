@@ -2,7 +2,7 @@ name: docker-ci
 on:
   push:
     branches:
-      - 'main'
+      - 'ci-testing'
 
 jobs:
   Frontend:
@@ -22,7 +22,7 @@ jobs:
         with:
           context: ./Fe
           push: true
-          tags:  leo42/broclan:latest 
+          tags: leo42/broclan:testCi
   # ImageGenerator:
   #   runs-on: ubuntu-latest
   #   steps:
