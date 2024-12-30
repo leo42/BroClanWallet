@@ -506,10 +506,10 @@ setPendingTxs(pendingTxs: any){
 
       if(sendFrom!==""){
         let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-        tx.collectFrom(utxos, LucidEvolution.Data.void())  
+        tx.collectFrom(utxos)  
         // this.lucid!.selectWallet.fromAddress(sendFrom,utxos)
       }else{
-        tx.collectFrom(this.utxos, LucidEvolution.Data.void())
+        tx.collectFrom(this.utxos)
         // this.lucid!.selectWallet.fromAddress(this.getAddress(), this.utxos)
       }
 
