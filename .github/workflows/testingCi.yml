@@ -18,7 +18,7 @@ jobs:
         name: Build and push Fe
         uses: docker/build-push-action@v5
         with:
-          context: ./Fe
+          context: .\Fe
           push: true
           tags:  leo42/broclan:latest 
   # ImageGenerator:
