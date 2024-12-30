@@ -115,6 +115,13 @@ function WalletDelegation(props) {
   ) ) 
 
   return (
+    <div className='DelegationContainer'>
+      <div className='BetaInfo'> 
+Beta delegation is available for dRep, Delegation transactions now perform dRep and Stakepool delegation simontaniusly <br />
+You have to enter the poolId in the bench format (e.g. pool13846y7q7tng3endxhet9qdcz5w0fjs09ytcye4dm5g54wmyqeqr) <br />
+You have to enter the dRep CIP129 id (e.g. drep13846y7q7tng3endxhet9qdcz5w0fjs09ytcye4dm5g54wmyqeqr) <br />
+
+      </div>
     <div className="DelegationCenter">
       <div className='DelegationInfo'>
         {delegationInfo()}
@@ -170,6 +177,7 @@ function WalletDelegation(props) {
      {  signersValid && delegation.poolId !== null &&   <input className='commonBtn' type="button" value="Undelegate" onClick={Undelegate} /> }
 
     </form>
+    </div>
     </div>
     </div>
   );
