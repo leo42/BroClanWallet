@@ -205,6 +205,13 @@ async setState(state){
   async createTx(recipients,signers,sendFrom, sendAll=null){
     try{
     const wallets = this.state.wallets
+    // this is the recipient shape (recipients: {amount: Record<string, bigint> , manipulate the input and convert numvers to bigInts
+    recipients.map( (recipient) => {
+      recipient.amount = Object.fromEntries(
+        Object.entries(recipient.amount).map(([key, value]) => [key, BigInt(value)])
+      );
+    });
+    
      await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll, false)
     
     this.setState({wallets})

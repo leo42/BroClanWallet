@@ -16,7 +16,7 @@ class Wallet {
     txDetails: any
     pendingTxs: {tx: LucidEvolution.TxSignBuilder, signatures:  {[key: string]: string }}[]
     addressNames: any
-    utxos: any[]
+    utxos: LucidEvolution.UTxO[]
     lucid: LucidEvolution.LucidEvolution | undefined 
   lucidNativeScript: LucidEvolution.CML.NativeScript | undefined;
   collateralDonor: any;
@@ -143,6 +143,41 @@ class Wallet {
       return this.delegation 
     }
 
+    coinSelect(coin: LucidEvolution.Assets , utxoset : LucidEvolution.UTxO[] = this.utxos) : LucidEvolution.UTxO[]{
+    //  return this.utxos
+      const utxos = [...utxoset] // Create copy to avoid modifying original
+      let remainingCoin = {...coin}  // Create copy to avoid modifying original
+      const selectedUtxos: LucidEvolution.UTxO[] = []
+
+      while( Object.keys(remainingCoin).length > 0){
+        // sort utxos by most common coins with remainingCoin
+        utxos.sort((a, b) => {
+          const aCount = Object.keys(a.assets).filter(key => key in remainingCoin).reduce((sum, key) => sum + Number(a.assets[key]), 0);
+          const bCount = Object.keys(b.assets).filter(key => key in remainingCoin).reduce((sum, key) => sum + Number(b.assets[key]), 0);
+          return bCount - aCount;
+        });
+        selectedUtxos.push(utxos[0])
+        for (const key in remainingCoin) {
+          if (remainingCoin[key] > 0 && utxos[0].assets[key] > 0) {
+            remainingCoin[key] -= utxos[0].assets[key]
+            if (remainingCoin[key] <= 0n){
+              delete remainingCoin[key]
+            }
+            
+          }
+          utxos.splice(0, 1)
+          if (Object.keys(remainingCoin).length === 0){
+          break
+        }
+        if (utxos.length === 0){
+          throw new Error("Not enough coins")
+        }
+      }
+      
+    }
+    return selectedUtxos;
+  }
+
     getBalance(address=""){
       const utxos = this.utxos
       let result = 0
@@ -173,7 +208,7 @@ class Wallet {
   const utxos = this.utxos
   let result: any = {}
   utxos.map( utxo => {
-    if (address==="" || utxo.adress ===address){
+    if (address==="" || utxo.address ===address){
       for (var asset in  utxo.assets ) {
         asset in result ? result[asset] +=  utxo.assets[asset] : result[asset] =   utxo.assets[asset]
       }
@@ -454,10 +489,10 @@ setPendingTxs(pendingTxs: any){
     }
     
     
-    async createTx(recipients: any, signers: string[],sendFrom: string="" , sendAll: number | null = null , withdraw: boolean = true) { 
-  
-
-        var sumOfRecipientsMinusSendAll: Record<string, number> = {};
+    async createTx(recipients: {amount: Record<string, bigint>, address: string}[], signers: string[],sendFrom: string="" , sendAll: number | null = null , withdraw: boolean = true) { 
+      
+      // ch
+        var sumOfRecipientsMinusSendAll: LucidEvolution.Assets = {};
         recipients.map( (recipient: any,index: number) => {
           if (index !== sendAll){
           Object.keys(recipient.amount).map( (key: string,index: number) => {
@@ -503,15 +538,21 @@ setPendingTxs(pendingTxs: any){
 
           tx.pay.ToAddress(recipient.address,localAmount)
       })
-
+      let utxos = this.utxos
       if(sendFrom!==""){
-        let utxos = this.utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
-        tx.collectFrom(utxos)  
-        // this.lucid!.selectWallet.fromAddress(sendFrom,utxos)
-      }else{
-        tx.collectFrom(this.utxos)
-        // this.lucid!.selectWallet.fromAddress(this.getAddress(), this.utxos)
+
+        utxos = utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
       }
+      if(sendAll === null){
+          const fee = BigInt(500_000 + 200_000 * signers.length + 500_000 * recipients.length);
+          const totalAmount = {
+            ...sumOfRecipientsMinusSendAll,
+            lovelace: sumOfRecipientsMinusSendAll["lovelace"] + fee
+          };
+          utxos = this.coinSelect(totalAmount, utxos);
+      }
+      
+      tx.collectFrom(utxos)
 
         if(withdraw && Number(this.delegation.rewards) > 0 ){
           tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards, LucidEvolution.Data.void())
@@ -701,7 +742,7 @@ setPendingTxs(pendingTxs: any){
         tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards)
       }
 
-      tx.collectFrom(this.utxos, LucidEvolution.Data.void())
+      tx.collectFrom(this.coinSelect({"lovelace" : 3_000_000n}, this.utxos), LucidEvolution.Data.void())
       const completedTx = await tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       .complete()
       
@@ -745,7 +786,7 @@ setPendingTxs(pendingTxs: any){
         tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep)
       }
       
-      tx.collectFrom(this.utxos, LucidEvolution.Data.void())
+      tx.collectFrom(this.coinSelect({"lovelace" : 3_000_000n}, this.utxos), LucidEvolution.Data.void())
       // const completedTx = await tx.pay.ToAddress(this.getAddress())
       console.log("dRep", dRep)
         const completedTx = await tx.complete({presetWalletInputs : []})
