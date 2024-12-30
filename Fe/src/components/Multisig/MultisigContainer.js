@@ -1,5 +1,5 @@
 
-import Wallet from '../../Wallet';
+import Wallet from './multisigWallet';
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
 import WalletConnector from './walletConnector';
@@ -159,7 +159,7 @@ async setState(state){
                                                                defaultAddress: wallet.getDefaultAddress(),
                                                                addressNames: wallet.getAddressNames(),
                                                                collateralDonor: wallet.getCollateralDonor(),
-                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toString(), signatures: tx.signatures } ) ), 
+                                                               pendingTxs: wallet.getPendingTxs().map( tx => ( {tx: tx.tx.toCBOR(), signatures: tx.signatures } ) ), 
                                                                 defaultSigners: wallet.getDefaultSigners()
                                                               }) )
     localStorage.setItem("wallets", JSON.stringify(dataPack))
@@ -188,7 +188,8 @@ async setState(state){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
     }
 
-    state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet"))
+    state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet")) || 0
+    if (state.selectedWallet >= state.wallets.length) state.selectedWallet = 0
     
     super.setState(state) 
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)

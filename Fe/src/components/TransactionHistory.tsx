@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./TransactionHistory.css"
-import  getTransactionHistory  from "../helpers/TransactionHistory.js";
+import  getTransactionHistory  from "../helpers/TransactionHistory";
 import { toast } from "react-toastify";
 import TokenElement from "./TokenElement";
 import AddressSelect from "./AddressSelect";
 
-function TransactionHistory (props) {
+function TransactionHistory (props : any) {
     const [transactions, setTransactions] = useState([]);
     const [address, setAddress] = useState(props.wallet.getDefaultAddress() === ""? props.wallet.getFundedAddress()[0] :props.wallet.getDefaultAddress() )
     const [page, setPage] = useState(0);
@@ -14,7 +14,7 @@ function TransactionHistory (props) {
     useEffect(() => {
     
         let TxH = getTransactionHistory(address, props.root.state.settings)
-          TxH.then(transactionHistory => {
+          TxH.then((transactionHistory : any) => {
             setTransactions(transactionHistory)
             if (transactionHistory.length < 10) {
                 setLoadMore(false)
@@ -32,28 +32,28 @@ function TransactionHistory (props) {
         
     , [address, props.root.state.settings]);
 
-    function handleChangeFrom(event) {
+    function handleChangeFrom(event : any) {
         setAddress(event.target.value)
 
     }
 
-    function transactionBalance(transaction){
-        const BalancesOut = {}
-        transaction.utxos.inputs.map( (input, index) => {
+    function transactionBalance(transaction : any){
+        const BalancesOut : any = {}
+        transaction.utxos.inputs.map( (input : any, index : any) => {
            if ( input.address === address && !input.collateral ) {
-               input.amount.map( (asset) => 
+               input.amount.map( (asset : any   ) => 
                 asset.unit in BalancesOut ? BalancesOut[asset.unit] -= parseInt(asset.quantity) :  BalancesOut[asset.unit] = -parseInt(asset.quantity)
             )}})
-        transaction.utxos.outputs.map( (output, index) => {
+        transaction.utxos.outputs.map( (output : any, index : any) => {
             if ( output.address === address  && !output.collateral)  {
-                output.amount.map( (asset) => 
+                output.amount.map( (asset : any) => 
                  asset.unit in BalancesOut ? BalancesOut[asset.unit] += parseInt(asset.quantity) : BalancesOut[asset.unit] = parseInt(asset.quantity)
              )}})
         const withdraw = transaction.withdrawals? transaction.withdrawals.amount : 0
         const lovelace = BalancesOut.lovelace - withdraw
         delete BalancesOut["lovelace"]
-        Object.keys(BalancesOut).map(item => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
-        const tokens = Object.keys(BalancesOut).map((key, index) => ( 
+        Object.keys(BalancesOut).map((item : any) => { if(BalancesOut[item] === 0) {delete BalancesOut[item]} })
+        const tokens = Object.keys(BalancesOut).map((key : any, index : any) => ( 
            
                 <TokenElement  key={index} className="transactionHistoryTokenBalance" tokenId={key} amount={BalancesOut[key]} expanded={false} />
             
@@ -69,7 +69,7 @@ function TransactionHistory (props) {
              )
     }
 
-    function TransactionListing(transaction){
+    function TransactionListing(transaction : any){
         const urlPrefix = props.root.state.settings.network === "Mainnet" ?   "https://cexplorer.io/tx/" : `https://${props.root.state.settings.network}.cexplorer.io/tx/`
         const date = new Date(transaction.block_time* 1000)
         return (<div className="transactionHistoryItem"> 
@@ -84,8 +84,8 @@ function TransactionHistory (props) {
         const newPage = page + 1
         setPage(newPage)
         let TxH = getTransactionHistory(address, props.root.state.settings, newPage )
-        TxH.then(transactionHistory => {setTransactions(transactions.concat(transactionHistory))
-            if (transactionHistory.length < 10) setLoadMore(false)}
+        TxH.then((transactionHistory : any) => {setTransactions(transactions.concat(transactionHistory))
+            if (transactionHistory!.length < 10) setLoadMore(false)}
             )
         toast.promise(TxH, {
             pending: "Loading Transaction History",

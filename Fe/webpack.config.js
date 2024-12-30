@@ -7,7 +7,10 @@ const isProduction = argv.mode === 'production';
 
 var webAppConfig = {
 	resolve: {
-		fallback: { crypto: false },
+		fallback: { 
+			crypto: false,
+			 "stream": require.resolve("stream-browserify") 
+		 },
 		extensions: ['.js', '.jsx', '.ts', '.tsx'],  // Add .tsx here
 	},
     entry: './src/index.js',

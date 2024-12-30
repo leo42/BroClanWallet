@@ -50,7 +50,7 @@ class MintingModule extends React.Component<MintingProps> {
           console.log("getting AdminData");
           const lucid = await getNewLucidInstance(this.props.root.state.settings)
 
-          const adminUtxo = await lucid.config().provider.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
+          const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
           console.log(adminUtxo)
           const adminDatum  =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
           this.setState({price : Number(adminDatum.mintAmount)} )
@@ -113,14 +113,14 @@ class MintingModule extends React.Component<MintingProps> {
         if (!paymentCredential) {
           throw new Error("Payment credential not found");
         }
-        const utxos = await lucid.config().provider.getUtxos(paymentCredential);
+        const utxos = await lucid.config().provider!.getUtxos(paymentCredential);
 
 
 
         const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
-        const adminUtxo = await lucid.config().provider.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
+        const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
         const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
-        const consumingTx =  lucid.newTx().collectFrom([utxos[0]])
+        const consumingTx =  lucid.newTx().collectFrom(utxos)
         const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
         consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         const assets : Assets = {}
@@ -181,13 +181,13 @@ class MintingModule extends React.Component<MintingProps> {
         
         consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
         consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-        const completedTx = await consumingTx.complete()
+        const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true, localUPLCEval : false, coinSelection : false})
         
         const signature = await completedTx.sign.withWallet()
         
         const txComlete = await signature.complete();
         const txHash = await txComlete.submit();
-        const awaitTx = lucid.config().provider.awaitTx(txHash)
+        const awaitTx = lucid.config().provider!.awaitTx(txHash)
         toast.promise(awaitTx, {
           pending: 'Waiting for confirmation',
           success: 'Transaction confirmed',
