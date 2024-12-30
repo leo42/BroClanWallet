@@ -201,7 +201,7 @@ class WalletCreateTx extends React.Component {
        {!this.state.tokenData[item].isNft && <div className='tokenAmount'> <input
           type="number"
           name="amount"
-          value={ this.state.recipients[index].amount[item] === 0n ? "" : (this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  this.state.recipients[index].amount[item] / (10**this.state.tokenData[item].decimals)  : this.state.recipients[index].amount[item] }
+          value={ this.state.recipients[index].amount[item] === 0n ? "" : (Number(this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  Number(this.state.recipients[index].amount[item]) / Number(10**this.state.tokenData[item].decimals)    : Number(this.state.recipients[index].amount[item]) ) }
           onChange={event => this.setAmount(event.target.value,item,index)}
           /> 
           <button type="submit" className='maxButton' onClick={ () =>  this.setMax(item,index)}>max</button>

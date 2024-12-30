@@ -163,16 +163,16 @@ class Wallet {
             if (remainingCoin[key] <= 0n){
               delete remainingCoin[key]
             }
-            
           }
-          utxos.splice(0, 1)
-          if (Object.keys(remainingCoin).length === 0){
-          break
+            
+        }
+        utxos.splice(0, 1)
+        if (Object.keys(remainingCoin).length === 0){
+         break
         }
         if (utxos.length === 0){
           throw new Error("Not enough coins")
         }
-      }
       
     }
     return selectedUtxos;
