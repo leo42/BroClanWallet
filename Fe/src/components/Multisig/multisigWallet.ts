@@ -791,13 +791,14 @@ setPendingTxs(pendingTxs: any){
     addSignature(signature: string){
 
       const signatureInfo = this.decodeSignature(signature)
+      console.log("signatureInfo", signatureInfo)
       this.signersNames.some(obj => obj.keyHash === signatureInfo.signer);
       var valid = false
       for (var index = 0; index < this.pendingTxs.length; index++){
             const signature = signatureInfo.witness.vkeywitnesses()?.get(0)
             if (!signature)
-              throw new Error('Invalid Signature');
-            if (signature.vkey()?.verify( this.pendingTxs[index].tx.toTransaction().to_canonical_cbor_bytes(), 
+              throw new Error('Invalid Signature not Found');
+            if (signature.vkey()?.verify( this.hexToBytes(this.pendingTxs[index].tx.toHash()) , 
                                                                                signature.ed25519_signature() ))
             {
               valid = true

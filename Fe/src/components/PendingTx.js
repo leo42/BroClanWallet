@@ -264,7 +264,7 @@ function WalletPendingTx(props) {
     async function signWithLocalWallet(wallet){
         try{
         const api = await window.cardano[wallet].enable()
-        const signature = await api.signTx(props.tx.tx.toString() ,true)
+        const signature = await api.signTx(props.tx.tx.toCBOR() ,true)
         props.moduleRoot.addSignature(signature)
         }catch(error){
             toast.error("Error signing with local wallet: " + error.info)
