@@ -15,7 +15,7 @@ async function SearchPools(string){
             method: "GET",
             headers: {
                 "accept": "application/json",
-                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdTk4cGp2eDduYTRmZDRoZzJtbTk1c2RycTZ6czk5NHduaGR2bGVtemR3ajRuOWNqMnd1bmEiLCJleHAiOjE3MzQ3MDM1MzAsInRpZXIiOjEsInByb2pJRCI6Im5SNXhkbWJrQlRUR3ZQN3gifQ.VAPc1HyKwiClRB0E9Sn5tjc2Im2g1p1hNSp1mxdbPHE",
+                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdXkwNTA1NWRqMDczMHM4dXF0YzI2aDJ6N2hrcWswa2hsanhwd2p2ZWtxNzdjMnN1a3dhMnoiLCJleHAiOjE3Njc0NDQ5NjMsInRpZXIiOjEsInByb2pJRCI6IjZpVWJkMmJlVmx0WTVqdk0ifQ.LIwo8YGnK4sMst2PH_jfqZPq017LCKhz-Ah8B057MNQ",
             }
         })
 
@@ -25,7 +25,7 @@ async function SearchPools(string){
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdTk4cGp2eDduYTRmZDRoZzJtbTk1c2RycTZ6czk5NHduaGR2bGVtemR3ajRuOWNqMnd1bmEiLCJleHAiOjE3MzQ3MDM1MzAsInRpZXIiOjEsInByb2pJRCI6Im5SNXhkbWJrQlRUR3ZQN3gifQ.VAPc1HyKwiClRB0E9Sn5tjc2Im2g1p1hNSp1mxdbPHE",
+                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdXkwNTA1NWRqMDczMHM4dXF0YzI2aDJ6N2hrcWswa2hsanhwd2p2ZWtxNzdjMnN1a3dhMnoiLCJleHAiOjE3Njc0NDQ5NjMsInRpZXIiOjEsInByb2pJRCI6IjZpVWJkMmJlVmx0WTVqdk0ifQ.LIwo8YGnK4sMst2PH_jfqZPq017LCKhz-Ah8B057MNQ",
             }
         })
 
