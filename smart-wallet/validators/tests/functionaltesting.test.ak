@@ -4,31 +4,35 @@ use aiken/interval.{
   Finite, Interval, IntervalBound, NegativeInfinity, PositiveInfinity,
 }
 use cardano/address.{from_script}
-use cardano/assets.{PolicyId, from_lovelace, zero}
+use cardano/assets.{PolicyId, Value, from_asset, from_lovelace, zero}
 use cardano/transaction.{Input, NoDatum, Output, OutputReference, Transaction}
 use smartmulitisg.{
-  After, AtLeast, KeyHash, NftHolder, SmartMultisigDescriptor, validate,
+  After, AtLeast, Before, KeyHash, NftHolder, SmartMultisigDescriptor, validate,
 }
 
-pub type Datum {
-  owner: VerificationKeyHash,
-}
+const nft_holder_policy =
+  #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
+
+const nft_holder_name = #"124212"
+
+const key_hash = #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a"
 
 fn create_base_transaction(
   validity_range: Interval<Int>,
   extra_signatories: List<VerificationKeyHash>,
+  nft_holder: Value,
 ) -> Transaction {
   let address = from_script("")
   Transaction {
     inputs: [
       Input {
         output_reference: OutputReference {
-          transaction_id: #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a",
+          transaction_id: key_hash,
           output_index: 0,
         },
         output: Output {
           address,
-          value: from_lovelace(100000000),
+          value: nft_holder,
           datum: NoDatum,
           reference_script: None,
         },
@@ -59,20 +63,6 @@ fn create_base_transaction(
   }
 }
 
-fn create_test_descriptor() -> SmartMultisigDescriptor {
-  let policyId: PolicyId =
-    #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
-  let key_hash = #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a"
-  AtLeast {
-    scripts: [
-      KeyHash { keyHash: key_hash },
-      NftHolder { policy: policyId, name: #"124212" },
-      After { time: 172800 },
-    ],
-    m: 1,
-  }
-}
-
 const empty_transaction =
   create_base_transaction(
     Interval {
@@ -86,6 +76,7 @@ const empty_transaction =
       },
     },
     [],
+    from_lovelace(100000000),
   )
 
 const signed_transaction =
@@ -100,7 +91,8 @@ const signed_transaction =
         is_inclusive: False,
       },
     },
-    [#"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a"],
+    [key_hash],
+    from_lovelace(100000000),
   )
 
 const after_transaction =
@@ -116,19 +108,128 @@ const after_transaction =
       },
     },
     [],
+    from_lovelace(100000000),
+  )
+
+const after_invalid_transaction_edge =
+  create_base_transaction(
+    Interval {
+      lower_bound: IntervalBound {
+        bound_type: Finite(172799),
+        is_inclusive: False,
+      },
+      upper_bound: IntervalBound {
+        bound_type: PositiveInfinity,
+        is_inclusive: False,
+      },
+    },
+    [],
+    from_lovelace(100000000),
+  )
+
+const before_transaction =
+  create_base_transaction(
+    Interval {
+      lower_bound: IntervalBound {
+        bound_type: NegativeInfinity,
+        is_inclusive: False,
+      },
+      upper_bound: IntervalBound {
+        bound_type: Finite(172800),
+        is_inclusive: False,
+      },
+    },
+    [],
+    from_lovelace(100000000),
+  )
+
+const before_invalid_transaction_edge =
+  create_base_transaction(
+    Interval {
+      lower_bound: IntervalBound {
+        bound_type: NegativeInfinity,
+        is_inclusive: False,
+      },
+      upper_bound: IntervalBound {
+        bound_type: Finite(172801),
+        is_inclusive: False,
+      },
+    },
+    [],
+    from_lovelace(100000000),
+  )
+
+const nft_holder_transaction =
+  create_base_transaction(
+    Interval {
+      lower_bound: IntervalBound {
+        bound_type: NegativeInfinity,
+        is_inclusive: False,
+      },
+      upper_bound: IntervalBound {
+        bound_type: PositiveInfinity,
+        is_inclusive: False,
+      },
+    },
+    [],
+    from_asset(nft_holder_policy, nft_holder_name, 1),
   )
 
 test validateAfter() {
-  let descriptor = create_test_descriptor()
+  let descriptor = After { time: 172800 }
   expect validate(descriptor, after_transaction)
+  expect not(validate(descriptor, empty_transaction))
+  expect not(validate(descriptor, signed_transaction))
+  expect not(validate(descriptor, after_invalid_transaction_edge))
 }
 
 test validateSignature() {
-  let descriptor =
-    KeyHash {
-      keyHash: #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a",
-    }
+  let descriptor = KeyHash { keyHash: key_hash }
   expect validate(descriptor, signed_transaction)
   expect not(validate(descriptor, after_transaction))
+  expect not(validate(descriptor, empty_transaction))
+}
+
+test validateBefore() {
+  let descriptor = Before { time: 172800 }
+  expect validate(descriptor, before_transaction)
+  expect not(validate(descriptor, empty_transaction))
+  expect not(validate(descriptor, signed_transaction))
+  expect not(validate(descriptor, after_transaction))
+  expect not(validate(descriptor, after_invalid_transaction_edge))
+  expect not(validate(descriptor, before_invalid_transaction_edge))
+}
+
+test nftHolder() {
+  let descriptor =
+    NftHolder { policy: nft_holder_policy, name: nft_holder_name }
+
+  expect validate(descriptor, nft_holder_transaction)
+  expect !validate(descriptor, before_transaction)
+  expect not(validate(descriptor, empty_transaction))
+  expect not(validate(descriptor, signed_transaction))
+  expect not(validate(descriptor, after_transaction))
+  expect not(validate(descriptor, after_invalid_transaction_edge))
+  expect not(validate(descriptor, before_invalid_transaction_edge))
+}
+
+test atLeast() {
+  let descriptor =
+    AtLeast {
+      scripts: [
+        Before { time: 172800 },
+        After { time: 172800 },
+        NftHolder { policy: nft_holder_policy, name: nft_holder_name },
+        KeyHash { keyHash: key_hash },
+      ],
+      m: 1,
+    }
+
+  expect validate(descriptor, nft_holder_transaction)
+  expect validate(descriptor, before_transaction)
+  expect validate(descriptor, after_transaction)
+  expect validate(descriptor, signed_transaction)
+  expect not(validate(descriptor, before_invalid_transaction_edge))
+  expect not(validate(descriptor, after_invalid_transaction_edge))
   expect not(validate(descriptor, empty_transaction))
 }
