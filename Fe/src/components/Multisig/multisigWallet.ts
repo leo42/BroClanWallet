@@ -227,7 +227,7 @@ class Wallet {
 setPendingTxs(pendingTxs: any){
 
   this.pendingTxs = pendingTxs.map( (tx: {tx: string, signatures: string[]}) => { 
-      const txParced =  LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(tx.tx)) 
+      const txParced =  LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(tx.tx)) 
       return({tx:txParced, signatures:tx.signatures})
   })
 }
@@ -582,7 +582,7 @@ setPendingTxs(pendingTxs: any){
       if (!await this.checkTransaction(transaction)){
         throw new Error("Transaction invalid")
       }
-      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
+      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
       }catch(e){
         console.log(e)
         throw new Error('Invalid Transaction data');

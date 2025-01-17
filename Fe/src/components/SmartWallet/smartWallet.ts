@@ -89,7 +89,7 @@ class SmartWallet {
   }
 
   addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
-    const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(tx.tx))
+    const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
   }
 
@@ -352,7 +352,7 @@ class SmartWallet {
        localUPLCEval: true,
        changeAddress: returnAddress,
      });
-     const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
+     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
      this.pendingTxs.push({ tx: txBuilder , signatures: {} });
      return completedTx;
@@ -500,7 +500,7 @@ async createUpdateTx(
     coinSelection : false,
     localUPLCEval: true,
   });
-  const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
+  const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
   this.pendingTxs.push({ tx: txBuilder , signatures: {} });
   return completedTx;
