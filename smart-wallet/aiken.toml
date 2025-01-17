@@ -1,6 +1,6 @@
 name = "broclan/smart-wallet"
 version = "0.0.0"
-compiler = "v1.0.29-alpha"
+compiler = "v1.1.9"
 plutus = "v3"
 license = "Apache-2.0"
 description = "Aiken contracts for project 'broclan/smart-wallet'"
@@ -14,3 +14,8 @@ platform = "github"
 name = "aiken-lang/stdlib"
 version = "v2.1.0"
 source = "github"
+
+exclude = [
+  "validators/*.old.ak",
+  "validators/*.test",
+]
