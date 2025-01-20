@@ -3,12 +3,11 @@ use aiken/crypto.{VerificationKeyHash}
 use aiken/interval.{
   Finite, Interval, IntervalBound, NegativeInfinity, PositiveInfinity,
 }
+use aiken/primitive/bytearray
 use cardano/address.{from_script}
-use cardano/assets.{PolicyId, Value, from_asset, from_lovelace, zero}
+use cardano/assets.{Value, from_asset, from_lovelace, zero}
 use cardano/transaction.{Input, NoDatum, Output, OutputReference, Transaction}
-use smartmulitisg.{
-  After, AtLeast, Before, KeyHash, NftHolder, SmartMultisigDescriptor, validate,
-}
+use smartmulitisg.{After, AtLeast, Before, KeyHash, NftHolder, validate}
 
 const nft_holder_policy =
   #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
@@ -16,6 +15,13 @@ const nft_holder_policy =
 const nft_holder_name = #"124212"
 
 const key_hash = #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba45820a"
+
+fn create_key_hash(index: Int) {
+  bytearray.push(
+    #"ffb645124aa91654bc3b2818184e5fd3ae7e58a1931eaab9ba4582",
+    index,
+  )
+}
 
 fn create_base_transaction(
   validity_range: Interval<Int>,
@@ -232,4 +238,89 @@ test atLeast() {
   expect not(validate(descriptor, before_invalid_transaction_edge))
   expect not(validate(descriptor, after_invalid_transaction_edge))
   expect not(validate(descriptor, empty_transaction))
+}
+
+test largeSignaureFirst() {
+  let descriptor =
+    AtLeast {
+      scripts: [
+        KeyHash { keyHash: key_hash },
+        KeyHash { keyHash: create_key_hash(1) },
+        KeyHash { keyHash: create_key_hash(2) },
+        KeyHash { keyHash: create_key_hash(3) },
+        KeyHash { keyHash: create_key_hash(4) },
+        KeyHash { keyHash: create_key_hash(5) },
+        KeyHash { keyHash: create_key_hash(6) },
+      ],
+      m: 1,
+    }
+
+  expect validate(descriptor, signed_transaction)
+}
+
+test largeSignatureLast() {
+  let descriptor =
+    AtLeast {
+      scripts: [
+        KeyHash { keyHash: create_key_hash(0) },
+        KeyHash { keyHash: create_key_hash(1) },
+        KeyHash { keyHash: create_key_hash(2) },
+        KeyHash { keyHash: create_key_hash(3) },
+        KeyHash { keyHash: create_key_hash(4) },
+        KeyHash { keyHash: create_key_hash(5) },
+        KeyHash { keyHash: key_hash },
+      ],
+      m: 1,
+    }
+
+  expect validate(descriptor, signed_transaction)
+}
+
+test manySignatures() {
+  let descriptor =
+    AtLeast {
+      scripts: [
+        KeyHash { keyHash: create_key_hash(0) },
+        KeyHash { keyHash: create_key_hash(1) },
+        KeyHash { keyHash: create_key_hash(2) },
+        KeyHash { keyHash: create_key_hash(3) },
+        KeyHash { keyHash: create_key_hash(4) },
+        KeyHash { keyHash: create_key_hash(5) },
+        KeyHash { keyHash: create_key_hash(6) },
+        KeyHash { keyHash: create_key_hash(7) },
+        KeyHash { keyHash: create_key_hash(8) },
+        KeyHash { keyHash: create_key_hash(9) },
+        KeyHash { keyHash: create_key_hash(10) },
+        KeyHash { keyHash: create_key_hash(11) },
+        KeyHash { keyHash: create_key_hash(12) },
+        KeyHash { keyHash: create_key_hash(13) },
+        KeyHash { keyHash: create_key_hash(14) },
+        KeyHash { keyHash: create_key_hash(15) },
+      ],
+      m: 6,
+    }
+  let transaction =
+    create_base_transaction(
+      Interval {
+        lower_bound: IntervalBound {
+          bound_type: NegativeInfinity,
+          is_inclusive: False,
+        },
+        upper_bound: IntervalBound {
+          bound_type: PositiveInfinity,
+          is_inclusive: False,
+        },
+      },
+      [
+        create_key_hash(15),
+        create_key_hash(14),
+        create_key_hash(13),
+        create_key_hash(12),
+        create_key_hash(11),
+        create_key_hash(10),
+      ],
+      from_lovelace(100000000),
+    )
+
+  expect validate(descriptor, transaction)
 }
