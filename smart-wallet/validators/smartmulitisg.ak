@@ -1,3 +1,4 @@
+use aiken/collection/dict.{Dict, foldl, size}
 use aiken/collection/list
 use aiken/collection/pairs.{has_key}
 use aiken/crypto.{VerificationKeyHash}
@@ -22,20 +23,26 @@ pub type SmartMultisigDescriptor {
   ScriptRef { scriptHash: ByteArray }
 }
 
-pub type Redeemer {
-  seequence: List<Redeemer>,
+pub type RedeemerSequence {
+  KeyHashRedeemer { index: Int }
+  NftHolderRedeemer { index: Int }
+  AtLeastRedeemer { sequence: List<RedeemerSequence> }
+  BeforeRedeemer
+  AfterRedeemer
+  ScriptRefRedeemer { input: Int }
+  VoidRedeemer
 }
 
 validator configHost {
   spend(
     datum: Option<SmartMultisigDescriptor>,
-    _,
+    pattern: RedeemerSequence,
     myUtxo: OutputReference,
     self: Transaction,
   ) {
     let valid =
       when datum is {
-        Some(descriptor) -> validate(descriptor, self)
+        Some(descriptor) -> validate(descriptor, self, pattern)
         None -> fail
       }
 
@@ -61,16 +68,20 @@ fn configOutputValid(myUtxo: OutputReference, self: Transaction) -> Bool {
 }
 
 validator smartMultisig(walletId: ByteArray) {
-  withdraw(_, __, self: Transaction) {
-    multisigAproved(walletId, self)
+  withdraw(redeemer: RedeemerSequence, __, self: Transaction) {
+    multisigAproved(walletId, self, redeemer)
   }
 
   else(ctx: ScriptContext) {
-    multisigAproved(walletId, ctx.transaction)
+    True
   }
 }
 
-fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool {
+fn multisigAproved(
+  walletId: ByteArray,
+  transaction: Transaction,
+  pattern: RedeemerSequence,
+) -> Bool {
   let configPolicy: PolicyId =
     #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
   let configToken: AssetName = bytearray.push(walletId, 0)
@@ -79,7 +90,7 @@ fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool {
       Some(descriptor) -> descriptor
       None -> fail
     }
-  validate(descriptor, transaction)
+  validate(descriptor, transaction, pattern)
 }
 
 fn getDescriptorFromTokenName(
@@ -107,22 +118,36 @@ fn getDescriptorFromTokenName(
 pub fn validate(
   segment: SmartMultisigDescriptor,
   transaction: Transaction,
+  pattern: RedeemerSequence,
 ) -> Bool {
   when segment is {
-    KeyHash(keyHash) ->
-      list.any(transaction.extra_signatories, fn(signer) { signer == keyHash })
-    NftHolder(policy, name) -> or {
-        list.any(
-          transaction.inputs,
-          fn(input) { quantity_of(input.output.value, policy, name) >= 1 },
-        ),
-        when getDescriptorFromTokenName(policy, name, transaction) is {
-          Some(descriptor) -> validate(descriptor, transaction)
-          None -> False
-        },
-      }
-    AtLeast(scripts, m) ->
-      list.count(scripts, fn(script) { validate(script, transaction) }) >= m
+    KeyHash(keyHash) -> {
+      expect KeyHashRedeemer(index) = pattern
+      expect Some(signature) = list.at(transaction.extra_signatories, index)
+      signature == keyHash
+    }
+    NftHolder(policy, name) -> {
+      expect NftHolderRedeemer(index) = pattern
+      expect Some(input) = list.at(transaction.inputs, index)
+      quantity_of(input.output.value, policy, name) >= 1
+    }
+    AtLeast(scripts, m) -> {
+      expect AtLeastRedeemer(sequence) = pattern
+
+      let evaluatedScripts =
+        scripts
+          |> list.indexed_map(
+              fn(index, script) {
+                expect Some(redeemer) = list.at(sequence, index)
+                when redeemer is {
+                  VoidRedeemer -> False
+                  _ -> validate(script, transaction, redeemer)
+                }
+              },
+            )
+      list.count(evaluatedScripts, fn(pair) { pair == True }) >= m
+    }
+
     Before(time) ->
       interval.is_entirely_before(transaction.validity_range, time)
     After(time) -> interval.is_entirely_after(transaction.validity_range, time)
