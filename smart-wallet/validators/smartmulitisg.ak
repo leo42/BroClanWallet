@@ -65,6 +65,13 @@ validator smartMultisig(walletId: ByteArray) {
     multisigAproved(walletId, self)
   }
 
+  spend(_, __, myUtxo: OutputReference, self: Transaction) {
+    expect Some(myInput) =
+      self.inputs
+        |> list.find(fn(input) { input.output_reference == myUtxo })
+    has_key(self.withdrawals, myInput.output.address.payment_credential)
+  }
+
   else(ctx: ScriptContext) {
     multisigAproved(walletId, ctx.transaction)
   }
