@@ -9,15 +9,12 @@ import AddressSelect from './AddressSelect';
 
 
 function Overview(props) {
-  const linkRef = useRef(null);
+
   const wallet = props.wallet
-  const [settingsOpen, setSettingsOpen] = useState(wallet.getFundedAddress().map(() => (false)))
   const [walletSettingsOpen, setWalletSettingsOpen] = useState(false)
   const [showing , setShowing] = useState("All")
   const [showingAddress , setShowingAddress] = useState(props.wallet.getDefaultAddress())
   const [search , setSearch] = useState("")
-  const [hovering, setHovering] = useState("")
-  const [showingDetails, setshowingDetails] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -33,142 +30,13 @@ function Overview(props) {
   }, [isMobile]);
   
 
-  const showSettings = (index) =>{
-    let settingsOpenNew = [...settingsOpen]
-    settingsOpenNew[index] = !settingsOpenNew[index]
-    setSettingsOpen(settingsOpenNew)
-  }
-
-
-  const handleExport = () => {
-
-     const blob = new Blob([JSON.stringify(wallet.getJson())], { type: "application/json" });
-    linkRef.current.href = URL.createObjectURL(blob);
-    linkRef.current.download = "wallet.json";
-    linkRef.current.click();
-  }
-
-
-  const settingsMenu = (address) => 
-    <div className="settingsMenu">
-      {walletSettings()} 
-    </div>
-    
-
-
   
-  
-  const walletJson = (json) => {
-    const formattedData = JSON.stringify(json, null, 2);
-
-    return (
-      <div className="ImportWalletJsonInner" style={{ whiteSpace: 'pre-wrap' }}>
-        {formattedData}
-      </div>
-    );
-
-  };
-
-  const toggleDefultSigner = (ChangedSigner) => {
-    const defaultSigners =  props.moduleRoot.getSigners().map((signer) => { 
-      if(signer.hash === ChangedSigner){
-        signer.isDefault = !signer.isDefault
-      }
-      //return sigherHash if it is default
-      return signer.isDefault ? signer.hash : ""
-    }).filter((signer) => (signer !== ""))
-    props.moduleRoot.setDefaultSigners(defaultSigners)
-  }
-
-    
-  const walletSettings = () =>
-    <div className="walletSettings">
-      <h2>Wallet Settings</h2>
-      <label>
-        <span>Wallet Name</span>
-        <input type="text"  value={wallet.getName()} onChange={(event) => props.moduleRoot.changeWalletName(event.target.value)}></input>
-      </label>
-      {props.root.state.module === "smartWallets" && <span className="smartWalletLabel">Id : {props.wallet.getId()}</span>}
-
-      <div key= {JSON.stringify(wallet.defaultSignersValid())} className={wallet.defaultSignersValid() !== false ? "validSignerContainer" : "invalidSignerContainer" }> 
-      <label>Default Signers</label>
-      <br/>
-      <div className='signerContainer'>    
-        {props.moduleRoot.getSigners().map((signer, index) => (
-        <div className='signerContainerItem' key={index}  >
-          <input type="checkbox" checked={signer.isDefault} onChange={() => toggleDefultSigner(signer.hash)}></input>
-          <label> {signer.name}</label><br/>
-        { <input type="text" value={signer.name} onChange={(event) => props.moduleRoot.updateSignerName(signer.hash, event.target.value)}></input> }
-        </div>
-      ))}
-       </div>
-
-      </div>
-      <label>Collateral Donor:
-        <select key={wallet.getCollateralDonor()} value={wallet.getCollateralDonor()} onChange={(event)=> props.moduleRoot.setCollateralDonor(event.target.value)} >
-          <option value="" >None</option>
-          {props.moduleRoot.getSigners().filter((sighener) => sighener.isDefault).map( (item, index) => (
-            <option key={index} value={item.hash} >{item.name}</option>
-          ))}
-        </select>
-
-      </label>
-      <div className='overviewButtons'>      
-      {/* <button onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}> Delete Wallet</button> */}
-      {props.root.state.module === "smartWallets" && <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
-                            props.moduleRoot.setState({ modal : "updateWallet"})
-                          }}  className='iconWraper detailsButton'>
-                      <DetailsIcon className="icon"  alt="detailsIcon" />
-                      {  (hovering === "details" || isMobile ) &&  <label className='iconLabel'>Update</label> }
-                      < br/>   
-                      </div>   }
-
-   {props.root.state.module !== "smartWallets" && <div  onMouseEnter={() => setHovering("details")} onMouseLeave={() => setHovering("") } onClick={() => {
-                            setshowingDetails(!showingDetails);
-                          }}  className='iconWraper detailsButton'>
-                      <DetailsIcon className="icon"  alt="detailsIcon" />
-                      {  (hovering === "details" || isMobile ) &&  <label className='iconLabel'>Details</label> }
-                      < br/>   
-                      </div>   
-                      }
-
-     { <div  onMouseEnter={() => setHovering("delete")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.deleteWallet(props.moduleRoot.state.selectedWallet)}  className='iconWraper deleteButton'>
-             
-             <DeleteIcon className="icon"  alt="deleteIcon" />
-             {  (hovering === "delete" || isMobile ) && <label className='iconLabel'>Delete</label> }
-            < br/>   
-          </div>
-          }
-
-          <a ref={linkRef}  style={{ display: "none" }}></a>
-          {props.root.state.module !== "smartWallets" && <div  onMouseEnter={() => setHovering("download")} onMouseLeave={() => setHovering("") } onClick={handleExport}  className='iconWraper downloadButton'>    
-             <DownloadIcon className="icon"  alt="downloadIcon" />
-            {  (hovering === "download" || isMobile ) && <label className='iconLabel'>Download</label> }
-            < br/>   
-          </div>
-          }
-      </div>
-      {showingDetails && (
-                        <div className="">
-                          <div className="">
-                            <span className="">Json:</span>
-                            {/* show the json object as a pretty Json */}
-
-
-                            <span className="ImportWalletJson">{walletJson(props.wallet.getJson())}</span>
-                          </div>
-                        </div>
-                      )} 
-
-    </div>
-
   return (
     
     <div>
       <label>
       <h1>
       Overview
-      {<ExpandIcon className="expandButton" alt="expandIcon" onClick={() =>setWalletSettingsOpen(!walletSettingsOpen)}/> }
      </h1> 
     </label>
 { walletSettingsOpen ?  settingsMenu(showingAddress) : "" }

@@ -308,6 +308,7 @@ async setState(state){
     }
     wallets.splice(index,1)
     this.setState({wallets})
+
   }
 
   async removePendingTx(index){
@@ -478,7 +479,7 @@ async setState(state){
       headers: {
         'Content-Type': 'application/json',
         },
-        body: JSON.stringify({tx: transaction.tx.toString() ,sigAdded: sigAdded ,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
+        body: JSON.stringify({tx: transaction.tx.toCBOR() ,sigAdded: sigAdded ,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
       }).catch(e => toast.error("Could not transmit transaction: " + e.message));
     }catch(e){
       toast.error("Could not transmit transaction: " + e.message);
@@ -587,7 +588,8 @@ async setState(state){
         <React.StrictMode>
         <ModalsContainer moduleRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
         <div className="TokenVaultsContainerHeader" >
-          <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+        <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+
           <WalletConnector  moduleRoot={this} root={this.props.root}  key={this.state.connectedWallet}></WalletConnector>
          </div>
 

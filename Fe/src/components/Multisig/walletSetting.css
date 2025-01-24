@@ -1,0 +1,84 @@
+.walletSettings{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px;
+    align-self: center;
+    border-radius: 10px;
+    width: 80vw;
+    padding: 10px;
+    margin-bottom: 0px;
+}
+
+.signerContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    align-items: center;
+    flex-wrap:wrap;
+    width: 100%
+
+}
+ 
+.signerContainerItem input[type="text"]{
+    width: 120px;
+    margin-top: 5px;
+}
+
+.signerContainerItem{
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: -10px;
+    padding: 10px;
+
+    width: auto;
+}
+
+
+.validSignerContainer{
+    padding: 10px;
+    border: 1px;
+    border-radius: 5px;
+    border-color: var(--clrorange);
+    border-style: solid;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: green;
+}
+
+.invalidSignerContainer{
+    padding: 10px;
+    border: 1px;
+    border-radius: 5px;
+    border-color: var(--clrorange);
+    border-style: solid;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: red;
+}
+
+.walletSettingModalContainer{
+    z-index: 1000;
+}
+
+.walletSettingModalContainer {
+    width: max-content;
+    margin-top: 40px;
+    max-height: calc(85vh - 40px);
+    overflow-y: scroll;
+    border-radius: 1vw;
+    background-color: var(--clrModal);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    position: fixed;
+    top:75px;
+    }
+  
+.walletSettingModalContainer::-webkit-scrollbar {
+    display: none;
+}

@@ -21,6 +21,7 @@
 .modalContainer {
   width: max-content;
   max-height: 85vh;
+  max-width: 90vw;
   overflow-y: scroll;
   border-radius: 1vw;
   background-color: var(--clrModal);
@@ -50,6 +51,7 @@
   justify-content: flex-end;
   margin-top: 5px;
   margin-right: 2px;
+  z-index: 1000;
   }
   
 .titleCloseBtn button {
