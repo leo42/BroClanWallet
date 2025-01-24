@@ -308,6 +308,7 @@ async setState(state){
     }
     wallets.splice(index,1)
     this.setState({wallets})
+
   }
 
   async removePendingTx(index){
@@ -587,7 +588,8 @@ async setState(state){
         <React.StrictMode>
         <ModalsContainer moduleRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
         <div className="TokenVaultsContainerHeader" >
-          <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+        <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+
           <WalletConnector  moduleRoot={this} root={this.props.root}  key={this.state.connectedWallet}></WalletConnector>
          </div>
 
