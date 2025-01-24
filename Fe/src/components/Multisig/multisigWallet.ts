@@ -321,7 +321,7 @@ setPendingTxs(pendingTxs: any){
       }
     }
     
-    async checkTransaction(tx: any){
+    async checkTransaction(tx: LucidEvolution.TxSignBuilder){
       const utxos = this.utxos
       const transactionDetails = this.decodeTransaction(tx)
       
@@ -578,11 +578,12 @@ setPendingTxs(pendingTxs: any){
     async importTransaction(transaction: string)
     { 
       let tx
+      console.log("transaction", transaction)
+      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
       try{
-      if (!await this.checkTransaction(transaction)){
+      if (!await this.checkTransaction(tx)){
         throw new Error("Transaction invalid")
       }
-      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
       }catch(e){
         console.log(e)
         throw new Error('Invalid Transaction data');

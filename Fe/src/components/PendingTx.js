@@ -277,7 +277,7 @@ function WalletPendingTx(props) {
     }
 
     function copyTransaction(){
-        copyTextToClipboard(props.tx.tx.toString())
+        copyTextToClipboard(props.tx.tx.toCBOR())
         toast.info("Transaction copied to clipboard")
     }
 
