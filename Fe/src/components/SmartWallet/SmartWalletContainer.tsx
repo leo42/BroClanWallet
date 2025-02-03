@@ -220,7 +220,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }})
     localStorage.setItem(this.props.settings.network + "smartWallets", JSON.stringify(wallets))
     console.log("wallets", this.state.wallets)
+    localStorage.setItem(this.props.settings.network + "selectedWallet", JSON.stringify(this.state.selectedWallet))
   }
+
 
   getSigners(): { name: string; hash: string; isDefault: boolean }[] {
     const wallets = [...this.state.wallets];
@@ -248,7 +250,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       return keyHash;
   }
   catch(error: any){
-    console.log("error", error)
     return storedSignerNames[keyHash] || keyHash;
   }
   }
@@ -307,6 +308,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }));
 
     this.setState({ wallets: loadedWallets });
+    const selectedWallet = JSON.parse(localStorage.getItem(this.props.settings.network + "selectedWallet") || "0");
+    this.setState({selectedWallet: selectedWallet})
   }
 
   async createDelegationTx(pool: string, dRepId: string,signers: string[]) {
@@ -350,6 +353,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   selectWallet(key: number) {
     this.setState({selectedWallet: key})
+    localStorage.setItem(this.props.settings.network + "selectedWallet", JSON.stringify(key))
   }
 
   async submit(index: number) {

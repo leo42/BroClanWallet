@@ -170,6 +170,7 @@ class SmartWallet {
   async loadConfig()  {
     try {
       const configUtxo = await this.getConfigUtxo();
+      console.log("configUtxo", configUtxo)
       if(this.configUtxo?.txHash !== configUtxo?.txHash || this.configUtxo?.outputIndex !== configUtxo?.outputIndex){
         this.configUtxo = configUtxo
         const config : SmartMultisigJson = decode(configUtxo?.datum as string)
@@ -242,9 +243,10 @@ class SmartWallet {
 
   async loadUtxos(): Promise<boolean> {
     try {
+      console.log("loadUtxos")
       const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
-      const utxos = await this.lucid.utxosAt(scriptCredential);
       await this.loadConfig()
+      const utxos = await this.lucid.utxosAt(scriptCredential);
       if (this.compareUtxos(utxos, this.utxos)) return false;
       
       this.utxos = utxos;
