@@ -85,8 +85,8 @@ class SmartWallet {
     this.pendingTxs.splice(tx, 1);
   }
 
-  getPendingTxs(): { tx: CBORHex; signatures: Record<string, string> }[] {
-    return this.pendingTxs.map(tx => ({ tx: tx.tx.toCBOR({canonical: true}), signatures: tx.signatures }));
+  getPendingTxs(): { tx: TxSignBuilder; signatures: Record<string, string> }[] {
+    return this.pendingTxs
   }
 
   addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
@@ -783,7 +783,6 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
       return result;
     }
     const res = verify(config, signers);
-    console.log("res", res)
     return res
   }
 

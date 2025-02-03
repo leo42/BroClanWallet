@@ -210,7 +210,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   storeWallets() {
     const wallets = this.state.wallets.map((wallet) => { return { id: wallet.getId(), 
-                                                                  txs: wallet.getPendingTxs(),
+                                                                  txs: wallet.getPendingTxs().map(tx => ({ tx: tx.tx.toCBOR({canonical: true}), signatures: tx.signatures })),
                                                                   defaultAddress: wallet.getDefaultAddress(),
                                                                   addressNames: wallet.getAddressNames(),
                                                                   defaultSigners: wallet.getDefaultSigners(),
@@ -309,7 +309,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
     this.setState({ wallets: loadedWallets });
     const selectedWallet = JSON.parse(localStorage.getItem(this.props.settings.network + "selectedWallet") || "0");
-    this.setState({selectedWallet: selectedWallet})
+    
+    this.setState({selectedWallet: selectedWallet > this.state.wallets.length ? 0 : selectedWallet })
   }
 
   async createDelegationTx(pool: string, dRepId: string,signers: string[]) {
