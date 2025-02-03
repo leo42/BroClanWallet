@@ -90,7 +90,6 @@ class SmartWallet {
   }
 
   getTransactionType(txDetails: any) : string{
-    console.log("txDetails", txDetails)
     const updateTx = txDetails.inputs.findIndex((input: any) =>  input.index === this.configUtxo?.outputIndex && input.transaction_id === this.configUtxo?.txHash)
     if(updateTx !== -1){
       return "Update Transaction"

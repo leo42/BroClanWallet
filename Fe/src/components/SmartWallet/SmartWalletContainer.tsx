@@ -136,6 +136,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     await wallet.createUpdateTx(signers, newConfig)
     this.setState({wallets: wallets})
     this.storeWallets()
+    toast.info("Wallet update transaction created successfully!")
   }
   
   async importTransaction(transaction: any) {
@@ -414,8 +415,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
             {this.WalletList()}
 
-      { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
+      { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
       {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
+
        
       {  this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
          this.state.wallets.length === 0 ? this.walletsEmpty() : (
