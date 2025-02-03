@@ -1,10 +1,11 @@
-import { Assets, UTxO, TxSignBuilder, Delegation, OutRef } from "@lucid-evolution/lucid";
+import { Assets, UTxO, TxSignBuilder, Delegation, OutRef , Credential } from "@lucid-evolution/lucid";
 
 interface WalletInterface {
   // Basic wallet info
   getName(): string;
   setName(name: string): void;
   getAddress(stakingAddress?: string): string;
+  getCredential(): Credential;
   
   // Balance and UTXOs
   getBalance(address?: string): number;

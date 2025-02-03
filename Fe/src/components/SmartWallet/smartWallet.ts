@@ -89,14 +89,33 @@ class SmartWallet {
     return this.pendingTxs
   }
 
-  getTransactionType() : string{
+  getTransactionType(txDetails: any) : string{
+    console.log("txDetails", txDetails)
+    const updateTx = txDetails.inputs.find((input: any) =>  input.index === this.configUtxo?.outputIndex && input.transaction_id === this.configUtxo?.txHash)
+    if(updateTx){
+      return "Update Transaction"
+    }
+
+    if(txDetails.certs){
+      const selfDelegation = txDetails.certs.find((cert: any) => cert.StakeDelegation &&
+                                                                 cert.StakeDelegation.stake_credential.hash !== this.getCredential().hash)
+      if(selfDelegation){
+        return "Delegation Transaction"
+      }
+    }
+
     return "Regular Transaction"
+  }
+
+  getCredential(): Credential{
+      return  {type: "Script" , hash: validatorToScriptHash(this.script) }  
   }
 
   addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
   }
+
 
   getAddress(stakingAddress: string = ""): string {
     if(stakingAddress === ""){

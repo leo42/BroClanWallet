@@ -2,7 +2,7 @@ import * as LucidEvolution from "@lucid-evolution/lucid";
 
 import {  toast } from 'react-toastify';
 import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution.js"
-import { DRep } from "@lucid-evolution/lucid";
+import { DRep , Credential } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence } from "@lucid-evolution/core-types";
 import WalletInterface from "../WalletInterface.js";
@@ -128,11 +128,18 @@ class Wallet implements WalletInterface{
       return this.name
     }
 
+    getCredential(): Credential{
+      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}
+      return  {type: "Script" , hash: LucidEvolution.validatorToScriptHash(script) }  
+      
+    }
+
 
     // getSignatures(): any[] {
 
     //   return this.signatures;
     // }
+
 
     async getDelegation() { 
       this.delegation = await this.lucid?.config().provider!.getDelegation(
@@ -236,14 +243,14 @@ setPendingTxs(pendingTxs: any){
 
 
     getAddress(stakingAddress="") {
-      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}
       const rewardAddress = stakingAddress === "" ? 
-        {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(script)} : 
+        this.getCredential() : 
         LucidEvolution.getAddressDetails(stakingAddress)!.stakeCredential;
         
+
       return LucidEvolution.credentialToAddress(
         this.lucid!.config().network!,
-        {type: "Script" , hash: LucidEvolution.validatorToScriptHash(script) }, 
+        this.getCredential(), 
         rewardAddress
       );
     }
@@ -253,9 +260,11 @@ setPendingTxs(pendingTxs: any){
     }
       
  
+
     getSigners(): any[] {
       return this.signersNames
     }
+
 
     getFundedAddress(): string[] {
       const utxos = this.utxos
