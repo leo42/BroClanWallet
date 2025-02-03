@@ -6,6 +6,7 @@ import { encode , decode } from "./encoder";
 import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
+import { BigNum } from "lucid-cardano/esm/src/core/libs/cardano_multiplatform_lib/cardano_multiplatform_lib.generated";
 interface Recipient {
   address: string;
   amount: Assets;
@@ -312,8 +313,9 @@ class SmartWallet {
   mergeAssets(assets1: Assets, assets2: Assets): Assets {
      //assets are object Key value pair s we want to add the values of the second object to the first
      Object.keys(assets2).forEach(asset => {
-      assets1[asset as keyof Assets] = (assets1[asset as keyof Assets] || 0n) + assets2[asset as keyof Assets]
+      assets1[asset as keyof Assets] = BigInt(assets1[asset as keyof Assets] || 0n) + BigInt(assets2[asset as keyof Assets])
      })
+
      return assets1;
   }
   
@@ -324,8 +326,14 @@ class SmartWallet {
     sendAll: number | null = null,
     withdraw: boolean = true
   ) {
-
-    const returnAddress = sendAll !== null ? recipients[sendAll].address : sendFrom ? sendFrom : this.getAddress();
+    // make sure the recipients are all bigInt and not number
+    const recipientsBigInt = recipients.map(recipient => ({
+      ...recipient,
+      amount: Object.fromEntries(
+        Object.entries(recipient.amount).map(([asset, amount]) => [asset, BigInt(amount)])
+      )
+    }));
+    const returnAddress = sendAll !== null ? recipientsBigInt[sendAll].address : sendFrom ? sendFrom : this.getAddress();
     const tx = await this.createTemplateTx(signers, returnAddress)
 
     console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw,returnAddress)
