@@ -9,6 +9,9 @@ import './SmartWalletContainer.css';
 import { Settings , } from '../../types/app';
 import { SmartMultisigJson } from "./types";
 import {getAddressDetails} from "@lucid-evolution/lucid";
+import WalletSettings from './walletSettings';
+import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
+
 interface SmartWalletContainerProps {
   settings: Settings;
   root: any;
@@ -21,7 +24,9 @@ interface SmartWalletContainerState {
   connectedWallet: { name: string; socket: any };
   loading: boolean;
   dAppConnector: any | null;
+  walletSettingsOpen: boolean;
 }
+
 
 class SmartWalletContainer extends React.Component<SmartWalletContainerProps, SmartWalletContainerState> {
   private interval: NodeJS.Timeout | null = null;
@@ -33,8 +38,10 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     connectedWallet: { name: "", socket: null },
     loading: true,
     dAppConnector: null,
+    walletSettingsOpen: false,
   };
   
+
   componentDidMount() {
     setTimeout(() => {
       this.loadState();
@@ -141,13 +148,17 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   
   async deleteWallet(index: number) {
     try{
-      const wallets = [...this.state.wallets]
-      wallets.splice(index, 1);
-      this.setState({selectedWallet : 0})
-      this.setState({wallets: wallets})
+      if (window.confirm('Are you sure you want to delete this wallet?')) {
+        const wallets = [...this.state.wallets]
+        wallets.splice(index, 1);
+        this.setState({selectedWallet : 0})
+        this.setState({wallets: wallets})
+      }
       
       await new Promise(resolve => setTimeout(resolve, 500));
       this.storeWallets()    
+      this.setState({walletSettingsOpen: false})
+
   }
   catch(error: any){
     toast.error("Error deleting wallet: " + error.message)
@@ -374,6 +385,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
     return (
     <div className='WalletListContainer multisigWalletListContainer'>
+        <button className={"addWalletButton" + ( this.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => this.showModal("newWallet")}>+</button>
         <select className="MWalletList" value={this.state.selectedWallet} onChange={(event) => this.selectWallet(parseInt(event.target.value))}>
 
         {this.state.wallets.map( (item, index) => (
@@ -381,9 +393,10 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
         ))}
 
     </select>
+    <button className={"addNewWalletButton" }>
+             <ExpandIcon className="walletSettingsIcon" onClick={() => this.setState({walletSettingsOpen: !this.state.walletSettingsOpen})}/> 
+         </button>
 
-
-    <button className={"addWalletButton" + ( this.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => this.showModal("newWallet")}>+</button>
 
     </div>
     );
@@ -393,7 +406,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   render() {
     return (
       <div className="SmartWalletContainer"> 
-      {this.WalletList()}
+      {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
+            {this.WalletList()}
+
       { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({modal: ""})} /> }
       {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
        
