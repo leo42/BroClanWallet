@@ -201,7 +201,6 @@ class SmartWallet {
 
   async getConfigUtxo(): Promise<UTxO> {
     const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
-    console.log("policyId", policyId)
     const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
     return configUtxo
   }
@@ -213,7 +212,6 @@ class SmartWallet {
   async loadConfig()  {
     try {
       const configUtxo = await this.getConfigUtxo();
-      console.log("configUtxo", configUtxo)
       if(this.configUtxo?.txHash !== configUtxo?.txHash || this.configUtxo?.outputIndex !== configUtxo?.outputIndex){
         this.configUtxo = configUtxo
         const config : SmartMultisigJson = decode(configUtxo?.datum as string)

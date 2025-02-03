@@ -396,7 +396,6 @@ setPendingTxs(pendingTxs: any){
 
 
     decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
-      console.log("Decoding tx", tx)
       const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx.toCBOR({canonical: true})).body().to_js_value();
       return txBody;
     }
