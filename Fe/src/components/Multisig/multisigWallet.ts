@@ -4,7 +4,7 @@ import {  toast } from 'react-toastify';
 import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution.js"
 import { DRep , Credential } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
-import { AlwaysAbstain, AlwaysNoConfidence } from "@lucid-evolution/core-types";
+import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
 import WalletInterface from "../WalletInterface.js";
 
 class Wallet implements WalletInterface{
@@ -141,7 +141,7 @@ class Wallet implements WalletInterface{
     // }
 
 
-    async getDelegation() { 
+    async getDelegation() : Promise<Delegation> { 
       this.delegation = await this.lucid?.config().provider!.getDelegation(
                 LucidEvolution.credentialToRewardAddress(
                      this.lucid?.config().network!,
@@ -360,9 +360,39 @@ setPendingTxs(pendingTxs: any){
         return this.pendingTxs
     }
 
-    getTransactionType() : string{
+    getTransactionType(txDetails: any) : string{
+      if(txDetails.certs){
+        const selfDelegation = txDetails.certs.findIndex((cert: any) => {
+          return  cert.StakeVoteDelegCert !== undefined &&
+                  cert.StakeVoteDelegCert.stake_credential.Script.hash === this.getCredential().hash
+        })
+        if(selfDelegation !== -1){
+          return "Delegation Transaction"
+        }
+  
+        const stakeUnregistration = txDetails.certs.findIndex((cert: any) => {
+          return  cert.UnregCert !== undefined &&
+                  cert.UnregCert.stake_credential.Script.hash === this.getCredential().hash
+        })
+        if(stakeUnregistration !== -1){
+          return "Stake Unregistration Transaction"
+        }
+  
+        const stakeRegistration = txDetails.certs.findIndex((cert: any) => {
+          return  cert.StakeVoteRegDelegCert !== undefined &&
+                  cert.StakeVoteRegDelegCert.stake_credential.Script.hash === this.getCredential().hash
+        })
+  
+        if(stakeRegistration !== -1){
+          return "Stake Registration Transaction"
+        }
+      }
+  
+
+
       return "Regular Transaction"
     }
+
 
 
     decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
@@ -797,9 +827,7 @@ setPendingTxs(pendingTxs: any){
       console.log("dRep", dRep, typeof dRep)
       const tx = await this.createTemplateTx(signers)
 
-      if (curentDelegation.poolId === pool && curentDelegation.dRepId === dRepId){
-        throw new Error('Delegation unchanged');
-      } else if (curentDelegation.poolId === null){
+      if (curentDelegation.poolId === null){
         tx.registerAndDelegate.ToPoolAndDRep(rewardAddress, pool, dRep) 
       }else {
         tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep)

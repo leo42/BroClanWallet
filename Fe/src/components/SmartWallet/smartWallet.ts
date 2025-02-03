@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -91,16 +91,36 @@ class SmartWallet {
 
   getTransactionType(txDetails: any) : string{
     console.log("txDetails", txDetails)
-    const updateTx = txDetails.inputs.find((input: any) =>  input.index === this.configUtxo?.outputIndex && input.transaction_id === this.configUtxo?.txHash)
-    if(updateTx){
+    const updateTx = txDetails.inputs.findIndex((input: any) =>  input.index === this.configUtxo?.outputIndex && input.transaction_id === this.configUtxo?.txHash)
+    if(updateTx !== -1){
       return "Update Transaction"
     }
 
+
     if(txDetails.certs){
-      const selfDelegation = txDetails.certs.find((cert: any) => cert.StakeDelegation &&
-                                                                 cert.StakeDelegation.stake_credential.hash !== this.getCredential().hash)
-      if(selfDelegation){
+      const selfDelegation = txDetails.certs.findIndex((cert: any) => {
+        return  cert.StakeVoteDelegCert !== undefined &&
+                cert.StakeVoteDelegCert.stake_credential.Script.hash === this.getCredential().hash
+      })
+      if(selfDelegation !== -1){
         return "Delegation Transaction"
+      }
+
+      const stakeUnregistration = txDetails.certs.findIndex((cert: any) => {
+        return  cert.UnregCert !== undefined &&
+                cert.UnregCert.stake_credential.Script.hash === this.getCredential().hash
+      })
+      if(stakeUnregistration !== -1){
+        return "Stake Unregistration Transaction"
+      }
+
+      const stakeRegistration = txDetails.certs.findIndex((cert: any) => {
+        return  cert.StakeVoteRegDelegCert !== undefined &&
+                cert.StakeVoteRegDelegCert.stake_credential.Script.hash === this.getCredential().hash
+      })
+
+      if(stakeRegistration !== -1){
+        return "Stake Registration Transaction"
       }
     }
 
@@ -666,6 +686,8 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
 
   async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network!, this.script);
+    const curentDelegation = await this.getDelegation()
+
     let dRep: DRep 
     console.log("dRepId", dRepId)
     if (dRepId === "Abstain") {
@@ -679,12 +701,11 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
 
     tx.collectFrom(this.utxos, Data.void())
 
-    if (this.delegation.poolId === null) {
-      console.log("registerAndDelegate")
-      tx.registerStake(rewardAddress)
+    if (curentDelegation.poolId === null){
+      tx.registerAndDelegate.ToPoolAndDRep(rewardAddress, pool, dRep , Data.void()) 
+    }else {
+      tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep , Data.void())
     }
-    tx.delegateTo(rewardAddress, pool,  Data.void())
-   // tx.delegate.VoteToDRep(rewardAddress, dRep, Data.void())
     const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
