@@ -5,8 +5,9 @@ import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolut
 import { DRep } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence } from "@lucid-evolution/core-types";
+import WalletInterface from "../WalletInterface.js";
 
-class Wallet {
+class Wallet implements WalletInterface{
     signersNames: any[] = []
     wallet_script: any
     wallet_address: string
@@ -280,7 +281,7 @@ setPendingTxs(pendingTxs: any){
       return resault
     }
   
-    async loadUtxos() {
+    async loadUtxos(): Promise<boolean> {
       try{
         const utxos = await this.lucid!.config().provider!.getUtxos(LucidEvolution.getAddressDetails(this.getAddress())!.paymentCredential!)
       if(this.delegation === undefined){
@@ -288,14 +289,17 @@ setPendingTxs(pendingTxs: any){
       }
       if (this.utxos !== undefined){
         if (this.compareUtxos( utxos, this.utxos)){
-          return
+          return false
       }}
         this.getDelegation()
         this.utxos = utxos
         await this.checkTransactions()
+        return true
     }catch(e){
       console.log("Error loading utxos", e)
+      return false
     }
+
     }
 
     compareUtxos(a: any, b: any){ 
@@ -346,6 +350,11 @@ setPendingTxs(pendingTxs: any){
     getPendingTxs(){
         return this.pendingTxs
     }
+
+    getTransactionType() : string{
+      return "Regular Transaction"
+    }
+
 
     decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
       console.log("Decoding tx", tx)
@@ -957,7 +966,7 @@ setPendingTxs(pendingTxs: any){
       this.defaultAddress = address
     }
     
-    setAddressNamess(names: any){
+    setAddressNames(names: any){
       this.addressNames = names
 
     }

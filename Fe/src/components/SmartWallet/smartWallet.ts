@@ -89,6 +89,10 @@ class SmartWallet {
     return this.pendingTxs
   }
 
+  getTransactionType() : string{
+    return "Regular Transaction"
+  }
+
   addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
@@ -881,9 +885,14 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     }
   }
 
+  getStakingAddress(): string {
+    return validatorToRewardAddress(this.lucid.config().network!, this.script)
+  }
+
   setDefaultAddress(address: string | null): void {
     this.defaultAddress = address;
   }
+
 
   setAddressNames(names: Record<string, string>): void {
     this.addressNames = names;

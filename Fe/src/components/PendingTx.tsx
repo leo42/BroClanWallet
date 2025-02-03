@@ -1,21 +1,34 @@
 import React, { useEffect }     from "react";
 import TokenElement from "./TokenElement";
+import { TxOutput , UTxO , TxSignBuilder, Assets } from "@lucid-evolution/lucid";
 import {  toast } from 'react-toastify';
 import { ReactComponent as SignIcon } from "./../html/assets/sign.svg";
 import { ReactComponent as ImportSigIcon } from "./../html/assets/importSig.svg";
 import { ReactComponent as ExpandIcon } from "./../html/assets/details.svg";
-import copyTextToClipboard from "./../helpers/copyTextToClipboard";
+import copyTextToClipboard from "../helpers/copyTextToClipboard";
 import "./PendingTx.css"
+import WalletInterface from "./WalletInterface";
+import { Mint } from "lucid-cardano/esm/src/core/libs/cardano_multiplatform_lib/cardano_multiplatform_lib.generated";
 
-function WalletPendingTx(props) {
+interface WalletPendingTxProps {
+  moduleRoot: any;
+  wallet: WalletInterface;
+  tx: { tx: TxSignBuilder, signatures: Record<string, string> };
+  index: number;
+  root: any;
+
+}
+
+function WalletPendingTx(props: WalletPendingTxProps) {
     const [ hovering, setHovering] = React.useState("");
     const [importSig, setImportSig] = React.useState(false);
     const [importedTx, setImportedTx] = React.useState("");
     const [showDetails, setShowDetails] = React.useState(false);
-    const [inputUtxos, setInputUtxos] = React.useState([]);
+    const [inputUtxos, setInputUtxos] = React.useState<UTxO[]>([]);
     const [loading, setLoading] = React.useState(true);
-    const [collateralUtXos, setCollateralUtxos] = React.useState([]);
-    const [referenceInputsUtxos,    setReferenceInputsUtxos] = React.useState([]);
+    const [collateralUtXos, setCollateralUtxos] = React.useState<UTxO[]>([]);
+    const [referenceInputsUtxos,    setReferenceInputsUtxos] = React.useState<UTxO[]>([]);
+
     const [isMobile, setIsMobile] = React.useState(false);
 
     useEffect(() => {
@@ -34,12 +47,12 @@ function WalletPendingTx(props) {
     
     useEffect(() => {
         // get Utxo for each input
-        props.wallet.getUtxosByOutRef(txDetails.inputs).then( (utxos) => {
+        props.wallet.getUtxosByOutRef(txDetails.inputs).then( (utxos : UTxO[]) => {
             setInputUtxos(utxos)
             setLoading(false)
             })
 
-        txDetails.collateral ? props.wallet.getUtxosByOutRef(txDetails.collateral).then( (utxos) => {
+        txDetails.collateral ? props.wallet.getUtxosByOutRef(txDetails.collateral).then( (utxos : UTxO[]) => {
             setCollateralUtxos(utxos)
             }) : setCollateralUtxos([])
 
@@ -49,10 +62,11 @@ function WalletPendingTx(props) {
 
     }, [])
 
-    function normalizeTxDetails(txBody){
+    function normalizeTxDetails(txBody: any){
         if (txBody.outputs) {
-            txBody.outputs = txBody.outputs.map((output) => {
+            txBody.outputs = txBody.outputs.map((output: any) => {
               // Check if the output is an object with a single key (format type)
+
               const formatKeys = Object.keys(output);
               if (formatKeys.length === 1 && typeof output[formatKeys[0]] === 'object') {
                 // Return the inner object, which contains the actual output data
@@ -62,10 +76,11 @@ function WalletPendingTx(props) {
             });
           }
           if (txBody.inputs) {
-            txBody.inputs = txBody.inputs.map((input) => {
+            txBody.inputs = txBody.inputs.map((input : any) => {
               // Check if the input is an object with a single key (format type)
               const formatKeys = Object.keys(input);
               if (formatKeys.length === 1 && typeof input[formatKeys[0]] === 'object') {
+
                 // Return the inner object, which contains the actual input data
                 return input[formatKeys[0]];
               }
@@ -81,19 +96,19 @@ function WalletPendingTx(props) {
           return txBody
     }
 
-    const signaturesCompleted = props.wallet.checkSigners(txDetails.signatures.map( (signature) => signature.haveSig ? signature.keyHash : "  "))
+    const signaturesCompleted = props.wallet.checkSigners(txDetails.signatures.map( (signature : any) => signature.haveSig ? signature.keyHash : "  "))
 
-    function transformAmount(amount) {
-        const amountOut = {};
+    function transformAmount(amount : any) : {[key: string]: bigint} {
+        const amountOut: { [key: string]: bigint } = {};
         amountOut["lovelace"] = amount.coin;
 
         if (amount.multiasset) {
 
             // Iterate over the multiasset Map
-            amount.multiasset.forEach((assetsMap, policy) => {
+            amount.multiasset.forEach((assetsMap: any[], policy: any) => {
 
                 // Iterate over the assets Map
-                assetsMap.forEach((value, asset) => {
+                assetsMap.forEach((value: string | number | bigint | boolean, asset: any) => {
                     amountOut[policy + asset] = BigInt(value);
                 });
             });
@@ -102,20 +117,21 @@ function WalletPendingTx(props) {
         return amountOut;
     }
 
-    function transactionBalance(transaction){
-        const BalancesOut = {}
+    function transactionBalance(transaction: { outputs: any[]; withdrawals: {[key: string]: bigint} }){
+        const BalancesOut = {} as {[key: string]: bigint}
         inputUtxos.map( (input, index) => {
            if ( props.wallet.isAddressMine(input.address)) {
-           Object.keys( input.assets).map( (asset) => 
-                asset in BalancesOut ? BalancesOut[asset] -= BigInt(input.assets[asset]):  BalancesOut[asset] =- BigInt(input.assets[asset])
+           Object.keys( input.assets).map( (asset: string) => 
+                asset in BalancesOut ? BalancesOut[asset] -= BigInt(input.assets[asset]) :  BalancesOut[asset] =- BigInt(input.assets[asset])
             )}})
 
-        transaction.outputs.map( (output, index) => {
+        transaction.outputs.map( (output: { address: string; amount: any; }, index: any) => {
             if ( props.wallet.isAddressMine(output.address)) {
                 const amount = transformAmount(output.amount)
                 Object.keys(amount).map( (asset) => 
                 asset in BalancesOut ? BalancesOut[asset] += BigInt(amount[asset]) : BalancesOut[asset] = BigInt(amount[asset])
              )}})
+             
         if(transaction.withdrawals) {
              if(transaction.withdrawals.hasOwnProperty(props.wallet.getStakingAddress()) ) {
                 BalancesOut["lovelace"] -= BigInt(transaction.withdrawals[props.wallet.getStakingAddress()])
@@ -143,13 +159,14 @@ function WalletPendingTx(props) {
              ) : <div className="transactionHistoryListBalance"> </div>
     }
 
-    function TransactionInput(input){
+    function TransactionInput(input: UTxO){
         return (
-<div key={input.txHash+input.outputIndex} className="txDetailsInput">
+     <div key={input.txHash+input.outputIndex} className="txDetailsInput">
                          <p > <span className={props.wallet.isAddressMine(input.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}> {input.address ? input.address : "None" }</span> <br/>
                           Transaction ID: {input.txHash} | Index: {input.outputIndex}</p>
-                    {Object.keys( input.assets).map( (asset,index) =><TokenElement className="pendingTxTokenContainer"  key={index} tokenId={asset} amount={input.assets[asset]}/> )}
+                    {Object.keys( input.assets).map( (asset,index) =><TokenElement className="pendingTxTokenContainer"  key={index} tokenId={asset} amount={Number(input.assets[asset])}/> )}
                         
+
                         {input.datumHash &&  <div className="pendingTxData"> <div > <h4>Datum Hash:</h4><span >  {input.datumHash}</span> </div> </div>}
                          { input.datum &&<div className="pendingTxData"> <div > <h4>Datum:</h4> <span > {JSON.stringify(input.datum,null,2) }</span> </div> </div>}
                         {input.scriptRef &&  <div className="pendingTxData"> <div > <h4>Script Reference:</h4><span >  { JSON.stringify(input.scriptRef,null,2)}</span></div> </div> }
@@ -157,14 +174,14 @@ function WalletPendingTx(props) {
         )
     }
 
-    function TransactionOutput(output){
+    function TransactionOutput(output: { amount: { [key: string]: string }; address: string; datum: any; script_ref: any; }){
         const amount = transformAmount(output.amount)
         return (
-                 
+
                     <div key={JSON.stringify(output)} className="txDetailsOutput">
-                        <p className={props.wallet.isAddressMine(output.address) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>{output.address}</p>
+                        <p className={props.wallet.isAddressMine(output.address ) ? "txDetailsAddressMine" : "txDetailsAddressNotMine"}>{output.address}</p>
                         {Object.keys(amount).map((key, index) => (
-                                        <TokenElement className="pendingTxTokenContainer" key={index} tokenId={key} amount={amount[key]}/>
+                                        <TokenElement className="pendingTxTokenContainer" key={index} tokenId={key} amount={Number(amount[key])}/>
                        ))}
                        {output.datum && <div className="pendingTxData"> <div > <h4>Datum:</h4> <span>{JSON.stringify(output.datum, null, 2)} </span> </div></div>  }
                         {output.script_ref &&<div className="pendingTxData">  <div>  <h4>Script Ref:</h4> <span>{JSON.stringify( output.script_ref, null, 2)}</span> </div></div>}
@@ -172,18 +189,20 @@ function WalletPendingTx(props) {
                     )
     }
 
-    function mintToAssets(mint){
-        const assets = {}
-        Object.keys(mint).map( (policy) => {
-            Object.keys(mint[policy]).map( (asset) => {
-                assets[policy+asset] = parseInt(mint[policy][asset])
+    function mintToAssets(mint: any) : Assets{
+        const assets = {} as Assets
+        Object.keys(mint).forEach((policy: string) => {
+            Object.keys(mint[policy]).forEach((asset: string) => {
+                (assets as {[key: string]: bigint})[policy + asset] = BigInt(mint[policy][asset])
+
+
             })
-    })
-    return assets
-    }
+        })
+        return assets
+        }
 
 
-    function TransactionDetails(transaction){
+    function TransactionDetails(transaction: { mint: any; outputs: any[]; fee: number; ttl: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; network_id: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; certs: any[]; withdrawals: any; update: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; auxiliary_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; validity_interval_start: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; script_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; collateral_return: any; total_collateral: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_before: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_hereafter: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; required_scripts: any[]; reference_inputs: any; required_signers: any[]; }){
         const mintAssets = transaction.mint ? mintToAssets(transaction.mint) : {};
 
         return (
@@ -197,7 +216,7 @@ function WalletPendingTx(props) {
                     </div>
                     <div className="txDetailsOutputs">
                         <h3>Outputs:</h3>
-                        {transaction.outputs && transaction.outputs.map((output, index) =>
+                        {transaction.outputs && transaction.outputs.map((output: any, index: any) =>
                             TransactionOutput(output)
                         )}
                     </div>
@@ -208,7 +227,7 @@ function WalletPendingTx(props) {
                     {transaction.network_id && <div><h3>Network:</h3> {transaction.network_id}</div>}
                 </div>
                 <div className="txDetailsMain">
-                    {transaction.certs && <div className="pendingTxData"><div><h4>Certificates:</h4><span>{transaction.certs.map((cert, index) => {
+                    {transaction.certs && <div className="pendingTxData"><div><h4>Certificates:</h4><span>{transaction.certs.map((cert: { StakeDelegation?: any; StakeRegistration?: any; UnregCert?: any; PoolRegistration?: any; PoolRetirement?: any; GenesisKeyDelegation?: any; MoveInstantaneousRewardsCert?: any; StakeRegDelegCert?: any; StakeVoteDelegCert?: any; }, index: React.Key | null | undefined) => {
                         switch(Object.keys(cert)[0]) {
                             case 'StakeDelegation':
                                 return (<div key={index}>Delegation to:{JSON.stringify(cert.StakeDelegation)}</div>);
@@ -244,7 +263,8 @@ function WalletPendingTx(props) {
                     {transaction.total_collateral && <div className="pendingTxData"><div><h4>Total Collateral:</h4><span>{transaction.total_collateral}</span></div></div>}
                     {transaction.invalid_before && <div className="pendingTxData"><div><h4>Invalid Before:</h4><span>{transaction.invalid_before}</span></div></div>}
                     {transaction.invalid_hereafter && <div className="pendingTxData"><div><h4>Invalid Hereafter:</h4><span>{transaction.invalid_hereafter}</span></div></div>}
-                    {transaction.required_scripts && <div className="pendingTxData"><div><h4>Required Scripts:</h4><span>{transaction.required_scripts.map((script) => <div key={script}>{script}</div>)}</span></div></div>}
+                    {transaction.required_scripts && <div className="pendingTxData"><div><h4>Required Scripts:</h4><span>{transaction.required_scripts.map((script: any) => <div key={script}>{script}</div>)}</span></div></div>}
+
 
                     {collateralUtXos.length !== 0 && <div className="pendingTxReferenceInputs"><div><h3>Collateral:</h3><span>{collateralUtXos.map((input, index) =>
                         TransactionInput(input)
@@ -253,25 +273,31 @@ function WalletPendingTx(props) {
                     {transaction.reference_inputs && <div className="pendingTxReferenceInputs"><div><h3>Reference Inputs:</h3><span>{referenceInputsUtxos.map((referenceInput) =>
                         TransactionInput(referenceInput)
                     )}</span></div></div>}
-                    {transaction.required_signers && <div className="pendingTxData"><div><h4>Required Signers:</h4><span className="pendingTxsDetailsSigners">{transaction.required_signers.map((signer => <div key={signer}>{signer}</div>))}</span></div></div>}
+                    {transaction.required_signers && <div className="pendingTxData"><div><h4>Required Signers:</h4><span className="pendingTxsDetailsSigners">{transaction.required_signers.map((signer: any) => <div key={signer}>{signer}</div>)}</span></div></div>}
                     {transaction.mint && <div><div><h4>Mint/Burn:</h4>
-                        {Object.keys(mintAssets).map((asset) => <TokenElement key={asset} tokenId={asset} amount={mintAssets[asset]} />)}</div></div>}
+
+                        {Object.keys(mintAssets).map((asset: any) => <TokenElement key={asset} tokenId={asset} amount={Number(mintAssets[asset])} />)}</div></div>}
                 </div>
             </div>
         );
+
+
+
     }
 
-    async function signWithLocalWallet(wallet){
+    async function signWithLocalWallet(wallet: string | number){
         try{
         const api = await window.cardano[wallet].enable()
         const signature = await api.signTx(props.tx.tx.toCBOR() ,true)
         props.moduleRoot.addSignature(signature)
-        }catch(error){
+        }catch(error: any){
             toast.error("Error signing with local wallet: " + error.info)
         }
+
+
       }  
       
-    function copySignature(signature){
+    function copySignature(signature: string){
         copyTextToClipboard(signature)
         toast.info("Signature copied to clipboard")
     }
@@ -281,14 +307,16 @@ function WalletPendingTx(props) {
         toast.info("Transaction copied to clipboard")
     }
 
+
     function importSigniture(){
         try{
             props.moduleRoot.addSignature(importedTx);
             setImportSig(false);
-        }catch(error){
+        }catch(error : any){
             toast.error( error.message);
         }
     }
+
 
     function signTransaction(){
       if( props.moduleRoot.state.connectedWallet.name === "" ) 
@@ -305,14 +333,13 @@ function WalletPendingTx(props) {
 
 
             <svg onClick={copyTransaction} className="copyIcon" id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg>
-            {txDetails.certs && txDetails.certs.some(obj => "StakeDelegation" in obj)  ? "Delegation Transaction" : "Regular Transaction"} 
-             
+             {props.wallet.getTransactionType(txDetails)}
              <br/>
             {inputUtxos.length !== 0 ? transactionBalance(txDetails) : ""}
 
             <div className="pendingTx_signers">
             <h4 >Signatures:</h4>
-            {txDetails.signatures.map( (item, index) => (
+            {txDetails.signatures.map( (item: { haveSig: any; keyHash: string; }, index: React.Key | null | undefined) => (
                 <div key={index} className={"pendingTx_signer"+ (item.haveSig ? " pendingTx_signer_signed" : "")} >
                    
                     {item.haveSig ? <span className="pendingTxCompletedSig">{props.moduleRoot.getSignerName(item.keyHash)} Signed <svg className="copyIcon" onClick={() => copySignature(props.wallet.getSignature(props.index,item.keyHash))}  id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg> </span> :
@@ -324,19 +351,22 @@ function WalletPendingTx(props) {
             </div>
             <div className="pendingTx_buttons">
             { loading == false &&<div  onMouseEnter={() => setHovering("sign")} onMouseLeave={() => setHovering("") } onClick={signTransaction}  className='iconWraper detailsButton'>
-                <SignIcon className="icon"  alt="signicon" />
+                <SignIcon className="icon"  />
                 {  (hovering === "sign" || isMobile) &&  <label className='iconLabel'>Sign</label> }
             </div>  }
                             
+
             <div  onMouseEnter={() => setHovering("importSig")} onMouseLeave={() => setHovering("") } onClick={()=> setImportSig(!importSig)}  className='iconWraper importSigButton'>
-                <ImportSigIcon className="icon"  alt="signicon" />
+                <ImportSigIcon className="icon"  />
                 {  ( hovering === "importSig" || isMobile)  &&  <label className='iconLabel'>Import Sig</label> }
             </div>  
               
+
             <div  onMouseEnter={() => setHovering("Details")} onMouseLeave={() => setHovering("") } onClick={() => setShowDetails(!showDetails)}  className='iconWraper txDetailsButton'>
-                <ExpandIcon className="icon"  alt="signicon" />
+                <ExpandIcon className="icon"  />
                 { ( hovering === "Details" || isMobile)  &&  <label className='iconLabel'>{showDetails ? "Hide" : "Show" } Details</label> }
             </div>  
+
                 </div>
    
             {signaturesCompleted &&  <button className="pendingTx_submit commonBtn" onClick={() => props.moduleRoot.submit(props.index)}>Submit</button> }

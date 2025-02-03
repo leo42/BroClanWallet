@@ -1,4 +1,4 @@
-function copyTextToClipboard(text) {
+function copyTextToClipboard(text : string) {
   var success = false;
   var textarea = document.createElement("textarea");
   textarea.value = text;
