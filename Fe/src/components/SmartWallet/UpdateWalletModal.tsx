@@ -792,7 +792,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
      <input
        type="checkbox"
        name="value"
-       value={index}
        className='signerCheckbox'
        checked={this.state.signers[index].isDefault} 
        onChange={  () =>  this.handleOnChangeSigners(index)  }

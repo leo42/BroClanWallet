@@ -94,10 +94,10 @@ class WalletSettings extends React.Component<WalletSettingsProps> {
         <label>Default Signers</label>
         <br/>
         <div className='signerContainer'>    
-          {this.state.wallet.getSigners().map((signer: any, index: number) => (
-          <div className='signerContainerItem' key={index}  >
+          {this.state.wallet.getSigners().map((signer, index: number) => (
+          <div className='signerContainerItem' key={index + this.state.wallet.getAddressName(signer.hash)}  >
             <input type="checkbox" checked={signer.isDefault} onChange={() => this.toggleDefultSigner(signer.hash)}></input>
-           <input type="text" value={signer.name} onChange={(event) => this.state.moduleRoot.updateSignerName(signer.hash, event.target.value)}></input> 
+           <input type="text" value={this.state.moduleRoot.getSignerName(signer.hash)} onChange={(event) => this.state.moduleRoot.updateSignerName(signer.hash, event.target.value)}></input> 
           </div>
         ))}
          </div>
@@ -107,7 +107,7 @@ class WalletSettings extends React.Component<WalletSettingsProps> {
           <select key={this.state.wallet.getCollateralDonor()} value={this.state.wallet.getCollateralDonor()} onChange={(event)=> this.props.moduleRoot.setCollateralDonor(event.target.value)} >
             <option value="" >None</option>
             {this.state.wallet.getSigners().filter((sighener: any) => sighener.isDefault).map( (item: any, index: number) => (
-              <option key={index} value={item.hash} >{item.name}</option>
+              <option key={index} value={item.hash} >{this.state.moduleRoot.getSignerName(item.hash)}</option>
             ))}
           </select>
 
