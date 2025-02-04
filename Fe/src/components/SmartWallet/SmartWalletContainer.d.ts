@@ -17,6 +17,7 @@ interface SmartWalletContainerState {
     };
     loading: boolean;
     dAppConnector: any | null;
+    walletSettingsOpen: boolean;
 }
 declare class SmartWalletContainer extends React.Component<SmartWalletContainerProps, SmartWalletContainerState> {
     private interval;
