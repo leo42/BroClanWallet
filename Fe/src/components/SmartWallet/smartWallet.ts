@@ -477,23 +477,25 @@ async coinSelection(value: Assets, utxos: UTxO[]): Promise<UTxO[]> {
   // Iterate through sorted UTXOs
   while (availableUtxos.length > 0) {
     let sortedUtxos = sortByLeft(availableUtxos, value);
-    const utxo = sortedUtxos[0]
-    selectedUtxos.push(utxo);
-    availableUtxos = availableUtxos.filter(utxo => utxo.txHash !== utxo.txHash && utxo.outputIndex !== utxo.outputIndex)
+    const selectedUtxo = sortedUtxos[0]
+    selectedUtxos.push(selectedUtxo);
+    availableUtxos = availableUtxos.filter(utxo => !( utxo.txHash === selectedUtxo.txHash && utxo.outputIndex === selectedUtxo.outputIndex))
   
+
+
     // Add all assets from the current UTXO to totalRemaining
-    for (const asset in utxo.assets) {
+    for (const asset in selectedUtxo.assets) {
         if (!totalRemaining[asset]) {
         totalRemaining[asset] = 0n;
       }
-      totalRemaining[asset] -= BigInt(utxo.assets[asset]);
+      totalRemaining[asset] -= BigInt(selectedUtxo.assets[asset]);
     }
 
     // Check if we have enough to cover the requested value
     if (isEnoughValue(totalRemaining)) {
       return selectedUtxos;
     }
-    console.log("sortedUtxos", sortedUtxos, totalRemaining, selectedUtxos)
+    console.log("sortedUtxos", sortedUtxos, totalRemaining, selectedUtxos, availableUtxos)
   }
 
   // If we reach here, it means we don't have enough UTXOs to cover the value
