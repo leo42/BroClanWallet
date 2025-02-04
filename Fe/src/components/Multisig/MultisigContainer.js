@@ -176,7 +176,7 @@ async setState(state){
       const myWallet = wallets[index].json.type === "tokenVault" ? new TokenWallet(wallets[index].json.token,wallets[index].name) : new Wallet(wallets[index].json,wallets[index].name);
       await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.props.root.state.settings  );
       myWallet.setDefaultAddress(wallets[index].defaultAddress)
-      myWallet.setAddressNamess(wallets[index].addressNames)
+      myWallet.setAddressNames(wallets[index].addressNames)
       myWallet.setDefaultSigners(wallets[index].defaultSigners)
       myWallet.setPendingTxs(wallets[index].pendingTxs)
       await myWallet.loadUtxos()

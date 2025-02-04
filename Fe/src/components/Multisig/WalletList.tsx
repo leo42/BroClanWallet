@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
 import WalletSettings from './walletSettings';
-import MultisigWallet from './multisigWallet';
 import "./WalletList.css"
 
 

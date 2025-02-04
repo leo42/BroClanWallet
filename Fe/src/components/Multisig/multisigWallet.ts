@@ -2,11 +2,12 @@ import * as LucidEvolution from "@lucid-evolution/lucid";
 
 import {  toast } from 'react-toastify';
 import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution.js"
-import { DRep } from "@lucid-evolution/lucid";
+import { DRep , Credential } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
-import { AlwaysAbstain, AlwaysNoConfidence } from "@lucid-evolution/core-types";
+import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
+import WalletInterface from "../WalletInterface.js";
 
-class Wallet {
+class Wallet implements WalletInterface{
     signersNames: any[] = []
     wallet_script: any
     wallet_address: string
@@ -127,13 +128,20 @@ class Wallet {
       return this.name
     }
 
+    getCredential(): Credential{
+      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}
+      return  {type: "Script" , hash: LucidEvolution.validatorToScriptHash(script) }  
+      
+    }
+
 
     // getSignatures(): any[] {
 
     //   return this.signatures;
     // }
 
-    async getDelegation() { 
+
+    async getDelegation() : Promise<Delegation> { 
       this.delegation = await this.lucid?.config().provider!.getDelegation(
                 LucidEvolution.credentialToRewardAddress(
                      this.lucid?.config().network!,
@@ -227,7 +235,7 @@ class Wallet {
 setPendingTxs(pendingTxs: any){
 
   this.pendingTxs = pendingTxs.map( (tx: {tx: string, signatures: string[]}) => { 
-      const txParced =  LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(tx.tx)) 
+      const txParced =  LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(tx.tx)) 
       return({tx:txParced, signatures:tx.signatures})
   })
 }
@@ -235,14 +243,14 @@ setPendingTxs(pendingTxs: any){
 
 
     getAddress(stakingAddress="") {
-      const script : LucidEvolution.Validator = {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}
       const rewardAddress = stakingAddress === "" ? 
-        {type: "Script" as const, hash: LucidEvolution.validatorToScriptHash(script)} : 
+        this.getCredential() : 
         LucidEvolution.getAddressDetails(stakingAddress)!.stakeCredential;
         
+
       return LucidEvolution.credentialToAddress(
         this.lucid!.config().network!,
-        {type: "Script" , hash: LucidEvolution.validatorToScriptHash(script) }, 
+        this.getCredential(), 
         rewardAddress
       );
     }
@@ -252,9 +260,11 @@ setPendingTxs(pendingTxs: any){
     }
       
  
+
     getSigners(): any[] {
       return this.signersNames
     }
+
 
     getFundedAddress(): string[] {
       const utxos = this.utxos
@@ -280,7 +290,7 @@ setPendingTxs(pendingTxs: any){
       return resault
     }
   
-    async loadUtxos() {
+    async loadUtxos(): Promise<boolean> {
       try{
         const utxos = await this.lucid!.config().provider!.getUtxos(LucidEvolution.getAddressDetails(this.getAddress())!.paymentCredential!)
       if(this.delegation === undefined){
@@ -288,14 +298,17 @@ setPendingTxs(pendingTxs: any){
       }
       if (this.utxos !== undefined){
         if (this.compareUtxos( utxos, this.utxos)){
-          return
+          return false
       }}
         this.getDelegation()
         this.utxos = utxos
         await this.checkTransactions()
+        return true
     }catch(e){
       console.log("Error loading utxos", e)
+      return false
     }
+
     }
 
     compareUtxos(a: any, b: any){ 
@@ -347,8 +360,42 @@ setPendingTxs(pendingTxs: any){
         return this.pendingTxs
     }
 
+    getTransactionType(txDetails: any) : string{
+      if(txDetails.certs){
+        const selfDelegation = txDetails.certs.findIndex((cert: any) => {
+          return  cert.StakeVoteDelegCert !== undefined &&
+                  cert.StakeVoteDelegCert.stake_credential.Script.hash === this.getCredential().hash
+        })
+        if(selfDelegation !== -1){
+          return "Delegation Transaction"
+        }
+  
+        const stakeUnregistration = txDetails.certs.findIndex((cert: any) => {
+          return  cert.UnregCert !== undefined &&
+                  cert.UnregCert.stake_credential.Script.hash === this.getCredential().hash
+        })
+        if(stakeUnregistration !== -1){
+          return "Stake Unregistration Transaction"
+        }
+  
+        const stakeRegistration = txDetails.certs.findIndex((cert: any) => {
+          return  cert.StakeVoteRegDelegCert !== undefined &&
+                  cert.StakeVoteRegDelegCert.stake_credential.Script.hash === this.getCredential().hash
+        })
+  
+        if(stakeRegistration !== -1){
+          return "Stake Registration Transaction"
+        }
+      }
+  
+
+
+      return "Regular Transaction"
+    }
+
+
+
     decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
-      console.log("Decoding tx", tx)
       const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx.toCBOR({canonical: true})).body().to_js_value();
       return txBody;
     }
@@ -579,7 +626,7 @@ setPendingTxs(pendingTxs: any){
     { 
       let tx
       console.log("transaction", transaction)
-      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config(), LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
+      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
       try{
       if (!await this.checkTransaction(tx)){
         throw new Error("Transaction invalid")
@@ -779,9 +826,7 @@ setPendingTxs(pendingTxs: any){
       console.log("dRep", dRep, typeof dRep)
       const tx = await this.createTemplateTx(signers)
 
-      if (curentDelegation.poolId === pool && curentDelegation.dRepId === dRepId){
-        throw new Error('Delegation unchanged');
-      } else if (curentDelegation.poolId === null){
+      if (curentDelegation.poolId === null){
         tx.registerAndDelegate.ToPoolAndDRep(rewardAddress, pool, dRep) 
       }else {
         tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep)
@@ -957,7 +1002,7 @@ setPendingTxs(pendingTxs: any){
       this.defaultAddress = address
     }
     
-    setAddressNamess(names: any){
+    setAddressNames(names: any){
       this.addressNames = names
 
     }

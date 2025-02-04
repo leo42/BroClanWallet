@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -6,6 +6,8 @@ import { encode , decode } from "./encoder";
 import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
+import { BigNum } from "lucid-cardano/esm/src/core/libs/cardano_multiplatform_lib/cardano_multiplatform_lib.generated";
+import WalletInterface from "../WalletInterface";
 interface Recipient {
   address: string;
   amount: Assets;
@@ -15,7 +17,7 @@ type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number,
 
 
 
-class SmartWallet {
+class SmartWallet implements WalletInterface {
   private lucid!: LucidEvolution ;
   private script: Validator ;
   private name: string = "New Wallet";
@@ -84,14 +86,56 @@ class SmartWallet {
     this.pendingTxs.splice(tx, 1);
   }
 
-  getPendingTxs(): { tx: CBORHex; signatures: Record<string, string> }[] {
-    return this.pendingTxs.map(tx => ({ tx: tx.tx.toCBOR({canonical: true}), signatures: tx.signatures }));
+  getPendingTxs(): { tx: TxSignBuilder; signatures: Record<string, string> }[] {
+    return this.pendingTxs
+  }
+
+  getTransactionType(txDetails: any) : string{
+    const updateTx = txDetails.inputs.findIndex((input: any) =>  input.index === this.configUtxo?.outputIndex && input.transaction_id === this.configUtxo?.txHash)
+    if(updateTx !== -1){
+      return "Update Transaction"
+    }
+
+
+    if(txDetails.certs){
+      const selfDelegation = txDetails.certs.findIndex((cert: any) => {
+        return  cert.StakeVoteDelegCert !== undefined &&
+                cert.StakeVoteDelegCert.stake_credential.Script.hash === this.getCredential().hash
+      })
+      if(selfDelegation !== -1){
+        return "Delegation Transaction"
+      }
+
+      const stakeUnregistration = txDetails.certs.findIndex((cert: any) => {
+        return  cert.UnregCert !== undefined &&
+                cert.UnregCert.stake_credential.Script.hash === this.getCredential().hash
+      })
+      if(stakeUnregistration !== -1){
+        return "Stake Unregistration Transaction"
+      }
+
+      const stakeRegistration = txDetails.certs.findIndex((cert: any) => {
+        return  cert.StakeVoteRegDelegCert !== undefined &&
+                cert.StakeVoteRegDelegCert.stake_credential.Script.hash === this.getCredential().hash
+      })
+
+      if(stakeRegistration !== -1){
+        return "Stake Registration Transaction"
+      }
+    }
+
+    return "Regular Transaction"
+  }
+
+  getCredential(): Credential{
+      return  {type: "Script" , hash: validatorToScriptHash(this.script) }  
   }
 
   addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
-    const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(tx.tx))
+    const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
   }
+
 
   getAddress(stakingAddress: string = ""): string {
     if(stakingAddress === ""){
@@ -158,7 +202,6 @@ class SmartWallet {
 
   async getConfigUtxo(): Promise<UTxO> {
     const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
-    console.log("policyId", policyId)
     const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
     return configUtxo
   }
@@ -242,9 +285,10 @@ class SmartWallet {
 
   async loadUtxos(): Promise<boolean> {
     try {
+      console.log("loadUtxos")
       const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
-      const utxos = await this.lucid.utxosAt(scriptCredential);
       await this.loadConfig()
+      const utxos = await this.lucid.utxosAt(scriptCredential);
       if (this.compareUtxos(utxos, this.utxos)) return false;
       
       this.utxos = utxos;
@@ -310,8 +354,9 @@ class SmartWallet {
   mergeAssets(assets1: Assets, assets2: Assets): Assets {
      //assets are object Key value pair s we want to add the values of the second object to the first
      Object.keys(assets2).forEach(asset => {
-      assets1[asset as keyof Assets] = (assets1[asset as keyof Assets] || 0n) + assets2[asset as keyof Assets]
+      assets1[asset as keyof Assets] = BigInt(assets1[asset as keyof Assets] || 0n) + BigInt(assets2[asset as keyof Assets])
      })
+
      return assets1;
   }
   
@@ -322,8 +367,14 @@ class SmartWallet {
     sendAll: number | null = null,
     withdraw: boolean = true
   ) {
-
-    const returnAddress = sendAll !== null ? recipients[sendAll].address : sendFrom ? sendFrom : this.getAddress();
+    // make sure the recipients are all bigInt and not number
+    const recipientsBigInt = recipients.map(recipient => ({
+      ...recipient,
+      amount: Object.fromEntries(
+        Object.entries(recipient.amount).map(([asset, amount]) => [asset, BigInt(amount)])
+      )
+    }));
+    const returnAddress = sendAll !== null ? recipientsBigInt[sendAll].address : sendFrom ? sendFrom : this.getAddress();
     const tx = await this.createTemplateTx(signers, returnAddress)
 
     console.log("createTx", recipients, signers, sendFrom, sendAll, withdraw,returnAddress)
@@ -352,7 +403,7 @@ class SmartWallet {
        localUPLCEval: true,
        changeAddress: returnAddress,
      });
-     const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
+     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
      this.pendingTxs.push({ tx: txBuilder , signatures: {} });
      return completedTx;
@@ -500,7 +551,7 @@ async createUpdateTx(
     coinSelection : false,
     localUPLCEval: true,
   });
-  const txBuilder = makeTxSignBuilder(this.lucid.config(), Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
+  const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
   this.pendingTxs.push({ tx: txBuilder , signatures: {} });
   return completedTx;
@@ -555,7 +606,11 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     return await this.pullCollateralUtxo(this.collateralDonor as string);
   }
   throw new Error("No collateral utxo found")
-}         
+}    
+     
+getUtxos(): UTxO[] {
+  return this.utxos
+}
 
 
    async pullCollateralUtxo(collateralProvider: string) : Promise<UTxO> {
@@ -633,6 +688,8 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
 
   async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network!, this.script);
+    const curentDelegation = await this.getDelegation()
+
     let dRep: DRep 
     console.log("dRepId", dRepId)
     if (dRepId === "Abstain") {
@@ -646,12 +703,11 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
 
     tx.collectFrom(this.utxos, Data.void())
 
-    if (this.delegation.poolId === null) {
-      console.log("registerAndDelegate")
-      tx.registerStake(rewardAddress)
+    if (curentDelegation.poolId === null){
+      tx.registerAndDelegate.ToPoolAndDRep(rewardAddress, pool, dRep , Data.void()) 
+    }else {
+      tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep , Data.void())
     }
-    tx.delegateTo(rewardAddress, pool,  Data.void())
-   // tx.delegate.VoteToDRep(rewardAddress, dRep, Data.void())
     const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
@@ -773,7 +829,6 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
       return result;
     }
     const res = verify(config, signers);
-    console.log("res", res)
     return res
   }
 
@@ -851,8 +906,8 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     return txBody;
   }
 
-  async getUtxosByOutRef(OutputRef: {transaction_id: string, index: string}[])  {
-    const resault= await this.lucid.config().provider!.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
+  async  getUtxosByOutRef(outRefs: Array<OutRef>): Promise<UTxO[]>  {
+    const resault= await this.lucid.config().provider!.getUtxosByOutRef(outRefs)
     return resault
   }
 
@@ -872,9 +927,14 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     }
   }
 
+  getStakingAddress(): string {
+    return validatorToRewardAddress(this.lucid.config().network!, this.script)
+  }
+
   setDefaultAddress(address: string | null): void {
     this.defaultAddress = address;
   }
+
 
   setAddressNames(names: Record<string, string>): void {
     this.addressNames = names;

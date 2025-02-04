@@ -101,7 +101,7 @@ declare class Wallet {
     resetDefaultSigners(): void;
     setScript(wallet_script: any): void;
     setDefaultAddress(address: string): void;
-    setAddressNamess(names: any): void;
+    setAddressNames(names: any): void;
     setName(name: string): void;
     changeAddressName(address: string, name: string): void;
     getNetworkId(): 0 | 1;

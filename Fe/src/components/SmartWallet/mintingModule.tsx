@@ -3,12 +3,13 @@ import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO ,
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
-import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptor , SmartMultisigDescriptorSchema , SmartMultisigDescriptorKeyHash  , SmartMultisigDescriptorKeyHashSchema} from "./types";
+import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptorSchema , SmartMultisigDescriptorKeyHash  , SmartMultisigDescriptorKeyHashSchema} from "./types";
 import "./MintingModule.css"
 import CryptoJS from 'crypto-js';
 import { encode , decode } from "./encoder";
 import SmartWallet from "./smartWallet";
 import contracts from "./contracts.json";
+
 import { Settings  } from "../../types/app";
 import { validatorToAddress ,validatorToScriptHash} from "@lucid-evolution/utils";
 
@@ -105,108 +106,128 @@ class MintingModule extends React.Component<MintingProps> {
       const lucid = await getNewLucidInstance(settings)
       lucid.selectWallet.fromAPI(api)
 
-        const address = await lucid.config().wallet?.address();
-        if (!address) {
-          throw new Error("Wallet address not available");
-        }
-        const paymentCredential = getAddressDetails(address).paymentCredential;
-        if (!paymentCredential) {
-          throw new Error("Payment credential not found");
-        }
-        const utxos = await lucid.config().provider!.getUtxos(paymentCredential);
+      const address = await lucid.config().wallet?.address();
+      if (!address) {
+        throw new Error("Wallet address not available");
+      }
+
+      const adminUtxo = await lucid.config().provider!.getUtxoByUnit(
+        contracts[this.props.root.state.settings.network].minting.adminKey
+      );
+      if (!adminUtxo) {
+        throw new Error("Could not fetch admin UTxO - the service might be temporarily unavailable");
+      }
+
+      const paymentCredential = getAddressDetails(address).paymentCredential;
+      if (!paymentCredential) {
+        throw new Error("Payment credential not found");
+      }
+      const utxos = (await lucid.config().provider!.getUtxos(paymentCredential)).slice(0, 5)
+      console.log("utxos", utxos)
 
 
 
-        const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
-        const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
-        const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
-        const consumingTx =  lucid.newTx().collectFrom(utxos)
-        const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
-        consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
-        const assets : Assets = {}
-        const assetsConfigToken : Assets = {}
-        const assetsRefferenceToken : Assets = {}
-        const walletConfigToken = policyId + "00" + tokenNameSuffix
-        const walletRefferenceToken = policyId + "02" + tokenNameSuffix
-        assets[walletConfigToken] = 1n;
-        assetsConfigToken[walletConfigToken] = 1n
-        assetsConfigToken["lovelace"] = 2_500_000n
-        assets[walletRefferenceToken] = 1n;
-        assetsRefferenceToken[walletRefferenceToken] = 1n
-        const smartWallet = new SmartWallet(tokenNameSuffix,settings)
-        await smartWallet.initializeLucid()
+      const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
+      const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
+      const consumingTx =  lucid.newTx().collectFrom(utxos)
+      const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
+      consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
+      const assets : Assets = {}
+      const assetsConfigToken : Assets = {}
+      const assetsRefferenceToken : Assets = {}
+      const walletConfigToken = policyId + "00" + tokenNameSuffix
+      const walletRefferenceToken = policyId + "02" + tokenNameSuffix
+      assets[walletConfigToken] = 1n;
+      assetsConfigToken[walletConfigToken] = 1n
+      assetsConfigToken["lovelace"] = 2_500_000n
+      assets[walletRefferenceToken] = 1n;
+      assetsRefferenceToken[walletRefferenceToken] = 1n
+      const smartWallet = new SmartWallet(tokenNameSuffix,settings)
+      await smartWallet.initializeLucid()
 
-        const stakeCredential = { type : "Key" as any , hash : "2c2d6e74020e441090d0b9ab1e2537a127764c2d3920896197c1ec9a" }
-
-
-        
-        const configAddress = validatorToAddress(settings.network, { type: "PlutusV3" ,script : contracts[this.props.root.state.settings.network].configHost}, stakeCredential);
-        const deadAddress = credentialToAddress(settings.network, { type: "Key" ,hash : "deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"}, stakeCredential);
-        
-        
-        console.log("keyHash", paymentCredential.hash, policyId)
-        const initialMultisigConfig = encode(    {
-          Type : SmartMultisigDescriptorType.KeyHash, 
-          keyHash : paymentCredential.hash
-        })
-        console.log(initialMultisigConfig)
-        const metadata : any =  {}
-        metadata[policyId] ={}
-        metadata["version"] = 2
-
-        metadata[policyId]["00" + tokenNameSuffix] =  
-        { 
-          name: name+ "-Config" , 
-          description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
-          image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-          information: this.mintingInfo 
-        }
- 
-        metadata[policyId]["02" + tokenNameSuffix] =  
-        { 
-          name: name+ "-Refference" , 
-          description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
-          image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-          information: this.mintingInfo 
-        }
-        
-        
+      const stakeCredential = { type : "Key" as any , hash : "2c2d6e74020e441090d0b9ab1e2537a127764c2d3920896197c1ec9a" }
 
 
-        const redeemer = Data.void();
-        consumingTx.mintAssets(assets, redeemer)
-        .attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
-        .attachMetadata( 721 , metadata )
-        .readFrom([adminUtxo])
-        
-        consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
-        consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-        const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true, localUPLCEval : false, coinSelection : false})
-        
-        const signature = await completedTx.sign.withWallet()
-        
-        const txComlete = await signature.complete();
-        const txHash = await txComlete.submit();
-        const awaitTx = lucid.config().provider!.awaitTx(txHash)
-        toast.promise(awaitTx, {
-          pending: 'Waiting for confirmation',
-          success: 'Transaction confirmed',
-          error: 'Something went wrong',
-        });
-        await awaitTx
-        this.props.moduleRoot.addWallet(tokenNameSuffix, "New Smart Wallet")
+      
+      const configAddress = validatorToAddress(settings.network, { type: "PlutusV3" ,script : contracts[this.props.root.state.settings.network].configHost}, stakeCredential);
+      const deadAddress = credentialToAddress(settings.network, { type: "Key" ,hash : "deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"}, stakeCredential);
+      
+      
+      console.log("keyHash", paymentCredential.hash, policyId)
+      const initialMultisigConfig = encode(    {
+        Type : SmartMultisigDescriptorType.KeyHash, 
+        keyHash : paymentCredential.hash
+      })
+      type TransactionMetadata = string | number | Uint8Array | ReadonlyArray<TransactionMetadata> | {
+        [key: string]: TransactionMetadata;
+     };
+    
+      console.log(initialMultisigConfig)
+      const metadata : any =  {}
+      metadata[policyId] ={}
+      metadata["version"] = 2
+
+      metadata[policyId]["00" + tokenNameSuffix] =  
+      { 
+        name: name+ "-Config" , 
+        description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
+        image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+        information: this.mintingInfo 
+      }
+
+      metadata[policyId]["02" + tokenNameSuffix] =  
+      { 
+        name: name+ "-Refference" , 
+        description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
+        image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+        information: this.mintingInfo 
+      }
+      
+      
+      console.log(this.mintingRawScript, configAddress, deadAddress, metadata, assets, adminUtxo)
+
+
+      const redeemer = Data.void();
+      console.log("redeemer", redeemer)
+
+      consumingTx.mintAssets(assets, redeemer)
+      consumingTx.attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
+     // consumingTx.attachMetadata( 721 , metadata )
+      consumingTx.readFrom([adminUtxo])
+      
+
+      consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
+      consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
+     const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true})
+      
+      const signature = await completedTx.sign.withWallet()
+      
+      const txComlete = await signature.complete();
+      const txHash = await txComlete.submit();
+      this.props.moduleRoot.addWallet(tokenNameSuffix, "New Smart Wallet")
+      const awaitTx = lucid.config().provider!.awaitTx(txHash)
+      toast.promise(awaitTx, {
+        pending: 'Waiting for confirmation',
+        success: 'Transaction confirmed',
+        error: 'Something went wrong',
+      });
+      await awaitTx
 
     }catch(e : any){
-        console.log(e , "error")
-        if (e.message === "Unit not found."){
-          toast.error("TokenVaults not supported on this network.")
-        } else
-        if(e.message === "Could not fetch UTxOs from Blockfrost. Try again."){
-          toast.error("Your wallet seems to be empty")
-        }else  if(e === "Missing input or output for some native asset"){
-          toast.error("Insuffucient funds")
+        console.error("Detailed error:", e, e.toString());
+        if (e.toString().includes("<!DOCTYPE")) {
+          toast.error("Network error: The service is temporarily unavailable. Please try again later.");
+
         } else {
-          toast.error(e.message ? e.message : e)
+          if (e.message === "Unit not found.") {
+            toast.error("TokenVaults not supported on this network.");
+          } else if (e.message === "Could not fetch UTxOs from Blockfrost. Try again.") {
+            toast.error("Your wallet seems to be empty");
+          } else if (e === "Missing input or output for some native asset") {
+            toast.error("Insufficient funds");
+          } else {
+            toast.error(e.message ? e.message : e.toString());
+          }
         }
     }
 

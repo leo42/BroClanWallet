@@ -123,7 +123,6 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     this.setState({ WName });
   };
 
-// ... existing code ...
 
 toSmartMultisigDescriptor = (json: SmartMultisigJson): SmartMultisigDescriptor => {
   switch (json.Type) {
@@ -792,7 +791,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
      <input
        type="checkbox"
        name="value"
-       value={index}
        className='signerCheckbox'
        checked={this.state.signers[index].isDefault} 
        onChange={  () =>  this.handleOnChangeSigners(index)  }
@@ -820,16 +818,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
                 </option>
               ))}
             </select>
-            <div className="input_wrap walletName">
-              <input
-                required
-                type="text"
-                name="name"
-                value={this.state.WName}
-                onChange={(event) => this.setWName(event.target.value)}
-              />
-              <label>Name your Wallet</label>
-            </div>
+            <h3> {this.props.wallet.getName()}</h3>
             <div className="rootRoot">
               {this.rootComponenent(this.state.json)}
             </div>

@@ -41,7 +41,6 @@ class WalletCreateTx extends React.Component {
         })
       }
     }
-    console.log(this.props.moduleRoot.getSigners())
   }
 
    
