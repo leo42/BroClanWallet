@@ -225,10 +225,14 @@ class SmartWallet implements WalletInterface {
         const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
         const scriptUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "02" + this.id);
         this.scriptUtxo = scriptUtxo
+        if(scriptUtxo.scriptRef){
+          this.script = scriptUtxo.scriptRef
+        }
       }
       catch(e){
         console.error("Error getting script utxo:", e);
       }
+
     } catch (e) {
       console.error("Error getting config:", e);
       return Promise.reject(e);
@@ -286,9 +290,8 @@ class SmartWallet implements WalletInterface {
   async loadUtxos(): Promise<boolean> {
     try {
       console.log("loadUtxos")
-      const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
       await this.loadConfig()
-      const utxos = await this.lucid.utxosAt(scriptCredential);
+      const utxos = await this.lucid.utxosAt(this.getCredential());
       if (this.compareUtxos(utxos, this.utxos)) return false;
       
       this.utxos = utxos;
@@ -906,8 +909,8 @@ getUtxos(): UTxO[] {
     return txBody;
   }
 
-  async  getUtxosByOutRef(outRefs: Array<OutRef>): Promise<UTxO[]>  {
-    const resault= await this.lucid.config().provider!.getUtxosByOutRef(outRefs)
+  async getUtxosByOutRef(OutputRef: any)  {
+    const resault= await this.lucid!.config().provider!.getUtxosByOutRef(OutputRef.map( (outRef: any) =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
     return resault
   }
 
