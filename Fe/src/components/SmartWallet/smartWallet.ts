@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../../types/app";
@@ -7,6 +7,7 @@ import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
 import { BigNum } from "lucid-cardano/esm/src/core/libs/cardano_multiplatform_lib/cardano_multiplatform_lib.generated";
+import WalletInterface from "../WalletInterface";
 interface Recipient {
   address: string;
   amount: Assets;
@@ -16,7 +17,7 @@ type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number,
 
 
 
-class SmartWallet {
+class SmartWallet implements WalletInterface {
   private lucid!: LucidEvolution ;
   private script: Validator ;
   private name: string = "New Wallet";
@@ -605,7 +606,11 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     return await this.pullCollateralUtxo(this.collateralDonor as string);
   }
   throw new Error("No collateral utxo found")
-}         
+}    
+     
+getUtxos(): UTxO[] {
+  return this.utxos
+}
 
 
    async pullCollateralUtxo(collateralProvider: string) : Promise<UTxO> {
@@ -901,8 +906,8 @@ async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
     return txBody;
   }
 
-  async getUtxosByOutRef(OutputRef: {transaction_id: string, index: string}[])  {
-    const resault= await this.lucid.config().provider!.getUtxosByOutRef(OutputRef.map( outRef =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
+  async  getUtxosByOutRef(outRefs: Array<OutRef>): Promise<UTxO[]>  {
+    const resault= await this.lucid.config().provider!.getUtxosByOutRef(outRefs)
     return resault
   }
 
