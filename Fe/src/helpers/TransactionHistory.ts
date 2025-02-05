@@ -34,7 +34,7 @@ async function getTransactionHistory(address : string, settings : any, page=0 , 
     }else if ( settings.metadataProvider === "Blockfrost"){
         const api = settings.api.url
         const response = await fetch(
-            `${api}/addresses/${address}/transactions?order=acs`,
+            `${api}/addresses/${address}/transactions?order=desc`,
             {
                 method: "GET",
                 headers: {

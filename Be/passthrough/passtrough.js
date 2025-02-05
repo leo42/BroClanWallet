@@ -231,14 +231,18 @@ app.get('/assets/:tokenId',  async (req, res) => {
 app.get('/addresses/:address/transactions',  async (req, res) => {
   res.header('Access-Control-Allow-Origin', SERVING);
     const { address } = req.params;
+    const { order } = req.query;
     try {
-        const response = await axios.get(`${blockfrostApis[req.headers.project_id]}/addresses/${address}/transactions`, { headers: { project_id: blockfrostApiKeys[req.headers.project_id] } });
+        const response = await axios.get(
+          `${blockfrostApis[req.headers.project_id]}/addresses/${address}/transactions${order ? `?order=${order}` : ''}`,
+          { headers: { project_id: blockfrostApiKeys[req.headers.project_id] } }
+        );
         res.json(response.data);
     } catch (error) {
       const statusCode = error.response.status || 500;
-      res.status(statusCode).json({ error: error.message });    }
-}
-);
+      res.status(statusCode).json({ error: error.message });    
+    }
+});
 
 // allow cross origin requests
 app.use(cors());
