@@ -1,6 +1,6 @@
 .MintingModule {
     display: flex;
-    min-width: 4500px;
+    margin-top: 130px;
     height: fit-content;
     width: fit-content;
     flex-direction: column;
