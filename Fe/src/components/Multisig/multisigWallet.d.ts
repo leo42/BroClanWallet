@@ -1,5 +1,8 @@
 import * as LucidEvolution from "@lucid-evolution/lucid";
-declare class Wallet {
+import { Credential } from "@lucid-evolution/lucid";
+import { Delegation } from "@lucid-evolution/core-types";
+import WalletInterface from "../WalletInterface.js";
+declare class Wallet implements WalletInterface {
     signersNames: any[];
     wallet_script: any;
     wallet_address: string;
@@ -14,7 +17,7 @@ declare class Wallet {
         };
     }[];
     addressNames: any;
-    utxos: any[];
+    utxos: LucidEvolution.UTxO[];
     lucid: LucidEvolution.LucidEvolution | undefined;
     lucidNativeScript: LucidEvolution.CML.NativeScript | undefined;
     collateralDonor: any;
@@ -36,7 +39,9 @@ declare class Wallet {
     } | undefined;
     getCBOR(): string;
     getName(): string;
-    getDelegation(): Promise<any>;
+    getCredential(): Credential;
+    getDelegation(): Promise<Delegation>;
+    coinSelect(coin: LucidEvolution.Assets, utxoset?: LucidEvolution.UTxO[]): LucidEvolution.UTxO[];
     getBalance(address?: string): number;
     getBalanceFull(address?: string): any;
     substructBalanceFull(assets: any, address?: string): any;
@@ -46,38 +51,42 @@ declare class Wallet {
     getSigners(): any[];
     getFundedAddress(): string[];
     getUtxos(): any[];
-    getutxo(utxoHash: string): any;
+    getutxo(utxoHash: string): LucidEvolution.UTxO | undefined;
     getUtxosByOutRef(OutputRef: any): Promise<LucidEvolution.UTxO[]>;
-    loadUtxos(): Promise<void>;
+    loadUtxos(): Promise<boolean>;
     compareUtxos(a: any, b: any): boolean;
     checkTransactions(): Promise<void>;
-    checkTransaction(tx: any): Promise<boolean>;
+    checkTransaction(tx: LucidEvolution.TxSignBuilder): Promise<boolean>;
     getPendingTxs(): {
         tx: LucidEvolution.TxSignBuilder;
         signatures: {
             [key: string]: string;
         };
     }[];
+    getTransactionType(txDetails: any): string;
     decodeTransaction(tx: LucidEvolution.TxSignBuilder): any;
     getPendingTxDetails(index: number): any;
     checkSigners(signers: string[]): any;
     createTemplateTx(signers: string[]): Promise<LucidEvolution.TxBuilder>;
-    createTx(recipients: any, signers: string[], sendFrom?: string, sendAll?: number | null, withdraw?: boolean): Promise<string>;
+    createTx(recipients: {
+        amount: Record<string, bigint>;
+        address: string;
+    }[], signers: string[], sendFrom?: string, sendAll?: number | null, withdraw?: boolean): Promise<string>;
     importTransaction(transaction: string): Promise<string | {
         error: string;
         tx: string;
     }>;
     setCollateralDonor(paymentKeyHash: any): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
-    getCollateral(value: number | undefined): any;
+    getCollateral(value?: number | undefined): any;
     getCollateralDonor(): any;
     getCollateralUtxos(value: number | undefined): Promise<any>;
     getCollateralAddress(): any;
     getCollateralUtxo(value: number | undefined): Promise<any>;
     loadTransaction(transaction: any): Promise<void>;
-    createStakeUnregistrationTx(signers: any): Promise<string>;
+    createStakeUnregistrationTx(signers: string[]): Promise<string>;
     getSignerName(keyHash: any): any;
-    createDelegationTx(pool: string, dRepId: string, signers: any): Promise<string>;
+    createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<string>;
     isAddressMine(address: string): boolean;
     isAddressValid(address: string): boolean;
     isAddressScript(address: string): boolean;

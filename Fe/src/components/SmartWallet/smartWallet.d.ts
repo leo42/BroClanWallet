@@ -1,7 +1,8 @@
-import { TxSignBuilder, CBORHex, Validator, Assets, UTxO, Delegation, TxBuilder } from "@lucid-evolution/lucid";
-import { Settings } from "../../types/app";
+import { TxSignBuilder, CBORHex, Credential, Validator, Assets, UTxO, Delegation, TxBuilder } from "@lucid-evolution/lucid";
+import { Settings } from "../../index";
 import { SmartMultisigJson } from "./types";
 import { TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
+import WalletInterface from "../WalletInterface";
 interface Recipient {
     address: string;
     amount: Assets;
@@ -12,7 +13,7 @@ type extraRequirements = {
     before?: number;
     after?: number;
 };
-declare class SmartWallet {
+declare class SmartWallet implements WalletInterface {
     private lucid;
     private script;
     private name;
@@ -37,9 +38,11 @@ declare class SmartWallet {
     setName(name: string): void;
     removePendingTx(tx: number): void;
     getPendingTxs(): {
-        tx: CBORHex;
+        tx: TxSignBuilder;
         signatures: Record<string, string>;
     }[];
+    getTransactionType(txDetails: any): string;
+    getCredential(): Credential;
     addPendingTx(tx: {
         tx: CBORHex;
         signatures: Record<string, string>;
@@ -78,6 +81,7 @@ declare class SmartWallet {
     private cleanConfig;
     private isValidKeyHash;
     getColateralUtxo(signers?: string[]): Promise<UTxO>;
+    getUtxos(): UTxO[];
     pullCollateralUtxo(collateralProvider: string): Promise<UTxO>;
     createTemplateTx(signers: string[], returnAddress?: string): Promise<TxBuilder>;
     createStakeUnregistrationTx(signers: string[]): Promise<TxSignBuilder>;
@@ -102,11 +106,9 @@ declare class SmartWallet {
     signersCompleted(index: number): boolean;
     addSignature(signature: string): number;
     decodeTransaction(tx: string): any;
-    getUtxosByOutRef(OutputRef: {
-        transaction_id: string;
-        index: string;
-    }[]): Promise<UTxO[]>;
+    getUtxosByOutRef(OutputRef: any): Promise<UTxO[]>;
     getPendingTxDetails(index: number): any;
+    getStakingAddress(): string;
     setDefaultAddress(address: string | null): void;
     setAddressNames(names: Record<string, string>): void;
     changeAddressName(address: string, name: string): void;

@@ -1,9 +1,13 @@
 import React from 'react';
 import './WalletMain.css';
+import SmartWalletContainer from './SmartWalletContainer';
+import { App } from '../../index';
+import MultisigContainer from '../Multisig/MultisigContainer';
+import WalletInterface from '../WalletInterface';
 interface WalletMainProps {
-    wallet: any;
-    root: any;
-    moduleRoot: any;
+    wallet: WalletInterface;
+    root: App;
+    moduleRoot: SmartWalletContainer | MultisigContainer;
 }
 interface WalletMainState {
     showing: string;

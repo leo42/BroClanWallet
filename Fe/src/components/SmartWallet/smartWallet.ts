@@ -1,7 +1,7 @@
 import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
-import { Settings } from "../../types/app";
+import { Settings } from "../../index"; 
 import { encode , decode } from "./encoder";
 import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
@@ -15,7 +15,8 @@ interface Recipient {
 
 type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number, after?: number }
 
-
+// Add type assertion to ensure network is a valid key
+type NetworkType = keyof typeof contracts;
 
 class SmartWallet implements WalletInterface {
   private lucid!: LucidEvolution ;
@@ -38,9 +39,11 @@ class SmartWallet implements WalletInterface {
   constructor(id: string, settings: Settings) {
     this.settings = settings
     this.id = id;
+    // Add type assertion to ensure network is a valid key
+    const network = settings.network as NetworkType;
     this.script = {
       type: "PlutusV3",
-      script: applyParamsToScript(applyDoubleCborEncoding(contracts[this.settings.network].wallet), [id])
+      script: applyParamsToScript(applyDoubleCborEncoding(contracts[network].wallet), [id])
     };
     
   }
@@ -201,12 +204,14 @@ class SmartWallet implements WalletInterface {
   }
 
   async getConfigUtxo(): Promise<UTxO> {
-    const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+    // Add type assertion to ensure network is a valid key
+    const network = this.settings.network as NetworkType;
+    const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
     const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
     return configUtxo
   }
 
-  getConfig(): SmartMultisigJson {
+  getConfig(): SmartMultisigJson {    
     return this.config
   }
 
@@ -222,13 +227,19 @@ class SmartWallet implements WalletInterface {
         this.nftUtxos  =   signers.nftUtxos
       }
       try{
-        const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+        // Add type assertion to ensure network is a valid key
+        const network = this.settings.network as NetworkType;
+        const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
         const scriptUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "02" + this.id);
         this.scriptUtxo = scriptUtxo
+        if(scriptUtxo.scriptRef){
+          this.script = scriptUtxo.scriptRef
+        }
       }
       catch(e){
         console.error("Error getting script utxo:", e);
       }
+
     } catch (e) {
       console.error("Error getting config:", e);
       return Promise.reject(e);
@@ -286,9 +297,8 @@ class SmartWallet implements WalletInterface {
   async loadUtxos(): Promise<boolean> {
     try {
       console.log("loadUtxos")
-      const scriptCredential = { type : `Script` as any , hash : validatorToScriptHash(this.script) }
       await this.loadConfig()
-      const utxos = await this.lucid.utxosAt(scriptCredential);
+      const utxos = await this.lucid.utxosAt(this.getCredential());
       if (this.compareUtxos(utxos, this.utxos)) return false;
       
       this.utxos = utxos;
@@ -474,23 +484,25 @@ async coinSelection(value: Assets, utxos: UTxO[]): Promise<UTxO[]> {
   // Iterate through sorted UTXOs
   while (availableUtxos.length > 0) {
     let sortedUtxos = sortByLeft(availableUtxos, value);
-    const utxo = sortedUtxos[0]
-    selectedUtxos.push(utxo);
-    availableUtxos = availableUtxos.filter(utxo => utxo.txHash !== utxo.txHash && utxo.outputIndex !== utxo.outputIndex)
+    const selectedUtxo = sortedUtxos[0]
+    selectedUtxos.push(selectedUtxo);
+    availableUtxos = availableUtxos.filter(utxo => !( utxo.txHash === selectedUtxo.txHash && utxo.outputIndex === selectedUtxo.outputIndex))
   
+
+
     // Add all assets from the current UTXO to totalRemaining
-    for (const asset in utxo.assets) {
+    for (const asset in selectedUtxo.assets) {
         if (!totalRemaining[asset]) {
         totalRemaining[asset] = 0n;
       }
-      totalRemaining[asset] -= BigInt(utxo.assets[asset]);
+      totalRemaining[asset] -= BigInt(selectedUtxo.assets[asset]);
     }
 
     // Check if we have enough to cover the requested value
     if (isEnoughValue(totalRemaining)) {
       return selectedUtxos;
     }
-    console.log("sortedUtxos", sortedUtxos, totalRemaining, selectedUtxos)
+    console.log("sortedUtxos", sortedUtxos, totalRemaining, selectedUtxos, availableUtxos)
   }
 
   // If we reach here, it means we don't have enough UTXOs to cover the value
@@ -518,11 +530,15 @@ async createUpdateTx(
   
   const cleanNewConfig = this.cleanConfig(newConfig);
   const encodedConfig = encode(cleanNewConfig);
+  // Add type assertion to ensure network is a valid key   
+  const network = this.settings.network as NetworkType;
   const tx = localLucid.newTx()
   .collectFrom([configUtxo], Data.to(new Constr(0, [])))
   .collectFrom([collateralUtxo])
-  .attach.Script({ type: "PlutusV3", script: contracts[this.settings.network].configHost})
+
+  .attach.Script({ type: "PlutusV3", script: contracts[network].configHost})
   .pay.ToAddressWithData( configUtxo.address, {kind : "inline" , value : encodedConfig}, configUtxo.assets)
+
 
   if (requrement.refInputs !== undefined && requrement.refInputs.length > 0) {
     console.log("refInputs", requrement.refInputs)
@@ -906,8 +922,8 @@ getUtxos(): UTxO[] {
     return txBody;
   }
 
-  async  getUtxosByOutRef(outRefs: Array<OutRef>): Promise<UTxO[]>  {
-    const resault= await this.lucid.config().provider!.getUtxosByOutRef(outRefs)
+  async getUtxosByOutRef(OutputRef: any)  {
+    const resault= await this.lucid!.config().provider!.getUtxosByOutRef(OutputRef.map( (outRef: any) =>({txHash:outRef.transaction_id, outputIndex:Number(outRef.index)})))
     return resault
   }
 

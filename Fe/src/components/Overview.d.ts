@@ -1,36 +1,9 @@
-import React from 'react';
-
-interface WalletInterface {
-  getFundedAddress(): string[];
-  getDefaultAddress(): string;
-  getJson(): object;
-  getCBOR(): string;
-  getAddressName(address: string): string;
-  getName(): string;
-  getSigners(): Array<{ hash: string; name: string; isDefault: boolean }>;
-  defaultSignersValid(): boolean;
-  getCollateralDonor(): string;
-  getBalanceFull(address: string): { [key: string]: number };
-}
-
-interface ModuleRootInterface {
-  setDefaultAddress(address: string): void;
-  changeAddressName(address: string, name: string): void;
-  changeWalletName(name: string): void;
-  setDefaultSigners(signers: string[]): void;
-  setCollateralDonor(donor: string): void;
-  deleteWallet(wallet: string): void;
-  state: {
-    selectedWallet: string;
-  };
-  modalType(): string;
-}
-
-interface OverviewProps {
-  wallet: WalletInterface;
-  moduleRoot: ModuleRootInterface;
-}
-
-declare function Overview(props: any): React.ReactElement;
-
+import "./Overview.css";
+import WalletInterface from './WalletInterface';
+import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
+import MultisigContainer from './Multisig/MultisigContainer';
+declare function Overview(props: {
+    wallet: WalletInterface;
+    moduleRoot: SmartWalletContainer | MultisigContainer;
+}): import("react/jsx-runtime").JSX.Element;
 export default Overview;

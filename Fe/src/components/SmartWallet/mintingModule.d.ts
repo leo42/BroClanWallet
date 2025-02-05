@@ -1,17 +1,12 @@
 import React from "react";
 import { UTxO } from "@lucid-evolution/lucid";
 import "./MintingModule.css";
-import { Settings } from "../../types/app";
+import { App } from "../../index";
+import SmartWalletContainer from "./SmartWalletContainer";
 interface MintingProps {
-    root: {
-        openWalletPicker: (callback: (wallet: any) => void) => void;
-        state: {
-            settings: Settings;
-        };
-        showModal: (modalName: string) => void;
-    };
-    showModal: () => void;
-    moduleRoot: any;
+    root: App;
+    moduleRoot: SmartWalletContainer;
+    showModal: (modalName: string) => void;
 }
 interface MintingState {
     termsAccepted: boolean[];

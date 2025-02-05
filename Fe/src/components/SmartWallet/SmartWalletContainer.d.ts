@@ -1,7 +1,7 @@
 import React from 'react';
 import SmartWallet from './smartWallet';
 import './SmartWalletContainer.css';
-import { Settings } from '../../types/app';
+import { Settings } from '../../index';
 import { SmartMultisigJson } from "./types";
 interface SmartWalletContainerProps {
     settings: Settings;
@@ -17,6 +17,7 @@ interface SmartWalletContainerState {
     };
     loading: boolean;
     dAppConnector: any | null;
+    walletSettingsOpen: boolean;
 }
 declare class SmartWalletContainer extends React.Component<SmartWalletContainerProps, SmartWalletContainerState> {
     private interval;
@@ -49,8 +50,7 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     getSignerName(keyHash: string): string;
     updateSignerName(hash: string, name: string): void;
     removePendingTx(tx: number): void;
-    loadWallet(id: string): Promise<void>;
-    addWallet(id: any): Promise<void>;
+    addWallet(id: any, name?: string): Promise<void>;
     setCollateralDonor(address: string): void;
     loadWallets(): Promise<void>;
     createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<void>;

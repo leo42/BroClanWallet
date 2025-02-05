@@ -50,7 +50,7 @@ function WalletPendingTx(props: WalletPendingTxProps) {
         props.wallet.getUtxosByOutRef(txDetails.inputs).then( (utxos : UTxO[]) => {
             setInputUtxos(utxos)
             setLoading(false)
-            })
+        })
 
         txDetails.collateral ? props.wallet.getUtxosByOutRef(txDetails.collateral).then( (utxos : UTxO[]) => {
             setCollateralUtxos(utxos)
@@ -350,7 +350,7 @@ function WalletPendingTx(props: WalletPendingTxProps) {
             {showDetails && TransactionDetails(txDetails)}
             </div>
             <div className="pendingTx_buttons">
-            { loading == false &&<div  onMouseEnter={() => setHovering("sign")} onMouseLeave={() => setHovering("") } onClick={signTransaction}  className='iconWraper detailsButton'>
+            { loading === false &&<div  onMouseEnter={() => setHovering("sign")} onMouseLeave={() => setHovering("") } onClick={signTransaction}  className='iconWraper detailsButton'>
                 <SignIcon className="icon"  />
                 {  (hovering === "sign" || isMobile) &&  <label className='iconLabel'>Sign</label> }
             </div>  }

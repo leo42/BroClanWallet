@@ -6,11 +6,12 @@ import SmartWallet from './smartWallet';
 import MWalletMain from './WalletMain'; 
 import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import './SmartWalletContainer.css';
-import { Settings , } from '../../types/app';
+import { Settings , } from '../../index';
 import { SmartMultisigJson } from "./types";
 import {getAddressDetails} from "@lucid-evolution/lucid";
 import WalletSettings from './walletSettings';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
+
 
 interface SmartWalletContainerProps {
   settings: Settings;
@@ -272,17 +273,17 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({wallets: wallets})
     this.storeWallets()
   }
-  
-  async loadWallet(id: string) {
+
+  async addWallet(id: any, name?: string) {
     const newWallet = new SmartWallet(id, this.props.settings)
     await newWallet.initializeLucid()
+    if(name){
+      newWallet.setName(name)
+    }
     this.setState({wallets: [...this.state.wallets, newWallet]})
-  }
-
-  async addWallet(id: any) {
-    await this.loadWallet(id)
     this.storeWallets()
   }
+
 
   setCollateralDonor (address: string) {
     const wallets = [...this.state.wallets]

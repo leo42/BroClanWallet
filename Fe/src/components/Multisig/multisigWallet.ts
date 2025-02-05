@@ -1,7 +1,7 @@
 import * as LucidEvolution from "@lucid-evolution/lucid";
 
 import {  toast } from 'react-toastify';
-import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution.js"
+import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution"
 import { DRep , Credential } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
@@ -673,7 +673,7 @@ setPendingTxs(pendingTxs: any){
       }
     }
 
-    getCollateral(value : number | undefined){
+    getCollateral(value : number | undefined = 5_000_000){
       function getMinimumUtxos(utxos: any, requiredValue: any) {
         // Sort the UTXOs in ascending order
         utxos.map((utxo: any) => utxo.assets.lovelace = Number(utxo.assets.lovelace))
@@ -769,7 +769,7 @@ setPendingTxs(pendingTxs: any){
     }
       
 
-    async createStakeUnregistrationTx(signers: any){
+    async createStakeUnregistrationTx(signers: string[]){
       const curentDelegation = await this.getDelegation()
       const rewardAddress =  LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       const sigCheck = this.checkSigners(signers)
@@ -808,7 +808,7 @@ setPendingTxs(pendingTxs: any){
         return this.signersNames.find((signer: any) => signer.hash === keyHash)?.name || '';
     }
 
-    async createDelegationTx(pool: string, dRepId: string, signers: any){ 
+    async createDelegationTx(pool: string, dRepId: string, signers: string[]){ 
       const curentDelegation = await this.getDelegation()
       console.log("dRepId", dRepId)
       console.log("createDelegationTx")

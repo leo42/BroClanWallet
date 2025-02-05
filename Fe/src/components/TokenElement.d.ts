@@ -1,16 +1,13 @@
-import React from "react";
-
-interface TokenElementProps {
+import "./TokenElement.css";
+type TokenElementProps = {
     tokenId: string;
     amount: number;
-    f?: (tokenId: string) => void;
+    filter?: string;
     search?: string;
-    filter?: "NFTs" | "FTs";
     className?: string;
-    index?: number;
     expanded?: boolean;
-}
-
-declare const TokenElement: React.FC<TokenElementProps>;
-
+    index?: number;
+    f?: (tokenId: string) => void;
+};
+declare function TokenElement(props: TokenElementProps): JSX.Element | null;
 export default TokenElement;
