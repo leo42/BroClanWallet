@@ -284,8 +284,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
 
+  async reloadWallets(){
+    await this.loadWallets()
+    this.setState({loading: false})
+  }
+
 
   setCollateralDonor (address: string) {
+
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
     wallet.setCollateralDonor(address)
@@ -409,15 +415,24 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     );
     
 }
+
+closeModal(){
+  const state = this.state
+  state.modal = ""
+  this.setState(state)
+}
   
+
   render() {
     return (
+
       <div className="SmartWalletContainer"> 
       {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
             {this.WalletList()}
 
-      { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.setState({modal: ""})} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
-      {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.setState({modal: ""})} /> }
+      { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.closeModal()} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
+      {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.closeModal()} /> }
+
 
        
       {  this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
