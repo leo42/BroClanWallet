@@ -41,7 +41,7 @@ declare class MultisigContainer extends React.Component<MultisigContainerProps, 
   storeWallets(): void;
   loadState(): Promise<void>;
   modalType(): string;
-  createTx(recipients: Array<{amount: Record<string, bigint>}>, signers: any[], sendFrom: any, sendAll?: boolean | null): Promise<void>;
+  createTx(recipients: any[], signers: any[], sendFrom: string = "", sendAll: number | null = null, withdraw: boolean = true) : Promise<void>;
   setCollateralDonor(keyHash: string): Promise<void>;
   importTransaction(transaction: any): Promise<any>;
   getSigners(): any[];

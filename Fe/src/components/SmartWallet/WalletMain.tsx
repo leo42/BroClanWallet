@@ -6,12 +6,19 @@ import TransactionHistory from '../TransactionHistory';
 import Receive from '../Receive';
 import PendingTxs from '../PendingTxs';
 import './WalletMain.css';
+import SmartWalletContainer from './SmartWalletContainer';
+import { App } from '../../index';
+import MultisigContainer from '../Multisig/MultisigContainer';
+import WalletInterface from '../WalletInterface';
+
+
 
 interface WalletMainProps {
-  wallet: any;
-  root: any;
-  moduleRoot: any;
+  wallet: WalletInterface;
+  root: App;
+  moduleRoot: SmartWalletContainer | MultisigContainer;
 }
+
 
 interface WalletMainState {
   showing: string;
@@ -28,7 +35,7 @@ class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
 
     switch (this.state.showing) {
       case "overview":
-        return <WalletOverview key={key} wallet={wallet} root={root} moduleRoot={moduleRoot} />;
+        return <WalletOverview key={key} wallet={wallet} moduleRoot={moduleRoot} />;
       case "createTx":
         return <WalletCreateTx key={key} wallet={wallet} root={root} moduleRoot={moduleRoot} />;
       case "delegation":

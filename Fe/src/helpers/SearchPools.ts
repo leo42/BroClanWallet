@@ -1,6 +1,6 @@
 
-async function SearchPools(string){
-    const settings = JSON.parse(localStorage.getItem("settings"))
+async function SearchPools(string: string){
+    const settings = JSON.parse(localStorage.getItem("settings") || "{}")
 
 
   //  if (settings.metadataProvider !== "Koios"){
@@ -34,7 +34,7 @@ async function SearchPools(string){
     const data2 = await responseId.json()
     //return sublist of data that matches string size 10
         
-    return (data.length !== 0 ? data : data2).slice(0,10).map( pool => pool.pool_id_bech32)
+    return (data.length !== 0 ? data : data2).slice(0,10).map( (pool: any) => pool.pool_id_bech32)
     } catch(e){
         console.log(e)
         return [string]   

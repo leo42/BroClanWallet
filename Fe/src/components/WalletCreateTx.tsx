@@ -1,13 +1,37 @@
 import React, { useEffect } from 'react';
 import getTokenInfo from "../helpers/tokenInfo.js"
-import TokenDropdownMenu from './TokenDropdownList.js';
-import TokenElement from "./TokenElement";
+import TokenDropdownMenu from './TokenDropdownList';
+import TokenElement from "./TokenElement.js";
 import { ReactComponent as RecipientIcon } from '../html/assets/recipient.svg';
 import "./WalletCreateTx.css"
 import AddressSelect from './AddressSelect';
-class WalletCreateTx extends React.Component {
+import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
+import WalletInterface from './WalletInterface';
+import { App } from '../index.js';
+import MultisigContainer from './Multisig/MultisigContainer.js';
 
-  state = {
+
+interface WalletCreateTxProps {
+  wallet: WalletInterface;
+  moduleRoot: SmartWalletContainer | MultisigContainer;
+  root: App;
+}
+
+interface WalletCreateTxState {
+  recipients: {address: string, amount: { [key: string]: bigint}}[];
+  signers: boolean[];
+  tokenData: {[key: string]: any};
+  sendFrom: string;
+  sendAll: number | null;
+  hovering: string;
+}
+
+
+
+class WalletCreateTx extends React.Component<WalletCreateTxProps> {
+
+
+  state: WalletCreateTxState = {
     recipients: [{address :"", amount: {lovelace:0n}}],
     signers: this.props.moduleRoot.getSigners().map( (signer) => (signer.isDefault) ),
     tokenData: {},
@@ -16,11 +40,11 @@ class WalletCreateTx extends React.Component {
     hovering: ""
   }
 
-  setHovering = (value) => {
+  setHovering = (value: string) => {
     this.setState({hovering: value})
   } 
 
-  isAddressValid = (address) => {
+  isAddressValid = (address: string) => {
 
       try{
         
@@ -34,7 +58,7 @@ class WalletCreateTx extends React.Component {
   componentDidMount() {
     for(const token of Object.keys(this.props.wallet.getBalanceFull())) {
       if (token !== "lovelace") {
-        getTokenInfo(token).then( (data) => {
+        getTokenInfo(token).then( (data : any) => {
           const tokenData = {...this.state.tokenData}
           tokenData[token] = data
           this.setState({tokenData})
@@ -45,14 +69,14 @@ class WalletCreateTx extends React.Component {
 
    
 
-  setAddress = (value,index) => {
+  setAddress = (value: string,index: number) => {
       const recipients =   [...this.state.recipients]
       recipients[index].address = value
       this.setState({recipients})
   }
 
 
-  setAmount = (value,token,index) => {
+  setAmount = (value: string,token: string,index: number) => {
     const recipients =   [...this.state.recipients]
     //if the last character is a dot, add a zero
     if (value[value.length-1] === ".") {
@@ -63,21 +87,23 @@ class WalletCreateTx extends React.Component {
       return
     }
 
-    let valueNew = token === "lovelace" ? number * 1000000 : (token in this.state.tokenData)  ? number * (10**this.state.tokenData[token].decimals)  : number 
-    valueNew = BigInt(Math.round(valueNew))
-    valueNew= valueNew < 0n ? 0n : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
-    recipients[index].amount[token] = Number(valueNew)
+    let valueNew : number= token === "lovelace" ? number * 1000000 : (token in this.state.tokenData)  ? number * (10**this.state.tokenData[token].decimals)  : number 
+    valueNew = Math.round(valueNew)
+    valueNew=  valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
+
+    recipients[index].amount[token] = BigInt(valueNew)
     this.setState({recipients})
+
   }
 
 
-  handleOnChangeSigners = (position) => {
+  handleOnChangeSigners = (position: number) => {
     const signers = [...this.state.signers]
     signers[position] = !signers[position]
     this.setState({signers});
   };
 
-  handleChangeFrom = (value ) => {
+  handleChangeFrom = (value: string) => {
     const newBalance = this.props.wallet.getBalanceFull(value)
     this.state.recipients.map( (recipient,index) => {
        Object.keys(recipient.amount).map( (token) => {
@@ -97,7 +123,7 @@ class WalletCreateTx extends React.Component {
     this.setState({sendFrom : value})
   }
 
-  handleSubmit = event => {
+  handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
    
     const txSigners = this.state.signers.map((item, index) =>
@@ -110,7 +136,7 @@ class WalletCreateTx extends React.Component {
   }
 
 
-  deleteRecipient = (index) =>{
+  deleteRecipient = (index: number) =>{
     // rerender all the recipients after deleting one   
     
     const recipients =   [...this.state.recipients]
@@ -119,7 +145,7 @@ class WalletCreateTx extends React.Component {
   }
 
 
-  deleteToken = (tokenId,index) => {
+  deleteToken = (tokenId: string,index: number) => {
     if ((tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]
       delete recipients[index].amount[tokenId]
@@ -128,25 +154,28 @@ class WalletCreateTx extends React.Component {
   
   }
 
-  setMax = (tokenId,index) => {
+  setMax = (tokenId: string,index: number) => {
 
     if ((tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]
-      recipients[index].amount[tokenId] = Number( this.props.wallet.getBalanceFull(this.state.sendFrom)[tokenId])
+      recipients[index].amount[tokenId] = BigInt( this.props.wallet.getBalanceFull(this.state.sendFrom)[tokenId])
       this.setState({recipients})
     }
+
   }
     
-  addToken = (tokenId,index) => {
+  addToken = (tokenId: string,index: number) => {
     if (!(tokenId in this.state.recipients[index].amount)) {
       const recipients = [...this.state.recipients]
-      recipients[index].amount[tokenId] =  this.state.tokenData[tokenId].isNft ? 1 : 0 
+      recipients[index].amount[tokenId] =  this.state.tokenData[tokenId].isNft ? 1n : 0n 
       this.setState({recipients})
+
+
     } 
   
   }
 
-  handleSendAlltoggle = (index) => {
+  handleSendAlltoggle = (index: number) => {
     if (this.state.sendAll === index) {
       this.setState({sendAll: null})
     } else {
@@ -156,9 +185,10 @@ class WalletCreateTx extends React.Component {
 
   addRecipient = () =>{
     const recipients =   [...this.state.recipients]
-    recipients.push({address :"", amount: {lovelace:0}})
+    recipients.push({address :"", amount: {lovelace:0n}})
     this.setState({recipients})
   }
+
 
   RecipientJSX = () => this.state.recipients.map( (recipient, index) => (
     <div className='createTxRecipientContainer createTxRecipientContainerSend' key={index}>
@@ -196,10 +226,11 @@ class WalletCreateTx extends React.Component {
     
   <div className="addressWrap">
      <div className="CreateTxSelectedToken">
-      <TokenElement key={item+this.state.sendFrom} className='CreateTxTokenContainer' tokenId={item} amount={this.props.wallet.getBalanceFull(this.state.sendFrom)[item]}/>
+      <TokenElement key={item+this.state.sendFrom} className='CreateTxTokenContainer' tokenId={item} amount={Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[item])}/>
        {!this.state.tokenData[item].isNft && <div className='tokenAmount'> <input
           type="number"
           name="amount"
+
           value={ this.state.recipients[index].amount[item] === 0n ? "" : (Number(this.state.tokenData[item] && this.state.tokenData[item].decimals ) ?  Number(this.state.recipients[index].amount[item]) / Number(10**this.state.tokenData[item].decimals)    : Number(this.state.recipients[index].amount[item]) ) }
           onChange={event => this.setAmount(event.target.value,item,index)}
           /> 
@@ -213,7 +244,7 @@ class WalletCreateTx extends React.Component {
     </div>
     ))}
     </div>
-    { Object.values(this.props.wallet.getBalanceFull(this.state.sendFrom)).length > 1 && <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId) => this.addToken(tokenId,index )} index={index+this.state.sendFrom}></TokenDropdownMenu>}
+    { Object.values(this.props.wallet.getBalanceFull(this.state.sendFrom)).length > 1 && <TokenDropdownMenu ballances={this.props.wallet.getBalanceFull(this.state.sendFrom)} f={ (tokenId: string) => this.addToken(tokenId,index )} index={index+this.state.sendFrom}></TokenDropdownMenu>}
     { this.props.root.state.settings.sendAll ? <label> Send all: <input type="checkbox" checked={this.state.sendAll === index ? true : false } onChange={()=> this.handleSendAlltoggle(index)}></input>  </label> : ""}
   </div>
   ))
@@ -252,7 +283,7 @@ class WalletCreateTx extends React.Component {
       { this.RecipientJSX()}
 
       <div onMouseEnter={() => this.setHovering("recipient")} onMouseLeave={() => this.setHovering("") } onClick={() => this.addRecipient()} className='addRecipientWraper recipientButton'>
-        <RecipientIcon className="icon" alt="recipientIcon" />
+        <RecipientIcon className="icon" />
         {  <label className='iconLabel'>Add Recipient</label> }
         < br/>   
       </div>

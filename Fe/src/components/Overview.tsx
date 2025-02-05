@@ -6,16 +6,21 @@ import { ReactComponent as ExpandIcon } from '../html/assets/settings.svg';
 import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
 import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 import AddressSelect from './AddressSelect';
+import WalletInterface from './WalletInterface';
+import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
+import MultisigContainer from './Multisig/MultisigContainer';
 
 
-function Overview(props) {
+
+function Overview(props: {wallet: WalletInterface  ,  moduleRoot: SmartWalletContainer | MultisigContainer}) {
 
   const wallet = props.wallet
   const [walletSettingsOpen, setWalletSettingsOpen] = useState(false)
-  const [showing , setShowing] = useState("All")
+  const [showing , setShowing] = useState<"FTs" | "NFTs" | undefined>(undefined)
   const [showingAddress , setShowingAddress] = useState(props.wallet.getDefaultAddress())
   const [search , setSearch] = useState("")
   const [isMobile, setIsMobile] = useState(false);
+
 
   useEffect(() => {
     const updateWindowDimensions = () => {
@@ -39,7 +44,6 @@ function Overview(props) {
       Overview
      </h1> 
     </label>
-{ walletSettingsOpen ?  settingsMenu(showingAddress) : "" }
       { props.wallet.getFundedAddress().length > 1 && <AddressSelect
           wallet={props.wallet}
           moduleRoot={props.moduleRoot}
@@ -48,15 +52,16 @@ function Overview(props) {
           setName={true}
         />}
       <br />
-      <button className={`overviewTab` + ( showing === "All" ? " overviewTabSelected" : " " )} value="All"  onClick={(event) => setShowing(event.target.value )}>All</button>
-      <button className={`overviewTab` + ( showing === "FTs" ? " overviewTabSelected" : " " )}  value="FTs" onClick={(event) => setShowing(event.target.value )}>FTs</button>
-      <button className={`overviewTab` + ( showing === "NFTs" ? " overviewTabSelected" : " " )}  value="NFTs" onClick={(event) => setShowing(event.target.value )}>NFTs</button>        
+      <button className={`overviewTab` + ( showing === undefined ? " overviewTabSelected" : " " )}  onClick={() => setShowing(undefined)}>All</button>
+      <button className={`overviewTab` + ( showing === "FTs" ? " overviewTabSelected" : " " )}  onClick={() => setShowing("FTs")}>FTs</button>
+      <button className={`overviewTab` + ( showing === "NFTs" ? " overviewTabSelected" : " " )}  onClick={() => setShowing("NFTs")}>NFTs</button>        
       <br />
       <span className="overVeiwTokenSearch"><input type="text"  placeholder='Search' defaultValue={search} onChange={(event) => setSearch(event.target.value)} />  </span>
+
       {Object.keys(wallet.getBalanceFull(showingAddress)).length > 0 &&
       <div className='overviewTokensContainer'>
       {Object.keys(wallet.getBalanceFull(showingAddress)).map((asset, index) => (
-          <TokenElement tokenId={asset} className='overviewTokenContainer' key={index+showingAddress} expanded={false}  amount={wallet.getBalanceFull(showingAddress)[asset]} filter={showing} search={search} />
+          <TokenElement tokenId={asset} className='overviewTokenContainer' key={index+showingAddress} expanded={false}  amount={Number(wallet.getBalanceFull(showingAddress)[asset])} filter={showing} search={search} />
         ))}
 
     </div>

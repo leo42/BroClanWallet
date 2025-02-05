@@ -1,20 +1,23 @@
 import React from "react";
-import getPoolInfo from '../helpers/PoolInfo.js'
+import getPoolInfo from '../helpers/PoolInfo'
 import "./PoolElement.css"
-function PoolElement(props){
+import { App } from "../index.js";
+
+function PoolElement(props: {poolId: string, root: App}){
     const [ PoolInfo, setPoolInfo] =  React.useState(undefined)
     React.useEffect(() => {
         var poolInfoFetch =  getPoolInfo(props.poolId)
-        poolInfoFetch.then( info => 
+        poolInfoFetch.then( (info : any) => 
           setPoolInfo(info)
         )
     },[])
 
-function handleClick(e) {
+function handleClick(e: React.MouseEvent<HTMLImageElement>) {
     e.preventDefault();
     const urlPrefix = props.root.state.settings.network === "Mainnet" ? "" : props.root.state.settings.network.toLowerCase() + "."; 
     window.open(`https://${urlPrefix}cexplorer.io/pool/${props.poolId}`, '_blank');
   }
+
 
 
     if (PoolInfo === undefined  ) return (<div className="PoolElementNotFound">Pool Not found </div>)
@@ -40,7 +43,7 @@ function handleClick(e) {
       </div>
       <div className="PoolElementAtribution" >
         <span className="PoolElementAtributionText">Pool data provided by 
-        <img className="PoolElementAtributionImg" src="assets/cexplorer.svg"  onClick={handleClick} ></img> 
+        <img className="PoolElementAtributionImg" src="assets/cexplorer.svg"  onClick ={handleClick} ></img> 
         </span>
          </div>
      </div>)

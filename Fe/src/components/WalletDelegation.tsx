@@ -3,28 +3,36 @@ import PoolElement from './PoolElement';
 import SearchPools from '../helpers/SearchPools';
 import "./WalletDelegation.css"
 import  { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
+import WalletInterface from './WalletInterface';
+import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
+import MultisigContainer from './Multisig/MultisigContainer';
+import { App } from '..';
+import {Delegation } from '@lucid-evolution/core-types'
 
-function WalletDelegation(props) {
+function WalletDelegation(props: {wallet: WalletInterface, moduleRoot: SmartWalletContainer | MultisigContainer,  root: App} ) {
   const wallet = props.wallet
-  const initialState = []
+  const initialState: boolean[] = []
 
-  props.moduleRoot.getSigners().map( (signer) =>
+
+
+  props.moduleRoot.getSigners().map( (signer: any) =>
     initialState.push(signer.isDefault)
   ) 
   const [pool, setPool] = useState('');
   const [signers, setCheckedState] = useState(initialState);
-  const [delegation, setDelegation] = useState({});
-  const [pools, setPools] = useState([]);
+  const [delegation, setDelegation] = useState<Delegation>({} as Delegation);
+  const [pools, setPools] = useState<string[]>([]);
   const [searching, setSearching] = useState(false);
   const [delegationType, setDelegationType] = useState('Abstain');
   const [customDelegation, setCustomDelegation] = useState('');
 
   useEffect(() => {
-    wallet.getDelegation().then( (delegation) => {;
+    wallet.getDelegation().then( (delegation: Delegation) => {;
       setDelegation(delegation);
       
     })
   }, [wallet])
+
 
   useEffect(() => {
     setSearching(true);
@@ -33,7 +41,7 @@ function WalletDelegation(props) {
       setSearching(false);
       return;
     }
-    SearchPools(pool).then( (pools) => {
+    SearchPools(pool).then( (pools: string[]) => {
       setSearching(false);
 
       setPools(pools);
@@ -42,14 +50,14 @@ function WalletDelegation(props) {
 
 
   
-  const handleOnChangeSigners = (position) => {
+  const handleOnChangeSigners = (position: number) => {
     const updatedCheckedState = [...signers]
     updatedCheckedState[position] = !updatedCheckedState[position]
     setCheckedState(updatedCheckedState);
   };
 
 
-  const handleSubmit = event => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
    
     const txSigners = signers.map((item, index) =>
@@ -59,8 +67,9 @@ function WalletDelegation(props) {
     props.moduleRoot.createDelegationTx(pools[0], dRepId, txSigners.filter((element, index) => signers[index]));
   }
 
-  const Undelegate = event => {
+  const Undelegate = (event: React.MouseEvent<HTMLInputElement>) => {
     event.preventDefault();
+
 
     const txSigners = signers.map((item, index) =>
         item ? props.moduleRoot.getSigners()[index].hash : ""
@@ -80,7 +89,8 @@ function WalletDelegation(props) {
     } else {
       return <div className='currentDelegation'> 
         Delegated to  <br />
-        {delegation && delegation.poolId && <PoolElement key={delegation} root={props.root} poolId={String(delegation.poolId)} />}
+        {delegation && delegation.poolId && <PoolElement key={delegation.poolId} root={props.root} poolId={delegation.poolId} />}
+
 
         <p>Rewards : {Number(delegation.rewards)/1_000_000}{props.root.state.settings.network === "Mainnet" ? "₳" : "t₳"  }  </p>
       </div>
@@ -139,7 +149,7 @@ You have to enter the dRep CIP129 id (e.g. drep13846y7q7tng3endxhet9qdcz5w0fjs09
           onChange={event => setPool(event.target.value)}
         />
       </label>
-      {searching ? searchingAnimation() : pools.map( (pool) => (
+      {searching ? searchingAnimation() : pools.map( (pool: string) => (
           <div key={pool}>
             <PoolElement  key={pool} root={props.root} poolId={pool} />
              {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool)}>Select</button>}
