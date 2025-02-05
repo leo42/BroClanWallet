@@ -2,21 +2,34 @@ import React from "react";
 import "./WalletPicker.css";
 import { useState} from 'react';
 
-function WalletPicker({ setOpenModal, operation }) {
-let Wallets = []
+interface WalletPickerProps {
+  setOpenModal: (modal: string) => void;
+  operation: (wallet: string) => void;
+}
+
+function WalletPicker({ setOpenModal, operation }: WalletPickerProps) {
+    let Wallets = []
+
    if (window.cardano) for (const [key, value] of Object.entries(window.cardano)) {
         if (value.icon && key !== "ccvault" && key !== "typhoncip30" ){
             Wallets.push(key)
         }
       }
   
-    const submit = (e) => {
+    const submit = (e: string) => {
       operation(e)
-      setOpenModal(false);
+      close()
     }
-  
+
+
+    const close = () => {
+      console.log("close")
+      setOpenModal("")
+    }
+
   let wal =  Wallets.map( (item, index) => 
   <div className="walletOption" key={index}>
+
     <div className="walletOptionBtn" onClick={ () => submit(item)} >
         {item}
         {<img className="walletOptionImg" src={window.cardano[item].icon} />}    
@@ -24,14 +37,16 @@ let Wallets = []
     </div>)
 
   return (
-    <div className="modalBackground" onClick={() => { setOpenModal(false); }}>
+    <div className="modalBackground" onClick={close}>
       <div className="modalContainer"  onClick={ (e) => e.stopPropagation()}   >
         <div className="titleCloseBtn">
           <button
-            onClick={() => {
-              setOpenModal(false);
-            }}
+
+
+            onClick={close}
           >
+
+
             X
           </button>
         </div>

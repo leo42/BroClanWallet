@@ -1,15 +1,3 @@
-  export interface Settings {
-    network: NetworkType;
-    provider: ProviderType;
-    api: {
-      apiKey: string;
-      url: string;
-      projectId: string;
-    };
-    metadataProvider: string;
-    termsAccepted: string;
-  }
-
   // Add more type declarations as needed
   export type NetworkType = 'Mainnet' | 'Preprod' | 'Preview' | 'Custom';
 

@@ -13,7 +13,7 @@ var webAppConfig = {
 		 },
 		extensions: ['.js', '.jsx', '.ts', '.tsx'],  // Add .tsx here
 	},
-    entry: './src/index.js',
+    entry: './src/index.tsx',
     output: {
 		crossOriginLoading: 'anonymous',
 			filename: 'bundle.js',

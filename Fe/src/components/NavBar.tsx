@@ -4,7 +4,10 @@ import { ReactComponent as SettingsIcon } from '../html/assets/menu.svg';
 import { ReactComponent as SunIcon } from '../html/assets/sun.svg';
 import { ReactComponent as MoonIcon } from '../html/assets/moon.svg';
 import { useState , useEffect} from "react";
-function NavBar(props){
+import { App } from "../index";
+
+
+function NavBar(props: {root: App}){
     const [hovering, setHovering] = React.useState("");
     const [isMobile, setIsMobile] = useState(false);
     const [navOpen, setNavOpen] = useState(false);
@@ -24,11 +27,13 @@ function NavBar(props){
     return (
         <div className="NavBarWrapper"   >
         <div className="modeToggle" onClick={() => props.root.toggleMode()}> 
-            {props.root.state.mode === "lightMode" ? <MoonIcon className="modeIcon nightIcon" alt="sunIcon" /> : <SunIcon className="modeIcon dayIcon" alt="moonIcon" /> }
+            {props.root.state.mode === "lightMode" ? <MoonIcon className="modeIcon nightIcon" /> : <SunIcon className="modeIcon dayIcon" /> }
         </div>
+
             <img src={props.root.state.mode === "lightMode" ? "./assets/fullLogoDark.png"  : "./assets/fullLogo.png"} alt="Logo" className='MainAppLogo' />
         <div onMouseEnter={() => setHovering("settings")} onMouseLeave={() => setHovering("")} onClick={() => setNavOpen(true)} className={ "settingsButton menuIcon " + (navOpen ? "menuIconOpen" : "" )}>
-            <SettingsIcon  alt="settingsIcon" />
+            <SettingsIcon  />
+
             {  (hovering === "settings" || isMobile) &&  <label className='iconLabel'></label> }
             </div>
             {navOpen && 

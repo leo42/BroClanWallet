@@ -10,20 +10,18 @@ import { encode , decode } from "./encoder";
 import SmartWallet from "./smartWallet";
 import contracts from "./contracts.json";
 
-import { Settings  } from "../../types/app";
+import { App, Settings  } from "../../index";
 import { validatorToAddress ,validatorToScriptHash} from "@lucid-evolution/utils";
+import SmartWalletContainer from "./SmartWalletContainer";
+  
 
 interface MintingProps {
-  root: {
-    openWalletPicker: (callback: (wallet: any) => void) => void;
-    state: {
-      settings: Settings
-    };
-    showModal: (modalName: string) => void;
-  };
-  showModal: () => void;
-  moduleRoot: any;
+  root: App
+  moduleRoot: SmartWalletContainer
+  showModal: (modalName: string) => void
 }
+type NetworkType = keyof typeof contracts;
+
 
 interface MintingState {
   termsAccepted: boolean[];
@@ -31,19 +29,23 @@ interface MintingState {
   walletId: string;
   }
 
+
+
 class MintingModule extends React.Component<MintingProps> {
   
   terms = [ <span>I read and understood the <a href="https://raw.githubusercontent.com/leo42/BroClanWallet/main/LICENSE" target="blank">Opensource License </a> </span>, 
             <span>I read and understood the <a href="https://broclan.io/faq.html" target="blank">FAQ</a> </span>]
   
   mintingInfo = ["This token represents a tokenized Wallet", "the holder of this token can access the funds of the wallet", "access your tokenized wallet or mint your own", "at broclan.io"]
-
   state : MintingState  = {
          termsAccepted: this.terms.map(() => false),
          price : null,
          walletId : ""
     }
-    mintingRawScript = { type: "PlutusV3", script : contracts[this.props.root.state.settings.network].minting.script}
+    // Add type assertion to ensure network is a valid key
+    mintingRawScript = { type: "PlutusV3", script : contracts[this.props.root.state.settings.network as NetworkType].minting.script}
+
+
 
     componentDidMount() {
       const getAdminData = async () => {
@@ -51,7 +53,7 @@ class MintingModule extends React.Component<MintingProps> {
           console.log("getting AdminData");
           const lucid = await getNewLucidInstance(this.props.root.state.settings)
 
-          const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network].minting.adminKey)
+          const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network as NetworkType].minting.adminKey)
           console.log(adminUtxo)
           const adminDatum  =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
           this.setState({price : Number(adminDatum.mintAmount)} )
@@ -112,7 +114,7 @@ class MintingModule extends React.Component<MintingProps> {
       }
 
       const adminUtxo = await lucid.config().provider!.getUtxoByUnit(
-        contracts[this.props.root.state.settings.network].minting.adminKey
+        contracts[this.props.root.state.settings.network as NetworkType].minting.adminKey
       );
       if (!adminUtxo) {
         throw new Error("Could not fetch admin UTxO - the service might be temporarily unavailable");
@@ -131,7 +133,7 @@ class MintingModule extends React.Component<MintingProps> {
       const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
       const consumingTx =  lucid.newTx().collectFrom(utxos)
       const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
-      consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
+      consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network as NetworkType].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
       const assets : Assets = {}
       const assetsConfigToken : Assets = {}
       const assetsRefferenceToken : Assets = {}
@@ -149,7 +151,7 @@ class MintingModule extends React.Component<MintingProps> {
 
 
       
-      const configAddress = validatorToAddress(settings.network, { type: "PlutusV3" ,script : contracts[this.props.root.state.settings.network].configHost}, stakeCredential);
+      const configAddress = validatorToAddress(settings.network, { type: "PlutusV3" ,script : contracts[this.props.root.state.settings.network as NetworkType].configHost}, stakeCredential);
       const deadAddress = credentialToAddress(settings.network, { type: "Key" ,hash : "deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead"}, stakeCredential);
       
       
@@ -204,13 +206,14 @@ class MintingModule extends React.Component<MintingProps> {
       
       const txComlete = await signature.complete();
       const txHash = await txComlete.submit();
-      this.props.moduleRoot.addWallet(tokenNameSuffix, "New Smart Wallet")
+      this.props.moduleRoot.addWallet(tokenNameSuffix, name)
       const awaitTx = lucid.config().provider!.awaitTx(txHash)
       toast.promise(awaitTx, {
         pending: 'Waiting for confirmation',
         success: 'Transaction confirmed',
         error: 'Something went wrong',
       });
+
       await awaitTx
 
     }catch(e : any){
@@ -276,7 +279,7 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
 }
 
     closeModule = () => {
-      this.props.showModal()
+      this.props.showModal("smartWallets")
     }
 
     importWallet = () => {
@@ -315,10 +318,12 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
     </div>
     {this.state.price !== null && <div className="mintingPrice">
         <span data-label="Price:" data-value={`${this.state.price/1_000_000} ADA`}></span>
-        <span data-label="Registration Cost:" data-value={`${contracts[this.props.root.state.settings.network].registrationCost/1_000_000} ADA`}></span>
-        <span data-label="Tx Fee:" data-value={`${contracts[this.props.root.state.settings.network].txFee/1_000_000} ADA`}></span>
-        <span data-label="Config Utxo:" data-value={`${contracts[this.props.root.state.settings.network].configUtxo/1_000_000} ADA`}></span>
-        <span data-label="Total:" data-value={`${(this.state.price + contracts[this.props.root.state.settings.network].registrationCost + contracts[this.props.root.state.settings.network].txFee + contracts[this.props.root.state.settings.network].configUtxo)/1_000_000} ADA`}></span>
+        <span data-label="Registration Cost:" data-value={`${contracts[this.props.root.state.settings.network as NetworkType].registrationCost/1_000_000} ADA`}></span>
+        <span data-label="Tx Fee:" data-value={`${contracts[this.props.root.state.settings.network as NetworkType].txFee/1_000_000} ADA`}></span>
+
+        <span data-label="Config Utxo:" data-value={`${contracts[this.props.root.state.settings.network as NetworkType].configUtxo/1_000_000} ADA`}></span>
+        <span data-label="Total:" data-value={`${(this.state.price + contracts[this.props.root.state.settings.network as NetworkType].registrationCost + contracts[this.props.root.state.settings.network as NetworkType].txFee + contracts[this.props.root.state.settings.network as NetworkType].configUtxo)/1_000_000} ADA`}></span>
+
     </div>}  
       </div>
                     

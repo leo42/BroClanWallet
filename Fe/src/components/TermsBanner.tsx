@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import {App} from '../index';
 import './TermsBanner.css';
-function TermsAndConditionsBanner(props) {
 
+function TermsAndConditionsBanner(props: {root: App}) {
+  const version = "acceptedV1"
   function handleAcceptClick() {
-    props.root.setState({
-      settings: {
-        ...props.root.state.settings,
-        termsAccepted: "acceptedV1"
-      }
-    });
+    props.root.acceptTerms(version)
   }
 
-  if (props.root.state.settings.termsAccepted === "acceptedV1" ) {
+
+  if (props.root.state.settings.termsAccepted === version ) {
     return null;
   }
+
 
   return (
     <div className="terms-and-conditions-banner">

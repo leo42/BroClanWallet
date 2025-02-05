@@ -1,7 +1,7 @@
 import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
-import { Settings } from "../../types/app";
+import { Settings } from "../../index"; 
 import { encode , decode } from "./encoder";
 import { SmartMultisigJson , SmartMultisigDescriptorType} from "./types";
 import { Transaction , TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
@@ -15,7 +15,8 @@ interface Recipient {
 
 type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number, after?: number }
 
-
+// Add type assertion to ensure network is a valid key
+type NetworkType = keyof typeof contracts;
 
 class SmartWallet implements WalletInterface {
   private lucid!: LucidEvolution ;
@@ -38,9 +39,11 @@ class SmartWallet implements WalletInterface {
   constructor(id: string, settings: Settings) {
     this.settings = settings
     this.id = id;
+    // Add type assertion to ensure network is a valid key
+    const network = settings.network as NetworkType;
     this.script = {
       type: "PlutusV3",
-      script: applyParamsToScript(applyDoubleCborEncoding(contracts[this.settings.network].wallet), [id])
+      script: applyParamsToScript(applyDoubleCborEncoding(contracts[network].wallet), [id])
     };
     
   }
@@ -201,12 +204,14 @@ class SmartWallet implements WalletInterface {
   }
 
   async getConfigUtxo(): Promise<UTxO> {
-    const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+    // Add type assertion to ensure network is a valid key
+    const network = this.settings.network as NetworkType;
+    const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
     const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
     return configUtxo
   }
 
-  getConfig(): SmartMultisigJson {
+  getConfig(): SmartMultisigJson {    
     return this.config
   }
 
@@ -222,7 +227,9 @@ class SmartWallet implements WalletInterface {
         this.nftUtxos  =   signers.nftUtxos
       }
       try{
-        const policyId = mintingPolicyToId({ type : "PlutusV3", script: contracts[this.settings.network].minting.script})
+        // Add type assertion to ensure network is a valid key
+        const network = this.settings.network as NetworkType;
+        const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
         const scriptUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "02" + this.id);
         this.scriptUtxo = scriptUtxo
         if(scriptUtxo.scriptRef){
@@ -523,11 +530,15 @@ async createUpdateTx(
   
   const cleanNewConfig = this.cleanConfig(newConfig);
   const encodedConfig = encode(cleanNewConfig);
+  // Add type assertion to ensure network is a valid key   
+  const network = this.settings.network as NetworkType;
   const tx = localLucid.newTx()
   .collectFrom([configUtxo], Data.to(new Constr(0, [])))
   .collectFrom([collateralUtxo])
-  .attach.Script({ type: "PlutusV3", script: contracts[this.settings.network].configHost})
+
+  .attach.Script({ type: "PlutusV3", script: contracts[network].configHost})
   .pay.ToAddressWithData( configUtxo.address, {kind : "inline" , value : encodedConfig}, configUtxo.assets)
+
 
   if (requrement.refInputs !== undefined && requrement.refInputs.length > 0) {
     console.log("refInputs", requrement.refInputs)

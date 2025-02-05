@@ -2,16 +2,16 @@ import React, { useEffect } from "react";
 import "./SettingsModal.css";
 import { useState} from 'react';
 import {  toast } from 'react-toastify';
-
+import { App } from '../index';
 
 const MwalletPassthrough = "https://passthrough.broclan.io" 
-function SettingsModal(props) {
+function SettingsModal(props: {root : App, setOpenModal: (modal: string) => void}) {
   const [network, setNetwork] = useState(props.root.state.settings.network);
   const [provider, setProvider] = useState(props.root.state.settings.api.url === MwalletPassthrough ? "MWallet" :  props.root.state.settings.provider);
   const [providerConnection, setProviderConnection] = useState(props.root.state.settings.api);
   const [metadataProvider, setMetadataProvider] = useState(props.root.state.settings.metadataProvider);
   
-  function networkChange(network){
+  function networkChange(network: string){
     setNetwork(network)
   }
 
@@ -48,11 +48,14 @@ function SettingsModal(props) {
 
   }
 
-  function changeProvider(provider){
+  function changeProvider(provider: string){
     setProvider(provider)
     if(provider === "Blockfrost"){
       setProviderConnection({
-       
+        url: "",
+        projectId: ""
+
+
       } )
     }else if(provider === "MWallet"){
       setProviderConnection({})
@@ -61,9 +64,11 @@ function SettingsModal(props) {
   }
   
   function applyNetworkSettings() {
+    try {
     let localproviderConnection = providerConnection
     if (provider === "Blockfrost"){
       if (providerConnection.url === "" || providerConnection.projectId === ""){
+
         toast.error("Please fill all fields");
         return
       }
@@ -118,11 +123,22 @@ function SettingsModal(props) {
       "network": network,
       "provider": provider,
       "api": providerConnection,
-      "metadataProvider": metadataProvider
+      "metadataProvider": metadataProvider,
+      "sendAll": props.root.state.settings.sendAll,
+      "explorer": props.root.state.settings.explorer,
+      "disableSync": props.root.state.settings.disableSync,
+      "termsAccepted": props.root.state.settings.termsAccepted
     })
-    toast.promise(applySetting, { loading: "Applying settings", 
+    toast.promise(applySetting, { pending: "Applying settings", 
                                   success: "Settings applied", 
                                   error: "Connection Failure" });
+
+
+    } catch (error) {
+      toast.error("Connection Failure");
+    }
+
+
 
   }
 
@@ -153,15 +169,16 @@ function SettingsModal(props) {
 
 
   return (
-    <div className="modalBackground" onClick={() => { props.setOpenModal(false); }}>
+    <div className="modalBackground" onClick={() => { props.setOpenModal(""); }}>
       <div className="modalContainer"  onClick={ (e) => e.stopPropagation()}   >
         <div className="titleCloseBtn">
           <button
             onClick={() => {
-              props.setOpenModal(false);
+              props.setOpenModal("");
             }}
           >
             X
+
           </button>
         </div>
   
@@ -197,13 +214,12 @@ function SettingsModal(props) {
 
             <div className="sendAll">
           <label htmlFor="sendAll">Enable Send All</label>
-           <input type="checkbox" id="sendAll" name="sendAll" checked={props.root.state.settings.sendAll} value={props.root.state.settings.sendAll} onChange={ () => props.root.toggleSendAll()} />
+           <input type="checkbox" id="sendAll" name="sendAll" checked={props.root.state.settings.sendAll} onChange={ () => props.root.toggleSendAll()} />
         </div>
         <div className="DisableSync">
           <label htmlFor="DisableSync">Disable All Sync</label>
-           <input type="checkbox"  name="EnableSync" checked={props.root.state.settings.disableSync} value={props.root.state.settings.disableSync} onChange={ () => props.root.toggleDisableSync()} />
+          <input type="checkbox" name="EnableSync" checked={props.root.state.settings.disableSync} onChange={ () => props.root.toggleDisableSync()} />
         </div>
-
         <div className="footer">
          <button
             onClick={() => {
