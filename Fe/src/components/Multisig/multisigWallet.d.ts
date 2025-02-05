@@ -78,15 +78,15 @@ declare class Wallet implements WalletInterface {
     }>;
     setCollateralDonor(paymentKeyHash: any): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
-    getCollateral(value: number | undefined): any;
+    getCollateral(value?: number | undefined): any;
     getCollateralDonor(): any;
     getCollateralUtxos(value: number | undefined): Promise<any>;
     getCollateralAddress(): any;
     getCollateralUtxo(value: number | undefined): Promise<any>;
     loadTransaction(transaction: any): Promise<void>;
-    createStakeUnregistrationTx(signers: any): Promise<string>;
+    createStakeUnregistrationTx(signers: string[]): Promise<string>;
     getSignerName(keyHash: any): any;
-    createDelegationTx(pool: string, dRepId: string, signers: any): Promise<string>;
+    createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<string>;
     isAddressMine(address: string): boolean;
     isAddressValid(address: string): boolean;
     isAddressScript(address: string): boolean;

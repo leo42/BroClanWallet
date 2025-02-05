@@ -1,22 +1,25 @@
 import React, { useEffect } from "react";
 import "./Receive.css"
 import {  toast } from 'react-toastify';
-import QRCode from "qrcode";
+import QRCode from "qrcode" ;
 import copyTextToClipboard from "../helpers/copyTextToClipboard";
-function Receive(props){
+import WalletInterface from "./WalletInterface";
+
+function Receive(props: {wallet: WalletInterface}){
     const [address, setAddress] = React.useState(props.wallet.getDefaultAddress() === "" ? props.wallet.getAddress() : props.wallet.getDefaultAddress())
     const [newStake, setNewStake] = React.useState(false)
-    const [options, setOptions] = React.useState([])
-    const [optionsNames, setOptionsNames] = React.useState({})
+    const [options, setOptions] = React.useState<string[]>([])
+    const [optionsNames, setOptionsNames] = React.useState<{[key: string]: string}>({})
+
 
     const donationAddress = "addr1q9jae9tlky2gw97hxqkrdm5lu0qlasrzw5u5ju9acpazk3ev94h8gqswgsgfp59e4v0z2dapyamyctfeyzykr97pajdq0nanuq"
 
-    function handleClick(value){
+    function handleClick(value: string){
         copyTextToClipboard(value)
         toast.info("Address copied to clipboard!")
     }
     
-    const canvasRef = React.useRef();
+    const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
     React.useEffect(() => {
         QRCode.toCanvas(
@@ -24,11 +27,12 @@ function Receive(props){
           // QR code doesn't work with an empty string
           // so we are using a blank space as a fallback
           address || " ",
-          (error) => error && console.error(error)
+          (error: any) => error && console.error(error)
         );
       }, [address]);
 
-    const handleStakingChange = (event) => {
+
+    const handleStakingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         
         if (event.target.value === "new" ){
             setNewStake(true)
@@ -38,11 +42,12 @@ function Receive(props){
             setAddress(props.wallet.getAddress(event.target.value))
         } 
     }
-    const handleNewAddressChange = (event) =>{
+    const handleNewAddressChange = (event: React.ChangeEvent<HTMLInputElement>) =>{
         try{
         if(event.target.value === ""){
             setAddress("Enter an address of the wallet that will receive the rewards")
             return
+
         }
           setAddress(props.wallet.getAddress(event.target.value))
         }catch{
@@ -52,10 +57,11 @@ function Receive(props){
 
     useEffect(() => {
             const options =  props.wallet.getFundedAddress()
-            const optionsNames = {}
+            const optionsNames = {} as {[key: string]: string}
 
-            options.map( option => { optionsNames[option] = props.wallet.getAddressName(option) })
+            options.map( (option: string) => { optionsNames[option] = props.wallet.getAddressName(option) })
             
+
             // add the unstaked address only if it is not already in the list of funded addresses 
             
             options.includes( props.wallet.getAddress())?   "" :  options.push(props.wallet.getAddress())

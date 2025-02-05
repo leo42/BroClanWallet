@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import getTokenInfo from "../helpers/tokenInfo.js"
+import getTokenInfo from "../helpers/tokenInfo"
 import TokenDropdownMenu from './TokenDropdownList';
-import TokenElement from "./TokenElement.js";
+import TokenElement from "./TokenElement";
 import { ReactComponent as RecipientIcon } from '../html/assets/recipient.svg';
 import "./WalletCreateTx.css"
 import AddressSelect from './AddressSelect';

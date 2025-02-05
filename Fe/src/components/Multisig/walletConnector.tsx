@@ -6,10 +6,11 @@ import { ReactComponent as DisconnectIcon } from '../../html/assets/disconnect.s
 import { ReactComponent as ChangeIcon } from '../../html/assets/change.svg';
 import { ReactComponent as LoadIcon } from '../../html/assets/load.svg';
 import { ReactComponent as WalletsFoundIcon } from '../../html/assets/walletsFound.svg';
+import MultisigContainer from "./MultisigContainer";
 
 
 
-function WalletConnector(props){
+function WalletConnector(props: {moduleRoot: MultisigContainer , openWalletPicker: (connectWallet: (walletName: string) => void) => void}){
 
   const [configMenu, openConfigMenu] = React.useState(false);
     const [hovering, setHovering] = React.useState("");
@@ -28,7 +29,7 @@ function WalletConnector(props){
     }, [isMobile]);
 
 
-    function connectWallet(walletName){
+    function connectWallet(walletName: string){
         props.moduleRoot.connectWallet(walletName)
     }
 
@@ -47,24 +48,28 @@ function WalletConnector(props){
         <div className="connectorSettings">
 
         <div onMouseEnter={() => setHovering("disconnect")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.disconnectWallet()} className='iconWraper disconnectButton'>
-        <DisconnectIcon className="icon" alt="disconnectIcon" />
+        <DisconnectIcon className="icon" />
         { ( hovering === "disconnect"|| isMobile)   &&  <label className='iconLabel'>Disconnect</label> }
         < br/>   
         </div>
-        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() =>  props.root.openWalletPicker(connectWallet)} className='iconWraper changeButton'>
-        <ChangeIcon className="icon" alt="changeIcon" />
+
+        <div onMouseEnter={() => setHovering("change")} onMouseLeave={() => setHovering("") } onClick={() =>  props.openWalletPicker(connectWallet)} className='iconWraper changeButton'>
+        <ChangeIcon className="icon" />
         {  (hovering === "change"  || isMobile) &&  <label className='iconLabel'>Change</label> }
         < br/>   
         </div>
+
         {/* <button onClick={() => loadWallets()}>Load Wallets</button> */}
         <div onMouseEnter={() => setHovering("load")} onMouseLeave={() => setHovering("") } onClick={() => loadWallets()} className='iconWraper loadButton'>
-        <LoadIcon className="icon" alt="loadIcon" />
+        <LoadIcon className="icon" />
         {  (hovering === "load" || isMobile)  &&  <label className='iconLabel'>Load</label> }
+
         < br/>   
         </div>
         { props.moduleRoot.state.pendingWallets && Object.keys(props.moduleRoot.state.pendingWallets).length > 0  && 
                 <div  onMouseEnter={() => setHovering("walletsFound")} onMouseLeave={() => setHovering("") } onClick={() => props.moduleRoot.showModal("pendingWallets")}  className='iconWraper walletsFoundIcon'>
-                    <WalletsFoundIcon className="icon"  alt="connectIcon" />
+                    <WalletsFoundIcon className="icon"  />
+
                     <label className='walletsFoundAmountLabel'>{Object.keys(props.moduleRoot.state.pendingWallets).length}</label>
                     {/* {  hovering === "walletsFound" &&   <label className='iconLabel'>Wallets Found</label> } */}
                 < br/>   
@@ -83,10 +88,11 @@ function WalletConnector(props){
             {/* <div>
 
 < br/>  </div>  */}
-            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => props.root.openWalletPicker(connectWallet)}  className='iconWraper connectButton'>
-             <ConnectIcon className="icon"  alt="connectIcon" />
+            <div  onMouseEnter={() => setHovering("connect")} onMouseLeave={() => setHovering("") } onClick={() => props.openWalletPicker(connectWallet)}  className='iconWraper connectButton'>
+             <ConnectIcon className="icon"  />
              { ( hovering === "connect"  ) &&   <label className='iconLabel'>Connect</label> }
             < br/>   
+
           </div>
 
             </div>)

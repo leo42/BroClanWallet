@@ -2,20 +2,29 @@
 import {Buffer} from 'buffer';
  
 import {  utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
+import { App } from '..';
+import MultisigWallet from '../components/Multisig/multisigWallet';
+import MultisigContainer from '../components/Multisig/MultisigContainer';
 
-function toHexString(byteArray) {
+
+function toHexString(byteArray: Uint8Array) {
     return Array.from(byteArray, function(byte) {
       return ('0' + (byte & 0xFF).toString(16)).slice(-2);
     }).join('')
   }
 
 class Messaging {   
+    private wallet: MultisigWallet;
+    private root: MultisigContainer;
+    private port: chrome.runtime.Port | null;
 
-    constructor(wallet, root) {
+    constructor(wallet: MultisigWallet, root: MultisigContainer) {
         this.wallet = wallet;
         this.root = root;   
         this.port = null;
         this.connect();
+
+
 
     }
 
@@ -42,11 +51,12 @@ class Messaging {
               console.log(e)
               return
          } 
-        this.port.onMessage.addListener( async (message) => {
+        this.port.onMessage.addListener( async (message: any) => {
             if(message.action){
                 let response
                 try{
                 switch (message.action) {  
+
                         case "ping":
                             response = "pong";
                             break;
@@ -66,35 +76,36 @@ class Messaging {
                             response = this.wallet.getNetworkId();
                             break;
                         case "getBalance": 
-                            response =Buffer.from(assetsToValue(this.wallet.getBalanceFull()).to_bytes(), 'hex').toString('hex');
-                           // response = assetsToValue(this.wallet.getBalanceFull());
+                            response = Buffer.from(assetsToValue(this.wallet.getBalanceFull()).to_bytes()).toString('hex');
                             break;
                         case "getUtxos":
                             response = this.wallet.getUtxos().map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
                             break;    
                         case "getUsedAddresses":
-                            response =  [Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
+                            response =  [Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
                             break;
                         case "getUnusedAddresses":
-                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
+                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
                             break;
                         case "getChangeAddress":
-                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes(), 'hex').toString('hex')];
+                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
                             break;
                         case "getRewardAddresses":
-                            response = [Buffer.from( C.Address.from_bech32( this.wallet.getStakingAddress()).to_bytes(), 'hex').toString('hex')]; 
+
+                            response = [Buffer.from( C.Address.from_bech32( this.wallet.getStakingAddress()).to_bytes()).toString('hex')]; 
                             break;
                         case "submitTx":
-                            response = await this.wallet.submitTx(message.tx);
+                            response = await this.root.submit(message.tx);
                             break;
                         case "submitUnsignedTx":
+
                             try{
                                 response = await this.root.importTransaction(JSON.parse(message.tx));
-                                
-                            }catch(e){
+                            }catch(e : any){
                                 response = {code : 2, error: e.message}
                             }
                             break;
+
                         case "getScriptRequirements":
                             const signers = this.wallet.getSigners(); 
                             
@@ -104,7 +115,7 @@ class Messaging {
                                 break;
                             }else{
                                 response = signers.filter((signer) => signer.isDefault).map((signer) => ({ code: 1 , value: signer.hash}));
-                                if (isValid.requires_before){
+                                if (isValid.requires_before)   {
                                     response.push({code : 2, "value": isValid.requires_before});
                                 }
                                 if (isValid.requires_after){
@@ -136,14 +147,16 @@ class Messaging {
                             }
                             break;
                         case "getCollateralAddress":
-                            response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes(), 'hex').toString('hex')];
+                            response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes()).toString('hex')];
                             break;
                         case "getCollateral":
                         
-                            response = (await this.wallet.getCollateral()).map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
+
+                            response = (await this.wallet.getCollateral()).map((utxo: any) => ( toHexString(utxoToCore(utxo).to_bytes())));
                             break;
                         case "getUtxoByOutRef":
-                            const replacer = (key, value) => {
+
+                            const replacer = (key: any, value: any) => {
                                 if (typeof value === 'bigint') {
                                   // Convert BigInt to string
                                   return Number(value);
@@ -159,30 +172,33 @@ class Messaging {
                             break;
                         case "isAddressMine":
                             response = {}
-                           JSON.parse(message.address).map( address => { response[address] = this.wallet.isAddressMine(address)});
+                           JSON.parse(message.address).map( (address: any) => { response[address] = this.wallet.isAddressMine(address)});
                            response = JSON.stringify(response);
                             break;
                     }
-                }catch(e){
+                }catch(e : any){
                     console.log(e)
                     response = {error: e.message}
             }
-                this.port.postMessage({ action: message.action, response: response });
+
+                this.port?.postMessage({ action: message.action, response: response });
             }
         }
         );
     }
     
-    changeWallet(wallet){
+    changeWallet(wallet: MultisigWallet){
         this.wallet = wallet;
     }
+
     disconnect() {
         try{
-            this.port.disconnect();
+            this.port?.disconnect();
         }catch(e){
             console.log(e)
         }
     }   
+
 }
 
 export default Messaging;

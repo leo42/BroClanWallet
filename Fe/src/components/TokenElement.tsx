@@ -1,12 +1,25 @@
 import React from "react";
 import "./TokenElement.css"
-import getTokenInfo from "../helpers/tokenInfo.js"
+import getTokenInfo from "../helpers/tokenInfo"
+import { TokenInfo } from "../helpers/tokenInfo";
 
-function TokenElement(props){
-    const [ tokenInfo, setTokenInfo] =  React.useState({})
+type TokenElementProps = {
+  tokenId: string;
+  amount: number;
+  filter?: string;
+  search?: string;
+  className?: string;
+  expanded?: boolean;
+  index?: number;
+  f?: (tokenId: string) => void;
+}
+
+
+function TokenElement(props: TokenElementProps): JSX.Element | null {
+
+    const [ tokenInfo  , setTokenInfo] =  React.useState({} as TokenInfo)
     const [showTooltip, setShowTooltip] = React.useState(false);
-    const [image , setImage] = React.useState("https://icons-for-free.com/iconfiles/png/512/cardano+icon-1320162855683510157.png")
-    let settings = JSON.parse(localStorage.getItem("settings"))
+    let settings = JSON.parse(localStorage.getItem("settings") || "{}")
     if (settings === null) {
       settings = {network: "Mainnet"}
     }
@@ -58,19 +71,21 @@ function TokenElement(props){
        if (!props.tokenId.toLowerCase().includes(props.search.toLowerCase()) && tokenInfo.name !== undefined && !tokenInfo.name.toLowerCase().includes(props.search.toLowerCase())  )
           if( tokenInfo.fingerprint !== undefined){
             if ( !tokenInfo.fingerprint.toLowerCase().includes(props.search.toLowerCase()))
-            return ("")
+            return null
           } else 
-            return ("")
+            return null
           
+
     }
 
 
     if (tokenInfo === undefined) return (<div className="TokenElement">{props.tokenId}:{Number(props.amount)}  </div>)
     if (props.filter === "NFTs" && !tokenInfo.isNft){
-      return ""
+      return null
     } else if (props.filter === "FTs" && tokenInfo.isNft){
-      return ""
+      return null
     }else  return (
+
     <div className={ props.className ? props.className : " "} key={props.index}>
     <div className="TokenElementWrapper" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}> 
     <div  className="TokenElement" onClick={handleClick} > 

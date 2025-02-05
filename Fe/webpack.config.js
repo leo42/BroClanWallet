@@ -75,6 +75,9 @@ var extensionConfig = {
 		path: path.resolve(__dirname, 'build/extension'),
 		// Specify the folder name for the extension output
 	  },
+	  resolve: {
+		extensions: ['.js', '.jsx', '.ts', '.tsx']
+	  },
 	  mode: 'development',
 	  devtool: 'source-map',
 	  experiments: {
@@ -96,6 +99,11 @@ var extensionConfig = {
 			test: /\.css$/i,
 			use: ["style-loader", "css-loader"],
 		  },
+		  {
+			test: /\.(ts|tsx)$/,
+			use: 'ts-loader',
+			exclude: /node_modules/,
+		},
 		]
 	},
 	  plugins: [
@@ -166,6 +174,9 @@ var workerConfig = {
 			// Specify the folder name for the extension output
 		  },
 		  mode: 'development',
+		  resolve: {
+			extensions: ['.js', '.jsx', '.ts', '.tsx'],
+		  },
 		  devtool: 'source-map',
 		  experiments: {
 			asyncWebAssembly: false,
@@ -186,7 +197,13 @@ var workerConfig = {
 				,{
 					test: /\.css$/i,
 					use: ["style-loader", "css-loader"],
-				  },]
+				  },
+				  {
+					test: /\.(ts|tsx)$/,
+					use: 'ts-loader',
+					exclude: /node_modules/,
+				},
+			]
 			},
 			experiments: {
 				asyncWebAssembly: true,

@@ -1,18 +1,6 @@
-import React from 'react';
-
-interface Wallet {
-  getDefaultAddress(): string;
-  getAddress(stakeAddress?: string): string;
-  getFundedAddress(): string[];
-  getAddressName(address: string): string;
-}
-
-interface ReceiveProps {
-  wallet: Wallet;
-}
-
-declare function copyTextToClipboard(text: string): void;
-
-declare function Receive(props: any): JSX.Element;
-
+import "./Receive.css";
+import WalletInterface from "./WalletInterface";
+declare function Receive(props: {
+    wallet: WalletInterface;
+}): import("react/jsx-runtime").JSX.Element;
 export default Receive;

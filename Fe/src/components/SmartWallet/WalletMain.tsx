@@ -45,7 +45,7 @@ class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
       case "transactions":
         return  <TransactionHistory root={this.props.root}  wallet={this.props.wallet}  moduleRoot={this.props.moduleRoot} key={this.props.moduleRoot.state.selectedWallet} /> 
     case "receive":
-        return <Receive root={root} wallet={wallet} key={key} moduleRoot={moduleRoot} />;
+        return <Receive wallet={wallet} key={key}  />;
     }
   }
 

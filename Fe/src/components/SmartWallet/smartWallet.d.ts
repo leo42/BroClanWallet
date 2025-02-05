@@ -1,5 +1,5 @@
-import { TxSignBuilder, CBORHex, Credential, Validator, Assets, UTxO, Delegation, TxBuilder, OutRef } from "@lucid-evolution/lucid";
-import { Settings } from "../../types/app";
+import { TxSignBuilder, CBORHex, Credential, Validator, Assets, UTxO, Delegation, TxBuilder } from "@lucid-evolution/lucid";
+import { Settings } from "../../index";
 import { SmartMultisigJson } from "./types";
 import { TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';
 import WalletInterface from "../WalletInterface";
@@ -106,7 +106,7 @@ declare class SmartWallet implements WalletInterface {
     signersCompleted(index: number): boolean;
     addSignature(signature: string): number;
     decodeTransaction(tx: string): any;
-    getUtxosByOutRef(outRefs: Array<OutRef>): Promise<UTxO[]>;
+    getUtxosByOutRef(OutputRef: any): Promise<UTxO[]>;
     getPendingTxDetails(index: number): any;
     getStakingAddress(): string;
     setDefaultAddress(address: string | null): void;

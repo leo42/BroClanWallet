@@ -3,18 +3,31 @@ import "./NewWalletModal.css"
 import { ReactComponent as ImportIcon } from "../../html/assets/import.svg";
 import { ReactComponent as CreateIcon } from "../../html/assets/newWallet.svg";
 import {  toast } from 'react-toastify';
+import MultisigContainer from "./MultisigContainer";
 // import "./NewWalletModal.css"
 
-function NewWalletModal(props) {
+function NewWalletModal(props: { moduleRoot: MultisigContainer, setOpenModal: (open: boolean) => void }) {
 
-  const importWallet = (event) => {
+  const importWallet = (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-    const file = event.target.files[0];
+
+    const file = event.target.files?.[0];
+    if (!file) {
+      toast.error("No file selected");
+      return;
+    }
     const reader = new FileReader();
+
     reader.onload = (e) => {
-      const fileText = e.target.result;
+      const fileText = e.target?.result;
+      if (!fileText) {
+        toast.error("No file content");
+
+        return;
+      }
       try {
-        props.moduleRoot.addWallet(JSON.parse(fileText),"Imported Wallet");
+        props.moduleRoot.addWallet(JSON.parse(fileText as string),"Imported Wallet");
+
         props.setOpenModal(false);
       }catch (error) {
           toast.error("Invalid Wallet File");
@@ -48,13 +61,15 @@ const createWallet = () => {
           </div>
           <div className="inputContainer">
           <div   onClick={createWallet}  className='createWalletIconWraper createWalletButton'>
-                <CreateIcon className="icon"  alt="signicon" />  
+                <CreateIcon className="icon"  />  
             </div>  
             <input type="file" id="file-picker" hidden={true} onChange={importWallet}></input>
-            <div   onClick={() => document.getElementById("file-picker").click()}  className='createWalletIconWraper importWalletIcon'>
-                <ImportIcon className="icon"  alt="signicon" />  
+            <div   onClick={() => document.getElementById("file-picker")?.click()}  className='createWalletIconWraper importWalletIcon'>
+
+                <ImportIcon className="icon"  />  
             </div>  
             
+
           </div>
 
 

@@ -11,10 +11,39 @@ import { toast } from 'react-toastify';
 import "./MultisigContainer.css"
 import ModalsContainer from './ModalsContainer';
 import Messaging from '../../helpers/Messaging';
+import MultisigWallet from './multisigWallet';
+import { Socket } from 'socket.io-client';
+import { Settings } from '../..';
+import { Native } from './AddWalletModal';
+import { App } from '../..';
+
+type MultisigContainerProps = {
+  settings: Settings;
+  root: App;
+};
 
 
-class MultisigContainer extends React.Component {
-state= {
+
+type MultisigContainerState = {
+  modal: string;
+  wallets: MultisigWallet[];
+  pendingWallets: Record<string, any>;
+  selectedWallet: number;
+  connectedWallet: { name: string; socket: Socket | null };
+  loading: boolean;
+  dAppConnector: Messaging | null;
+
+};
+
+
+
+class MultisigContainer extends React.Component<MultisigContainerProps, MultisigContainerState> {
+ private interval: NodeJS.Timeout | null  = null
+
+
+  state : MultisigContainerState =  {
+
+
     modal: "",
     wallets: [],
     pendingWallets: {},
@@ -24,7 +53,8 @@ state= {
     dAppConnector: null,
 }
 
-componentDidUpdate(prevProps) { 
+
+componentDidUpdate(prevProps: MultisigContainerProps) { 
 
   if (this.props.settings !== prevProps.settings) {
     this.newSettings(this.props.settings)
@@ -32,7 +62,7 @@ componentDidUpdate(prevProps) {
   }
 }
 
-async newSettings(newSettings){
+async newSettings(newSettings : Settings){
   const wallets=[...this.state.wallets]
   for(let index = 0 ; index < this.state.wallets.length ; index++){
     try{
@@ -45,11 +75,15 @@ async newSettings(newSettings){
 }
 
 
-async showModal(modalName){
-    this.setState({modal: modalName})
+async showModal(modalName: string){
+  const state = this.state
+  state.modal = modalName
+  this.setState(state)
   }
 
-async setState(state){
+
+
+async setState(state: MultisigContainerState){
     await super.setState(state)
     this.storeState()
     this.storeWallets()
@@ -76,12 +110,18 @@ async setState(state){
   componentWillUnmount() {
     console.log("unmounting", this.state.dAppConnector)
     this.state.dAppConnector ? this.state.dAppConnector.disconnect() : null
-    this.setState({dAppConnector: null})
-    clearInterval(this.interval);
+    const state = this.state
+    state.dAppConnector = null
+    this.setState(state)
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
   }
   
 
-  async connectWallet(wallet){
+
+  async connectWallet(wallet: string){
     try{
 
         if (this.state.connectedWallet) {
@@ -92,14 +132,18 @@ async setState(state){
             }
         }
 
-      const socket =  await connectSocket(wallet, this) 
+      const socket =  await connectSocket(wallet, this, this.props.root.state.syncService) 
       let connectedWallet = {  name :wallet , socket: socket}
-      this.setState({connectedWallet})
+      const state = this.state
+      state.connectedWallet = connectedWallet
+      this.setState(state)
+
     }
-    catch(e){
+    catch(e: any){
       console.log(e.message)
       toast.error("Could not connect to sync service");
     }
+
   }
 
   disconnectWallet(error=""){
@@ -110,9 +154,11 @@ async setState(state){
       this.state.connectedWallet.socket.close()
     }
     let connectedWallet = {name: "", socket: null}
-
-    this.setState({connectedWallet})
+    const state = this.state
+    state.connectedWallet = connectedWallet
+    this.setState(state)
   }
+  
   
   async reloadAllBalance(){
     try {
@@ -121,12 +167,16 @@ async setState(state){
         for(let index = 0 ; index < this.state.wallets.length ; index++){
           await wallets[index].loadUtxos()
         }
-        this.setState({wallets})
+        const state = this.state
+        state.wallets = wallets
+        this.setState(state)
       }
     }
-    catch(e) {
+
+    catch(e: any) {
       toast.error(e.message);
     } 
+
   }
 
   async reloadBalance(){
@@ -134,21 +184,23 @@ async setState(state){
         if (this.state.wallets.length > 0){
           const wallets = this.state.wallets
           await wallets[this.state.selectedWallet].loadUtxos()
-          this.setState({wallets})
+          const state = this.state
+          state.wallets = wallets
+          this.setState(state)
         }
       }
-      catch(e) {
+
+      catch(e: any) {
         toast.error(e.message);
       }
     
+
   }
 
   storeState(){
 
     localStorage.setItem("connectedWallet", JSON.stringify(this.state.connectedWallet.name ))
     localStorage.setItem("pendingWallets", JSON.stringify(this.state.pendingWallets))
-    localStorage.setItem("acceptedTerms", this.state.acceptedTerms)
-
   }
 
   storeWallets()  {
@@ -166,35 +218,35 @@ async setState(state){
   }
 
   async loadState(){
-    const wallets = JSON.parse(localStorage.getItem('wallets'));
+    const wallets = JSON.parse(localStorage.getItem('wallets') || "[]");
+    
     let state = this.state
-    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets'))
-    state.acceptedTerms = localStorage.getItem('acceptedTerms')
+    wallets.forEach( (wallet: any) => {
+      const myWallet = new Wallet(wallet.json, wallet.name);
+      myWallet.initialize(this.props.root.state.settings);
+      myWallet.resetDefaultSigners()
+      state.wallets.push(myWallet)
+    })
+    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets') || "{}")
     super.setState(state) 
 
-    if (wallets) for(let index = 0 ; index < wallets.length ; index++){
-      const myWallet = wallets[index].json.type === "tokenVault" ? new TokenWallet(wallets[index].json.token,wallets[index].name) : new Wallet(wallets[index].json,wallets[index].name);
-      await myWallet.initialize(localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : this.props.root.state.settings  );
-      myWallet.setDefaultAddress(wallets[index].defaultAddress)
-      myWallet.setAddressNames(wallets[index].addressNames)
-      myWallet.setDefaultSigners(wallets[index].defaultSigners)
-      myWallet.setPendingTxs(wallets[index].pendingTxs)
-      await myWallet.loadUtxos()
-      await myWallet.setCollateralDonor(wallets[index].collateralDonor)
-      state.wallets.push(myWallet)
-    }
+
     
-    if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet')) !== ""){
-      this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet')))
+    if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet') || "") !== ""){
+      this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet') || ""))
     }
 
     state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet")) || 0
     if (state.selectedWallet >= state.wallets.length) state.selectedWallet = 0
     
+
     super.setState(state) 
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
-    this.setState({dAppConnector})
-    this.setState({loading : false})
+    state.dAppConnector = dAppConnector
+    state.loading = false
+    this.setState(state)
+
+
 
   }
   
@@ -202,64 +254,69 @@ async setState(state){
     return "multisig"
   }
 
-  async createTx(recipients,signers,sendFrom, sendAll=null){
+  async createTx(recipients: any[],signers: string[],sendFrom: string, sendAll: number | null){
     try{
     const wallets = this.state.wallets
     // this is the recipient shape (recipients: {amount: Record<string, bigint> , manipulate the input and convert numvers to bigInts
     recipients.map( (recipient) => {
+
       recipient.amount = Object.fromEntries(
-        Object.entries(recipient.amount).map(([key, value]) => [key, BigInt(value)])
+        Object.entries(recipient.amount).map(([key, value]) => [key, BigInt(value as string)])
       );
     });
     
      await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll, false)
     
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
     toast.info('Transaction created');
-    }catch(e){
+
+    }catch(e: any){
       if (e ==="InputsExhaustedError")
         toast.error("Insuficient Funds");
       else
         {
           toast.error(e.message);
+
           toast.error(e);
         }
     }
   }
 
-  async setCollateralDonor(keyHash){
+  async setCollateralDonor(keyHash: string){
     try{
     const wallets = this.state.wallets 
     console.log(wallets)
     await wallets[this.state.selectedWallet].setCollateralDonor(keyHash)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
     toast.info('Collateral Donor Set');
-    }catch(e){
+    }catch(e: any){
       toast.error(e.message);
     }
+
   }
 
 
-  async importTransaction(transaction){
+  async importTransaction(transaction: string){
     try{
     const wallets = this.state.wallets
     const txHash = await this.state.wallets[this.state.selectedWallet].importTransaction(transaction)
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
     
-    this.setState({wallets})
    
-    if(txHash.error){
-      toast.error(txHash.error);
-      if(txHash.tx){
-        return(txHash.tx)
-      }else{
-        return {"code": 2, "error": txHash.error}
-      }
-    }
+
+
     toast.success("Transaction imported");
     return txHash
-    }catch(e){
+    }catch(e: any){
       toast.error("Could not import transaction: " + e.message);
       
+
       return {"code": 1, "error": "Could not import transaction: " + e.message}
 
     }
@@ -269,136 +326,176 @@ async setState(state){
     return wallets[this.state.selectedWallet].getSigners()
   }
 
-  getSignerName(keyHash){
+  getSignerName(keyHash: string){
     const wallets = this.state.wallets
     return wallets[this.state.selectedWallet].getSignerName(keyHash)
   }
   
-  async createDelegationTx(pool, dRepId, signers){
+  async createDelegationTx(pool: string, dRepId: string, signers: string[]){
     try{
     const wallets = this.state.wallets
      await this.state.wallets[this.state.selectedWallet].createDelegationTx(pool, dRepId, signers)
-    this.setState({wallets})
+     const state = this.state
+     state.wallets = wallets
+     this.setState(state)
     toast.info('Delegation Transaction created');
-    }catch(e){
+
+    }catch(e: any){
       toast.error(e.message);
     }
+
     
   }
 
-  async createStakeUnregistrationTx(signers){
+  async createStakeUnregistrationTx(signers: string[]){
     try{
     const wallets = this.state.wallets
       await this.state.wallets[this.state.selectedWallet].createStakeUnregistrationTx(signers)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
     toast.info('Stake Unregistration Transaction created');
-    }catch(e){
+    }catch(e: any){
       toast.error(e.message);
     }
+
   }
 
-  async deleteWallet(index){
+  async deleteWallet(index: number){
     const wallets = this.state.wallets
     const confirmation =  window.confirm("Are you sure you want to delete this wallet?");
     if (confirmation === false){
       return
     }
+    const state = this.state
     if (index === this.state.selectedWallet){
-      this.setState({selectedWallet: 0})
+      state.selectedWallet = 0
     }
+
     wallets.splice(index,1)
-    this.setState({wallets})
+    state.wallets = wallets
+    this.setState(state)
+
 
   }
 
-  async removePendingTx(index){
+  async removePendingTx(index: number){
     const wallets = this.state.wallets
     await wallets[this.state.selectedWallet].removePendingTx(index)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
   }
 
-  changeWalletName(name){
+
+  changeWalletName(name: string){
     const wallets = this.state.wallets
     wallets[this.state.selectedWallet].setName(name)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
   }
 
 
-  addSignature(signature){ 
+
+  addSignature(signature: string){ 
     try {
     const wallets = this.state.wallets
     const transaction = wallets[this.state.selectedWallet].addSignature(signature)
 
     this.transmitTransaction(transaction, signature)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
     toast.info('Signature Added');
     }
-    catch(e) {
+    catch(e: any) {
       toast.error(e.message);
     }
+
   }
 
-  setDefaultAddress(address){
+  setDefaultAddress(address: string){
     try {
       const wallets = this.state.wallets
       wallets[this.state.selectedWallet].setDefaultAddress(address)
-      this.setState({wallets})
+      const state = this.state
+      state.wallets = wallets
+      this.setState(state)
       toast.info('Default Account Changed');
+
+
       }
-      catch(e) {
+      catch(e: any) {
         toast.error(e.message);
       }
+
   }
 
 
-  updateSignerName(keyHash, name){
+  updateSignerName(keyHash: string, name: string){
     const wallets = this.state.wallets
     wallets[this.state.selectedWallet].updateSignerName(keyHash, name)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
   }
 
-  changeAddressName(address,name){
+
+  changeAddressName(address: string, name: string){
     try {
       
       const wallets = this.state.wallets
       wallets[this.state.selectedWallet].changeAddressName(address,name)
-      this.setState({wallets})
+      const state = this.state
+      state.wallets = wallets
+      this.setState(state)
       }
-      catch(e) {
+      catch(e: any) {
         toast.error(e.message);
       }
+
   }
 
-  getTransactionHistory(address){
+  // getTransactionHistory(address: string){
 
-    const wallets = this.state.wallets
-    const resault = wallets[this.state.selectedWallet].getTransactionHistory(address)
-    this.setState({wallets})
-    toast.promise(
-      resault,
-      {
-        pending: 'Getting Transaction History',
-        error: 'Failed Retriving Transaction History'
-      }
-  )
-    return resault
-  }
+  //   const wallets = this.state.wallets
+  //   const resault = wallets[this.state.selectedWallet].getTransactionHistory(address)
+  //   const state = this.state
+  //   state.wallets = wallets
+  //   this.setState(state)
+  //   toast.promise(
 
-  deleteImportedWallet(key){
+  //     resault,
+  //     {
+  //       pending: 'Getting Transaction History',
+  //       error: 'Failed Retriving Transaction History'
+  //     }
+  // )
+  //   return resault
+  // }
+
+  deleteImportedWallet(key: string){
     const pendingWallets = this.state.pendingWallets
     delete pendingWallets[key]
-    this.setState({pendingWallets})
+    const state = this.state
+    state.pendingWallets = pendingWallets
+    this.setState(state)
   }
+
 
   deleteAllPendingWallets(){
     const pendingWallets = this.state.pendingWallets
     for (var key in pendingWallets) {
       delete pendingWallets[key]
     }
-    this.setState({pendingWallets})
+    const state = this.state
+    state.pendingWallets = pendingWallets
+    this.setState(state)
   }
 
-  async importPendingWallet(key){
+
+  async importPendingWallet(key: string){
     try{
       const pendingWallets = this.state.pendingWallets
       const wallets = this.state.wallets
@@ -412,27 +509,31 @@ async setState(state){
         await myWallet.initialize(this.props.root.state.settings);
         myWallet.resetDefaultSigners()
         wallets.push(myWallet)
-        this.setState({wallets})
+        const state = this.state
+        state.wallets = wallets
         //remove pending wallet
         delete pendingWallets[key]
-        
-        this.setState({pendingWallets})
+        state.pendingWallets = pendingWallets
+        this.setState(state)
         if (this.state.connectedWallet.socket) {
           this.state.connectedWallet.socket.emit('subscribe' , pendingWallet.json)}
+
         if(this.state.wallets.length === 1)
-          this.state.dAppConnector.changeWallet(myWallet)
+          this.state.dAppConnector?.changeWallet(myWallet)
         toast.success("Wallet Imported");
+
       }else{
         toast.error("Wallet already exists")
       }
-      }catch(e){
+      }catch(e: any){
         toast.error(e.message);
       }
   }
 
 
 
-  async addWallet(script,name){
+
+  async addWallet(script: Native,name: string){
     const wallets = this.state.wallets
     const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
     const res = await Promise.all(walletsHashes)
@@ -445,12 +546,15 @@ async setState(state){
       
       this.transmitWallet(script)
       wallets.push(myWallet)
-      this.setState(wallets)
+      const state = this.state
+      state.wallets = wallets
+      this.setState(state)
       
+
       if (this.state.connectedWallet.socket) {
          this.state.connectedWallet.socket.emit('subscribe' , script)}
       if(this.state.wallets.length === 1)
-            this.state.dAppConnector.changeWallet(myWallet)
+        this.state.dAppConnector?.changeWallet(myWallet)
     }else{
       
       toast.error("Wallet already exists")
@@ -465,13 +569,16 @@ async setState(state){
     }
   }
 
-  setDefaultSigners(signers){
+  setDefaultSigners(signers: any){
     const wallets = this.state.wallets
     wallets[this.state.selectedWallet].setDefaultSigners(signers)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
   }
 
-  transmitTransaction(transaction, sigAdded) {
+
+  transmitTransaction(transaction: any, sigAdded: any) {
     if(this.props.root.state.settings.disableSync) return
     try{
     fetch(this.props.root.state.syncService+'/api/transaction', {
@@ -481,16 +588,18 @@ async setState(state){
         },
         body: JSON.stringify({tx: transaction.tx.toCBOR() ,sigAdded: sigAdded ,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getJson()}),
       }).catch(e => toast.error("Could not transmit transaction: " + e.message));
-    }catch(e){
+    }catch(e: any){
       toast.error("Could not transmit transaction: " + e.message);
     }
   }
 
 
-  transmitWallet(script) {
+
+  transmitWallet(script: Native) {
     if(this.props.root.state.settings.disableSync) return
     fetch(this.props.root.state.syncService+'/api/wallet', {
       method: 'POST',
+
       headers: {
         'Content-Type': 'application/json',
         },
@@ -498,28 +607,40 @@ async setState(state){
       })
   }
 
-  async loadTransaction(transaction, walletIndex){
+  async loadTransaction(transaction: any, walletIndex: number){
     const wallets = this.state.wallets
     await wallets[walletIndex].loadTransaction(transaction)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
   }
 
-  selectWallet(key){
+
+  selectWallet(key: number){
     if(this.state.connectedWallet) {
       const dAppConnector = this.state.dAppConnector
-      dAppConnector.changeWallet(this.state.wallets[key])
-      this.setState({dAppConnector})
+      if (dAppConnector) {
+        dAppConnector.changeWallet(this.state.wallets[key])
+      }
+      const state = this.state
+      state.dAppConnector = dAppConnector
+      this.setState(state)
+
     }
     const selectedWallet = key
-    localStorage.setItem("selectedMultisigWallet", selectedWallet)
-    this.setState( { selectedWallet})
+    const state = this.state
+    state.selectedWallet = selectedWallet
+    localStorage.setItem("selectedMultisigWallet", selectedWallet.toString())
+    this.setState(state)
     this.reloadBalance()
+
   }
 
-  walletHash(wallet) {
+  walletHash(wallet: any) {
     //remove the name field from the wallet object recursively
-    function removeName(obj) {
+    function removeName(obj: any) {
       if (typeof obj === 'object') {
+
         if (Array.isArray(obj)) {
           obj.forEach((item) => {
             removeName(item);
@@ -540,21 +661,25 @@ async setState(state){
   //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
     return getSHA256Hash(cleanWallet)
 
-    async function getSHA256Hash(jsonObj) {
+    async function getSHA256Hash(jsonObj : any) {
       const jsonString = JSON.stringify(jsonObj);
       const hashHex = sha256(jsonString).toString();
       return hashHex;
     }
+
     
     
   }
 
 
-  async submit(index){
+  async submit(index : number){
    
     const wallets = this.state.wallets
     const promice = wallets[this.state.selectedWallet].submitTransaction(index)
-    this.setState({wallets})
+    const state = this.state
+    state.wallets = wallets
+    this.setState(state)
+
     toast.promise(
       promice,
       {
@@ -570,14 +695,22 @@ async setState(state){
       )
     
   }
+  openNewWalletModal(){
+    const state = this.state
+    state.modal = "newWallet"
+    this.setState(state)
+  }
+
 
    walletsEmpty = () => {
     return (
+
       <div className="walletsEmpty">
         <h2>No Multisig Wallets Found</h2>
         <p>Create a new multisig wallet to start using this APP.</p>
-        <button className="commonBtn" onClick={() => this.setState({modal: "newWallet"})}>Add Multisig Wallet</button>
+        <button className="commonBtn" onClick={() => this.openNewWalletModal()}>Add Multisig Wallet</button>
       </div>
+
     )
   }
 
@@ -590,7 +723,7 @@ async setState(state){
         <div className="TokenVaultsContainerHeader" >
         <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
 
-          <WalletConnector  moduleRoot={this} root={this.props.root}  key={this.state.connectedWallet}></WalletConnector>
+          <WalletConnector  moduleRoot={this} openWalletPicker={(wallet) => this.props.root.openWalletPicker(wallet)}  key={this.state.connectedWallet.name}></WalletConnector>
          </div>
 
          {this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :

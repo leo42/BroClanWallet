@@ -3,9 +3,17 @@ import "./WalletImportModal.css";
 import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
 import { ReactComponent as ImportIcon } from '../html/assets/import.svg';
 import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
+import MultisigContainer from "./Multisig/MultisigContainer";
+
+type WalletImportModalProps = {
+  moduleRoot: MultisigContainer;
+  setOpenModal: (open: boolean) => void;
+};
 
 
-function WalletImportModal(props) {
+
+function WalletImportModal(props: WalletImportModalProps) {
+
 
   const [ showingDetails, setshowingDetails] = React.useState("");
 
@@ -23,7 +31,7 @@ function WalletImportModal(props) {
     return () => window.removeEventListener("resize", updateWindowDimensions);
   }, [isMobile]);
   
-  const showDetails = (key) => {
+  const showDetails = (key: string) => {
     if (showingDetails === key) {
       setshowingDetails("");
     } else {
@@ -32,8 +40,9 @@ function WalletImportModal(props) {
   };
   const [hovering, setHovering] = React.useState("");
 
-  const walletJson = (json) => {
+  const walletJson = (json: any) => {
     const formattedData = JSON.stringify(json, null, 2);
+
 
     return (
       <div className="ImportWalletJsonInner" style={{ whiteSpace: 'pre-wrap' }}>
@@ -47,11 +56,7 @@ function WalletImportModal(props) {
     props.setOpenModal(false);
   };
 
-  const deleteWallet = (key) => {
-    props.moduleRoot.deletePendingWallet(key);
-  };
-
-  const importWallet = (key) => {
+  const importWallet = (key: string) => {
     props.moduleRoot.importPendingWallet(key);
   };
 
@@ -98,26 +103,29 @@ function WalletImportModal(props) {
                       <div  onMouseEnter={() => setHovering("delete"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
                             props.moduleRoot.deleteImportedWallet(key);
                           }}  className='iconWraper deleteButton'>
-                      <DeleteIcon className="icon"  alt="deleteIcon" />
+                      <DeleteIcon className="icon"  />
                       {  (hovering === "delete"+key || isMobile )  &&  <label className='iconLabel'>Delete</label> }
                       < br/>   
                       </div>
+
                      
                       <div  onMouseEnter={() => setHovering("details"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
                             showDetails(key);
                           }}  className='iconWraper detailsButton'>
-                      <DetailsIcon className="icon"  alt="detailsIcon" />
+                      <DetailsIcon className="icon"  />
                       {  (hovering === "details"+key || isMobile )  &&  <label className='iconLabel'>Details</label> }
                       < br/>   
                       </div>   
+
                         
                       <div  onMouseEnter={() => setHovering("import"+key)} onMouseLeave={() => setHovering("") } onClick={() => {
                             props.moduleRoot.importPendingWallet(key);
                           }}  className='iconWraper importButton'>
-                      <ImportIcon className="icon"  alt="importIcon" />
+                      <ImportIcon className="icon"  />
                       { ( hovering === "import"+key || isMobile ) &&  <label className='iconLabel'>Import</label> }
                       < br/>   
                       </div>
+
                         </div>
                       </div>
      

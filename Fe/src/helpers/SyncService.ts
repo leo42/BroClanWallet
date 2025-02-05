@@ -1,15 +1,17 @@
 import {  Lucid } from "lucid-cardano";
 import io from 'socket.io-client'
 import { toast } from 'react-toastify';
-
-async function  connectSocket(wallet , root){
+import MultisigContainer from "../components/Multisig/MultisigContainer";
+import MultisigWallet from "../components/Multisig/multisigWallet";
+async function  connectSocket(wallet: string, root: MultisigContainer, syncService: string){
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new();
         lucid.selectWallet(api);
         const address = await lucid.wallet.address();
-        const socket = io(root.props.root.state.syncService);
+        const socket = io(syncService);
         
         
+
         socket.on('disconnect', () => {
             root.disconnectWallet()
             socket.close()
@@ -32,10 +34,11 @@ async function  connectSocket(wallet , root){
         });
 
         socket.on('transaction', (data) => {
-            data.transactions.map((transaction) => {
+            data.transactions.map((transaction: any) => {
                 for(let i = 0; i < root.state.wallets.length; i++){
                     root.walletHash(root.state.wallets[i].getJson()).then(walletHash => {
                         if ( walletHash === transaction.wallet){
+
                         root.loadTransaction(transaction, i)
                     }}
                 )}
@@ -67,14 +70,15 @@ async function  connectSocket(wallet , root){
     
     const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
     
-    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet) => wallet.getJson() ) });
+    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet) => wallet.getJson() ) });
     
-    async function  handleWalletsFound (data){
+    async function  handleWalletsFound (data : any){
         const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
         const walletsHashes = root.state.wallets.map((wallet) => root.walletHash(wallet.getJson()))
         const res = await Promise.all(walletsHashes)
         var newWallets = false
-        data.wallets.forEach((wallet) => {
+        data.wallets.forEach((wallet: any) => {
+
             if(!Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
                 pendingWallets[wallet.hash] = wallet
                 newWallets = true
@@ -86,8 +90,10 @@ async function  connectSocket(wallet , root){
             toast("No new pending wallets")
         }
 
+        const state = root.state
+        state.pendingWallets = pendingWallets
+        root.setState(state)
 
-        root.setState({pendingWallets: pendingWallets})
     } 
     return socket
 }  

@@ -8,10 +8,11 @@ import './components/ReactToastify.css';
 import TermsAndConditionsBanner from './components/TermsBanner';
 import NavBar from './components/NavBar';
 
-import { getNewLucidInstance } from './helpers/newLucid.js';
+import { getNewLucidInstance } from './helpers/newLucidEvolution';
 import SettingsModal from "./components/SettingsModal";
 // import Minting from './components/Minting/minting';
 import WalletPicker from "./components/WalletPicker"
+
 
 export type Settings = { metadataProvider: string; 
                         sendAll: boolean;
@@ -133,9 +134,10 @@ export class App extends React.Component<{}, AppState> {
   async checkSettings(settings: Settings){
     try{
       const provider = await getNewLucidInstance(settings)
-
-      await provider.provider.getProtocolParameters()
+      await provider.config().provider?.getProtocolParameters()
       
+
+
       return true
     }catch(e){
       console.log(e)

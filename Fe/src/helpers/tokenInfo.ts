@@ -1,9 +1,19 @@
 
 const ipfsGateWay = "https://ipfs.blockfrost.dev/ipfs/"
 
-async function getTokenInfo(tokenId){
-    let tokenMap =  {...JSON.parse(localStorage.getItem('tokenInfo'))};
-    const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
+export type TokenInfo = {
+  name: string;
+  image: string;
+  decimals: number;
+  isNft: boolean;
+  provider: string;
+  fingerprint: string;
+}
+
+async function getTokenInfo(tokenId: string){
+    let tokenMap =  {...JSON.parse(localStorage.getItem('tokenInfo') ?? "{}")};
+    const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings") ?? "{}") : {metadataProvider: "koios"}
+
 
     if(tokenId == 'lovelace'){
         return   {
@@ -30,15 +40,16 @@ async function getTokenInfo(tokenId){
 }
       
       
-            async function fetchTokenData(tokenId){
-              function hex2a(hexx) {
+            async function fetchTokenData(tokenId: string){
+              function hex2a(hexx: string) {
                 var hex = hexx.toString();//force conversion
+
                 var str = '';
                 for (var i = 0; i < hex.length; i += 2)
                     str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
                 return str;
             }
-              async function writeToLocalStorage(key, value) {
+              async function writeToLocalStorage(key: string, value: any) {
 
                 let lock = localStorage.getItem('lock');
                 while (lock === 'true') {
@@ -47,14 +58,14 @@ async function getTokenInfo(tokenId){
                 }
               
                 localStorage.setItem('lock', 'true');
-                let tokenMap =  {...JSON.parse(localStorage.getItem('tokenInfo'))};
+                let tokenMap =  {...JSON.parse(localStorage.getItem('tokenInfo') ?? "{}")};
                 tokenMap[key] = value
                 localStorage.setItem('tokenInfo', JSON.stringify(tokenMap));
               
                 localStorage.setItem('lock', 'false');
             }
 
-              function splitTokenId(tokenId){
+              function splitTokenId(tokenId: string){
                 const splitLength = 56
                 const splitTokenId = []
                 splitTokenId.push(tokenId.substring(0, 56))
@@ -62,8 +73,8 @@ async function getTokenInfo(tokenId){
                 return splitTokenId
               }
 
-              const tokenInfo = {}
-              const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {metadataProvider: "koios"}
+              const tokenInfo : any = {}
+              const settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings") ?? "{}") : {metadataProvider: "koios"}
               try{
               if (settings.metadataProvider === "None"){
                 const splitTokenName =  splitTokenId(tokenId)

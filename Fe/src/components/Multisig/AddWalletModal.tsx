@@ -1,16 +1,54 @@
 import React from "react";
 import "./AddWalletModal.css";
-import { Lucid, C  } from "lucid-cardano";
+import { getAddressDetails , CML, Lucid, LucidEvolution, slotToUnixTime, Network, unixTimeToSlot} from "@lucid-evolution/lucid";
 import { toast } from "react-toastify";
 import { ReactComponent as CorrectIcon } from '../../html/assets/correct.svg';
 import { ReactComponent as WrongIcon } from '../../html/assets/incorrect.svg';
+import MultisigContainer from "./MultisigContainer";
+import { App } from "../..";
+
+type AddWalletModalProps = {
+  moduleRoot: MultisigContainer;
+  setOpenModal: (open: boolean) => void;
+  hostModal: (open: boolean) => void;
+  root: App;
+};
+
+
+export type  Native = {
+  type: "sig";
+  name: string;
+  keyHash: string;
+} | {
+  type: "before";
+  slot: number;
+} | {
+  type: "after";
+  slot: number;
+} | {
+  type: "all";
+  scripts: ReadonlyArray<Native>;
+} | {
+  type: "any";
+  scripts: ReadonlyArray<Native>;
+} | {
+  type: "atLeast";
+  required: number;
+  scripts: ReadonlyArray<Native>;
+};
+type AddWalletModalState = {
+  json: Native;
+  WName: string;
+};
 
 
 
-class AddWalletModal extends React.Component {
-  state = {  
+
+class AddWalletModal extends React.Component<AddWalletModalProps> {
+  state : AddWalletModalState = {  
     json: {
       "type": "all",
+
       "scripts":
       [
         {
@@ -42,58 +80,57 @@ class AddWalletModal extends React.Component {
                                                                     
                 ]
 
-  isAddressValid = (address) => {
+  isAddressValid = (address: string) => {
     try {
-      C.Ed25519KeyHash.from_hex( address)
+      CML.Ed25519KeyHash.from_hex( address)
       return true
     } catch (error) {
       try{
-        this.lucid.utils.getAddressDetails(address);
+
+        getAddressDetails(address);
         return true
       }catch
       {
         return false;
       }
+
     }
   }
 
-  checkAllAddresses = (scripts) => {
+  checkAllAddresses = (script: Native) : boolean => {
     let valid = true
-    if(scripts === undefined)
+    if(script === undefined)
+
+
       return true
-    for (const script of scripts){
       if (script.type === "sig"){
         const validAddress = this.isAddressValid(script.keyHash)
+
+
 
         valid = valid && this.isAddressValid(script.keyHash)
         if(!validAddress){
            toast.error(`Invalid address: ${script.keyHash} for Signatory ${script.name}`) 
           }
-      }else{
-        valid = valid && this.checkAllAddresses(script.scripts)
+
+      } else if(script.type === "all" || script.type === "any" || script.type === "atLeast"){
+        for (const subScript of script.scripts){
+          valid = valid && this.checkAllAddresses(subScript)
+        }
       }
-    }
+
     return valid
+
   }
 
 
-  componentDidMount(){
-    const lucidLoad =  Lucid.new(
-      null,
-      this.props.root.state.settings.network
-    );
 
-    lucidLoad.then((lucid) => {
-      this.lucid = lucid;
-    });
-  }
-
-
-  setJson(json){
+  setJson(json: any){
     this.setState({json})
   }
 
-  setWName(WName){
+
+  setWName(WName: string){
     this.setState({WName})
   }  
 
@@ -105,14 +142,15 @@ class AddWalletModal extends React.Component {
 
 
   handleSubmit(){
-    if(this.checkAllAddresses(this.state.json.scripts)){
+    if(this.checkAllAddresses(this.state.json)){
     this.props.moduleRoot.addWallet(this.state.json,this.state.WName)
     this.props.setOpenModal(false)
     this.props.hostModal(false)
     }
   }
 
-  handlePresetChange(value){
+
+  handlePresetChange(value: string){
     var json 
     switch(value){
       case "Social Recovery":
@@ -146,7 +184,22 @@ class AddWalletModal extends React.Component {
       this.setState({json:json})
     }
     
-  allComponent(json,coordinates){
+  allComponent(json: Native,coordinates: number[]){
+    if (json.type !== "all")
+      return null
+    return (
+    <div className="input_wrap">
+       {json.scripts.map( (item: Native,index: number) => (this.rootComponenent(item, [...coordinates,index])))}
+
+       <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
+    </div>)
+  }
+
+
+
+  anyComponent(json: Native,coordinates: number[]){
+    if(json.type !== "any")
+      return null
     return (
     <div className="input_wrap">
        {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
@@ -154,21 +207,20 @@ class AddWalletModal extends React.Component {
     </div>)
   }
 
-  anyComponent(json,coordinates){
-    return (
-    <div className="input_wrap">
-       {json.scripts.map( (item,index) => (this.rootComponenent(item, [...coordinates,index])))}
-       <button className="btn" onClick={ (event) => this.handleAddScript(coordinates)}>Add</button>
-    </div>)
-  }
 
-  atLeastComponent(json,coordinates){
+
+
+  atLeastComponent(json: Native,coordinates: number[]){
+    if(json.type !== "atLeast")
+
+      return null
     return (
     <div className="atLeast">
             <input
             required
               type="number"
               name="amount"
+
               value={json.required}
               onChange={event => this.handleRequiredChange(event.target.value, coordinates)}
             /> of {json.scripts.length}
@@ -177,40 +229,55 @@ class AddWalletModal extends React.Component {
     </div>)
   }
   
-  handleAddScript(coordinates){
+  handleAddScript(coordinates: number[]){
     const json=this.state.json;
-    let current = json;
+    let current = this.state.json;
     for (const index of coordinates) {
-      current = current.scripts[index];
+          if (current.type === "all" || current.type === "any" || current.type === "atLeast"){
+            current = current.scripts[index];
+        }
     }
-    current.scripts.push({ "type": "sig","name" : "","keyHash": "" })
+    if (current.type === "all" || current.type === "any" || current.type === "atLeast"){
+      current.scripts = [...current.scripts, { "type": "sig", "name": "", "keyHash": "" }]
+    }
 
     this.setState({json})
   }
 
-  handleRequiredChange(value,coordinates){
+  handleRequiredChange(value: string,coordinates: number[]){
     const json=this.state.json;
     let current = json;
     for (const index of coordinates) {
-      current = current.scripts[index];
+      if (current.type === "all" || current.type === "any" || current.type === "atLeast"){
+        current = current.scripts[index];
+      }
     }
-    current.required=Number.parseInt(value)
+    if (current.type === "atLeast"){
+      current.required=Number.parseInt(value)
+    }
+
+
 
     this.setState({json})
   }
 
-  handleSignatoryNameChange(value,coordinates){
+  handleSignatoryNameChange(value: string,coordinates: number[]){
     const json=this.state.json;
     let current = json;
     for (const index of coordinates) {
-      current = current.scripts[index];
+      if (current.type === "all" || current.type === "any" || current.type === "atLeast"){
+        current = current.scripts[index];
+      }
     }
-    current.name=value
+    if (current.type === "sig"){
+      current.name=value
+    }
     this.setState({json})
     
+
   }
 
-  handleSlotChange(value,coordinates){
+  handleSlotChange(value: number,coordinates: number[]) {
     const json=this.state.json;
     
     if (value < 0 || value > 214748364700) {
@@ -218,30 +285,43 @@ class AddWalletModal extends React.Component {
     }
     let current = json;
     for (const index of coordinates) {
-      current = current.scripts[index];
+      if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
+        current = current.scripts[index];
+      }
     }
-    current.slot= Number(value) ?  Number(value) : value==="" ? "" : current.slot
+    if (current.type === "before" || current.type === "after") {
+      current.slot= Number(value) ?  Number(value)  : current.slot
+    }
+
+
 
     this.setState({json})
     
   }
 
-  handleKeyHashChange(value,coordinates){
+  handleKeyHashChange(value: string, coordinates: number[]) {
     const json=this.state.json;
     let current = json;
     for (const index of coordinates) {
-      current = current.scripts[index];
+      if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
+        current = current.scripts[index];
+      }
     }
+    if (current.type === "sig") {
     current.keyHash=value
-
     this.setState({json})
     
   }
+}
 
-  sigComponent(json,coordinates){
+  sigComponent(json: Native, coordinates: number[]) {
+    if (json.type !== "sig") {
+      return null;
+    }
     return (
         <div className="sigWrap">
           <div className="input_wrap">
+
             <input
               className="createWalletName"
               required
@@ -260,12 +340,13 @@ class AddWalletModal extends React.Component {
               placeholder="Address/ KeyHash"
               type="text"
               name="amount"
-              value={json.keyHash}
+              value={ json.keyHash }
               
+
               onChange={event => this.handleKeyHashChange(event.target.value, coordinates)}
             />
-            {   ( this.isAddressValid(json.keyHash) ? <CorrectIcon className="noticeIcon"  alt="sunIcon" /> 
-                                                    : <WrongIcon className={ json.keyHash === "" ? "invisibleIcon": "noticeIcon" } alt="moonIcon" />) }
+            {   ( this.isAddressValid(json.keyHash) ? <CorrectIcon className="noticeIcon"  /> 
+                                                    : <WrongIcon className={ json.keyHash === "" ? "invisibleIcon": "noticeIcon" } />) }
            
           </div>
         
@@ -273,27 +354,34 @@ class AddWalletModal extends React.Component {
     )
   }
  
-  beforeComponent(json,coordinates){
-     return (
+  beforeComponent(json: Native, coordinates: number[]) {
+    if (json.type !== "before") {
+      return null;
+    }
+    return (
       <React.Fragment>
          <div className="input_wrap beforeSlot">
+
              <div className="beforeAndAfterSlot">
               <input
              required
                type="text"
                placeholder="Before Slot"
                name="amount"
-               value={json.slot}
-               onChange={event => this.handleSlotChange(event.target.value, coordinates)}
+               value={json.type === "before" ? json.slot : ""}
+               onChange={event => this.handleSlotChange(Number(event.target.value), coordinates)}
              /> 
              <input
+
                type="datetime-local"
                name="amount"
                
-               value={ new Date(this.lucid.utils.slotToUnixTime(json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
-               onChange={event => this.handleSlotChange( this.lucid.utils.unixTimeToSlot(new Date( new Date(event.target.value) )), coordinates)}
+               value={ new Date(slotToUnixTime( this.props.root.state.settings.network as Network ,json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
+               onChange={event => this.handleSlotChange( unixTimeToSlot( this.props.root.state.settings.network as Network ,new Date( new Date(event.target.value) ).valueOf() ), coordinates)}
              />
              </div>
+
+
              <p> <span>Warning:</span> Using the "Before" type could result in a permanently locked wallet! You need to withdraw your money <span>before</span> the above date!</p>
          </div>
      
@@ -302,24 +390,30 @@ class AddWalletModal extends React.Component {
      )
    }
 
-   afterComponent(json,coordinates){
-     return (
+   afterComponent(json: Native, coordinates: number[]) {
+     if (json.type !== "after") {
+      return null;
+    }
+    return (
       <React.Fragment>
          <div className="input_wrap beforeAndAfterSlot">
+
              <input
              required
                type="text"
                name="amount"
                value={json.slot}
                placeholder="After Slot"
-               onChange={event => this.handleSlotChange(event.target.value, coordinates)}
+               onChange={event => this.handleSlotChange(Number(event.target.value), coordinates)}
+
              />
               <input
                 type="datetime-local"
                 name="amount"
-                value={ new Date(this.lucid.utils.slotToUnixTime(json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
-                onChange={event => this.handleSlotChange( this.lucid.utils.unixTimeToSlot(new Date( new Date(event.target.value) )), coordinates)}
+                value={ new Date(slotToUnixTime( this.props.root.state.settings.network as Network ,json.slot) - (new Date().getTimezoneOffset() *60000)).toISOString().slice(0, 16) }
+                onChange={event => this.handleSlotChange( unixTimeToSlot( this.props.root.state.settings.network as Network ,new Date( new Date(event.target.value) ).valueOf() ), coordinates)}
               />
+
 
          </div>
         
@@ -327,78 +421,67 @@ class AddWalletModal extends React.Component {
      )
    }
 
-  deleteElement(value,coordinates){
+  deleteElement(coordinates: number[]) {
     const json=this.state.json;
     let current = json;
-    let previus
+    let previus = json;
     for (const index of coordinates) {
+      if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
       previus = current
       current = current.scripts[index];
+      }
     }
-    previus.scripts.splice(coordinates[coordinates.length-1], 1)
+    if (previus.type === "all" || previus.type === "any" || previus.type === "atLeast") {
+      previus.scripts.slice(coordinates[coordinates.length-1], 1)
+    }
     this.setState({json})
   }
 
-  handleTypeChange(value,coordinates){
+
+
+  handleTypeChange(value: 'all' | 'any' | 'atLeast' | 'before' | 'after' | 'sig',coordinates: number[]){
     const json=this.state.json;
     let current = json;
-    for (const index of coordinates) {
-      current = current.scripts[index];
-    }
-    
-
-    current.type=value
+       for (const index of coordinates) {
+        if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
+          current = current.scripts[index];
+        }
+      }
+    let newJson : Native 
     switch(value){
       case "all": 
-           current.scripts=[{ "type": "sig","name" : "","keyHash": "" },
-          { "type": "sig","name": "", "keyHash": "" }]
-            delete current.name
-            delete current.keyHash
-            delete current.required
+           newJson = { "type": "all", "scripts": [{ "type": "sig","name" : "","keyHash": "" },
+           { "type": "sig","name": "", "keyHash": "" }] }
 
             break;
       case "any": 
-           current.scripts=[{ "type": "sig","name" : "","keyHash": "" },
-          { "type": "sig","name": "", "keyHash": "" }]
-            delete current.name
-            delete current.keyHash
-            delete current.required
-
+            newJson = { "type": "any", "scripts": [{ "type": "sig","name" : "","keyHash": "" },
+           { "type": "sig","name": "", "keyHash": "" }] }
             break;   
+
       case "atLeast": 
-            current.scripts=[{ "type": "sig","name" : "","keyHash": "" },
-           { "type": "sig","name": "", "keyHash": "" }]
-            current.required=1
-             delete current.name
-             delete current.keyHash
-             break;     
+            newJson = { "type": "atLeast", "required": 1, "scripts": [{ "type": "sig","name" : "","keyHash": "" },
+           { "type": "sig","name": "", "keyHash": "" }] }
+            break;     
+
       case "before":
-            current.slot=""
-            delete current.name
-            delete current.required
-            delete current.keyHash
-            delete current.scripts
+            newJson = { "type": "before", "slot": unixTimeToSlot( this.props.root.state.settings.network as Network ,new Date(  ).valueOf() ) }
             break;
+
       case "after":
-            current.slot=""
-            delete current.name
-            delete current.keyHash
-            delete current.scripts  
-            delete current.required
+            newJson = { "type": "after", "slot": unixTimeToSlot( this.props.root.state.settings.network as Network ,new Date(  ).valueOf() ) }
             break;
+
       case "sig":
-            current.name=""
-            current.keyHash=""
-            delete current.scripts
-            delete current.required
-            delete current.slot
+            newJson = { "type": "sig", "name": "", "keyHash": "" }
             break;
+
     }
     this.setState({json})
     
   }
   
-  rootComponenent(json, coordinates=[]){
+  rootComponenent(json: Native, coordinates: number[] = []){
    const extraClasses = "WalletCreateColor"+(coordinates.length % 2)  + " WalletCreateType"+json.type
     var content 
     
@@ -425,11 +508,12 @@ class AddWalletModal extends React.Component {
 
   
   return (
-  <div key={coordinates} className={"rootElement "+  extraClasses}>
+  <div key={coordinates.toString()} className={"rootElement "+  extraClasses}>
     
-    {coordinates.length === 0 ? "" :  <div className="deleteBtn"> <button onClick={(event) => this.deleteElement(event.target.value,coordinates)}>x</button></div>}
+    {coordinates.length === 0 ? "" :  <div className="deleteBtn"> <button onClick={() => this.deleteElement(coordinates)}>x</button></div>}
     <div className="cardSelect">
-    <select value={json.type } onChange={(event) => this.handleTypeChange(event.target.value,coordinates)}>
+    <select value={json.type } onChange={(event) => this.handleTypeChange(event.target.value as 'all' | 'any' | 'atLeast' | 'before' | 'after' | 'sig',coordinates)}>
+
       {this.options.map(option => (
         <option key={option.name} value={option.value} > 
           {option.name}
@@ -441,10 +525,6 @@ class AddWalletModal extends React.Component {
   </div>
   )
 }
-
-  anyComponenent(json){
-
-  }
 
 
   render() { 
@@ -475,7 +555,7 @@ class AddWalletModal extends React.Component {
           required
           type="text"
           name="name"
-          value={this.WName}
+          value={this.state.WName}
           onChange={event => this.setWName(event.target.value)}
         />
       <label>Name your Wallet</label>
