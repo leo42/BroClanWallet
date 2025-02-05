@@ -22,10 +22,6 @@ pub type SmartMultisigDescriptor {
   ScriptRef { scriptHash: ByteArray }
 }
 
-pub type Redeemer {
-  seequence: List<Redeemer>,
-}
-
 validator configHost {
   spend(
     datum: Option<SmartMultisigDescriptor>,
@@ -61,17 +57,6 @@ fn configOutputValid(myUtxo: OutputReference, self: Transaction) -> Bool {
 }
 
 validator smartMultisig(walletId: ByteArray) {
-  withdraw(_, __, self: Transaction) {
-    multisigAproved(walletId, self)
-  }
-
-  spend(_, __, myUtxo: OutputReference, self: Transaction) {
-    expect Some(myInput) =
-      self.inputs
-        |> list.find(fn(input) { input.output_reference == myUtxo })
-    has_key(self.withdrawals, myInput.output.address.payment_credential)
-  }
-
   else(ctx: ScriptContext) {
     multisigAproved(walletId, ctx.transaction)
   }
