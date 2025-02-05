@@ -215,7 +215,7 @@ class MintingModule extends React.Component<MintingProps> {
       });
 
       await awaitTx
-
+      this.props.moduleRoot.reloadWallets()
     }catch(e : any){
         console.error("Detailed error:", e, e.toString());
         if (e.toString().includes("<!DOCTYPE")) {
