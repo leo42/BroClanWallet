@@ -27,14 +27,14 @@ export type  Native = {
   slot: number;
 } | {
   type: "all";
-  scripts: ReadonlyArray<Native>;
+  scripts: Native[];
 } | {
   type: "any";
-  scripts: ReadonlyArray<Native>;
+  scripts: Native[];
 } | {
   type: "atLeast";
   required: number;
-  scripts: ReadonlyArray<Native>;
+  scripts: Native[];
 };
 type AddWalletModalState = {
   json: Native;
@@ -432,53 +432,78 @@ class AddWalletModal extends React.Component<AddWalletModalProps> {
       }
     }
     if (previus.type === "all" || previus.type === "any" || previus.type === "atLeast") {
-      previus.scripts.slice(coordinates[coordinates.length-1], 1)
+      previus.scripts.splice(coordinates[coordinates.length-1], 1)
     }
     this.setState({json})
   }
 
 
 
-  handleTypeChange(value: 'all' | 'any' | 'atLeast' | 'before' | 'after' | 'sig',coordinates: number[]){
-    const json=this.state.json;
-    let current = json;
-       for (const index of coordinates) {
-        if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
-          current = current.scripts[index];
-        }
-      }
-    let newJson : Native 
-    switch(value){
-      case "all": 
-           newJson = { "type": "all", "scripts": [{ "type": "sig","name" : "","keyHash": "" },
-           { "type": "sig","name": "", "keyHash": "" }] }
-
-            break;
-      case "any": 
-            newJson = { "type": "any", "scripts": [{ "type": "sig","name" : "","keyHash": "" },
-           { "type": "sig","name": "", "keyHash": "" }] }
-            break;   
-
-      case "atLeast": 
-            newJson = { "type": "atLeast", "required": 1, "scripts": [{ "type": "sig","name" : "","keyHash": "" },
-           { "type": "sig","name": "", "keyHash": "" }] }
-            break;     
-
-      case "before":
-            newJson = { "type": "before", "slot": unixTimeToSlot( this.props.root.state.settings.network as Network ,new Date(  ).valueOf() ) }
-            break;
-
-      case "after":
-            newJson = { "type": "after", "slot": unixTimeToSlot( this.props.root.state.settings.network as Network ,new Date(  ).valueOf() ) }
-            break;
-
-      case "sig":
-            newJson = { "type": "sig", "name": "", "keyHash": "" }
-            break;
-
-    }
-    this.setState({json})
+  handleTypeChange(value: 'all' | 'any' | 'atLeast' | 'before' | 'after' | 'sig', coordinates: number[]) {
+    const json = {...this.state.json}; // Create a copy of the state
     
+    if (coordinates.length === 0) {
+      // If we're changing the root element, replace the entire json
+      this.setState({
+        json: {
+          type: value,
+          ...(value === 'all' || value === 'any' ? {
+            scripts: [
+              { type: "sig", name: "", keyHash: "" },
+              { type: "sig", name: "", keyHash: "" }
+            ]
+          } : value === 'atLeast' ? {
+            required: 1,
+            scripts: [
+              { type: "sig", name: "", keyHash: "" },
+              { type: "sig", name: "", keyHash: "" }
+            ]
+          } : value === 'before' || value === 'after' ? {
+            slot: unixTimeToSlot(this.props.root.state.settings.network as Network, new Date().valueOf())
+          } : {
+            name: "",
+            keyHash: ""
+          })
+        } as Native
+      });
+      return;
+    }
+
+    // Navigate to parent of the element we want to change
+    let current = json;
+    for (let i = 0; i < coordinates.length - 1; i++) {
+      const index = coordinates[i];
+      if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
+        current = current.scripts[index];
+      }
+    }
+
+    // Update the specific element in the scripts array
+    if (current.type === "all" || current.type === "any" || current.type === "atLeast") {
+      const lastIndex = coordinates[coordinates.length - 1];
+      current.scripts[lastIndex] = {
+        type: value,
+        ...(value === 'all' || value === 'any' ? {
+          scripts: [
+            { type: "sig", name: "", keyHash: "" },
+            { type: "sig", name: "", keyHash: "" }
+          ]
+        } : value === 'atLeast' ? {
+          required: 1,
+          scripts: [
+            { type: "sig", name: "", keyHash: "" },
+            { type: "sig", name: "", keyHash: "" }
+          ]
+        } : value === 'before' || value === 'after' ? {
+          slot: unixTimeToSlot(this.props.root.state.settings.network as Network, new Date().valueOf())
+        } : {
+          name: "",
+          keyHash: ""
+        })
+      } as Native;
+    }
+
+    this.setState({json});
   }
   
   rootComponenent(json: Native, coordinates: number[] = []){
@@ -529,8 +554,8 @@ class AddWalletModal extends React.Component<AddWalletModalProps> {
 
   render() { 
     return  (
-    <div className="modalBackground">
-      <div className="modalContainer"  >
+    <div className="modalBackground" onClick={() => this.props.setOpenModal(false)}>
+      <div className="modalContainer"  onClick={(event) => event.stopPropagation()}>
         <div className="titleCloseBtn">
           <button
             onClick={() => {this.props.setOpenModal(false) }}>

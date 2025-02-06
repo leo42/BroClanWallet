@@ -20,10 +20,10 @@ function TokenElement(props: TokenElementProps): JSX.Element | null {
     const [ tokenInfo  , setTokenInfo] =  React.useState({} as TokenInfo)
     const [showTooltip, setShowTooltip] = React.useState(false);
     let settings = JSON.parse(localStorage.getItem("settings") || "{}")
-    if (settings === null) {
+    if (settings === null || settings === undefined) {
       settings = {network: "Mainnet"}
     }
-    const networkPrefix = settings.network === "Mainnet" ? "" : settings.network.toLowerCase() + "."
+    const networkPrefix = ""; //= settings.network === "Mainnet" ? "" : settings.network.toLowerCase() + "."
     React.useEffect(() => {
         var tokenInfoFetch =  getTokenInfo(props.tokenId)
         tokenInfoFetch.then( info => 

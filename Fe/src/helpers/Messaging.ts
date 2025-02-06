@@ -1,10 +1,11 @@
 
 import {Buffer} from 'buffer';
  
-import {  utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
+import { utxoToCore , CML , assetsToValue} from "@lucid-evolution/lucid";
 import { App } from '..';
 import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';
+
 
 
 function toHexString(byteArray: Uint8Array) {
@@ -46,8 +47,9 @@ class Messaging {
 
        // this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
        try{
-        this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
-       }catch(e){
+       // this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
+        this.port = chrome.runtime.connect("emfmflhcajhodbjgkmemdncoangplkdn");   //playstore ID
+    }catch(e){
               console.log(e)
               return
          } 
@@ -76,29 +78,28 @@ class Messaging {
                             response = this.wallet.getNetworkId();
                             break;
                         case "getBalance": 
-                            response = Buffer.from(assetsToValue(this.wallet.getBalanceFull()).to_bytes()).toString('hex');
+                            response =  assetsToValue(this.wallet.getBalanceFull()).to_canonical_cbor_hex();
                             break;
                         case "getUtxos":
-                            response = this.wallet.getUtxos().map((utxo) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                            response = this.wallet.getUtxos().map((utxo) => ( utxoToCore(utxo).to_cbor_hex()));
+
                             break;    
                         case "getUsedAddresses":
-                            response =  [Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
+                            response =  [CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
                             break;
                         case "getUnusedAddresses":
-                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
+                            response =[ CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
                             break;
                         case "getChangeAddress":
-                            response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
+                            response =[ CML.Address.from_bech32(this.wallet.getAddress()).to_hex()];
                             break;
                         case "getRewardAddresses":
-
-                            response = [Buffer.from( C.Address.from_bech32( this.wallet.getStakingAddress()).to_bytes()).toString('hex')]; 
+                            response = [   CML.Address.from_bech32( this.wallet.getStakingAddress()).to_hex()]; 
                             break;
                         case "submitTx":
                             response = await this.root.submit(message.tx);
                             break;
                         case "submitUnsignedTx":
-
                             try{
                                 response = await this.root.importTransaction(JSON.parse(message.tx));
                             }catch(e : any){
@@ -123,19 +124,15 @@ class Messaging {
                                 }
 
                             }
-                            
                             break;
-                        
                         case "getScript":
-                            response = nativeScriptFromJson(this.wallet.getJson()).script
+                            response = this.wallet.getScript()!.to_cbor_hex();
                             break;
-   
                         case "getCompletedTx":
                             const tx = await this.wallet.getCompletedTx(message.txId);
                             if(!tx){
                                 response = {code : 1, error:  "Transaction not found!"}
                             }else{
-                                const txDetails = this.wallet.decodeTransaction(tx.tx);
                                 const signersComplete = this.wallet.checkSigners( Object.keys(tx.signatures))
                                 if(!signersComplete){
                                     response = {code : 2, error:  "Transaction not ready!"}
@@ -147,15 +144,12 @@ class Messaging {
                             }
                             break;
                         case "getCollateralAddress":
-                            response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes()).toString('hex')];
+                            response = [CML.Address.from_bech32(this.wallet.getCollateralAddress()).to_hex()];
                             break;
                         case "getCollateral":
-                        
-
-                            response = (await this.wallet.getCollateral()).map((utxo: any) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                                response = (await this.wallet.getCollateral()).map((utxo: any) => utxoToCore(utxo).to_cbor_hex());
                             break;
                         case "getUtxoByOutRef":
-
                             const replacer = (key: any, value: any) => {
                                 if (typeof value === 'bigint') {
                                   // Convert BigInt to string
@@ -168,12 +162,13 @@ class Messaging {
                             response =  JSON.stringify(await this.wallet.getUtxosByOutRef(JSON.parse(message.outRefs)),replacer);
                             break;
                         case "decodeTx":
-                            response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
+                            response = JSON.stringify(this.wallet.decodeTransaction(this.wallet.txFromCBOR(JSON.parse(message.tx))));
                             break;
                         case "isAddressMine":
                             response = {}
                            JSON.parse(message.address).map( (address: any) => { response[address] = this.wallet.isAddressMine(address)});
                            response = JSON.stringify(response);
+                           console.log(response)
                             break;
                     }
                 }catch(e : any){

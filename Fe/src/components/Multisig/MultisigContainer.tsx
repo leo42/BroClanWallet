@@ -1,4 +1,3 @@
-
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
 import WalletConnector from './walletConnector';
@@ -83,14 +82,13 @@ async showModal(modalName: string){
 
 
 async setState(state: MultisigContainerState){
-    await super.setState(state)
+    super.setState(state)
     this.storeState()
     this.storeWallets()
   }
 
   componentDidMount() {
     this.loadState()
-    console.log(this.state.wallets[this.state.selectedWallet])
 
   //  let port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng");
   //  port.onMessage.addListener((message) => {
@@ -220,19 +218,25 @@ async setState(state: MultisigContainerState){
     const wallets = JSON.parse(localStorage.getItem('wallets') || "[]");
     
     let state = this.state
-    await Promise.all(wallets.map(async (wallet: any) => {
+    state.wallets = [];
+
+    // Process wallets sequentially to maintain order
+    for (const wallet of wallets) {
       const myWallet = new MultisigWallet(wallet.json, wallet.name);
       await myWallet.initialize(this.props.root.state.settings);
-      myWallet.resetDefaultSigners()
-      state.wallets.push(myWallet)
-    }))
+      await myWallet.setCollateralDonor(wallet.collateralDonor)
+      await myWallet.setDefaultSigners(wallet.defaultSigners)
+      await myWallet.setAddressNames(wallet.addressNames)
+      await myWallet.setDefaultAddress(wallet.defaultAddress)
 
+      wallet.pendingTxs.forEach((tx: any) => {
+        myWallet.loadTransaction(tx);
+      });
+      
+      state.wallets.push(myWallet);
+    }
 
-    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets') || "{}")
-    super.setState(state) 
-
-
-    
+    state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets') || "{}")    
     if (localStorage.getItem('connectedWallet') && JSON.parse(localStorage.getItem('connectedWallet') || "") !== ""){
       this.connectWallet(JSON.parse(localStorage.getItem('connectedWallet') || ""))
     }
@@ -240,15 +244,10 @@ async setState(state: MultisigContainerState){
     state.selectedWallet =  Number(localStorage.getItem("selectedMultisigWallet")) || 0
     if (state.selectedWallet >= state.wallets.length) state.selectedWallet = 0
     
-
-    super.setState(state) 
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
     state.dAppConnector = dAppConnector
     state.loading = false
     this.setState(state)
-
-
-
   }
   
   modalType(){
@@ -597,16 +596,22 @@ async setState(state: MultisigContainerState){
 
 
   transmitWallet(script: Native) {
+    try{  
     if(this.props.root.state.settings.disableSync) return
-    fetch(this.props.root.state.syncService+'/api/wallet', {
+     fetch(this.props.root.state.syncService+'/api/wallet', {
       method: 'POST',
+
 
       headers: {
         'Content-Type': 'application/json',
         },
         body: JSON.stringify(script),
-      })
+      }).catch(e => toast.error("Could not transmit wallet: " + e.message));
+    }catch(e: any){
+      toast.error("Could not transmit wallet: " + e.message);
+    }
   }
+
 
   async loadTransaction(transaction: any, walletIndex: number){
     const wallets = this.state.wallets

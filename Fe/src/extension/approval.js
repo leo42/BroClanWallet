@@ -5,6 +5,7 @@ import "./extension.css";
 import "./approval.css";
 import PendingTx from './components/PendingTx';
 
+
 function App() {
     const [type, setType] = useState('');
     const [page, setPage] = useState('');
