@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import {useState , useEffect} from "react"; 
 import "./extension.css";  
 import "./approval.css";
-import PendingTx from './components/PendingTx';
+import PendingTx from '../components/PendingTx';
+
 
 function App() {
     const [type, setType] = useState('');

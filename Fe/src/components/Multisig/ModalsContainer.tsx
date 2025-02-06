@@ -10,7 +10,7 @@ function ModalsContainer(props: { modal: string, moduleRoot: MultisigContainer, 
 
         { props.modal === "pendingWallets"  && Object.keys(props.moduleRoot.state.pendingWallets).length > 0   ? <WalletImportModal setOpenModal={() => props.moduleRoot.showModal("")}  moduleRoot={props.moduleRoot} /> : "" }
         { props.modal === "newWallet" && <NewWalletModal setOpenModal={() => props.moduleRoot.showModal("")}  moduleRoot={props.moduleRoot}/>}
-        { props.modal === "createWallet" && <AddWalletModal hostModal={() => props.moduleRoot.showModal("")} setOpenModal={() => props.moduleRoot.showModal("createWallet")} root={props.root} moduleRoot={props.moduleRoot} />}
+        { props.modal === "createWallet" && <AddWalletModal hostModal={() => props.moduleRoot.showModal("")} setOpenModal={() => props.moduleRoot.showModal("newWallet")} root={props.root} moduleRoot={props.moduleRoot} />}
 
     </div>
     )
