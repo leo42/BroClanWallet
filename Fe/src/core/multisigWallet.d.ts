@@ -71,6 +71,7 @@ declare class MultisigWallet implements WalletInterface {
         amount: Record<string, bigint>;
         address: string;
     }[], signers: string[], sendFrom?: string, sendAll?: number | null, withdraw?: boolean): Promise<string>;
+    txFromCBOR(cbor: string): LucidEvolution.TxSignBuilder;
     importTransaction(transaction: string): Promise<string | {
         error: string;
         tx: string;

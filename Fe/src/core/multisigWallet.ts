@@ -365,6 +365,7 @@ setPendingTxs(pendingTxs: any){
 
     decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
       const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx.toCBOR({canonical: true})).body().to_js_value();
+      console.log(txBody)
       return txBody;
     }
 
@@ -589,15 +590,20 @@ setPendingTxs(pendingTxs: any){
         return "Sucsess"
     }
 
+    txFromCBOR(cbor: string) : LucidEvolution.TxSignBuilder{
+      return LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(cbor)) 
+    }
 
     async importTransaction(transaction: string)
+
     { 
       let tx
       console.log("transaction", transaction)
-      tx =   LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(transaction)) 
+      tx = this.txFromCBOR(transaction)
       try{
       if (!await this.checkTransaction(tx)){
         throw new Error("Transaction invalid")
+
       }
       }catch(e){
         console.log(e)
@@ -693,12 +699,6 @@ setPendingTxs(pendingTxs: any){
       }
       console.log(this.collateralUtxo)  
       let result = getMinimumUtxos(this.collateralUtxo, BigInt(value))
-
-      //result must be the minimum numbver of utxos to cover the value, and the smalest value possible after that, if you have 2 UTxO with 5 ADA and 10 ADA, and you need 12 ADA, the result must be 2 UTxO with 5 ADA and 7 ADA, if you need 3 ADA, the result must be 1 UTxO with 5 ADA, and if you need 7 ADA, the result must be 1 UTxO with 10 ADA
-
-      
-
-
       return result
     }
 

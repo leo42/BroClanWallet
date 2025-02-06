@@ -6,8 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "start": "webpack serve --mode=development",
-    "dev": "concurrently \"webpack --mode=development --watch\" \"webpack serve --mode=development\"",
-    "Uidev": "concurrently \"webpack --mode=development --watch\"  \"cd build && node --trace-uncaught server.js \"",
+    "start:ext": "concurrently \"webpack --watch --mode=development\" \"webpack serve --mode=development\"",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch"
   },

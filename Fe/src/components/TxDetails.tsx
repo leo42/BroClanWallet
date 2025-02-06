@@ -23,7 +23,7 @@ function transformAmount(amount : any) : {[key: string]: bigint} {
     const amountOut: { [key: string]: bigint } = {};
     amountOut["lovelace"] = amount.coin;
 
-    if (amount.multiasset) {
+    if (amount.multiasset && amount.multiasset.length > 0) {
 
         // Iterate over the multiasset Map
         amount.multiasset.forEach((assetsMap: any[], policy: any) => {

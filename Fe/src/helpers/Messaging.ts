@@ -46,8 +46,9 @@ class Messaging {
 
        // this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
        try{
-        this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
-       }catch(e){
+       // this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
+        this.port = chrome.runtime.connect("emfmflhcajhodbjgkmemdncoangplkdn");   //playstore ID
+    }catch(e){
               console.log(e)
               return
          } 
@@ -91,7 +92,6 @@ class Messaging {
                             response =[Buffer.from( C.Address.from_bech32(this.wallet.getAddress()).to_bytes()).toString('hex')];
                             break;
                         case "getRewardAddresses":
-
                             response = [Buffer.from( C.Address.from_bech32( this.wallet.getStakingAddress()).to_bytes()).toString('hex')]; 
                             break;
                         case "submitTx":
@@ -150,9 +150,7 @@ class Messaging {
                             response = [Buffer.from( C.Address.from_bech32(this.wallet.getCollateralAddress()).to_bytes()).toString('hex')];
                             break;
                         case "getCollateral":
-                        
-
-                            response = (await this.wallet.getCollateral()).map((utxo: any) => ( toHexString(utxoToCore(utxo).to_bytes())));
+                                response = (await this.wallet.getCollateral()).map((utxo: any) => ( toHexString(utxoToCore(utxo).to_bytes())));
                             break;
                         case "getUtxoByOutRef":
 
@@ -168,12 +166,13 @@ class Messaging {
                             response =  JSON.stringify(await this.wallet.getUtxosByOutRef(JSON.parse(message.outRefs)),replacer);
                             break;
                         case "decodeTx":
-                            response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
+                            response = JSON.stringify(this.wallet.decodeTransaction(this.wallet.txFromCBOR(JSON.parse(message.tx))));
                             break;
                         case "isAddressMine":
                             response = {}
                            JSON.parse(message.address).map( (address: any) => { response[address] = this.wallet.isAddressMine(address)});
                            response = JSON.stringify(response);
+                           console.log(response)
                             break;
                     }
                 }catch(e : any){

@@ -46,12 +46,16 @@ function enable(extensions = []) {
                     getUnusedAddresses: () => promiseMessage({ action: 'getUnusedAddresses' }),
                     getChangeAddress: () => promiseMessage({ action: 'getChangeAddress' }),
                     getRewardAddresses: () => promiseMessage({ action: 'getRewardAddresses' }),
+                    cip106: {
+                        submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
+                        getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
+                        getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
+                        getScript: () => promiseMessage({ action: 'getScript' }),
+                        getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
+                    },
                     submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
-                    submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
-                    getCollateralAddress: () => promiseMessage({ action: 'getCollateralAddress' }),
-                    getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
-                    getScript: () => promiseMessage({ action: 'getScript' }),
-                    getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
+                    signTx: (tx) => Promise.reject("not supported"),
+                    signData: (data) => Promise.reject("not supported")
                 });
             }
         })
