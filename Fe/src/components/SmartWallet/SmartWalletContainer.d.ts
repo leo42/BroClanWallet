@@ -1,5 +1,5 @@
 import React from 'react';
-import SmartWallet from './smartWallet';
+import SmartWallet from '../../core/smartWallet';
 import './SmartWalletContainer.css';
 import { Settings } from '../../index';
 import { SmartMultisigJson } from "./types";
@@ -51,6 +51,7 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     updateSignerName(hash: string, name: string): void;
     removePendingTx(tx: number): void;
     addWallet(id: any, name?: string): Promise<void>;
+    reloadWallets(): Promise<void>;
     setCollateralDonor(address: string): void;
     loadWallets(): Promise<void>;
     createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<void>;
@@ -60,6 +61,7 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     submit(index: number): Promise<void>;
     walletsEmpty(): import("react/jsx-runtime").JSX.Element;
     WalletList(): import("react/jsx-runtime").JSX.Element;
+    closeModal(): void;
     render(): import("react/jsx-runtime").JSX.Element;
 }
 export default SmartWalletContainer;

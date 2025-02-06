@@ -3,21 +3,25 @@ import React, { useRef } from 'react';
 import { ReactComponent as DownloadIcon } from '../../html/assets/download.svg';
 import { ReactComponent as DeleteIcon } from '../../html/assets/delete.svg';
 import './walletSetting.css'
+import SmartWallet from '../../core/smartWallet';
 
-import Wallet from './smartWallet';
+
 interface WalletSettingsProps {
-  wallet: Wallet;
+  wallet: SmartWallet;
   moduleRoot: any;
   closeSettings: () => void;
 }
 
+
+
 interface WalletSettingsState {
   closeSettings: () => void;
-  wallet: Wallet;
+  wallet: SmartWallet;
   hovering: string;
   moduleRoot: any;
   showingDetails: string;
   isMobile: boolean;
+
 }
 
 class WalletSettings extends React.Component<WalletSettingsProps> {

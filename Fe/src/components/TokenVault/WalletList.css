@@ -18,9 +18,9 @@
     box-shadow: var(--clrorange) 0px 0px 5px 0px;
     font-size: 12px;
     transition: 0.5s;
-    border: var(--clrorange) solid 1px;
-    color: var(--clrorange);
+    border: var(--clrNavText) solid 1px;
     cursor: pointer;
+    color: black !important;
 }
 
 .addWalletButtonHighlight{

@@ -3,7 +3,7 @@ import {Buffer} from 'buffer';
  
 import {  utxoToCore , C , assetsToValue, nativeScriptFromJson} from "lucid-cardano";
 import { App } from '..';
-import MultisigWallet from '../components/Multisig/multisigWallet';
+import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';
 
 

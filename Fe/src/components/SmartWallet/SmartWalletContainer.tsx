@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import MintingModule from './mintingModule';  // Changed to match the actual file name
 import UpdateWalletModal from './UpdateWalletModal';
-import SmartWallet from './smartWallet';
+import SmartWallet from '../../core/smartWallet';
 import MWalletMain from './WalletMain'; 
 import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import './SmartWalletContainer.css';

@@ -1,13 +1,14 @@
 import * as LucidEvolution from "@lucid-evolution/lucid";
 
 import {  toast } from 'react-toastify';
-import {getNewLucidInstance , changeProvider} from "../../helpers/newLucidEvolution"
+import {getNewLucidInstance , changeProvider} from "../helpers/newLucidEvolution"
 import { DRep , Credential } from "@lucid-evolution/lucid";
-import { decodeCIP129 } from "../../helpers/decodeCIP129";
+import { decodeCIP129 } from "../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
-import WalletInterface from "../WalletInterface.js";
+import WalletInterface from "../components/WalletInterface";
+import { coinSelect } from "./coinSelect";
 
-class Wallet implements WalletInterface{
+class MultisigWallet implements WalletInterface{
     signersNames: any[] = []
     wallet_script: any
     wallet_address: string
@@ -86,7 +87,7 @@ class Wallet implements WalletInterface{
       this.extractSignerNames(this.wallet_script)
       this.lucidNativeScript = LucidEvolution.toCMLNativeScript(this.wallet_script )
       this.lucid.selectWallet.fromAddress(  this.getAddress(), [] )
-
+      await this.loadUtxos()
     } 
 
     async changeSettings(settings: any){
@@ -151,40 +152,7 @@ class Wallet implements WalletInterface{
       return this.delegation 
     }
 
-    coinSelect(coin: LucidEvolution.Assets , utxoset : LucidEvolution.UTxO[] = this.utxos) : LucidEvolution.UTxO[]{
-    //  return this.utxos
-      const utxos = [...utxoset] // Create copy to avoid modifying original
-      let remainingCoin = {...coin}  // Create copy to avoid modifying original
-      const selectedUtxos: LucidEvolution.UTxO[] = []
-
-      while( Object.keys(remainingCoin).length > 0){
-        // sort utxos by most common coins with remainingCoin
-        utxos.sort((a, b) => {
-          const aCount = Object.keys(a.assets).filter(key => key in remainingCoin).reduce((sum, key) => sum + Number(a.assets[key]), 0);
-          const bCount = Object.keys(b.assets).filter(key => key in remainingCoin).reduce((sum, key) => sum + Number(b.assets[key]), 0);
-          return bCount - aCount;
-        });
-        selectedUtxos.push(utxos[0])
-        for (const key in remainingCoin) {
-          if (remainingCoin[key] > 0 && utxos[0].assets[key] > 0) {
-            remainingCoin[key] -= utxos[0].assets[key]
-            if (remainingCoin[key] <= 0n){
-              delete remainingCoin[key]
-            }
-          }
-            
-        }
-        utxos.splice(0, 1)
-        if (Object.keys(remainingCoin).length === 0){
-         break
-        }
-        if (utxos.length === 0){
-          throw new Error("Not enough coins")
-        }
-      
-    }
-    return selectedUtxos;
-  }
+   
 
     getBalance(address=""){
       const utxos = this.utxos
@@ -596,7 +564,7 @@ setPendingTxs(pendingTxs: any){
             ...sumOfRecipientsMinusSendAll,
             lovelace: sumOfRecipientsMinusSendAll["lovelace"] + fee
           };
-          utxos = this.coinSelect(totalAmount, utxos);
+          utxos = coinSelect(totalAmount, utxos);
       }
       
       tx.collectFrom(utxos)
@@ -790,7 +758,7 @@ setPendingTxs(pendingTxs: any){
         tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), this.delegation.rewards)
       }
 
-      tx.collectFrom(this.coinSelect({"lovelace" : 3_000_000n}, this.utxos), LucidEvolution.Data.void())
+      tx.collectFrom(coinSelect({"lovelace" : 3_000_000n}, this.utxos), LucidEvolution.Data.void())
       const completedTx = await tx.attach.SpendingValidator( {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()})
       .complete()
       
@@ -832,10 +800,11 @@ setPendingTxs(pendingTxs: any){
         tx.delegate.VoteToPoolAndDRep(rewardAddress, pool, dRep)
       }
       
-      tx.collectFrom(this.coinSelect({"lovelace" : 3_000_000n}, this.utxos), LucidEvolution.Data.void())
+      tx.collectFrom(coinSelect({"lovelace" : 3_000_000n}, this.utxos), LucidEvolution.Data.void())
       // const completedTx = await tx.pay.ToAddress(this.getAddress())
       console.log("dRep", dRep)
         const completedTx = await tx.complete({presetWalletInputs : []})
+
       this.pendingTxs.push({tx:completedTx, signatures:{}}) 
       return "Sucsess"
     }
@@ -1046,4 +1015,4 @@ setPendingTxs(pendingTxs: any){
 
   }
 
-  export default Wallet;
+  export default MultisigWallet;

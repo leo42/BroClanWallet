@@ -43,9 +43,13 @@
     max-width: 25px;
     transition: 0.5s;
     border: var(--clrorange) solid 1px;
-    color: var(--clrorange);
+    color: black !important;
     cursor: pointer;
+
+
+
 }
+
 
 .addWalletButtonHighlight{
     width: 30px;

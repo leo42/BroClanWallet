@@ -3,16 +3,17 @@ import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO ,
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
-import { adminDatumSchema, SmartMultisigDescriptorType, SmartMultisigDescriptorSchema , SmartMultisigDescriptorKeyHash  , SmartMultisigDescriptorKeyHashSchema} from "./types";
+import { adminDatumSchema, SmartMultisigDescriptorType} from "../../core/types";
 import "./MintingModule.css"
 import CryptoJS from 'crypto-js';
-import { encode , decode } from "./encoder";
-import SmartWallet from "./smartWallet";
-import contracts from "./contracts.json";
+import { encode , decode } from "../../core/encoder";
+import SmartWallet from "../../core/smartWallet";
+import contracts from "../../core/contracts.json";
 
-import { App, Settings  } from "../../index";
-import { validatorToAddress ,validatorToScriptHash} from "@lucid-evolution/utils";
+import { App  } from "../../index";
+import { validatorToAddress } from "@lucid-evolution/utils";
 import SmartWalletContainer from "./SmartWalletContainer";
+
   
 
 interface MintingProps {
@@ -160,30 +161,27 @@ class MintingModule extends React.Component<MintingProps> {
         Type : SmartMultisigDescriptorType.KeyHash, 
         keyHash : paymentCredential.hash
       })
-      type TransactionMetadata = string | number | Uint8Array | ReadonlyArray<TransactionMetadata> | {
-        [key: string]: TransactionMetadata;
-     };
-    
+
       console.log(initialMultisigConfig)
       const metadata : any =  {}
       metadata[policyId] ={}
-      metadata["version"] = 2
+      // metadata["version"] = "2"
 
-      metadata[policyId]["00" + tokenNameSuffix] =  
-      { 
-        name: name+ "-Config" , 
-        description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
-        image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-        information: this.mintingInfo 
-      }
+      // metadata[policyId]["00" + tokenNameSuffix] =  
+      // { 
+      //   name: name+ "-Config" , 
+      //   description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
+      //   image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+      //   information: this.mintingInfo 
+      // }
 
-      metadata[policyId]["02" + tokenNameSuffix] =  
-      { 
-        name: name+ "-Refference" , 
-        description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
-        image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-        information: this.mintingInfo 
-      }
+      // metadata[policyId]["02" + tokenNameSuffix] =  
+      // { 
+      //   name: name+ "-Refference" , 
+      //   description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
+      //   image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
+      //   information: this.mintingInfo 
+      // }
       
       
       console.log(this.mintingRawScript, configAddress, deadAddress, metadata, assets, adminUtxo)
@@ -194,20 +192,21 @@ class MintingModule extends React.Component<MintingProps> {
 
       consumingTx.mintAssets(assets, redeemer)
       consumingTx.attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
-     // consumingTx.attachMetadata( 721 , metadata )
+     consumingTx.attachMetadata( 721 , metadata )
       consumingTx.readFrom([adminUtxo])
       
 
       consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
       consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-     const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true})
+     const completedTx = await consumingTx.complete({setCollateral : 4_000_000n})
       
-      const signature = await completedTx.sign.withWallet()
+      const signature = await api.signTx(completedTx.toTransaction().to_canonical_cbor_hex(), true)
       
-      const txComlete = await signature.complete();
+      const txComlete = await completedTx.assemble([signature]).complete();
       const txHash = await txComlete.submit();
       this.props.moduleRoot.addWallet(tokenNameSuffix, name)
       const awaitTx = lucid.config().provider!.awaitTx(txHash)
+
       toast.promise(awaitTx, {
         pending: 'Waiting for confirmation',
         success: 'Transaction confirmed',
