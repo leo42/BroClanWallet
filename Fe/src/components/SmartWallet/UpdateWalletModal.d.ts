@@ -1,9 +1,9 @@
 import React from "react";
 import "./UpdateWalletModal.css";
 import { TokenInfo } from "../../helpers/tokenInfo";
-import SmartWallet from "./smartWallet";
+import SmartWallet from "../../core/smartWallet";
 import SmartWalletContainer from "./SmartWalletContainer";
-import { SmartMultisigJson } from "./types";
+import { SmartMultisigJson } from "../../core/types";
 type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;

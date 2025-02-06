@@ -1,0 +1,45 @@
+import { Assets, UTxO, TxSignBuilder, Delegation, OutRef, Credential } from "@lucid-evolution/lucid";
+interface WalletInterface {
+    getName(): string;
+    setName(name: string): void;
+    getAddress(stakingAddress?: string): string;
+    getCredential(): Credential;
+    getBalance(address?: string): number;
+    getBalanceFull(address?: string): Assets;
+    loadUtxos(): Promise<boolean>;
+    getUtxos(): UTxO[];
+    getUtxosByOutRef(outRefs: Array<OutRef>): Promise<UTxO[]>;
+    getFundedAddress(): string[];
+    getDelegation(): Promise<Delegation>;
+    createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<any>;
+    createStakeUnregistrationTx(signers: string[]): Promise<any>;
+    getPendingTxs(): {
+        tx: TxSignBuilder;
+        signatures: Record<string, string>;
+    }[];
+    removePendingTx(index: number): void;
+    getPendingTxDetails(index: number): any;
+    submitTransaction(index: number): Promise<any>;
+    getTransactionType(txDetails: any): string;
+    getSigners(): any[];
+    getSignature(index: number, keyHash: string): string;
+    addSignature(signature: string): any;
+    checkSigners(signers: string[]): any;
+    getDefaultSigners(): string[];
+    setDefaultSigners(signers: string[]): void;
+    defaultSignersValid(): boolean;
+    isAddressMine(address: string): boolean;
+    isAddressValid(address: string): boolean;
+    isAddressScript(address: string): boolean;
+    getAddressNames(): Record<string, string>;
+    getAddressName(address: string): string;
+    setAddressNames(names: Record<string, string>): void;
+    changeAddressName(address: string, name: string): void;
+    getDefaultAddress(): string;
+    setDefaultAddress(address: string): void;
+    getStakingAddress(): string;
+    changeSettings(settings: any): Promise<void>;
+    getCollateralDonor(): string;
+    setCollateralDonor(paymentKeyHash: string): Promise<void>;
+}
+export default WalletInterface;

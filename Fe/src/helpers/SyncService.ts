@@ -2,7 +2,7 @@ import {  Lucid } from "lucid-cardano";
 import io from 'socket.io-client'
 import { toast } from 'react-toastify';
 import MultisigContainer from "../components/Multisig/MultisigContainer";
-import MultisigWallet from "../components/Multisig/multisigWallet";
+import MultisigWallet from "../core/multisigWallet";
 async function  connectSocket(wallet: string, root: MultisigContainer, syncService: string){
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new();

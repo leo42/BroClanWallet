@@ -1,7 +1,7 @@
 import React from 'react';
 import "./MultisigContainer.css";
 import Messaging from '../../helpers/Messaging';
-import MultisigWallet from './multisigWallet';
+import MultisigWallet from '../../core/multisigWallet';
 import { Socket } from 'socket.io-client';
 import { Settings } from '../..';
 import { Native } from './AddWalletModal';

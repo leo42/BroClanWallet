@@ -3,9 +3,9 @@ import "./UpdateWalletModal.css";
 import { toast } from "react-toastify";
 import getTokenInfo from "../../helpers/tokenInfo";
 import { TokenInfo } from "../../helpers/tokenInfo";
-import SmartWallet from "./smartWallet"; // Changed to default import
+import SmartWallet from "../../core/smartWallet"; // Changed to default import
 import SmartWalletContainer from "./SmartWalletContainer";
-import { SmartMultisigJson, SmartMultisigDescriptorType } from "./types";
+import { SmartMultisigJson, SmartMultisigDescriptorType } from "../../core/types";
 import { getAddressDetails } from "@lucid-evolution/lucid";
 type VerificationKeyHash = string;
 type PolicyId = string;

@@ -1,14 +1,14 @@
 import React from 'react';
 import './walletSetting.css';
-import Wallet from './smartWallet';
+import SmartWallet from '../../core/smartWallet';
 interface WalletSettingsProps {
-    wallet: Wallet;
+    wallet: SmartWallet;
     moduleRoot: any;
     closeSettings: () => void;
 }
 interface WalletSettingsState {
     closeSettings: () => void;
-    wallet: Wallet;
+    wallet: SmartWallet;
     hovering: string;
     moduleRoot: any;
     showingDetails: string;

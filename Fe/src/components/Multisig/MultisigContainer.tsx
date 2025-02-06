@@ -1,5 +1,4 @@
 
-import Wallet from './multisigWallet';
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
 import WalletConnector from './walletConnector';
@@ -11,7 +10,7 @@ import { toast } from 'react-toastify';
 import "./MultisigContainer.css"
 import ModalsContainer from './ModalsContainer';
 import Messaging from '../../helpers/Messaging';
-import MultisigWallet from './multisigWallet';
+import MultisigWallet from '../../core/multisigWallet';
 import { Socket } from 'socket.io-client';
 import { Settings } from '../..';
 import { Native } from './AddWalletModal';
@@ -221,12 +220,14 @@ async setState(state: MultisigContainerState){
     const wallets = JSON.parse(localStorage.getItem('wallets') || "[]");
     
     let state = this.state
-    wallets.forEach( (wallet: any) => {
-      const myWallet = new Wallet(wallet.json, wallet.name);
-      myWallet.initialize(this.props.root.state.settings);
+    await Promise.all(wallets.map(async (wallet: any) => {
+      const myWallet = new MultisigWallet(wallet.json, wallet.name);
+      await myWallet.initialize(this.props.root.state.settings);
       myWallet.resetDefaultSigners()
       state.wallets.push(myWallet)
-    })
+    }))
+
+
     state.pendingWallets = JSON.parse(localStorage.getItem('pendingWallets') || "{}")
     super.setState(state) 
 
@@ -505,7 +506,7 @@ async setState(state: MultisigContainerState){
       // resole promices in walletHashes
       const res = await Promise.all(walletsHashes)
       if (! res.includes(walletHash)) {
-        const myWallet = new Wallet(pendingWallet.json,"Imported Wallet");
+        const myWallet = new MultisigWallet(pendingWallet.json,"Imported Wallet");
         await myWallet.initialize(this.props.root.state.settings);
         myWallet.resetDefaultSigners()
         wallets.push(myWallet)
@@ -537,7 +538,7 @@ async setState(state: MultisigContainerState){
     const wallets = this.state.wallets
     const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
     const res = await Promise.all(walletsHashes)
-    const myWallet = new Wallet(script,name);
+    const myWallet = new MultisigWallet(script,name);
     await myWallet.initialize(this.props.root.state.settings);
     myWallet.resetDefaultSigners()
     const walletHash = await this.walletHash(myWallet.getJson())
