@@ -432,7 +432,7 @@ class AddWalletModal extends React.Component<AddWalletModalProps> {
       }
     }
     if (previus.type === "all" || previus.type === "any" || previus.type === "atLeast") {
-      previus.scripts.slice(coordinates[coordinates.length-1], 1)
+      previus.scripts.splice(coordinates[coordinates.length-1], 1)
     }
     this.setState({json})
   }

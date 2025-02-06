@@ -20,14 +20,14 @@ export type Native = {
     slot: number;
 } | {
     type: "all";
-    scripts: ReadonlyArray<Native>;
+    scripts: Native[];
 } | {
     type: "any";
-    scripts: ReadonlyArray<Native>;
+    scripts: Native[];
 } | {
     type: "atLeast";
     required: number;
-    scripts: ReadonlyArray<Native>;
+    scripts: Native[];
 };
 type AddWalletModalState = {
     json: Native;
