@@ -53,7 +53,7 @@ class Messaging {
                                 console.log("ping");
                                 response = {"version" : 106};
                             }else{
-                                response = {error: "not a multisig wallet"}
+                                response = {"version" : 141};
                             }
                             break;
                         case "getData":

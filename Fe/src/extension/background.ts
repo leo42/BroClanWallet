@@ -160,8 +160,8 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
             BroPort.disconnect();
             return
         }
-        
         BroPort = port; 
+        BroPort.postMessage({ action: 'ping' })
         
         const versionListener = async (message: any) => {
             if(message.action === "ping"){

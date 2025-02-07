@@ -3,6 +3,7 @@ import SmartWallet from '../../core/smartWallet';
 import './SmartWalletContainer.css';
 import { Settings } from '../../index';
 import { SmartMultisigJson } from "./types";
+import Messaging from '../../helpers/Messaging';
 interface SmartWalletContainerProps {
     settings: Settings;
     root: any;
@@ -16,7 +17,7 @@ interface SmartWalletContainerState {
         socket: any;
     };
     loading: boolean;
-    dAppConnector: any | null;
+    dAppConnector: Messaging | null;
     walletSettingsOpen: boolean;
 }
 declare class SmartWalletContainer extends React.Component<SmartWalletContainerProps, SmartWalletContainerState> {
