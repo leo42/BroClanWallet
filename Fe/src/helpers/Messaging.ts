@@ -31,20 +31,30 @@ class Messaging {
    async connect() {
 
        // this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
-       try{
+    try{
        // this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
         this.port = chrome.runtime.connect("emfmflhcajhodbjgkmemdncoangplkdn");   //playstore ID
     }catch(e){
-              console.log(e)
-              return
-         } 
+        console.log(e)
+        return
+    } 
+    this.port.onDisconnect.addListener(() => {
+        console.log("Port disconnected")
+        this.port = null;
+    })
         this.port.onMessage.addListener( async (message: any) => {
             if(message.action){
                 let response
+
                 try{
                 switch (message.action) {  
                         case "ping":
-                            response = "pong";
+                            if(this.wallet instanceof MultisigWallet){
+                                console.log("ping");
+                                response = {"version" : 106};
+                            }else{
+                                response = {error: "not a multisig wallet"}
+                            }
                             break;
                         case "getData":
                             if(!this.wallet){
