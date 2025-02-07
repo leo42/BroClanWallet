@@ -304,7 +304,7 @@ setPendingTxs(pendingTxs: any){
     
     async checkTransaction(tx: LucidEvolution.TxSignBuilder){
       const utxos = this.utxos
-      const transactionDetails = this.decodeTransaction(tx)
+      const transactionDetails = this.decodeTransaction(tx.toCBOR({canonical: true}))
       
         const inputsUtxos =  await this.getUtxosByOutRef(transactionDetails.inputs)
 
@@ -363,14 +363,15 @@ setPendingTxs(pendingTxs: any){
 
 
 
-    decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
-      const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx.toCBOR({canonical: true})).body().to_js_value();
+    decodeTransaction(tx: string) {
+      const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx).body().to_js_value();
       console.log(txBody)
       return txBody;
     }
 
+
     getPendingTxDetails(index: number){
-      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx)
+      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx.toCBOR({canonical: true}))
       txDetails.signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
         {name: this.keyHashToSighnerName(keyHash) , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
       )) : []
@@ -647,7 +648,7 @@ setPendingTxs(pendingTxs: any){
       }
     }
 
-    getCollateral(value : number | undefined = 5_000_000){
+    getCollateral(value : number  = 5_000_000){
       function getMinimumUtxos(utxos: any, requiredValue: any) {
         // Sort the UTXOs in ascending order
         utxos.map((utxo: any) => utxo.assets.lovelace = Number(utxo.assets.lovelace))

@@ -79,6 +79,7 @@ declare class SmartWallet implements WalletInterface {
     createUpdateTx(signers: string[], newConfig: SmartMultisigJson): Promise<TxSignBuilder>;
     private cleanConfig;
     private isValidKeyHash;
+    getCollateral(): Promise<UTxO[]>;
     getColateralUtxo(signers?: string[]): Promise<UTxO>;
     getUtxos(): UTxO[];
     pullCollateralUtxo(collateralProvider: string): Promise<UTxO>;
@@ -112,6 +113,8 @@ declare class SmartWallet implements WalletInterface {
     setAddressNames(names: Record<string, string>): void;
     changeAddressName(address: string, name: string): void;
     getDefaultAddress(): string;
+    getCollateralAddress(): string;
+    getNetworkId(): 0 | 1;
     getAddressNames(): Record<string, string>;
     getAddressName(address: string): string;
 }

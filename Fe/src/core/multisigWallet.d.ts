@@ -63,7 +63,7 @@ declare class MultisigWallet implements WalletInterface {
         };
     }[];
     getTransactionType(txDetails: any): string;
-    decodeTransaction(tx: LucidEvolution.TxSignBuilder): any;
+    decodeTransaction(tx: string): any;
     getPendingTxDetails(index: number): any;
     checkSigners(signers: string[]): any;
     createTemplateTx(signers: string[]): Promise<LucidEvolution.TxBuilder>;
@@ -78,7 +78,7 @@ declare class MultisigWallet implements WalletInterface {
     }>;
     setCollateralDonor(paymentKeyHash: any): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
-    getCollateral(value?: number | undefined): any;
+    getCollateral(value?: number): any;
     getCollateralDonor(): any;
     getCollateralUtxos(value: number | undefined): Promise<any>;
     getCollateralAddress(): any;

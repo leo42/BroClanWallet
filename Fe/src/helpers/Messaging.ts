@@ -5,6 +5,8 @@ import { utxoToCore , CML , assetsToValue} from "@lucid-evolution/lucid";
 import { App } from '..';
 import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';
+import SmartWalletContainer from '../components/SmartWallet/SmartWalletContainer';
+import WalletInterface from '../components/WalletInterface';
 
 
 
@@ -15,33 +17,16 @@ function toHexString(byteArray: Uint8Array) {
   }
 
 class Messaging {   
-    private wallet: MultisigWallet;
-    private root: MultisigContainer;
+    private wallet: WalletInterface;
+    private root: MultisigContainer | SmartWalletContainer;
     private port: chrome.runtime.Port | null;
 
-    constructor(wallet: MultisigWallet, root: MultisigContainer) {
+    constructor(wallet: WalletInterface, root: MultisigContainer | SmartWalletContainer) {
         this.wallet = wallet;
         this.root = root;   
         this.port = null;
         this.connect();
-
-
-
     }
-
-    // getUtxos: (amount = undefined, paginate= undefined) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUtxos' , amount : amount, paginate: paginate}),
-    // getCollateral: (amount = undefined) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCollateral' , amount : amount}),
-    // getBalance: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getBalance' }),
-    // getUsedAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUsedAddresses' }),
-    // getUnusedAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getUnusedAddresses' }),
-    // getChangeAddress: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getChangeAddress' }),
-    // getRewardAddresses: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getRewardAddresses' }),
-    // submitTx: (tx) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'submitTx', tx: tx }),
-    // submitUnsignedTx: (tx) => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'submitUnsignedTx', tx: tx }),
-    // getCollateralAddress: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCollateralAddress' }),
-    // getScriptRequirements: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getScriptRequirements' }),
-    // getScript: () => chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getScript' }),
-    // getCompletedTx(txId) { return chrome.runtime.sendMessage(EXTENSION_ID, { action: 'getCompletedTx', txId: txId }) },
 
    async connect() {
 
@@ -58,7 +43,6 @@ class Messaging {
                 let response
                 try{
                 switch (message.action) {  
-
                         case "ping":
                             response = "pong";
                             break;
@@ -108,6 +92,7 @@ class Messaging {
                             break;
 
                         case "getScriptRequirements":
+                            if(this.wallet instanceof MultisigWallet){
                             const signers = this.wallet.getSigners(); 
                             
                             const isValid = this.wallet.defaultSignersValid();
@@ -122,13 +107,21 @@ class Messaging {
                                 if (isValid.requires_after){
                                     response.push({code: 3, "value": isValid.requires_after});
                                 }
-
+                            }
+                            }else{
+                                response = {error: "not a multisig wallet"}
                             }
                             break;
                         case "getScript":
-                            response = this.wallet.getScript()!.to_cbor_hex();
+                            if(this.wallet instanceof MultisigWallet){  
+                                response = this.wallet.getScript()!.to_cbor_hex();
+                            }else{
+                                response = {error: "not a multisig wallet"}
+                            }
                             break;
                         case "getCompletedTx":
+                            if(this.wallet instanceof MultisigWallet){
+
                             const tx = await this.wallet.getCompletedTx(message.txId);
                             if(!tx){
                                 response = {code : 1, error:  "Transaction not found!"}
@@ -142,8 +135,12 @@ class Messaging {
                                                  Object.values(tx.signatures)  ] 
                                 }       
                             }
+                            }else{
+                                response = {error: "not a multisig wallet"}
+                            }
                             break;
                         case "getCollateralAddress":
+
                             response = [CML.Address.from_bech32(this.wallet.getCollateralAddress()).to_hex()];
                             break;
                         case "getCollateral":
@@ -162,7 +159,7 @@ class Messaging {
                             response =  JSON.stringify(await this.wallet.getUtxosByOutRef(JSON.parse(message.outRefs)),replacer);
                             break;
                         case "decodeTx":
-                            response = JSON.stringify(this.wallet.decodeTransaction(this.wallet.txFromCBOR(JSON.parse(message.tx))));
+                            response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
                             break;
                         case "isAddressMine":
                             response = {}

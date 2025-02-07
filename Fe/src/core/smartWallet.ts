@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef, credentialToAddress} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../index"; 
@@ -552,7 +552,19 @@ private isValidKeyHash(hash: string): boolean {
   // A valid key hash is a 28-byte (56 character) hexadecimal string
   return /^[0-9a-fA-F]{56}$/.test(hash);
 }
-  
+
+
+
+async getCollateral(): Promise<UTxO[]>{
+  if(this.collateralDonor){
+    return [await this.getColateralUtxo([this.collateralDonor as string])]
+  }else{
+    return []
+  }
+
+
+}
+
 async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   if(this.colateralUtxo && signers?.includes(this.collateralDonor as string)) {
     return this.colateralUtxo
@@ -645,6 +657,7 @@ getUtxos(): UTxO[] {
     return completedTx;
 
   }
+  
 
   async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network!, this.script);
@@ -911,10 +924,20 @@ getUtxos(): UTxO[] {
     return this.defaultAddress;
 }
 
+getCollateralAddress(){
+  return credentialToAddress( this.lucid!.config().network!,  this.getCredential())
+}
+
+  getNetworkId(){
+    return this.lucid!.config().network === "Mainnet" ? 1 : 0 
+  }
+
+
 
   getAddressNames(): Record<string, string> {
     return this.addressNames;
   }
+
 
   getAddressName(address: string) {
     if (!this.addressNames) {

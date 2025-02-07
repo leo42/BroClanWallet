@@ -17,6 +17,7 @@ interface WalletInterface {
         tx: TxSignBuilder;
         signatures: Record<string, string>;
     }[];
+    getNetworkId(): number;
     removePendingTx(index: number): void;
     getPendingTxDetails(index: number): any;
     submitTransaction(index: number): Promise<any>;
@@ -33,6 +34,9 @@ interface WalletInterface {
     isAddressScript(address: string): boolean;
     getAddressNames(): Record<string, string>;
     getAddressName(address: string): string;
+    getCollateralAddress(): string;
+    getCollateral(): Promise<UTxO[]>;
+    decodeTransaction(tx: string): any;
     setAddressNames(names: Record<string, string>): void;
     changeAddressName(address: string, name: string): void;
     getDefaultAddress(): string;
