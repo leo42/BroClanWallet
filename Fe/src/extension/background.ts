@@ -166,7 +166,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         const versionListener = async (message: any) => {
             if(message.action === "ping"){
                 const oldVersion = (await chrome.storage.local.get('version')).version;
-                if(true){//if(oldVersion !== message.response.version){
+                if(oldVersion !== message.response.version){
                     chrome.storage.local.set({ version:  message.response.version });
                     broadcastVersion(message.response.version);
                 }
@@ -188,28 +188,23 @@ chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
         setTimeout(() => {
             chrome.storage.local.get('version', function(result) {
                 if (result.version) {
-                    // First check if we can establish connection
                     chrome.tabs.sendMessage(tabId, { 
-                        source: 'broclan-extension',
-                        action: 'ping'
-                    }).then(() => {
-                        // If ping succeeds, send the version
-                        chrome.tabs.sendMessage(tabId, { 
-                            source: 'broclan-extension',
+                        type: 'FOR_INJECTED',  // Add this to identify messages for injected script
+                        data: {
+                            source: chrome.runtime.id,
                             action: 'version', 
                             extension: result.version 
-                        }).catch(error => {
-                            console.log(`Failed to send version to tab ${tabId}:`, error);
-                        });
-                    }).catch(() => {
-                        // Tab doesn't have our content script, which is expected for non-relevant pages
-                        console.log(`Tab ${tabId} not ready for messages (this is normal for non-relevant pages)`);
+                        }
+                    }).catch(error => {
+                        console.log(`Tab ${tab.id} not ready for messages (this is normal for non-relevant pages)`);
                     });
                 }
             });
-        }, 100); // Small delay to ensure content script is ready
+
+        }, 100); // Small delay to ensure content script is ready }
     }
 });
+
 
 
 function broadcastVersion(version: string) {
