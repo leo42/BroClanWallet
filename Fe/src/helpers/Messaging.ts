@@ -93,26 +93,13 @@ class Messaging {
 
                         case "getScriptRequirements":
                             if(this.wallet instanceof MultisigWallet){
-                            const signers = this.wallet.getSigners(); 
-                            
-                            const isValid = this.wallet.defaultSignersValid();
-                            if (isValid === false){
-                                response = {error: "not enough signers"}
-                                break;
-                            }else{
-                                response = signers.filter((signer) => signer.isDefault).map((signer) => ({ code: 1 , value: signer.hash}));
-                                if (isValid.requires_before)   {
-                                    response.push({code : 2, "value": isValid.requires_before});
-                                }
-                                if (isValid.requires_after){
-                                    response.push({code: 3, "value": isValid.requires_after});
-                                }
-                            }
+                                response = this.wallet.getScriptRequirements()
                             }else{
                                 response = {error: "not a multisig wallet"}
                             }
                             break;
                         case "getScript":
+
                             if(this.wallet instanceof MultisigWallet){  
                                 response = this.wallet.getScript()!.to_cbor_hex();
                             }else{
@@ -179,7 +166,7 @@ class Messaging {
         );
     }
     
-    changeWallet(wallet: MultisigWallet){
+    changeWallet(wallet: WalletInterface){
         this.wallet = wallet;
     }
 

@@ -1,4 +1,3 @@
-import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';
 import SmartWalletContainer from '../components/SmartWallet/SmartWalletContainer';
 import WalletInterface from '../components/WalletInterface';
@@ -8,7 +7,7 @@ declare class Messaging {
     private port;
     constructor(wallet: WalletInterface, root: MultisigContainer | SmartWalletContainer);
     connect(): Promise<void>;
-    changeWallet(wallet: MultisigWallet): void;
+    changeWallet(wallet: WalletInterface): void;
     disconnect(): void;
 }
 export default Messaging;

@@ -995,14 +995,34 @@ setPendingTxs(pendingTxs: any){
         return this.defaultAddress;
     }
 
-    getDefaultSigners(){
+    getDefaultSigners() : string[]{
       return this.signersNames.filter( signer => signer.isDefault).map( signer => signer.hash)
     }
 
-    defaultSignersValid(){
-      return this.checkSigners(this.getDefaultSigners())
-    
+
+    defaultSignersValid() : boolean{
+      return this.checkSigners(this.getDefaultSigners()) === false ? false : true
     }
+
+    getScriptRequirements(){
+      const signers = this.getDefaultSigners(); 
+                            
+      const isValid = this.checkSigners(signers);
+      if (isValid === false){
+          return {error: "not enough signers"}
+      }else{
+          const response = signers.map((signer) => ({ code: 1 , value: signer}));
+
+          if (isValid.requires_before)   {
+              response.push({code : 2, "value": isValid.requires_before});
+          }
+          if (isValid.requires_after){
+              response.push({code: 3, "value": isValid.requires_after});
+          }
+          return response
+      }
+    }
+
 
     getAddressNames(){
       return this.addressNames

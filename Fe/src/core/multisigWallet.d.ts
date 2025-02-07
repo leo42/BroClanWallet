@@ -115,8 +115,14 @@ declare class MultisigWallet implements WalletInterface {
     changeAddressName(address: string, name: string): void;
     getNetworkId(): 0 | 1;
     getDefaultAddress(): string;
-    getDefaultSigners(): any[];
-    defaultSignersValid(): any;
+    getDefaultSigners(): string[];
+    defaultSignersValid(): boolean;
+    getScriptRequirements(): {
+        code: number;
+        value: string;
+    }[] | {
+        error: string;
+    };
     getAddressNames(): any;
     getAddressName(address: string): any;
 }
