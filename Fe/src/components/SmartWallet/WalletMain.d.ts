@@ -3,7 +3,7 @@ import './WalletMain.css';
 import SmartWalletContainer from './SmartWalletContainer';
 import { App } from '../../index';
 import MultisigContainer from '../Multisig/MultisigContainer';
-import WalletInterface from '../WalletInterface';
+import WalletInterface from '../../core/WalletInterface';
 interface WalletMainProps {
     wallet: WalletInterface;
     root: App;

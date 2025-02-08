@@ -6,7 +6,7 @@ import { ReactComponent as RecipientIcon } from '../html/assets/recipient.svg';
 import "./WalletCreateTx.css"
 import AddressSelect from './AddressSelect';
 import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
-import WalletInterface from './WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 import { App } from '../index.js';
 import MultisigContainer from './Multisig/MultisigContainer.js';
 

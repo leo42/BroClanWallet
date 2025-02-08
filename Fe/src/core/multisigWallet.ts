@@ -5,8 +5,9 @@ import {getNewLucidInstance , changeProvider} from "../helpers/newLucidEvolution
 import { DRep , Credential } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
-import WalletInterface from "../components/WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 import { coinSelect } from "./coinSelect";
+
 
 class MultisigWallet implements WalletInterface{
     signersNames: any[] = []
@@ -117,7 +118,7 @@ class MultisigWallet implements WalletInterface{
       return this.lucidNativeScript;
     }
 
-    getCompletedTx(txId: string){
+    getCompletedTx(txId: string) {
       return this.pendingTxs.find( tx => tx.tx.toHash() === txId)
     }
 

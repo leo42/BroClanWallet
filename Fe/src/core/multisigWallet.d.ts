@@ -1,7 +1,7 @@
 import * as LucidEvolution from "@lucid-evolution/lucid";
 import { Credential } from "@lucid-evolution/lucid";
 import { Delegation } from "@lucid-evolution/core-types";
-import WalletInterface from "../components/WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 declare class MultisigWallet implements WalletInterface {
     signersNames: any[];
     wallet_script: any;

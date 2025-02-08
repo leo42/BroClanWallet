@@ -6,8 +6,9 @@ import { App } from '..';
 import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';
 import SmartWalletContainer from '../components/SmartWallet/SmartWalletContainer';
-import WalletInterface from '../components/WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 import SmartWallet from '../core/smartWallet';
+
 
 
 
@@ -118,17 +119,19 @@ class Messaging {
 
                             break;
 
-
                         case "getScript":
 
                             if(this.wallet instanceof MultisigWallet){  
                                 response = this.wallet.getScript()!.to_cbor_hex();
-                            }else{
-                                response = {error: "not a multisig wallet"}
+                            }else if(this.wallet instanceof SmartWallet){
+                                const rawScript = this.wallet.getScript()
+                                response =[ Number(rawScript.type.replace("PlutusV", "")), rawScript.script]
                             }
                             break;
+
+
+
                         case "getCompletedTx":
-                            if(this.wallet instanceof MultisigWallet){
 
                             const tx = await this.wallet.getCompletedTx(message.txId);
                             if(!tx){
@@ -143,10 +146,8 @@ class Messaging {
                                                  Object.values(tx.signatures)  ] 
                                 }       
                             }
-                            }else{
-                                response = {error: "not a multisig wallet"}
-                            }
                             break;
+
                         case "getCollateralAddress":
 
                             response = [CML.Address.from_bech32(this.wallet.getCollateralAddress()).to_hex()];
@@ -166,9 +167,16 @@ class Messaging {
                             //have BigInt transform to number for JSON
                             response =  JSON.stringify(await this.wallet.getUtxosByOutRef(JSON.parse(message.outRefs)),replacer);
                             break;
+                        case "getSecret":
+                            response = {code : 1, error:  "Not found"}
+                            break;
+                        case "signRedeemer":
+                            response = {code : 1, error:  "Not found"}
+                            break;
                         case "decodeTx":
                             response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
                             break;
+
                         case "isAddressMine":
                             response = {}
                            JSON.parse(message.address).map( (address: any) => { response[address] = this.wallet.isAddressMine(address)});

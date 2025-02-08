@@ -6,9 +6,10 @@ import { ReactComponent as ExpandIcon } from '../html/assets/settings.svg';
 import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
 import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 import AddressSelect from './AddressSelect';
-import WalletInterface from './WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
 import MultisigContainer from './Multisig/MultisigContainer';
+
 
 
 

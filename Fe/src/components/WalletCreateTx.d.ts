@@ -1,7 +1,7 @@
 import React from 'react';
 import "./WalletCreateTx.css";
 import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
-import WalletInterface from './WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 import { App } from '../index.js';
 import MultisigContainer from './Multisig/MultisigContainer.js';
 interface WalletCreateTxProps {

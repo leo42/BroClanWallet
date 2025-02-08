@@ -7,7 +7,7 @@ import { ReactComponent as ImportSigIcon } from "./../html/assets/importSig.svg"
 import { ReactComponent as ExpandIcon } from "./../html/assets/details.svg";
 import copyTextToClipboard from "../helpers/copyTextToClipboard";
 import "./PendingTx.css"
-import WalletInterface from "./WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 import {TransactionDetails, transformAmount} from "./TxDetails";
 import normalizeTxDetails from "../helpers/normalizeTxDetails";
 interface WalletPendingTxProps {

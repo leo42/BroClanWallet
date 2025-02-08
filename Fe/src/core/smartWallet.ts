@@ -451,9 +451,18 @@ setDefaultSigners(signers: string[]) {
     this.loadCollateralUtxos()
    }
 }
+getCompletedTx(txId: string){
+  return this.pendingTxs.find(tx => tx.tx.toHash() === txId)
+}
+
+getScript(){
+  return this.script
+}
+
 
 async getScriptRequirements() : Promise<any>{
   // type ScriptRequirement = {
+
   //   collateral?: cbor<transaction_unspent_output>,
   //   inputs?: List<cbor<transaction_unspent_output>>,
   //   reference_inputs?: List<cbor<transaction_unspent_output>>,

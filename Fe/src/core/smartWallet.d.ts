@@ -76,6 +76,11 @@ declare class SmartWallet implements WalletInterface {
     setCollateralDonor(paymentKeyHash: string): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
     setDefaultSigners(signers: string[]): void;
+    getCompletedTx(txId: string): {
+        tx: TxSignBuilder;
+        signatures: Record<string, string>;
+    } | undefined;
+    getScript(): import("@lucid-evolution/core-types").Script;
     getScriptRequirements(): Promise<any>;
     createUpdateTx(signers: string[], newConfig: SmartMultisigJson): Promise<TxSignBuilder>;
     private cleanConfig;

@@ -1,4 +1,4 @@
-import WalletInterface from "./WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 type PendingTxsProps = {
     moduleRoot: any;
     root: any;

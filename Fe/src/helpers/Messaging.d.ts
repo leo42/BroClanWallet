@@ -1,6 +1,6 @@
 import MultisigContainer from '../components/Multisig/MultisigContainer';
 import SmartWalletContainer from '../components/SmartWallet/SmartWalletContainer';
-import WalletInterface from '../components/WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 declare class Messaging {
     private wallet;
     private root;
