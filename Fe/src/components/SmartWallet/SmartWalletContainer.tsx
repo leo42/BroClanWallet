@@ -150,11 +150,23 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   
   async importTransaction(transaction: any) {
+    try{
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
-    await wallet.addPendingTx({tx: transaction, signatures: {}})
+    const txHash = await wallet.addPendingTx({tx: transaction, signatures: {}})
     this.setState({wallets: wallets})
-    this.storeWallets()
+
+
+
+    toast.success("Transaction imported");
+    return txHash
+    }catch(e: any){
+      toast.error("Could not import transaction: " + e.message);
+      
+
+      return {"code": 1, "error": "Could not import transaction: " + e.message}
+
+    }
   }
   
   async deleteWallet(index: number) {

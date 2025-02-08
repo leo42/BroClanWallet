@@ -134,9 +134,10 @@ class SmartWallet implements WalletInterface {
       return  {type: "Script" , hash: validatorToScriptHash(this.script) }  
   }
 
-  addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
+  addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): string {
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
+    return txBuilder.toHash()
   }
 
 
@@ -711,7 +712,7 @@ getUtxos(): UTxO[] {
 
 
 
-    const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
+    const completedTx = await tx.complete({ setCollateral : 4_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
 

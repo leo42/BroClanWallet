@@ -596,9 +596,7 @@ setPendingTxs(pendingTxs: any){
       return LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(cbor)) 
     }
 
-    async importTransaction(transaction: string)
-
-    { 
+    async importTransaction(transaction: string) { 
       let tx
       console.log("transaction", transaction)
       tx = this.txFromCBOR(transaction)

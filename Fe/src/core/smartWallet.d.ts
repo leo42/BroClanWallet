@@ -120,7 +120,7 @@ declare class SmartWallet implements WalletInterface {
     changeAddressName(address: string, name: string): void;
     getDefaultAddress(): string;
     getCollateralAddress(): string;
-    getNetworkId(): 0 | 1;
+    getNetworkId(): 1 | 0;
     getAddressNames(): Record<string, string>;
     getAddressName(address: string): string;
 }

@@ -4,7 +4,6 @@ let supportedExtensionValue = [];
 
 window.addEventListener('message', (event) => {
     // Make sure the message is from our extension
-    console.log("new message", event.data, event.data.source === EXTENSION_ID, event.data.action === 'version');
     if (event.data.source === EXTENSION_ID) {
         if (event.data.action === 'version') {
             supportedExtensionValue = [event.data.extension];
@@ -70,9 +69,8 @@ function enable(extensions = []) {
                         getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
                         getScript: () => promiseMessage({ action: 'getScript' }),
                         submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
-                        getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId }),
-                        getSecret:(secretId) => promiseMessage({ action: 'getSecret', secretId :secretId}),
-                        signRedeemer:(data, primitive) => promiseMessage({action : 'signRedeemer', data: data, primitive: primitive})
+                        getSecret:(secretId) => promiseMessage({ action: 'getSecret', secretId :  JSON.stringify(secretId)}),
+                        signRedeemer:(data, primitive) => promiseMessage({action : 'signRedeemer', data:  JSON.stringify(data), primitive:  JSON.stringify(primitive)})
                     },
                     submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
                     signTx: (tx) => Promise.reject("not supported"),

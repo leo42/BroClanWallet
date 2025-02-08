@@ -168,10 +168,11 @@ class Messaging {
                             response =  JSON.stringify(await this.wallet.getUtxosByOutRef(JSON.parse(message.outRefs)),replacer);
                             break;
                         case "getSecret":
-                            response = {code : 1, error:  "Not found"}
+                            response =JSON.stringify( {code : 1, error:  "Not found"})
                             break;
                         case "signRedeemer":
-                            response = {code : 1, error:  "Not found"}
+                            response =JSON.stringify( {code : 1, error:  "Not found"})
+
                             break;
                         case "decodeTx":
                             response = JSON.stringify(this.wallet.decodeTransaction(JSON.parse(message.tx)));
