@@ -372,11 +372,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
 
   selectWallet(key: number) {
-    this.setState({selectedWallet: key})
+    console.log("selectWallet", key)
+    const state = this.state
+    state.selectedWallet = key
+    this.setState(state)
     localStorage.setItem(this.props.settings.network + "selectedWallet", JSON.stringify(key))
+
     if(this.state.dAppConnector){
       this.state.dAppConnector.changeWallet(this.state.wallets[key])
-      const state = this.state
       state.dAppConnector = this.state.dAppConnector
       this.setState(state)
     }
