@@ -66,6 +66,16 @@ function enable(extensions = []) {
                         getScript: () => promiseMessage({ action: 'getScript' }),
                         getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
                     },
+                    cip141: {
+                        getScriptRequirements: () => promiseMessage({ action: 'getScriptRequirements' }),
+                        getScript: () => promiseMessage({ action: 'getScript' }),
+                        submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
+                        getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId }),
+                        getSecret:(secretId) => promiseMessage({ action: 'getSecret', secretId :secretId}),
+                        signRedeemer:(data, primitive) => promiseMessage({action : 'signRedeemer', data: data, primitive: primitive})
+
+
+                    },
                     submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
                     signTx: (tx) => Promise.reject("not supported"),
                     signData: (data) => Promise.reject("not supported")

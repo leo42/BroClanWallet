@@ -265,8 +265,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   }
 
-
-  
   updateSignerName(hash: string, name: string) {
     const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
     storedSignerNames[hash] = name;
@@ -302,13 +300,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   async reloadWallets(){
     await this.loadWallets()
     this.setState({loading: false})
-
   }
 
-
-
   setCollateralDonor (address: string) {
-
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
     wallet.setCollateralDonor(address)

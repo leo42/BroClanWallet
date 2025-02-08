@@ -76,6 +76,7 @@ declare class SmartWallet implements WalletInterface {
     setCollateralDonor(paymentKeyHash: string): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
     setDefaultSigners(signers: string[]): void;
+    getScriptRequirements(): Promise<any>;
     createUpdateTx(signers: string[], newConfig: SmartMultisigJson): Promise<TxSignBuilder>;
     private cleanConfig;
     private isValidKeyHash;

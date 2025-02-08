@@ -7,6 +7,7 @@ import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';
 import SmartWalletContainer from '../components/SmartWallet/SmartWalletContainer';
 import WalletInterface from '../components/WalletInterface';
+import SmartWallet from '../core/smartWallet';
 
 
 
@@ -104,10 +105,20 @@ class Messaging {
                         case "getScriptRequirements":
                             if(this.wallet instanceof MultisigWallet){
                                 response = this.wallet.getScriptRequirements()
-                            }else{
-                                response = {error: "not a multisig wallet"}
+                            }else if((this.wallet instanceof SmartWallet)){
+                                response = await this.wallet.getScriptRequirements()
+                                response.collateral  =  response.collateral !== null ? utxoToCore(response.collateral).to_cbor_hex() : null
+                                if(response.inputs !== undefined){
+                                    response.inputs  =   response.inputs.map((input: any) => utxoToCore(input).to_cbor_hex())
+                                }
+                                if(response.reference_inputs !== undefined){
+                                    response.reference_inputs  =  response.reference_inputs.map((input: any) => utxoToCore(input).to_cbor_hex())
+                                }
                             }
+
                             break;
+
+
                         case "getScript":
 
                             if(this.wallet instanceof MultisigWallet){  

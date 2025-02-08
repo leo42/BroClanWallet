@@ -452,10 +452,60 @@ setDefaultSigners(signers: string[]) {
    }
 }
 
+async getScriptRequirements() : Promise<any>{
+  // type ScriptRequirement = {
+  //   collateral?: cbor<transaction_unspent_output>,
+  //   inputs?: List<cbor<transaction_unspent_output>>,
+  //   reference_inputs?: List<cbor<transaction_unspent_output>>,
+  //   outputs?: List<transaction_output>,
+  //   mint?: Value,
+
+  //   certificates?: List<Certificate>,
+  //   withdrawals?: Dict<StakeCredential, Int>,
+  //   validity_range?: ValidityRange,
+  //   signatories?: List<KeyHash>,
+  //   redeemers?: Dict<ScriptPurpose, Redeemer>,
+  //   datums?: List<Hash<Blake2b_256, Data>, Data>
+  // }
+  const signers = this.getDefaultSigners()
+
+  const requirements = this.checkSigners(signers)
+  if(requirements === false){
+    return false
+  }
+
+  const scriptRequirements  = {
+    collateral: this.colateralUtxo,
+    inputs: requirements?.inputs,
+    reference_inputs: requirements?.refInputs || [],
+    validity_range: {
+      from: requirements?.before,
+      to: requirements?.after
+    },
+
+
+    signatories: signers,
+  }
+  while(this.scriptUtxo === null){
+     await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  if(this.scriptUtxo){
+    scriptRequirements.reference_inputs?.push(this.scriptUtxo)
+  }
+
+  if(this.configUtxo){
+    scriptRequirements.reference_inputs?.push(this.configUtxo)
+  }
+  return scriptRequirements
+}
+
+
 
 
 async createUpdateTx(
   signers: string[],
+
   newConfig: SmartMultisigJson
 ) {
   const requrement = this.checkSigners(signers)
