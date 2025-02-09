@@ -63,23 +63,19 @@ function stopPing() {
 
 
 
-function loadApprovedUrls() : Promise<string[]> {
+function loadApprovedUrls(): Promise<string[]> {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(['approvedUrls'], function(result) {
-            let approvedUrls = [];
-            // Parse approvedUrls back to an array
-            let parsedApprovedUrls = [];
+            let approvedUrls: string[] = [];
             if (result.approvedUrls) {
                 try {
-                    parsedApprovedUrls = JSON.parse(result.approvedUrls);
+                    // Parse and remove duplicates using Set
+                    approvedUrls = [...new Set(JSON.parse(result.approvedUrls))] as string[];
+                    // Store back the de-duped list
+                    chrome.storage.local.set({ approvedUrls: JSON.stringify(approvedUrls) });
                 } catch(e) {
                     console.error("Error parsing approvedUrls:", e);
                 }
-            }
-            if(!parsedApprovedUrls || parsedApprovedUrls.length === 0){
-                approvedUrls = [];
-            } else {
-                approvedUrls = parsedApprovedUrls;
             }
             resolve(approvedUrls);
         });
