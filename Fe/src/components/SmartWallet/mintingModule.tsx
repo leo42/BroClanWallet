@@ -13,6 +13,7 @@ import contracts from "../../core/contracts.json";
 import { App  } from "../../index";
 import { validatorToAddress } from "@lucid-evolution/utils";
 import SmartWalletContainer from "./SmartWalletContainer";
+import { coinSelect } from "../../core/coinSelect";
 
   
 
@@ -94,10 +95,11 @@ class MintingModule extends React.Component<MintingProps> {
 
 
     async mint( wallet  : string , settings : any, name: string ){
-
+      const couponId = contracts[this.props.root.state.settings.network as NetworkType].minting.couponId
       function stringToChunks(string : string) {
         const chunks = [];
         while (string.length > 0) {
+
             chunks.push(string.substring(0, 56));
             string = string.substring(56, string.length);
         }
@@ -120,21 +122,37 @@ class MintingModule extends React.Component<MintingProps> {
       if (!adminUtxo) {
         throw new Error("Could not fetch admin UTxO - the service might be temporarily unavailable");
       }
+      const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
 
       const paymentCredential = getAddressDetails(address).paymentCredential;
       if (!paymentCredential) {
         throw new Error("Payment credential not found");
       }
-      const utxos = (await lucid.config().provider!.getUtxos(paymentCredential)).slice(0, 5)
-      console.log("utxos", utxos)
+      const utxos = (await lucid.config().provider!.getUtxos(paymentCredential))
+
+      const couponUtxo =  utxos.find(utxo => utxo.assets[couponId] >= 1n)
+      console.log("utxos", utxos, couponUtxo)
+      const filteredUtxos = utxos.filter(utxo => utxo !== couponUtxo);
+      const consumingUtxos = couponUtxo 
+        ? [couponUtxo, ...coinSelect({lovelace: BigInt(15_000_000)}, filteredUtxos)] 
+        : coinSelect({lovelace: BigInt(adminDatum.mintAmount + 15_000_000n)}, utxos);
+
+        console.log("consumingUtxos", adminDatum)
+      const consumingTx =  lucid.newTx()
+      if(couponUtxo){
+        consumingTx.mintAssets({[couponId]: -1n}, Data.void())
+        consumingTx.attach.Script({ type : "PlutusV3", script : contracts[this.props.root.state.settings.network as NetworkType].minting.couponmint})
+      }else{
+        consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network as NetworkType].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
+        consumingTx.readFrom([adminUtxo])
+      }
 
 
 
       const policyId = mintingPolicyToId(this.mintingRawScript as MintingPolicy)
-      const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
-      const consumingTx =  lucid.newTx().collectFrom(utxos)
-      const tokenNameSuffix = this.getTokenName(utxos[0]).slice(2); 
-      consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network as NetworkType].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
+      const tokenNameSuffix = this.getTokenName(consumingUtxos[0]).slice(2); 
+      consumingTx.collectFrom(consumingUtxos)
+      
       const assets : Assets = {}
       const assetsConfigToken : Assets = {}
       const assetsRefferenceToken : Assets = {}
@@ -191,9 +209,8 @@ class MintingModule extends React.Component<MintingProps> {
       console.log("redeemer", redeemer)
 
       consumingTx.mintAssets(assets, redeemer)
-      consumingTx.attach.MintingPolicy(this.mintingRawScript as MintingPolicy)
+      consumingTx.attach.Script({ type: "PlutusV3", script : contracts[this.props.root.state.settings.network as NetworkType].minting.script} )
      consumingTx.attachMetadata( 721 , metadata )
-      consumingTx.readFrom([adminUtxo])
       
 
       consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)

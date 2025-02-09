@@ -1,7 +1,6 @@
 use aiken/collection/dict
 use aiken/collection/list
 use aiken/crypto
-use aiken/option
 use aiken/primitive/bytearray
 use cardano/address.{Script, VerificationKey}
 use cardano/assets.{AssetName, PolicyId}
@@ -34,7 +33,7 @@ fn payment_made(transaction: Transaction) {
   let adminTokenName: AssetName = #"736d6172744d696e7441646d696e"
 
   let redemptionTokenPolicy: PolicyId =
-    #"24fc896805f0b75ab51502b022834440ef8235f134475e0c14ea9353"
+    #"36e94375d61ea1bf95ebb1222c84b043695c56c34f980eb9c060dd6d"
   let redemptionTokenName: AssetName = #"546f6b656e5661756c742056617563686572"
 
   let adminUtxo =
@@ -44,29 +43,31 @@ fn payment_made(transaction: Transaction) {
             assets.quantity_of(x.output.value, adminTokenPolicy, adminTokenName) > 0
           },
         )
-  expect adminData: AdminDatum =
-    option.or_else(
-      option.map(
-        adminUtxo,
-        fn(utxo) {
-          when utxo.output.datum is {
-            InlineDatum(data) -> data
-            _ -> fail
-          }
-        },
-      ),
-      None,
-    )
   let regularPayment =
-    list.any(
-      transaction.outputs,
-      fn(output) {
-        and {
-          address_belongs_to_hash(output, adminData.paymentAddressCredential),
-          assets.lovelace_of(output.value) == adminData.mintAmount,
+    when adminUtxo is {
+      Some(utxo) ->
+        when utxo.output.datum is {
+          InlineDatum(data) -> {
+            expect adminData: AdminDatum = data
+
+            list.any(
+              transaction.outputs,
+              fn(output) {
+                and {
+                  address_belongs_to_hash(
+                    output,
+                    adminData.paymentAddressCredential,
+                  ),
+                  assets.lovelace_of(output.value) == adminData.mintAmount,
+                }
+              },
+            )
+          }
+          _ -> False
         }
-      },
-    )
+      _ -> False
+    }
+
   let tokensMinted = transaction.mint
 
   let redemptionPayment =
