@@ -46,7 +46,7 @@ declare class SmartWallet implements WalletInterface {
     addPendingTx(tx: {
         tx: CBORHex;
         signatures: Record<string, string>;
-    }): void;
+    }): string;
     getAddress(stakingAddress?: string): string;
     getEnterpriseAddress(): string;
     getDelegation(): Promise<Delegation>;
@@ -76,9 +76,16 @@ declare class SmartWallet implements WalletInterface {
     setCollateralDonor(paymentKeyHash: string): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
     setDefaultSigners(signers: string[]): void;
+    getCompletedTx(txId: string): {
+        tx: TxSignBuilder;
+        signatures: Record<string, string>;
+    } | undefined;
+    getScript(): import("@lucid-evolution/core-types").Script;
+    getScriptRequirements(): Promise<any>;
     createUpdateTx(signers: string[], newConfig: SmartMultisigJson): Promise<TxSignBuilder>;
     private cleanConfig;
     private isValidKeyHash;
+    getCollateral(): Promise<UTxO[]>;
     getColateralUtxo(signers?: string[]): Promise<UTxO>;
     getUtxos(): UTxO[];
     pullCollateralUtxo(collateralProvider: string): Promise<UTxO>;
@@ -112,6 +119,8 @@ declare class SmartWallet implements WalletInterface {
     setAddressNames(names: Record<string, string>): void;
     changeAddressName(address: string, name: string): void;
     getDefaultAddress(): string;
+    getCollateralAddress(): string;
+    getNetworkId(): 0 | 1;
     getAddressNames(): Record<string, string>;
     getAddressName(address: string): string;
 }

@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef, credentialToAddress} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../index"; 
@@ -134,9 +134,10 @@ class SmartWallet implements WalletInterface {
       return  {type: "Script" , hash: validatorToScriptHash(this.script) }  
   }
 
-  addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): void {
+  addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): string {
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
+    return txBuilder.toHash()
   }
 
 
@@ -451,11 +452,70 @@ setDefaultSigners(signers: string[]) {
     this.loadCollateralUtxos()
    }
 }
+getCompletedTx(txId: string){
+  return this.pendingTxs.find(tx => tx.tx.toHash() === txId)
+}
+
+getScript(){
+  return this.script
+}
+
+
+async getScriptRequirements() : Promise<any>{
+  // type ScriptRequirement = {
+
+  //   collateral?: cbor<transaction_unspent_output>,
+  //   inputs?: List<cbor<transaction_unspent_output>>,
+  //   reference_inputs?: List<cbor<transaction_unspent_output>>,
+  //   outputs?: List<transaction_output>,
+  //   mint?: Value,
+
+  //   certificates?: List<Certificate>,
+  //   withdrawals?: Dict<StakeCredential, Int>,
+  //   validity_range?: ValidityRange,
+  //   signatories?: List<KeyHash>,
+  //   redeemers?: Dict<ScriptPurpose, Redeemer>,
+  //   datums?: List<Hash<Blake2b_256, Data>, Data>
+  // }
+  const signers = this.getDefaultSigners()
+
+  const requirements = this.checkSigners(signers)
+  if(requirements === false){
+    return false
+  }
+
+  const scriptRequirements  = {
+    collateral: this.colateralUtxo,
+    inputs: requirements?.inputs,
+    reference_inputs: requirements?.refInputs || [],
+    validity_range: {
+      from: requirements?.before,
+      to: requirements?.after
+    },
+
+
+    signatories: signers,
+  }
+  while(this.scriptUtxo === null){
+     await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  if(this.scriptUtxo){
+    scriptRequirements.reference_inputs?.push(this.scriptUtxo)
+  }
+
+  if(this.configUtxo){
+    scriptRequirements.reference_inputs?.push(this.configUtxo)
+  }
+  return scriptRequirements
+}
+
 
 
 
 async createUpdateTx(
   signers: string[],
+
   newConfig: SmartMultisigJson
 ) {
   const requrement = this.checkSigners(signers)
@@ -552,7 +612,19 @@ private isValidKeyHash(hash: string): boolean {
   // A valid key hash is a 28-byte (56 character) hexadecimal string
   return /^[0-9a-fA-F]{56}$/.test(hash);
 }
-  
+
+
+
+async getCollateral(): Promise<UTxO[]>{
+  if(this.collateralDonor){
+    return [await this.getColateralUtxo([this.collateralDonor as string])]
+  }else{
+    return []
+  }
+
+
+}
+
 async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   if(this.colateralUtxo && signers?.includes(this.collateralDonor as string)) {
     return this.colateralUtxo
@@ -640,11 +712,12 @@ getUtxos(): UTxO[] {
 
 
 
-    const completedTx = await tx.complete({ setCollateral : 1_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
+    const completedTx = await tx.complete({ setCollateral : 4_000_000n, changeAddress:  this.getAddress(), coinSelection: true, localUPLCEval: true });
     this.pendingTxs.push({ tx: completedTx, signatures: {} });
     return completedTx;
 
   }
+  
 
   async createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<TxSignBuilder> {
     const rewardAddress = validatorToRewardAddress(this.lucid.config().network!, this.script);
@@ -911,10 +984,20 @@ getUtxos(): UTxO[] {
     return this.defaultAddress;
 }
 
+getCollateralAddress(){
+  return credentialToAddress( this.lucid!.config().network!,  this.getCredential())
+}
+
+  getNetworkId(){
+    return this.lucid!.config().network === "Mainnet" ? 1 : 0 
+  }
+
+
 
   getAddressNames(): Record<string, string> {
     return this.addressNames;
   }
+
 
   getAddressName(address: string) {
     if (!this.addressNames) {

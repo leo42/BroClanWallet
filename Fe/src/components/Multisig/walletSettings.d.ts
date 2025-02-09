@@ -1,6 +1,6 @@
 import React from 'react';
 import './walletSetting.css';
-import Wallet from './multisigWallet';
+import Wallet from '../../core/multisigWallet';
 interface WalletSettingsProps {
     wallet: Wallet;
     moduleRoot: any;

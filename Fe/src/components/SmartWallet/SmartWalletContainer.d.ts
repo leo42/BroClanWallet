@@ -3,6 +3,7 @@ import SmartWallet from '../../core/smartWallet';
 import './SmartWalletContainer.css';
 import { Settings } from '../../index';
 import { SmartMultisigJson } from "./types";
+import Messaging from '../../helpers/Messaging';
 interface SmartWalletContainerProps {
     settings: Settings;
     root: any;
@@ -16,7 +17,7 @@ interface SmartWalletContainerState {
         socket: any;
     };
     loading: boolean;
-    dAppConnector: any | null;
+    dAppConnector: Messaging | null;
     walletSettingsOpen: boolean;
 }
 declare class SmartWalletContainer extends React.Component<SmartWalletContainerProps, SmartWalletContainerState> {
@@ -35,7 +36,10 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     modalType(): string;
     createTx(recipients: any[], signers: any[], sendFrom?: string, sendAll?: number | null, withdraw?: boolean): Promise<void>;
     createUpdateTx(signers: string[], newConfig: SmartMultisigJson): Promise<void>;
-    importTransaction(transaction: any): Promise<void>;
+    importTransaction(transaction: any): Promise<string | {
+        code: number;
+        error: string;
+    }>;
     deleteWallet(index: number): Promise<void>;
     changeWalletName(name: string): void;
     addSignature(signature: string): void;

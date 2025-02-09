@@ -21,6 +21,7 @@ interface WalletInterface {
     getPendingTxDetails(index: number): any;
     submitTransaction(index: number): Promise<any>;
     getTransactionType(txDetails: any): string;
+    decodeTransaction(tx: string): any;
     getSigners(): any[];
     getSignature(index: number, keyHash: string): string;
     addSignature(signature: string): any;
@@ -28,6 +29,8 @@ interface WalletInterface {
     getDefaultSigners(): string[];
     setDefaultSigners(signers: string[]): void;
     defaultSignersValid(): boolean;
+    getCollateral(): Promise<UTxO[]>;
+    getCollateralAddress(): string;
     isAddressMine(address: string): boolean;
     isAddressValid(address: string): boolean;
     isAddressScript(address: string): boolean;
@@ -38,6 +41,9 @@ interface WalletInterface {
     getDefaultAddress(): string;
     setDefaultAddress(address: string): void;
     getStakingAddress(): string;
+    getCompletedTx(txId: string): any;
+    getScript(): any;
+    getNetworkId(): number;
     changeSettings(settings: any): Promise<void>;
     getCollateralDonor(): string;
     setCollateralDonor(paymentKeyHash: string): Promise<void>;

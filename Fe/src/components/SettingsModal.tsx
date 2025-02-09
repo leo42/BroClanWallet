@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import "./SettingsModal.css";
 import { useState} from 'react';
 import {  toast } from 'react-toastify';

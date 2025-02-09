@@ -1,7 +1,7 @@
 import * as LucidEvolution from "@lucid-evolution/lucid";
 import { Credential } from "@lucid-evolution/lucid";
 import { Delegation } from "@lucid-evolution/core-types";
-import WalletInterface from "../components/WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 declare class MultisigWallet implements WalletInterface {
     signersNames: any[];
     wallet_script: any;
@@ -63,7 +63,7 @@ declare class MultisigWallet implements WalletInterface {
         };
     }[];
     getTransactionType(txDetails: any): string;
-    decodeTransaction(tx: LucidEvolution.TxSignBuilder): any;
+    decodeTransaction(tx: string): any;
     getPendingTxDetails(index: number): any;
     checkSigners(signers: string[]): any;
     createTemplateTx(signers: string[]): Promise<LucidEvolution.TxBuilder>;
@@ -78,7 +78,7 @@ declare class MultisigWallet implements WalletInterface {
     }>;
     setCollateralDonor(paymentKeyHash: any): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
-    getCollateral(value?: number | undefined): any;
+    getCollateral(value?: number): any;
     getCollateralDonor(): any;
     getCollateralUtxos(value: number | undefined): Promise<any>;
     getCollateralAddress(): any;
@@ -115,8 +115,14 @@ declare class MultisigWallet implements WalletInterface {
     changeAddressName(address: string, name: string): void;
     getNetworkId(): 0 | 1;
     getDefaultAddress(): string;
-    getDefaultSigners(): any[];
-    defaultSignersValid(): any;
+    getDefaultSigners(): string[];
+    defaultSignersValid(): boolean;
+    getScriptRequirements(): {
+        code: number;
+        value: string;
+    }[] | {
+        error: string;
+    };
     getAddressNames(): any;
     getAddressName(address: string): any;
 }

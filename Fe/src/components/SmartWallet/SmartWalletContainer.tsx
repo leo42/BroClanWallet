@@ -11,6 +11,7 @@ import { SmartMultisigJson } from "./types";
 import {getAddressDetails} from "@lucid-evolution/lucid";
 import WalletSettings from './walletSettings';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
+import Messaging from '../../helpers/Messaging';
 
 
 interface SmartWalletContainerProps {
@@ -24,8 +25,9 @@ interface SmartWalletContainerState {
   selectedWallet: number;
   connectedWallet: { name: string; socket: any };
   loading: boolean;
-  dAppConnector: any | null;
+  dAppConnector: Messaging | null;
   walletSettingsOpen: boolean;
+  
 }
 
 
@@ -57,6 +59,10 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   componentWillUnmount() {
     if (this.state.dAppConnector) {
       this.state.dAppConnector.disconnect();
+      const state = this.state
+      state.dAppConnector = null
+      this.setState(state)
+
     }
     if (this.interval) {
       clearInterval(this.interval);
@@ -110,8 +116,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   async loadState() {
     await this.loadWallets()
     this.setState({loading: false})
+    const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
+    this.setState({dAppConnector: dAppConnector})
   }
   
+
   modalType() {
     return "smart";
   }
@@ -141,11 +150,23 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   
   async importTransaction(transaction: any) {
+    try{
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
-    await wallet.addPendingTx({tx: transaction, signatures: {}})
+    const txHash = await wallet.addPendingTx({tx: transaction, signatures: {}})
     this.setState({wallets: wallets})
-    this.storeWallets()
+
+
+
+    toast.success("Transaction imported");
+    return txHash
+    }catch(e: any){
+      toast.error("Could not import transaction: " + e.message);
+      
+
+      return {"code": 1, "error": "Could not import transaction: " + e.message}
+
+    }
   }
   
   async deleteWallet(index: number) {
@@ -256,8 +277,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
   }
 
-
-  
   updateSignerName(hash: string, name: string) {
     const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
     storedSignerNames[hash] = name;
@@ -282,16 +301,20 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     }
     this.setState({wallets: [...this.state.wallets, newWallet]})
     this.storeWallets()
+    if(this.state.wallets.length === 1){
+      const dAppConnector = new Messaging(newWallet, this)
+      this.setState({dAppConnector: dAppConnector})
+    }
+
   }
+
 
   async reloadWallets(){
     await this.loadWallets()
     this.setState({loading: false})
   }
 
-
   setCollateralDonor (address: string) {
-
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
     wallet.setCollateralDonor(address)
@@ -361,9 +384,20 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
 
   selectWallet(key: number) {
-    this.setState({selectedWallet: key})
+    console.log("selectWallet", key)
+    const state = this.state
+    state.selectedWallet = key
+    this.setState(state)
     localStorage.setItem(this.props.settings.network + "selectedWallet", JSON.stringify(key))
+
+    if(this.state.dAppConnector){
+      this.state.dAppConnector.changeWallet(this.state.wallets[key])
+      state.dAppConnector = this.state.dAppConnector
+      this.setState(state)
+    }
   }
+
+
 
   async submit(index: number) {
     try{

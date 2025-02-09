@@ -6,7 +6,7 @@ import TransactionHistory from '../TransactionHistory';
 import Receive from '../Receive';
 import PendingTxs from '../PendingTxs';
 import './WalletMain.css';
-import WalletInterface from '../WalletInterface';
+import WalletInterface from '../../core/WalletInterface';
 import { App } from '../..';
 import MultisigContainer from './MultisigContainer';
 

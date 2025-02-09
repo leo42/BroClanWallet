@@ -1,4 +1,4 @@
-import { Assets, UTxO, TxSignBuilder, Delegation, OutRef , Credential } from "@lucid-evolution/lucid";
+import { Assets, UTxO, TxSignBuilder, Delegation, OutRef , Credential, Script } from "@lucid-evolution/lucid";
 
 interface WalletInterface {
   // Basic wallet info
@@ -27,6 +27,7 @@ interface WalletInterface {
   getPendingTxDetails(index: number): any;
   submitTransaction(index: number): Promise<any>;
   getTransactionType(txDetails: any): string;
+  decodeTransaction(tx: string): any;
   
   // Signatures and signers
   getSigners(): any[];
@@ -36,8 +37,9 @@ interface WalletInterface {
   getDefaultSigners(): string[];
   setDefaultSigners(signers: string[]): void;
   defaultSignersValid(): boolean;
-  
+  getCollateral(): Promise<UTxO[]>;
   // Address management
+  getCollateralAddress(): string;
   isAddressMine(address: string): boolean;
   isAddressValid(address: string): boolean;
   isAddressScript(address: string): boolean;
@@ -47,8 +49,12 @@ interface WalletInterface {
   changeAddressName(address: string, name: string): void;
   getDefaultAddress(): string;
   setDefaultAddress(address: string): void;
+
   getStakingAddress(): string;
+  getCompletedTx(txId: string): any;
   // Settings
+  getScript(): any;
+  getNetworkId(): number;
   changeSettings(settings: any): Promise<void>;
   
   // Collateral

@@ -19,15 +19,20 @@ function App() {
     const [appURL, setAppURL] = useState("");
 
     useEffect(() => {
-        getInfo()
+        getInfo();
         chrome.storage.local.get(['approvedUrls'], function(result) {
-            setApprovedUrls(JSON.parse(result.approvedUrls));
+            try {
+                const urls = result.approvedUrls ? JSON.parse(result.approvedUrls) : [];
+                setApprovedUrls([...new Set(urls)]); // Remove duplicates
+            } catch(e) {
+                console.error("Error parsing approvedUrls:", e);
+                setApprovedUrls([]);
+            }
         });
         chrome.storage.local.get(['appURL'], function(result) {
-          //if empty set default value to app.broclan.io 
-            setAppURL(result.appURL);
+            setAppURL(result.appURL || 'https://app.broclan.io/');
         });
-      }, []);
+    }, []);
 
     function getInfo(){
         console.log("getInfo");

@@ -5,8 +5,9 @@ import {getNewLucidInstance , changeProvider} from "../helpers/newLucidEvolution
 import { DRep , Credential } from "@lucid-evolution/lucid";
 import { decodeCIP129 } from "../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
-import WalletInterface from "../components/WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 import { coinSelect } from "./coinSelect";
+
 
 class MultisigWallet implements WalletInterface{
     signersNames: any[] = []
@@ -117,7 +118,7 @@ class MultisigWallet implements WalletInterface{
       return this.lucidNativeScript;
     }
 
-    getCompletedTx(txId: string){
+    getCompletedTx(txId: string) {
       return this.pendingTxs.find( tx => tx.tx.toHash() === txId)
     }
 
@@ -304,7 +305,7 @@ setPendingTxs(pendingTxs: any){
     
     async checkTransaction(tx: LucidEvolution.TxSignBuilder){
       const utxos = this.utxos
-      const transactionDetails = this.decodeTransaction(tx)
+      const transactionDetails = this.decodeTransaction(tx.toCBOR({canonical: true}))
       
         const inputsUtxos =  await this.getUtxosByOutRef(transactionDetails.inputs)
 
@@ -363,14 +364,15 @@ setPendingTxs(pendingTxs: any){
 
 
 
-    decodeTransaction(tx: LucidEvolution.TxSignBuilder) {
-      const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx.toCBOR({canonical: true})).body().to_js_value();
+    decodeTransaction(tx: string) {
+      const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx).body().to_js_value();
       console.log(txBody)
       return txBody;
     }
 
+
     getPendingTxDetails(index: number){
-      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx)
+      const txDetails = this.decodeTransaction(this.pendingTxs[index].tx.toCBOR({canonical: true}))
       txDetails.signatures =  txDetails.required_signers ?  txDetails.required_signers.map( (keyHash: any) => (
         {name: this.keyHashToSighnerName(keyHash) , keyHash:keyHash , haveSig: (keyHash in this.pendingTxs[index].signatures ? true : false)}
       )) : []
@@ -594,9 +596,7 @@ setPendingTxs(pendingTxs: any){
       return LucidEvolution.makeTxSignBuilder(this.lucid!.config().wallet, LucidEvolution.CML.Transaction.from_cbor_hex(cbor)) 
     }
 
-    async importTransaction(transaction: string)
-
-    { 
+    async importTransaction(transaction: string) { 
       let tx
       console.log("transaction", transaction)
       tx = this.txFromCBOR(transaction)
@@ -647,7 +647,7 @@ setPendingTxs(pendingTxs: any){
       }
     }
 
-    getCollateral(value : number | undefined = 5_000_000){
+    getCollateral(value : number  = 5_000_000){
       function getMinimumUtxos(utxos: any, requiredValue: any) {
         // Sort the UTXOs in ascending order
         utxos.map((utxo: any) => utxo.assets.lovelace = Number(utxo.assets.lovelace))
@@ -994,14 +994,34 @@ setPendingTxs(pendingTxs: any){
         return this.defaultAddress;
     }
 
-    getDefaultSigners(){
+    getDefaultSigners() : string[]{
       return this.signersNames.filter( signer => signer.isDefault).map( signer => signer.hash)
     }
 
-    defaultSignersValid(){
-      return this.checkSigners(this.getDefaultSigners())
-    
+
+    defaultSignersValid() : boolean{
+      return this.checkSigners(this.getDefaultSigners()) === false ? false : true
     }
+
+    getScriptRequirements(){
+      const signers = this.getDefaultSigners(); 
+                            
+      const isValid = this.checkSigners(signers);
+      if (isValid === false){
+          return {error: "not enough signers"}
+      }else{
+          const response = signers.map((signer) => ({ code: 1 , value: signer}));
+
+          if (isValid.requires_before)   {
+              response.push({code : 2, "value": isValid.requires_before});
+          }
+          if (isValid.requires_after){
+              response.push({code: 3, "value": isValid.requires_after});
+          }
+          return response
+      }
+    }
+
 
     getAddressNames(){
       return this.addressNames

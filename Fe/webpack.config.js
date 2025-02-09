@@ -117,11 +117,14 @@ var extensionConfig = {
 	};
 	
 var workerConfig = {
-	entry:  './src/extension/background.js',
+	entry:  './src/extension/background.ts',
 	  output: {
 		filename: 'background.js',
 		path: path.resolve(__dirname, 'build/extension'),
 		// Specify the folder name for the extension output
+	  },
+	  resolve: {
+		extensions: ['.js', '.jsx', '.ts', '.tsx'],
 	  },
 	  mode: 'development',
 	  devtool: 'source-map',
@@ -129,6 +132,7 @@ var workerConfig = {
 		asyncWebAssembly: false,
 		topLevelAwait: false,
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
+
 		},
 		module: {
 			rules: [
@@ -136,9 +140,16 @@ var workerConfig = {
 				loader: 'babel-loader',
 				test: /\.js$/,
 				exclude: /node_modules/
-			}]
+			},
+			{
+				test: /\.ts$/,
+				use: 'ts-loader',
+				exclude: /node_modules/,
+			},
+		]
 		},
 	};
+
 
 	var injectionConfig = {
 		entry:  './src/extension/injected.js',

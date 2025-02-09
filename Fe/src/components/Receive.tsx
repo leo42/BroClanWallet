@@ -3,7 +3,7 @@ import "./Receive.css"
 import {  toast } from 'react-toastify';
 import QRCode from "qrcode" ;
 import copyTextToClipboard from "../helpers/copyTextToClipboard";
-import WalletInterface from "./WalletInterface";
+import WalletInterface from "../core/WalletInterface";
 
 function Receive(props: {wallet: WalletInterface}){
     const [address, setAddress] = React.useState(props.wallet.getDefaultAddress() === "" ? props.wallet.getAddress() : props.wallet.getDefaultAddress())

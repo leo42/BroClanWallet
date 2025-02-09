@@ -3,7 +3,7 @@ import PoolElement from './PoolElement';
 import SearchPools from '../helpers/SearchPools';
 import "./WalletDelegation.css"
 import  { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
-import WalletInterface from './WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
 import MultisigContainer from './Multisig/MultisigContainer';
 import { App } from '..';

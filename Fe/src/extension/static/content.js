@@ -21,6 +21,14 @@ function shouldInject() {
   return docElemCheck && docTypeCheck;
 }
 
+// Bridge between background script and injected script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'FOR_INJECTED') {
+      // Forward the message to the injected script using window.postMessage
+      window.postMessage(message.data, '*');
+  }
+});
+
 if (shouldInject) {
   injectScript();
 }

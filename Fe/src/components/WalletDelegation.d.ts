@@ -1,5 +1,5 @@
 import "./WalletDelegation.css";
-import WalletInterface from './WalletInterface';
+import WalletInterface from '../core/WalletInterface';
 import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
 import MultisigContainer from './Multisig/MultisigContainer';
 import { App } from '..';

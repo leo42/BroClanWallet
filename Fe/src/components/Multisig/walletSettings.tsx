@@ -4,7 +4,7 @@ import { ReactComponent as DownloadIcon } from '../../html/assets/download.svg';
 import { ReactComponent as DeleteIcon } from '../../html/assets/delete.svg';
 import './walletSetting.css'
 
-import Wallet from './multisigWallet';
+import Wallet from '../../core/multisigWallet';
 interface WalletSettingsProps {
   wallet: Wallet;
   moduleRoot: any;
