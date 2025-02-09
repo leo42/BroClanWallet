@@ -41,8 +41,8 @@ function isEnabled() {
 function enable(extensions = []) {
 
     return new Promise((resolve, reject) => {
-        if (!extensions.includes(106)) {
-            reject("Only Extencion 106 is supported");
+        if (!extensions.includes(supportedExtensionValue[0])) {
+            reject("Only Extencion " + supportedExtensionValue[0] + " is supported");
         }
         chrome.runtime.sendMessage(EXTENSION_ID, { action: 'enable', extensions: extensions }).then((responce) => {
             if(!responce || responce.error){ 
@@ -70,7 +70,9 @@ function enable(extensions = []) {
                         getScript: () => promiseMessage({ action: 'getScript' }),
                         submitUnsignedTx: (tx) => promiseMessage({ action: 'submitUnsignedTx', tx: JSON.stringify(tx) }),
                         getSecret:(secretId) => promiseMessage({ action: 'getSecret', secretId :  JSON.stringify(secretId)}),
-                        signRedeemer:(data, primitive) => promiseMessage({action : 'signRedeemer', data:  JSON.stringify(data), primitive:  JSON.stringify(primitive)})
+                        signRedeemer:(data, primitive) => promiseMessage({action : 'signRedeemer', data:  JSON.stringify(data), primitive:  JSON.stringify(primitive)}),
+                        getCompletedTx: (txId) => promiseMessage({ action: 'getCompletedTx', txId: txId })
+
                     },
                     submitTx: (tx) => promiseMessage({ action: 'submitTx', tx: tx }),
                     signTx: (tx) => Promise.reject("not supported"),
