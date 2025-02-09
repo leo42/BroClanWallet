@@ -46,7 +46,7 @@ declare class SmartWallet implements WalletInterface {
     addPendingTx(tx: {
         tx: CBORHex;
         signatures: Record<string, string>;
-    }): void;
+    }): string;
     getAddress(stakingAddress?: string): string;
     getEnterpriseAddress(): string;
     getDelegation(): Promise<Delegation>;
@@ -120,7 +120,7 @@ declare class SmartWallet implements WalletInterface {
     changeAddressName(address: string, name: string): void;
     getDefaultAddress(): string;
     getCollateralAddress(): string;
-    getNetworkId(): 1 | 0;
+    getNetworkId(): 0 | 1;
     getAddressNames(): Record<string, string>;
     getAddressName(address: string): string;
 }

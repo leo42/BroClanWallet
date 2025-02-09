@@ -36,7 +36,10 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     modalType(): string;
     createTx(recipients: any[], signers: any[], sendFrom?: string, sendAll?: number | null, withdraw?: boolean): Promise<void>;
     createUpdateTx(signers: string[], newConfig: SmartMultisigJson): Promise<void>;
-    importTransaction(transaction: any): Promise<void>;
+    importTransaction(transaction: any): Promise<string | {
+        code: number;
+        error: string;
+    }>;
     deleteWallet(index: number): Promise<void>;
     changeWalletName(name: string): void;
     addSignature(signature: string): void;
