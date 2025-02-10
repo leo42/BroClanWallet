@@ -534,27 +534,26 @@ setPendingTxs(pendingTxs: any){
               throw new Error('Not enough funds');
             }
           }    
-        
-          const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
-          sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
-
+      
         const tx = await this.createTemplateTx(signers)
         recipients.map( (recipient: any,index: number) => {
-          // sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) :
-          const convertedAmount: Record<string, bigint> = {}
-          for (const [key, value] of Object.entries(recipient.amount)) {
-            convertedAmount[key] = BigInt(value as number)
-          }
-          recipient.amount = convertedAmount
-          const localAmount = sendAll === index ? sendAllAmount : recipient.amount
+          if(sendAll !== index ){
+            const convertedAmount: Record<string, bigint> = {}
+            for (const [key, value] of Object.entries(recipient.amount)) {
+              convertedAmount[key] = BigInt(value as number)
+            }
+            recipient.amount = convertedAmount
+            
+            const localAmount =   recipient.amount
 
-          tx.pay.ToAddress(recipient.address,localAmount)
+            tx.pay.ToAddress(recipient.address,localAmount)
+          }
       })
       let utxos = this.utxos
       if(sendFrom!==""){
-
         utxos = utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
       }
+
       if(sendAll === null){
           const fee = BigInt(500_000 + 200_000 * signers.length + 500_000 * recipients.length);
           const totalAmount = {
