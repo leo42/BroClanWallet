@@ -514,13 +514,13 @@ async setState(state: MultisigContainerState){
         delete pendingWallets[key]
         state.pendingWallets = pendingWallets
         this.setState(state)
+        this.selectWallet(wallets.length - 1)
         if (this.state.connectedWallet.socket) {
           this.state.connectedWallet.socket.emit('subscribe' , pendingWallet.json)}
 
-        if(this.state.wallets.length === 1)
           this.state.dAppConnector?.changeWallet(myWallet)
-        toast.success("Wallet Imported");
-
+          toast.success("Wallet Imported");
+          
       }else{
         toast.error("Wallet already exists")
       }
@@ -547,8 +547,9 @@ async setState(state: MultisigContainerState){
       wallets.push(myWallet)
       const state = this.state
       state.wallets = wallets
-      this.setState(state)
       
+      this.setState(state)
+      this.selectWallet(wallets.length - 1)
 
       if (this.state.connectedWallet.socket) {
          this.state.connectedWallet.socket.emit('subscribe' , script)}
