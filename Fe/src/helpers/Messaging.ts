@@ -52,7 +52,6 @@ class Messaging {
                 switch (message.action) {  
                         case "ping":
                             if(this.wallet instanceof MultisigWallet){
-                                console.log("ping");
                                 response = {"version" : 106};
                             }else{
                                 response = {"version" : 141};

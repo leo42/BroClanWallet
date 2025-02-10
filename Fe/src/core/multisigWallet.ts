@@ -366,7 +366,6 @@ setPendingTxs(pendingTxs: any){
 
     decodeTransaction(tx: string) {
       const txBody = LucidEvolution.CML.Transaction.from_cbor_hex(tx).body().to_js_value();
-      console.log(txBody)
       return txBody;
     }
 
@@ -534,18 +533,13 @@ setPendingTxs(pendingTxs: any){
             }else{
               throw new Error('Not enough funds');
             }
-          }
-          console.log("sumOfRecipientsMinusSendAll", sumOfRecipientsMinusSendAll)
-        
-
+          }    
         
           const sendAllAmount = this.substructBalanceFull(sumOfRecipientsMinusSendAll,sendFrom) 
           sendAllAmount["lovelace"] = sendAllAmount["lovelace"] - BigInt(500_000  +  200_000 * signers.length + 500_000 * recipients.length)
-          console.log("sendAllAmount", sendAllAmount)
 
         const tx = await this.createTemplateTx(signers)
         recipients.map( (recipient: any,index: number) => {
-          console.log("recipient", index,recipient)
           // sendAll === index ? OutputTx.payToAddress(recipient.address,  sendAllAmount ) :
           const convertedAmount: Record<string, bigint> = {}
           for (const [key, value] of Object.entries(recipient.amount)) {
@@ -598,7 +592,6 @@ setPendingTxs(pendingTxs: any){
 
     async importTransaction(transaction: string) { 
       let tx
-      console.log("transaction", transaction)
       tx = this.txFromCBOR(transaction)
       try{
       if (!await this.checkTransaction(tx)){
