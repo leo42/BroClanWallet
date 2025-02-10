@@ -191,8 +191,11 @@ async function getTransactionDetails(transactionIds : any[], settings : any, add
             transactionInfo[transactionId.tx_hash].fetch_time = Date.now()
             transactionInfo[transactionId.tx_hash].block_time =  slotToUnixTime( settings.network, transactionInfo[transactionId.tx_hash].slot);
             transactionInfo[transactionId.tx_hash].provider = "Maestro"
-            transactionInfo[transactionId.tx_hash].withdrawals = MaestroTx.data.withdrawals[0];
-
+            console.log("MaestroTx", MaestroTx.data.withdrawals)
+            MaestroTx.data.withdrawals.forEach((w : any) =>  {
+                if(getAddressDetails(address).stakeCredential!.hash === getAddressDetails(w.stake_address).stakeCredential!.hash) { 
+                   transactionInfo[transactionId.tx_hash].withdrawals.amount += Number(w.amount)}
+                })  
             localStorage.setItem('transactionInfo', JSON.stringify(transactionInfo));
 
             return transactionInfo[transactionId.tx_hash]
