@@ -62,10 +62,11 @@ function SettingsModal(props: {root : App, setOpenModal: (modal: string) => void
     setDefaultValues()
   }
   
-  function applyNetworkSettings() {
+  async function applyNetworkSettings() {
     try {
     let localproviderConnection = providerConnection
     if (provider === "Blockfrost"){
+
       if (providerConnection.url === "" || providerConnection.projectId === ""){
 
         toast.error("Please fill all fields");
@@ -132,10 +133,12 @@ function SettingsModal(props: {root : App, setOpenModal: (modal: string) => void
                                   success: "Settings applied", 
                                   error: "Connection Failure" });
 
-
+      await applySetting
+      props.setOpenModal("")
     } catch (error) {
       toast.error("Connection Failure");
     }
+
 
 
 
