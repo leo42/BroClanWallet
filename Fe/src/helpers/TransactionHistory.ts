@@ -1,7 +1,6 @@
 import { getAddressDetails, slotToUnixTime } from "@lucid-evolution/lucid";
 
 async function getTransactionHistory(address : string, settings : any, page=0 , limit = 10){
-    console.log("getTransactionHistory", address, settings, page, limit)
     if( settings.metadataProvider === "None" ){
         return []
     }

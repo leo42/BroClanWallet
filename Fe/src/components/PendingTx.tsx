@@ -68,7 +68,6 @@ function WalletPendingTx(props: WalletPendingTxProps) {
 
 
     function transactionBalance(transaction: { outputs: any[]; withdrawals: {[key: string]: bigint} }){
-        console.log("transaction ouputs",transaction.outputs)
         const BalancesOut = {} as {[key: string]: bigint}
         inputUtxos.map( (input, index) => {
            if ( props.wallet.isAddressMine(input.address)) {
