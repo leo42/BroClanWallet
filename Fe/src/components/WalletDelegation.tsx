@@ -29,6 +29,7 @@ function WalletDelegation(props: {wallet: WalletInterface, moduleRoot: SmartWall
   useEffect(() => {
     wallet.getDelegation().then( (delegation: Delegation) => {;
       setDelegation(delegation);
+      setPool(delegation.poolId || '');
       
     })
   }, [wallet])
