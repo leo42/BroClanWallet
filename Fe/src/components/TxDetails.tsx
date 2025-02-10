@@ -63,14 +63,14 @@ function mintToAssets(mint: any) : Assets{
     }
 
 
- function TransactionDetails( utxos : {inputUtxos : UTxO[], collateralUtxos : UTxO[], referenceInputsUtxos : UTxO[]}, isAddressMine : (address: string) => boolean, transaction: { mint: any; outputs: any[]; fee: number; ttl: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; network_id: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; certs: any[]; withdrawals: any; update: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; auxiliary_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; validity_interval_start: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; script_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; collateral_return: any; total_collateral: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_before: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_hereafter: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; required_scripts: any[]; reference_inputs: any; required_signers: any[]; }){
+ function TransactionDetails( utxos : {inputUtxos : UTxO[], collateralUtxos : UTxO[], referenceInputsUtxos : UTxO[]}, isAddressMine : (address: string) => boolean, transaction: { mint: any; outputs: any[]; fee: number; ttl: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; network_id: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; certs: any[]; withdrawals: Map<string, number>; update: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; auxiliary_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; validity_interval_start: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; script_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; collateral_return: any; total_collateral: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_before: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_hereafter: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; required_scripts: any[]; reference_inputs: any; required_signers: any[]; }){
     
 
     const { inputUtxos, collateralUtxos, referenceInputsUtxos } = utxos;
 
 
     const mintAssets = transaction.mint ? mintToAssets(transaction.mint) : {};
-
+    console.log("withdrawals", transaction.withdrawals, JSON.stringify(transaction.withdrawals))
     return (
         <div>
             <div className="txDetailsInputsOutputs">
@@ -121,7 +121,21 @@ function mintToAssets(mint: any) : Assets{
 
                 })}</span></div></div>}
 
-                {transaction.withdrawals && <div className="pendingTxData"><div><h4>Withdrawals:</h4><span>{JSON.stringify(transaction.withdrawals)}</span></div></div>}
+                {transaction.withdrawals && (
+                    <div className="pendingTxData">
+                        <div>
+                            <h4>Withdrawals:</h4>
+                            <span>
+                                {Array.from(transaction.withdrawals.entries()).map(([address, amount]) => (
+                                    <div key={address}>
+                                        <strong>Address:</strong> {address} <br />
+                                        <strong>Amount:</strong> {amount / 1_000_000}₳
+                                    </div>
+                                ))}
+                            </span>
+                        </div>
+                    </div>
+                )}
                 {transaction.update && <div className="pendingTxData"><div><h4>Update:</h4><span>{transaction.update}</span></div></div>}
                 {transaction.auxiliary_data_hash && <div className="pendingTxData"><div><h4>Auxiliary Data Hash:</h4><span>{transaction.auxiliary_data_hash}</span></div></div>}
                 {transaction.validity_interval_start && <div className="pendingTxData"><div><h4>Validity Interval Start:</h4><span>{transaction.validity_interval_start}</span></div></div>}
