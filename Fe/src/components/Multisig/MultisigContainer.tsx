@@ -370,7 +370,7 @@ async setState(state: MultisigContainerState){
     if (index === this.state.selectedWallet){
       state.selectedWallet = 0
     }
-
+    state.modal = ""
     wallets.splice(index,1)
     state.wallets = wallets
     this.setState(state)
