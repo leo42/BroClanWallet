@@ -30,7 +30,6 @@ function normalizeTxDetails(txBody: any){
           txBody.collateral_return = txBody.collateral_return[formatKeys[0]];
         }
       }
-      console.log("2",txBody)
       return txBody
 }
 

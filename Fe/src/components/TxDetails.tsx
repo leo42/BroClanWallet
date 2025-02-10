@@ -19,22 +19,19 @@ function TransactionInput(input: UTxO, isAddressMine : (address: string) => bool
     )
 }
 
-function transformAmount(amount : any) : {[key: string]: bigint} {
+function transformAmount(amount: any): { [key: string]: bigint } {
     const amountOut: { [key: string]: bigint } = {};
-    amountOut["lovelace"] = amount.coin;
+    amountOut["lovelace"] = BigInt(amount.coin);
 
-    if (amount.multiasset && amount.multiasset.length > 0) {
-
+    if (amount.multiasset && amount.multiasset.size > 0) {
         // Iterate over the multiasset Map
-        amount.multiasset.forEach((assetsMap: any[], policy: any) => {
-
+        amount.multiasset.forEach((assetsMap: Map<string, bigint>, policy: string) => {
             // Iterate over the assets Map
-            assetsMap.forEach((value: string | number | bigint | boolean, asset: any) => {
-                amountOut[policy + asset] = BigInt(value);
+            assetsMap.forEach((value: bigint, asset: string) => {
+                amountOut[policy + asset] = value;
             });
         });
     }
-
     return amountOut;
 }
 
