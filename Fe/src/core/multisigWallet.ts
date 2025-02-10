@@ -14,7 +14,7 @@ class MultisigWallet implements WalletInterface{
     wallet_script: any
     wallet_address: string
     name: string
-    delegation: any
+    delegation: Delegation
     defaultAddress: string
     txDetails: any
     pendingTxs: {tx: LucidEvolution.TxSignBuilder, signatures:  {[key: string]: string }}[]
@@ -32,7 +32,7 @@ class MultisigWallet implements WalletInterface{
       this.wallet_script = wallet_json
       this.wallet_address = "";
       this.name=name
-      this.delegation = {poolId: null, rewards: null}
+      this.delegation = {poolId: null, rewards: 0n}
       this.defaultAddress= ""
       this.txDetails = {}
       this.pendingTxs = [];
@@ -94,7 +94,7 @@ class MultisigWallet implements WalletInterface{
     async changeSettings(settings: any){
       if(settings.network !== this.lucid?.config().network){
         this.utxos = []
-        this.delegation = {poolId: null, rewards: null}
+        this.delegation = {poolId: null, rewards: 0n}
       }
 
       try{
@@ -144,11 +144,11 @@ class MultisigWallet implements WalletInterface{
 
 
     async getDelegation() : Promise<Delegation> { 
-      this.delegation = await this.lucid?.config().provider!.getDelegation(
+      this.delegation = (await this.lucid?.config().provider?.getDelegation(
                 LucidEvolution.credentialToRewardAddress(
                      this.lucid?.config().network!,
                      LucidEvolution.getAddressDetails(this.getAddress())!.stakeCredential!
-                )
+                )) || {poolId: null, rewards: 0n}
     ) ;
       return this.delegation 
     }
@@ -508,7 +508,7 @@ setPendingTxs(pendingTxs: any){
     
     async createTx(recipients: {amount: Record<string, bigint>, address: string}[], signers: string[],sendFrom: string="" , sendAll: number | null = null , withdraw: boolean = true) { 
       
-      // ch
+
         var sumOfRecipientsMinusSendAll: LucidEvolution.Assets = {};
         recipients.map( (recipient: any,index: number) => {
           if (index !== sendAll){
@@ -553,6 +553,11 @@ setPendingTxs(pendingTxs: any){
       if(sendFrom!==""){
         utxos = utxos.filter( (utxo,index) => (utxo.address === sendFrom)  )
       }
+      const staking = this.delegation
+      if(staking.rewards > 0n){
+        tx.withdraw(LucidEvolution.validatorToRewardAddress(this.lucid!.config().network!, {type: "Native" , script : this.lucidNativeScript!.to_cbor_hex()}), staking.rewards, LucidEvolution.Data.void())
+      }
+
 
       if(sendAll === null){
           const fee = BigInt(500_000 + 200_000 * signers.length + 500_000 * recipients.length);
@@ -560,6 +565,7 @@ setPendingTxs(pendingTxs: any){
             ...sumOfRecipientsMinusSendAll,
             lovelace: sumOfRecipientsMinusSendAll["lovelace"] + fee
           };
+          totalAmount["lovelace"] = totalAmount["lovelace"] - staking.rewards
           utxos = coinSelect(totalAmount, utxos);
       }
       
