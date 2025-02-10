@@ -3,6 +3,7 @@ function normalizeTxDetails(txBody: any){
         txBody.outputs = txBody.outputs.map((output: any) => {
           // Check if the output is an object with a single key (format type)
 
+
           const formatKeys = Object.keys(output);
           if (formatKeys.length === 1 && typeof output[formatKeys[0]] === 'object') {
             // Return the inner object, which contains the actual output data
@@ -29,6 +30,7 @@ function normalizeTxDetails(txBody: any){
           txBody.collateral_return = txBody.collateral_return[formatKeys[0]];
         }
       }
+      console.log("2",txBody)
       return txBody
 }
 

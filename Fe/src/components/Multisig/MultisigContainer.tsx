@@ -228,6 +228,7 @@ async setState(state: MultisigContainerState){
       await myWallet.setDefaultSigners(wallet.defaultSigners)
       await myWallet.setAddressNames(wallet.addressNames)
       await myWallet.setDefaultAddress(wallet.defaultAddress)
+      myWallet.setPendingTxs(wallet.pendingTxs)
 
       wallet.pendingTxs.forEach((tx: any) => {
         myWallet.loadTransaction(tx);
@@ -256,7 +257,8 @@ async setState(state: MultisigContainerState){
 
   async createTx(recipients: any[],signers: string[],sendFrom: string, sendAll: number | null){
     try{
-    const wallets = this.state.wallets
+    const state = this.state
+    const wallets = state.wallets
     // this is the recipient shape (recipients: {amount: Record<string, bigint> , manipulate the input and convert numvers to bigInts
     recipients.map( (recipient) => {
 
@@ -264,12 +266,9 @@ async setState(state: MultisigContainerState){
         Object.entries(recipient.amount).map(([key, value]) => [key, BigInt(value as string)])
       );
     });
-    
-     await this.state.wallets[this.state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll, false)
-    
-    const state = this.state
-    state.wallets = wallets
+    await wallets[state.selectedWallet].createTx(recipients,signers,sendFrom,sendAll, false)
     this.setState(state)
+
     toast.info('Transaction created');
 
     }catch(e: any){
