@@ -3,17 +3,21 @@ import React, { useRef } from 'react';
 import { ReactComponent as DownloadIcon } from '../../html/assets/download.svg';
 import { ReactComponent as DeleteIcon } from '../../html/assets/delete.svg';
 import './walletSetting.css'
+import MultisigWallet from '../../core/multisigWallet';
+import MultisigContainer from './MultisigContainer';
 
-import Wallet from '../../core/multisigWallet';
 interface WalletSettingsProps {
-  wallet: Wallet;
-  moduleRoot: any;
+  wallet: MultisigWallet;
+  moduleRoot: MultisigContainer;
   closeSettings: () => void;
 }
 
+
+
+
 interface WalletSettingsState {
   closeSettings: () => void;
-  wallet: Wallet;
+  wallet: MultisigWallet;
   hovering: string;
   moduleRoot: any;
   showingDetails: string;

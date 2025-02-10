@@ -29,6 +29,7 @@ function WalletDelegation(props: {wallet: WalletInterface, moduleRoot: SmartWall
   useEffect(() => {
     wallet.getDelegation().then( (delegation: Delegation) => {;
       setDelegation(delegation);
+      setPool(delegation.poolId || '');
       
     })
   }, [wallet])
@@ -127,9 +128,8 @@ function WalletDelegation(props: {wallet: WalletInterface, moduleRoot: SmartWall
   return (
     <div className='DelegationContainer'>
       <div className='BetaInfo'> 
-Beta delegation is available for dRep, Delegation transactions now perform dRep and Stakepool delegation simontaniusly <br />
-You have to enter the poolId in the bench format (e.g. pool13846y7q7tng3endxhet9qdcz5w0fjs09ytcye4dm5g54wmyqeqr) <br />
-You have to enter the dRep CIP129 id (e.g. drep13846y7q7tng3endxhet9qdcz5w0fjs09ytcye4dm5g54wmyqeqr) <br />
+Beta delegation is available for dReps. Delegation transactions now perform dRep and Stakepool delegation simultaneously. <br />
+You have to enter the dRep CIP-129 ID (e.g., drep13846y7q7tng3endxhet9qdcz5w0fjs09ytcye4dm5g54wmyqeqr). <br />
 
       </div>
     <div className="DelegationCenter">
