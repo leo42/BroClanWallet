@@ -808,7 +808,11 @@ setPendingTxs(pendingTxs: any){
     }
 
     isAddressMine(address: string) : boolean{
-      return (LucidEvolution.getAddressDetails(address).paymentCredential!.hash === LucidEvolution.getAddressDetails(this.getAddress()).paymentCredential!.hash)
+      try{
+        return (LucidEvolution.getAddressDetails(address).paymentCredential!.hash === LucidEvolution.getAddressDetails(this.getAddress()).paymentCredential!.hash)
+      }catch(e){
+        return false
+      }
     }
 
     isAddressValid(address: string) : boolean{
