@@ -26,7 +26,7 @@ function NewWalletModal(props: { moduleRoot: MultisigContainer, setOpenModal: (o
         return;
       }
       try {
-        props.moduleRoot.addWallet(JSON.parse(fileText as string),"Imported Wallet");
+        props.moduleRoot.addWallet(JSON.parse(fileText as string),"");
 
         props.setOpenModal(false);
       }catch (error) {

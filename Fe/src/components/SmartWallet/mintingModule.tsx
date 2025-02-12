@@ -299,7 +299,7 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
     }
 
     importWallet = () => {
-      this.props.moduleRoot.addWallet(this.state.walletId, "Imported Wallet")
+      this.props.moduleRoot.addWallet(this.state.walletId, this.state.walletId)
     }
 
     render() {

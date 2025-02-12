@@ -507,7 +507,7 @@ async setState(state: MultisigContainerState){
       // resole promices in walletHashes
       const res = await Promise.all(walletsHashes)
       if (! res.includes(walletHash)) {
-        const myWallet = new MultisigWallet(pendingWallet.json,"Imported Wallet");
+        const myWallet = new MultisigWallet(pendingWallet.json,"");
         await myWallet.initialize(this.props.root.state.settings);
         myWallet.resetDefaultSigners()
         wallets.push(myWallet)
