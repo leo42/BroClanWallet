@@ -2,8 +2,11 @@
   background-color: rgba(134, 134, 134, 0.027);
   border: 1px solid var(--clrorange);
   border-radius: 5px;
+  width: fit-content;
+  
   /* throw a light shadow */
-  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
   margin: 10px;
   word-break: break-all;
 }

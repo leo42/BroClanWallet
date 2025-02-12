@@ -572,6 +572,7 @@ async setState(state: MultisigContainerState){
       toast.error("Not Connected to a SyncService")
     }
   }
+  
 
   stopExpectingWallets(){
     const state = this.state

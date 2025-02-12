@@ -12,7 +12,8 @@
 }
 
 .createTxRecipientContainerSend{
-  width: 90vw;
+  max-width: 90vw;
+  width: fit-content;
 }
 .ADAAmountContainer{
   margin-top: 20px;
@@ -78,6 +79,7 @@
 
 .createTxAddressInputField{
     width: 80vw;
+    max-width: 980px;
     height: 100%;
     margin-bottom: 8px;
     /* remove line under input */
@@ -147,7 +149,9 @@
     flex-direction: row;
     justify-content:center;
     align-items: center;
-    width: 90vw;
+    width: fit-content;
+    max-width: 1000px;
+    width: 80vw;
     height: 50px;
     margin: 10px;
     padding: 12px;
@@ -162,7 +166,8 @@
     flex-direction: row;
     justify-content: flex-end;
     align-items: right;
-    width: 100%;
+    width: calc(100% + 45px);
+
 
 }
 
