@@ -1,5 +1,3 @@
-
-
 .darkMode {
   --clrorange: rgba(255, 153, 0, 1);
   --clrgreen: rgba(22, 217, 0, 1);
@@ -98,6 +96,17 @@ select{
   color: var(--clrPlaceholder);
   opacity: 1; /* Firefox */
 }
+
+.App input:-webkit-autofill,
+.App input:-webkit-autofill:hover,
+.App input:-webkit-autofill:focus,
+.App input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--clrNavText) !important;
+    -webkit-box-shadow: 0 0 0 30px var(--clrInputs) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    background-clip: content-box !important;
+}
+
 .Json_input_box{
   height: 700px;
   width: 550px;

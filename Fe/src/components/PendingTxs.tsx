@@ -3,7 +3,7 @@ import WalletPendingTx from "./PendingTx";
 import { useState, useEffect } from "react";    
 import { toast } from 'react-toastify';
 import WalletInterface from "../core/WalletInterface";
-
+import "./PendingTxs.css";
 type PendingTxsProps = {
     moduleRoot: any;
     root: any;

@@ -39,7 +39,7 @@ function Overview(props: {wallet: WalletInterface  ,  moduleRoot: SmartWalletCon
   
   return (
     
-    <div>
+    <div className='overviewContainer'>
       <label>
       <h1>
       Overview
@@ -52,11 +52,11 @@ function Overview(props: {wallet: WalletInterface  ,  moduleRoot: SmartWalletCon
           onAddressChange={setShowingAddress}
           setName={true}
         />}
-      <br />
-      <button className={`overviewTab` + ( showing === undefined ? " overviewTabSelected" : " " )}  onClick={() => setShowing(undefined)}>All</button>
-      <button className={`overviewTab` + ( showing === "FTs" ? " overviewTabSelected" : " " )}  onClick={() => setShowing("FTs")}>FTs</button>
-      <button className={`overviewTab` + ( showing === "NFTs" ? " overviewTabSelected" : " " )}  onClick={() => setShowing("NFTs")}>NFTs</button>        
-      <br />
+      <div className='overviewButtonsContainer'>
+        <button className={`overviewTab` + ( showing === undefined ? " overviewTabSelected" : " " )}  onClick={() => setShowing(undefined)}>All</button>
+        <button className={`overviewTab` + ( showing === "FTs" ? " overviewTabSelected" : " " )}  onClick={() => setShowing("FTs")}>FTs</button>
+        <button className={`overviewTab` + ( showing === "NFTs" ? " overviewTabSelected" : " " )}  onClick={() => setShowing("NFTs")}>NFTs</button>        
+      </div>
       <span className="overVeiwTokenSearch"><input type="text"  placeholder='Search' defaultValue={search} onChange={(event) => setSearch(event.target.value)} />  </span>
 
       {Object.keys(wallet.getBalanceFull(showingAddress)).length > 0 &&

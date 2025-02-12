@@ -24,6 +24,7 @@ type MultisigContainerProps = {
 
 type MultisigContainerState = {
   modal: string;
+  expectingWallets: boolean;
   wallets: MultisigWallet[];
   pendingWallets: Record<string, any>;
   selectedWallet: number;
@@ -40,8 +41,7 @@ class MultisigContainer extends React.Component<MultisigContainerProps, Multisig
 
 
   state : MultisigContainerState =  {
-
-
+    expectingWallets: false,
     modal: "",
     wallets: [],
     pendingWallets: {},
@@ -68,6 +68,9 @@ async newSettings(newSettings : Settings){
     }catch(e){
     }
   }
+  const state = this.state
+  state.wallets = wallets
+  this.setState(state)
   this.reloadBalance()
 
 }
@@ -99,7 +102,7 @@ async setState(state: MultisigContainerState){
 
     this.interval = setInterval(() => {
         this.reloadBalance()
-    }, 15000);
+    }, 1000);
   }
 
   
@@ -504,7 +507,7 @@ async setState(state: MultisigContainerState){
       // resole promices in walletHashes
       const res = await Promise.all(walletsHashes)
       if (! res.includes(walletHash)) {
-        const myWallet = new MultisigWallet(pendingWallet.json,"Imported Wallet");
+        const myWallet = new MultisigWallet(pendingWallet.json,"");
         await myWallet.initialize(this.props.root.state.settings);
         myWallet.resetDefaultSigners()
         wallets.push(myWallet)
@@ -563,10 +566,24 @@ async setState(state: MultisigContainerState){
 
   loadWallets(){
     if(this.state.connectedWallet.socket) {
-    this.state.connectedWallet.socket.emit('loadWallets')
+        this.state.connectedWallet.socket.emit('loadWallets')
+        this.setExpectingWallets(true)
     }else{
       toast.error("Not Connected to a SyncService")
     }
+  }
+  
+
+  stopExpectingWallets(){
+    const state = this.state
+    state.expectingWallets = false
+    this.setState(state)
+  }
+
+  setExpectingWallets(expecting: boolean){
+    const state = this.state
+    state.expectingWallets = expecting
+    this.setState(state)
   }
 
   setDefaultSigners(signers: any){
@@ -695,9 +712,17 @@ async setState(state: MultisigContainerState){
       )
       promice.then( 
         //add a small delay to allow the transaction to be broadcasted
-        () => setTimeout(() => this.reloadBalance(), 5000)
+        () => setTimeout(() => this.reloadBalance(), 2000)
       ).catch(
-        (e) => toast.error("Transaction Failed:" + JSON.stringify(e.message))
+        (e) => {
+          if(e.message.includes("Insuficient Funds")){
+            toast.error("Insuficient Funds")
+          }else if(e.message.includes("(UtxoFailure (ValueNotConservedUTxO (MaryValue (Coin 0) (MultiAsset (fromList []))) ")){
+            toast.error("Tx Already Submitted")
+          }else{
+            toast.error("Transaction Failed:" + JSON.stringify(e.message))
+          }
+        }
       )
     
   }

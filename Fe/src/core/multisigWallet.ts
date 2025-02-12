@@ -95,14 +95,21 @@ class MultisigWallet implements WalletInterface{
       if(settings.network !== this.lucid?.config().network){
         this.utxos = []
         this.delegation = {poolId: null, rewards: 0n}
+        this.lucid = await getNewLucidInstance(settings)
+        this.lucid.selectWallet.fromAddress(  this.getAddress(), [] )
+
+        await this.loadUtxos()
+      }else{
+        try{
+          await changeProvider(this.lucid!, settings)
+          
+          await this.loadUtxos()
+      }catch(e){
+        throw new Error('Invalid Connection Settings'+ e);
+      }
       }
 
-      try{
-        await changeProvider(this.lucid!, settings)
-        await this.loadUtxos()
-    }catch(e){
-      throw new Error('Invalid Connection Settings'+ e);
-    }
+      
     }
 
     removePendingTx(index: number){
@@ -846,6 +853,9 @@ setPendingTxs(pendingTxs: any){
       return new Uint8Array(bytes);
     }
     
+    getPendingTxId(index: number){
+      return this.pendingTxs[index].tx.toHash()
+    }
     addSignature(signature: string){
 
       const signatureInfo = this.decodeSignature(signature)

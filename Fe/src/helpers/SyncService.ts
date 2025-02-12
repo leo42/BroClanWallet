@@ -3,6 +3,7 @@ import io from 'socket.io-client'
 import { toast } from 'react-toastify';
 import MultisigContainer from "../components/Multisig/MultisigContainer";
 import MultisigWallet from "../core/multisigWallet";
+
 async function  connectSocket(wallet: string, root: MultisigContainer, syncService: string){
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new();
@@ -87,7 +88,10 @@ async function  connectSocket(wallet: string, root: MultisigContainer, syncServi
         if(newWallets){
             toast("New pending wallets added")
           }else{
-            toast("No new pending wallets")
+            if(root.state.expectingWallets === true){
+                toast("No new pending wallets")
+                root.stopExpectingWallets()
+            }
         }
 
         const state = root.state
