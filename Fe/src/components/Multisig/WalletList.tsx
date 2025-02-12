@@ -10,7 +10,7 @@ function WalletList (props: {moduleRoot: MultisigContainer,  root: any}) {
     return (
         <div style={{height: "0px"}}>
 
-      {  props.moduleRoot.state.modal === "settings" ? <WalletSettings moduleRoot={props.moduleRoot} wallet={props.moduleRoot.state.wallets[props.moduleRoot.state.selectedWallet]} closeSettings={() => props.moduleRoot.showModal("")}/> : ""}
+      {  props.moduleRoot.state.modal === "settings" && props.moduleRoot.state.selectedWallet !== null && props.moduleRoot.state.wallets.length > 0 ? <WalletSettings moduleRoot={props.moduleRoot} wallet={props.moduleRoot.state.wallets[props.moduleRoot.state.selectedWallet]} closeSettings={() => props.moduleRoot.showModal("")}/> : ""}
     <div className='WalletListContainer multisigWalletListContainer'>
 
         <button className={"addNewWalletButton" + ( props.moduleRoot.state.wallets.length === 0 ? " addWalletButtonHighlight" : " ") } onClick={ () => props.moduleRoot.showModal("newWallet")}>+</button>

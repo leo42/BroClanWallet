@@ -102,7 +102,7 @@ async setState(state: MultisigContainerState){
 
     this.interval = setInterval(() => {
         this.reloadBalance()
-    }, 1000);
+    }, 3000);
   }
 
   
@@ -377,8 +377,7 @@ async setState(state: MultisigContainerState){
     wallets.splice(index,1)
     state.wallets = wallets
     this.setState(state)
-
-
+    this.connectWallet(this.state.connectedWallet.name)
   }
 
   async removePendingTx(index: number){
