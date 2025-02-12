@@ -102,7 +102,7 @@ async setState(state: MultisigContainerState){
 
     this.interval = setInterval(() => {
         this.reloadBalance()
-    }, 1000);
+    }, 3000);
   }
 
   
