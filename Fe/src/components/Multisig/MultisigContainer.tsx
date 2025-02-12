@@ -711,9 +711,17 @@ async setState(state: MultisigContainerState){
       )
       promice.then( 
         //add a small delay to allow the transaction to be broadcasted
-        () => setTimeout(() => this.reloadBalance(), 5000)
+        () => setTimeout(() => this.reloadBalance(), 2000)
       ).catch(
-        (e) => toast.error("Transaction Failed:" + JSON.stringify(e.message))
+        (e) => {
+          if(e.message.includes("Insuficient Funds")){
+            toast.error("Insuficient Funds")
+          }else if(e.message.includes("(UtxoFailure (ValueNotConservedUTxO (MaryValue (Coin 0) (MultiAsset (fromList []))) ")){
+            toast.error("Tx Already Submitted")
+          }else{
+            toast.error("Transaction Failed:" + JSON.stringify(e.message))
+          }
+        }
       )
     
   }
