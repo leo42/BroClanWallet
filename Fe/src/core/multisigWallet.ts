@@ -846,6 +846,9 @@ setPendingTxs(pendingTxs: any){
       return new Uint8Array(bytes);
     }
     
+    getPendingTxId(index: number){
+      return this.pendingTxs[index].tx.toHash()
+    }
     addSignature(signature: string){
 
       const signatureInfo = this.decodeSignature(signature)

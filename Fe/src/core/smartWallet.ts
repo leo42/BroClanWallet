@@ -139,7 +139,10 @@ class SmartWallet implements WalletInterface {
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
     return txBuilder.toHash()
   }
-
+  
+  getPendingTxId(index: number){
+    return this.pendingTxs[index].tx.toHash()
+  }
 
   getAddress(stakingAddress: string = ""): string {
     if(stakingAddress === ""){
