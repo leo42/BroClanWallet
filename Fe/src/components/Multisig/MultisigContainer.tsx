@@ -377,8 +377,7 @@ async setState(state: MultisigContainerState){
     wallets.splice(index,1)
     state.wallets = wallets
     this.setState(state)
-
-
+    this.connectWallet(this.state.connectedWallet.name)
   }
 
   async removePendingTx(index: number){
