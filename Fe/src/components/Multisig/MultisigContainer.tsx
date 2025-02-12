@@ -68,6 +68,9 @@ async newSettings(newSettings : Settings){
     }catch(e){
     }
   }
+  const state = this.state
+  state.wallets = wallets
+  this.setState(state)
   this.reloadBalance()
 
 }

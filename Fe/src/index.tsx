@@ -121,10 +121,8 @@ export class App extends React.Component<{}, AppState> {
     const valid = await this.checkSettings(newSettings)
     if (!valid){
       throw ("Invalid settings");
-      return
     }
     const settings = {...this.state.settings, ...newSettings}
-
     const state = this.state
     state.settings = settings
     this.setState(state)
