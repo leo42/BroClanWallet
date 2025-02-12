@@ -86,11 +86,10 @@ class WalletCreateTx extends React.Component<WalletCreateTxProps> {
     if (isNaN(number) ) {
       return
     }
-
-    let valueNew : number= token === "lovelace" ? number * 1000000 : (token in this.state.tokenData)  ? number * (10**this.state.tokenData[token].decimals)  : number 
+    const decimals =  token === "lovelace" ? 6 : (this.state.tokenData[token]?.decimals)  ? this.state.tokenData[token].decimals : 0 
+    let valueNew : number=  number * (10**decimals)  
     valueNew = Math.round(valueNew)
     valueNew=  valueNew < 0 ? 0 : valueNew > this.props.wallet.getBalanceFull(this.state.sendFrom)[token] ? Number(this.props.wallet.getBalanceFull(this.state.sendFrom)[token]) : valueNew
-
     recipients[index].amount[token] = BigInt(valueNew)
     this.setState({recipients})
 
@@ -109,7 +108,7 @@ class WalletCreateTx extends React.Component<WalletCreateTxProps> {
        Object.keys(recipient.amount).map( (token) => {
         if (newBalance[token] < recipient.amount[token]) {
           const recipients = [...this.state.recipients]
-          recipients[index].amount[token] = newBalance[token]
+          recipients[index].amount[token] = BigInt(newBalance[token])
           this.setState({recipients})
         }
         if (!Object.keys(newBalance).includes(token)) {
