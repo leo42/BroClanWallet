@@ -189,7 +189,7 @@ async function getTransactionDetails(transactionIds : any[], settings : any, add
             fullTransactionInfo.utxos.outputs = MaestroTx.data.outputs.map((input : any) =>  maestroUtxoToUtxo(input) )
             transactionInfo[transactionId.tx_hash] = fullTransactionInfo
             transactionInfo[transactionId.tx_hash].fetch_time = Date.now()
-            transactionInfo[transactionId.tx_hash].block_time =  slotToUnixTime( settings.network, transactionInfo[transactionId.tx_hash].slot);
+            transactionInfo[transactionId.tx_hash].block_time =  Number(MaestroTx.data.block_timestamp)
             transactionInfo[transactionId.tx_hash].provider = "Maestro"
             console.log("MaestroTx", MaestroTx.data.withdrawals)
             MaestroTx.data.withdrawals.forEach((w : any) =>  {
