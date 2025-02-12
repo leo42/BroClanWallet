@@ -24,6 +24,7 @@ type MultisigContainerProps = {
 
 type MultisigContainerState = {
   modal: string;
+  expectingWallets: boolean;
   wallets: MultisigWallet[];
   pendingWallets: Record<string, any>;
   selectedWallet: number;
@@ -40,8 +41,7 @@ class MultisigContainer extends React.Component<MultisigContainerProps, Multisig
 
 
   state : MultisigContainerState =  {
-
-
+    expectingWallets: false,
     modal: "",
     wallets: [],
     pendingWallets: {},
@@ -566,10 +566,23 @@ async setState(state: MultisigContainerState){
 
   loadWallets(){
     if(this.state.connectedWallet.socket) {
-    this.state.connectedWallet.socket.emit('loadWallets')
+        this.state.connectedWallet.socket.emit('loadWallets')
+        this.setExpectingWallets(true)
     }else{
       toast.error("Not Connected to a SyncService")
     }
+  }
+
+  stopExpectingWallets(){
+    const state = this.state
+    state.expectingWallets = false
+    this.setState(state)
+  }
+
+  setExpectingWallets(expecting: boolean){
+    const state = this.state
+    state.expectingWallets = expecting
+    this.setState(state)
   }
 
   setDefaultSigners(signers: any){
