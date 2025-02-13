@@ -1,5 +1,6 @@
 .DelegationCenter{
   padding-top: 35px;
+  height: fit-content;
   display: flex;
   width: 100%;
   justify-content: space-evenly;
@@ -54,9 +55,11 @@
   }
 
   .currentDelegation{
-    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content:space-between;
     width: 100%;
-    margin-bottom: 20px;
+    height: 100%;
     border: var(--clrorange) 1px solid;
     border-radius: 15px;
     padding: 15px;
@@ -66,6 +69,7 @@
   .currentDelegation .PoolElementWrapper{
     margin-top: 20px;
     margin-bottom: 20px;
+    width: 80%;
   }
 .loadingIcon {
     width: 200px;
