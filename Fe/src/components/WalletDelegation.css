@@ -9,6 +9,7 @@
 }
 
 
+
 .DelegationCenter .SignersSelect{
   height: fit-content;
 }
@@ -78,3 +79,16 @@
     animation: rotation 5s linear infinite;
   }
   
+  @media screen and (max-width: 768px) {
+    .DelegationCenter {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .DelegationCenter .DelegationInfo,
+    .DelegationCenter .DelegationUpdate {
+      width: 90%;
+      max-width: 90vw;
+      margin-bottom: 20px;
+    }
+  }
