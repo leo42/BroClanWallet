@@ -1,5 +1,5 @@
-import React from "react";
-import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , Constr, credentialToAddress} from "@lucid-evolution/lucid";
+import React, { version } from "react";
+import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , credentialToAddress} from "@lucid-evolution/lucid";
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 import {mintingPolicyToId} from "@lucid-evolution/utils"
 import { toast } from "react-toastify";
@@ -15,7 +15,9 @@ import { validatorToAddress } from "@lucid-evolution/utils";
 import SmartWalletContainer from "./SmartWalletContainer";
 import { coinSelect } from "../../core/coinSelect";
 
-  
+type TransactionMetadata = string | number | Uint8Array | ReadonlyArray<TransactionMetadata> | {
+  [key: string]: TransactionMetadata;
+};
 
 interface MintingProps {
   root: App
@@ -29,6 +31,7 @@ interface MintingState {
   termsAccepted: boolean[];
   price: number | null;
   walletId: string;
+  name: string;
   }
 
 
@@ -42,7 +45,8 @@ class MintingModule extends React.Component<MintingProps> {
   state : MintingState  = {
          termsAccepted: this.terms.map(() => false),
          price : null,
-         walletId : ""
+         walletId : "",
+         name : ""
     }
     // Add type assertion to ensure network is a valid key
     mintingRawScript = { type: "PlutusV3", script : contracts[this.props.root.state.settings.network as NetworkType].minting.script}
@@ -69,16 +73,25 @@ class MintingModule extends React.Component<MintingProps> {
     }
     
     inputCheck = () => {
-      let allOk = true
-        for(let i = 0; i < this.state.termsAccepted.length; i++){
-          if(!this.state.termsAccepted[i]){
-            allOk = false
-            document.getElementById(`mintingTerm${i}`)?.classList.add("invalidTerm") 
-          }else{  
-            document.getElementById(`mintingTerm${i}`)?.classList.remove("invalidTerm")
-          }
+      let allOk = true;
+      
+      // Check name field first
+      if (!this.state.name.trim()) {
+        allOk = false;
+        toast.error("Please enter a wallet name");
+      }
+
+      // Check terms
+      for(let i = 0; i < this.state.termsAccepted.length; i++) {
+        if(!this.state.termsAccepted[i]) {
+          allOk = false;
+          document.getElementById(`mintingTerm${i}`)?.classList.add("invalidTerm");
+        } else {  
+          document.getElementById(`mintingTerm${i}`)?.classList.remove("invalidTerm");
         }
-        return allOk;
+      }
+
+      return allOk;
     }
 
     startMint = () => {
@@ -90,7 +103,7 @@ class MintingModule extends React.Component<MintingProps> {
     }
 
     mintWithWallet = (wallet : string) =>{
-        this.mint( wallet , this.props.root.state.settings, "New Wallet")
+        this.mint( wallet , this.props.root.state.settings, this.state.name)
     }
 
 
@@ -181,46 +194,47 @@ class MintingModule extends React.Component<MintingProps> {
       })
 
       console.log(initialMultisigConfig)
-      const metadata : any =  {}
-      metadata[policyId] ={}
-      // metadata["version"] = "2"
+      // const tokenData = {
+      //   "name": name + "-Config",
+      //   "description": "Config token for smart wallet", 
+      //   "image": "ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U"
+      // };
 
-      // metadata[policyId]["00" + tokenNameSuffix] =  
-      // { 
-      //   name: name+ "-Config" , 
-      //   description: stringToChunks(`The config token for the smart wallet ${name}, attached to this token you will find the current configuration of the smart wallet`) , 
-      //   image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-      //   information: this.mintingInfo 
-      // }
+      const metadata = {
+          "version" : "2",
+          [policyId] : {
+          ["00" + tokenNameSuffix] : {
+            ["name"]: name + "-Config",
+            ["image"] : "ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U",
+            ["description"]: "Config token for smart wallet"
+          },
+          ["02" + tokenNameSuffix] : {
+            ["name"]: name + "-Reference",
+            ["image"] : "ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U",
+            ["description"]: "Reference token for smart wallet"
+          }
+      }
+    
+    };
 
-      // metadata[policyId]["02" + tokenNameSuffix] =  
-      // { 
-      //   name: name+ "-Refference" , 
-      //   description: stringToChunks(`The refference token for the smart wallet ${name}, attached to this token you will the `) , 
-      //   image: [`ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U`],
-      //   information: this.mintingInfo 
-      // }
-      
-      
-      console.log(this.mintingRawScript, configAddress, deadAddress, metadata, assets, adminUtxo)
-
+      console.log(this.mintingRawScript, configAddress, deadAddress, metadata, assets, adminUtxo);
 
       const redeemer = Data.void();
       console.log("redeemer", redeemer)
 
       consumingTx.mintAssets(assets, redeemer)
       consumingTx.attach.Script({ type: "PlutusV3", script : contracts[this.props.root.state.settings.network as NetworkType].minting.script} )
-     consumingTx.attachMetadata( 721 , metadata )
       
-
+      
       consumingTx.pay.ToContract(configAddress, {kind : "inline" , value : initialMultisigConfig}, assetsConfigToken)
       consumingTx.pay.ToAddressWithData(deadAddress, {kind : "inline" , value : Data.void()  }, assetsRefferenceToken, smartWallet.getContract())
-     const completedTx = await consumingTx.complete({setCollateral : 4_000_000n})
+      consumingTx.attachMetadata(721, metadata)
+      const completedTx = await consumingTx.complete({setCollateral : 4_000_000n, canonical : true})
       
       const signature = await api.signTx(completedTx.toTransaction().to_canonical_cbor_hex(), true)
       
       const txComlete = await completedTx.assemble([signature]).complete();
-      const txHash = await txComlete.submit();
+      const txHash = await lucid.config().provider!.submitTx(txComlete.toCBOR())
       this.props.moduleRoot.addWallet(tokenNameSuffix, name)
       const awaitTx = lucid.config().provider!.awaitTx(txHash)
 
@@ -303,7 +317,6 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
     }
 
     render() {
-        console.log("Rendering MintingModule, termsAccepted:", this.state.termsAccepted);
         return (
           <div className="ModuleBackground" onClick={() => this.closeModule()}>
             <div className='MintingModule' onClick={(e) => e.stopPropagation()}>
@@ -314,6 +327,13 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
                 <div id="mintingDescription">
     <h1>Mint your Smart Wallet</h1>
     <br/>
+    <input 
+      type="text" 
+      placeholder="Enter your wallet Name *" 
+      value={this.state.name} 
+      onChange={(e) => this.setState({name: e.target.value})}
+      required
+    />
     <div className="mintingTerms">
       {this.terms.map((term, index) => (
         <div key={`term-${index}-${this.state.termsAccepted[index]}`} id={`mintingTerm${index}`} className="mintingTerm">
