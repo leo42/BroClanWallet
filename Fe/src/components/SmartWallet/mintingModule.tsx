@@ -73,16 +73,25 @@ class MintingModule extends React.Component<MintingProps> {
     }
     
     inputCheck = () => {
-      let allOk = true
-        for(let i = 0; i < this.state.termsAccepted.length; i++){
-          if(!this.state.termsAccepted[i]){
-            allOk = false
-            document.getElementById(`mintingTerm${i}`)?.classList.add("invalidTerm") 
-          }else{  
-            document.getElementById(`mintingTerm${i}`)?.classList.remove("invalidTerm")
-          }
+      let allOk = true;
+      
+      // Check name field first
+      if (!this.state.name.trim()) {
+        allOk = false;
+        toast.error("Please enter a wallet name");
+      }
+
+      // Check terms
+      for(let i = 0; i < this.state.termsAccepted.length; i++) {
+        if(!this.state.termsAccepted[i]) {
+          allOk = false;
+          document.getElementById(`mintingTerm${i}`)?.classList.add("invalidTerm");
+        } else {  
+          document.getElementById(`mintingTerm${i}`)?.classList.remove("invalidTerm");
         }
-        return allOk;
+      }
+
+      return allOk;
     }
 
     startMint = () => {
@@ -318,7 +327,13 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
                 <div id="mintingDescription">
     <h1>Mint your Smart Wallet</h1>
     <br/>
-    <input type="text" placeholder="Enter your wallet Name" value={this.state.name} onChange={(e) => this.setState({name: e.target.value})}/>
+    <input 
+      type="text" 
+      placeholder="Enter your wallet Name *" 
+      value={this.state.name} 
+      onChange={(e) => this.setState({name: e.target.value})}
+      required
+    />
     <div className="mintingTerms">
       {this.terms.map((term, index) => (
         <div key={`term-${index}-${this.state.termsAccepted[index]}`} id={`mintingTerm${index}`} className="mintingTerm">
