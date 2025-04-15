@@ -8,6 +8,7 @@ use cardano/address.{Script}
 use cardano/assets.{AssetName, PolicyId, quantity_of}
 use cardano/script_context.{ScriptContext}
 use cardano/transaction.{InlineDatum, Output, OutputReference, Transaction}
+use env
 
 pub type Datum {
   owner: VerificationKeyHash,
@@ -63,11 +64,11 @@ validator smartMultisig(walletId: ByteArray) {
 }
 
 fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool {
-  let configPolicy: PolicyId =
-    #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
   let configToken: AssetName = bytearray.push(walletId, 0)
   let descriptor =
-    when getDescriptorFromTokenName(configPolicy, configToken, transaction) is {
+    when
+      getDescriptorFromTokenName(env.configPolicy, configToken, transaction)
+    is {
       Some(descriptor) -> descriptor
       None -> fail
     }
