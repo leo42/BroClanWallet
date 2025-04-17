@@ -26,10 +26,6 @@ validator minting {
 }
 
 fn payment_made(transaction: Transaction) {
-  //This are hardcoded values 
-  //for the NFT controlling the price and payment address, we it the admin token
-  //and for the cupons for 1 free mint we call the redemption token 
-
   let adminUtxo =
     transaction.reference_inputs
       |> list.find(

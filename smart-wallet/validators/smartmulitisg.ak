@@ -114,12 +114,34 @@ pub fn validate(
           None -> False
         },
       }
-    AtLeast(scripts, m) ->
-      list.count(scripts, fn(script) { validate(script, transaction) }) >= m
+    AtLeast(scripts, m) -> {
+      let total = list.length(scripts)
+      if total < m {
+        False
+      } else {
+        count_valid(scripts, 0, m, total, transaction)
+      }
+    }
     Before(time) ->
       interval.is_entirely_before(transaction.validity_range, time)
     After(time) -> interval.is_entirely_after(transaction.validity_range, time)
     ScriptRef(scriptHash) ->
       has_key(transaction.withdrawals, Script(scriptHash))
+  }
+}
+
+fn count_valid(remaining, valid_count, needed, total, transaction) {
+  when remaining is {
+    [] -> valid_count >= needed
+    [script, ..rest] ->
+      if valid_count >= needed {
+        True
+      } else if valid_count + list.length(remaining) < needed {
+        False
+      } else if validate(script, transaction) {
+        count_valid(rest, valid_count + 1, needed, total, transaction)
+      } else {
+        count_valid(rest, valid_count, needed, total, transaction)
+      }
   }
 }
