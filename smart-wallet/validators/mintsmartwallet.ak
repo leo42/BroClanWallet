@@ -3,8 +3,9 @@ use aiken/collection/list
 use aiken/crypto
 use aiken/primitive/bytearray
 use cardano/address.{Script, VerificationKey}
-use cardano/assets.{AssetName, PolicyId}
+use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, Output, Transaction}
+use env
 
 type AdminDatum {
   mintAmount: Int,
@@ -25,22 +26,15 @@ validator minting {
 }
 
 fn payment_made(transaction: Transaction) {
-  //This are hardcoded values 
-  //for the NFT controlling the price and payment address, we it the admin token
-  //and for the cupons for 1 free mint we call the redemption token 
-  let adminTokenPolicy: PolicyId =
-    #"592fb0f9d8ed15c06858118d134d5c4b7c77320507810fee9ac2ddf9"
-  let adminTokenName: AssetName = #"736d6172744d696e7441646d696e"
-
-  let redemptionTokenPolicy: PolicyId =
-    #"36e94375d61ea1bf95ebb1222c84b043695c56c34f980eb9c060dd6d"
-  let redemptionTokenName: AssetName = #"546f6b656e5661756c742056617563686572"
-
   let adminUtxo =
     transaction.reference_inputs
       |> list.find(
           fn(x) {
-            assets.quantity_of(x.output.value, adminTokenPolicy, adminTokenName) > 0
+            assets.quantity_of(
+              x.output.value,
+              env.mintAdminPolicy,
+              env.mintAdminTokenName,
+            ) > 0
           },
         )
   let regularPayment =
@@ -71,7 +65,11 @@ fn payment_made(transaction: Transaction) {
   let tokensMinted = transaction.mint
 
   let redemptionPayment =
-    assets.quantity_of(tokensMinted, redemptionTokenPolicy, redemptionTokenName) == -1
+    assets.quantity_of(
+      tokensMinted,
+      env.redemptionTokenPolicy,
+      env.redemptionTokenName,
+    ) == -1
   regularPayment || redemptionPayment
 }
 

@@ -1,19 +1,20 @@
 use aiken/collection/dict
 use aiken/collection/list
-use cardano/assets.{AssetName, PolicyId}
+use cardano/assets.{PolicyId}
 use cardano/transaction.{Transaction}
+use env
 
 validator minting {
   mint(_redeemer, policyId: PolicyId, self: Transaction) {
-    let adminPolicy: PolicyId =
-      #"592fb0f9d8ed15c06858118d134d5c4b7c77320507810fee9ac2ddf9"
-    let adminTokenName: AssetName = #"61647361666177"
-
     let adminAuthorized =
       list.any(
         self.inputs,
         fn(input) {
-          assets.quantity_of(input.output.value, adminPolicy, adminTokenName) == 1
+          assets.quantity_of(
+            input.output.value,
+            env.couponAdminPolicy,
+            env.couponAdminTokenName,
+          ) == 1
         },
       )
     let minted = assets.tokens(self.mint, policyId)

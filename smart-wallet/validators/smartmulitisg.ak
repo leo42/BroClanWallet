@@ -2,12 +2,14 @@ use aiken/collection/list
 use aiken/collection/pairs.{has_key}
 use aiken/crypto.{VerificationKeyHash}
 use aiken/interval
-use aiken/option
 use aiken/primitive/bytearray
-use cardano/address.{Script}
+use cardano/address.{Script, VerificationKey}
 use cardano/assets.{AssetName, PolicyId, quantity_of}
 use cardano/script_context.{ScriptContext}
-use cardano/transaction.{InlineDatum, Output, OutputReference, Transaction}
+use cardano/transaction.{
+  InlineDatum, Input, Output, OutputReference, Transaction,
+}
+use env
 
 pub type Datum {
   owner: VerificationKeyHash,
@@ -63,11 +65,11 @@ validator smartMultisig(walletId: ByteArray) {
 }
 
 fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool {
-  let configPolicy: PolicyId =
-    #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
   let configToken: AssetName = bytearray.push(walletId, 0)
   let descriptor =
-    when getDescriptorFromTokenName(configPolicy, configToken, transaction) is {
+    when
+      getDescriptorFromTokenName(env.configPolicy, configToken, transaction)
+    is {
       Some(descriptor) -> descriptor
       None -> fail
     }
@@ -79,21 +81,59 @@ fn getDescriptorFromTokenName(
   assetName: AssetName,
   transaction: Transaction,
 ) -> Option<SmartMultisigDescriptor> {
-  transaction.reference_inputs
-    |> list.find(fn(x) { quantity_of(x.output.value, policy, assetName) > 0 })
-    |> option.and_then(
-        fn(utxo) {
-          when utxo.output.datum is {
-            InlineDatum(data) ->
-              if data is descriptor: SmartMultisigDescriptor {
-                Some(descriptor)
-              } else {
-                None
-              }
-            _ -> None
-          }
+  when getTokenReference(policy, assetName, transaction) is {
+    Some(input) -> descriptorFromInput(input)
+    None -> None
+  }
+}
+
+fn descriptorFromInput(input: Input) -> Option<SmartMultisigDescriptor> {
+  when input.output.datum is {
+    InlineDatum(data) ->
+      if data is descriptor: SmartMultisigDescriptor {
+        Some(descriptor)
+      } else {
+        None
+      }
+    _ -> None
+  }
+}
+
+fn getTokenReference(
+  policy: PolicyId,
+  name: AssetName,
+  transaction: Transaction,
+) -> Option<Input> {
+  list.find(
+    transaction.reference_inputs,
+    fn(x) { quantity_of(x.output.value, policy, name) > 0 },
+  )
+}
+
+fn validateNFT(
+  policy: PolicyId,
+  name: AssetName,
+  transaction: Transaction,
+) -> Bool {
+  let utxo = getTokenReference(policy, name, transaction)
+  when utxo is {
+    Some(utxo) -> {
+      let descriptor = descriptorFromInput(utxo)
+      let nftHolder =
+        when utxo.output.address.payment_credential is {
+          VerificationKey(keyHash) -> keyHash
+          Script(keyHash) -> keyHash
+        }
+      or {
+        list.any(transaction.extra_signatories, fn(x) { x == nftHolder }),
+        when descriptor is {
+          Some(descriptor) -> validate(descriptor, transaction)
+          None -> False
         },
-      )
+      }
+    }
+    None -> False
+  }
 }
 
 pub fn validate(
@@ -103,22 +143,35 @@ pub fn validate(
   when segment is {
     KeyHash(keyHash) ->
       list.any(transaction.extra_signatories, fn(signer) { signer == keyHash })
-    NftHolder(policy, name) -> or {
-        list.any(
-          transaction.inputs,
-          fn(input) { quantity_of(input.output.value, policy, name) >= 1 },
-        ),
-        when getDescriptorFromTokenName(policy, name, transaction) is {
-          Some(descriptor) -> validate(descriptor, transaction)
-          None -> False
-        },
+    NftHolder(policy, name) -> validateNFT(policy, name, transaction)
+    AtLeast(scripts, m) -> {
+      let total = list.length(scripts)
+      if total < m {
+        False
+      } else {
+        count_valid(scripts, 0, m, total, transaction)
       }
-    AtLeast(scripts, m) ->
-      list.count(scripts, fn(script) { validate(script, transaction) }) >= m
+    }
     Before(time) ->
       interval.is_entirely_before(transaction.validity_range, time)
     After(time) -> interval.is_entirely_after(transaction.validity_range, time)
     ScriptRef(scriptHash) ->
       has_key(transaction.withdrawals, Script(scriptHash))
+  }
+}
+
+fn count_valid(remaining, valid_count, needed, total, transaction) {
+  when remaining is {
+    [] -> valid_count >= needed
+    [script, ..rest] ->
+      if valid_count >= needed {
+        True
+      } else if valid_count + list.length(remaining) < needed {
+        False
+      } else if validate(script, transaction) {
+        count_valid(rest, valid_count + 1, needed, total, transaction)
+      } else {
+        count_valid(rest, valid_count, needed, total, transaction)
+      }
   }
 }
