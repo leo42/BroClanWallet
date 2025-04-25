@@ -2,8 +2,9 @@ use aiken/collection/list
 use aiken/collection/pairs.{has_key}
 use aiken/crypto.{VerificationKeyHash}
 use aiken/interval
+use aiken/option
 use aiken/primitive/bytearray
-use cardano/address.{Script, VerificationKey}
+use cardano/address.{Script}
 use cardano/assets.{AssetName, PolicyId, quantity_of}
 use cardano/script_context.{ScriptContext}
 use cardano/transaction.{InlineDatum, Output, OutputReference, Transaction}
@@ -20,12 +21,6 @@ pub type SmartMultisigDescriptor {
   Before { time: Int }
   After { time: Int }
   ScriptRef { scriptHash: ByteArray }
-}
-
-pub type TokenDescriptor {
-  tokenInfo: Option<
-    (Option<VerificationKeyHash>, Option<SmartMultisigDescriptor>),
-  >,
 }
 
 validator configHost {
@@ -74,59 +69,32 @@ fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool {
     when
       getDescriptorFromTokenName(env.configPolicy, configToken, transaction)
     is {
-      TokenDescriptor{tokenInfo: Some((_, Some(descriptor)))} -> descriptor
-      _ -> fail
+      Some(descriptor) -> descriptor
+      None -> fail
     }
   validate(descriptor, transaction)
-}
-
-fn checkNFT(policy: PolicyId, name: AssetName, transaction: Transaction) -> Bool {
-  let utxo =
-    list.find(
-      transaction.reference_inputs,
-      fn(x) { quantity_of(x.output.value, policy, name) > 0 },
-    )
-  when utxo is {
-    Some(utxo) -> True
-    None -> False
-  }
 }
 
 fn getDescriptorFromTokenName(
   policy: PolicyId,
   assetName: AssetName,
   transaction: Transaction,
-) -> TokenDescriptor {
-  let utxo =
-    list.find(
-      transaction.reference_inputs,
-      fn(x) { quantity_of(x.output.value, policy, assetName) > 0 },
-    )
-  
-
-  let keyHash: Option<VerificationKeyHash> =
-        when utxo.output.address.payment_credential is {
-          VerificationKey(paymentCredential) -> Some(paymentCredential)
-          _ -> None
-        }
-      when keyHash is {
-        Some(hash) ->
+) -> Option<SmartMultisigDescriptor> {
+  transaction.reference_inputs
+    |> list.find(fn(x) { quantity_of(x.output.value, policy, assetName) > 0 })
+    |> option.and_then(
+        fn(utxo) {
           when utxo.output.datum is {
             InlineDatum(data) ->
               if data is descriptor: SmartMultisigDescriptor {
-                TokenDescriptor {
-                  tokenInfo: Some((Some(hash), Some(descriptor))),
-                }
+                Some(descriptor)
               } else {
-                TokenDescriptor { tokenInfo: Some((Some(hash), None)) }
+                None
               }
-            _ -> TokenDescriptor { tokenInfo: Some((Some(hash), None)) }
+            _ -> None
           }
-        None -> TokenDescriptor { tokenInfo: None }
-      }
-    }
-    None -> TokenDescriptor { tokenInfo: None }
-  }
+        },
+      )
 }
 
 pub fn validate(
@@ -136,21 +104,16 @@ pub fn validate(
   when segment is {
     KeyHash(keyHash) ->
       list.any(transaction.extra_signatories, fn(signer) { signer == keyHash })
-    NftHolder(policy, name) -> {
-      let descriptor = getDescriptorFromTokenName(policy, name, transaction)
-      when descriptor is {
-        TokenDescriptor{tokenInfo: Some((Some(keyHash), Some(descriptor)))} ->
-          or {
-            list.any(
-              transaction.extra_signatories,
-              fn(signer) { signer == keyHash },
-            ),
-            validate(descriptor, transaction),
-          }
-
-        _ -> False
+    NftHolder(policy, name) -> or {
+        list.any(
+          transaction.inputs,
+          fn(input) { quantity_of(input.output.value, policy, name) >= 1 },
+        ),
+        when getDescriptorFromTokenName(policy, name, transaction) is {
+          Some(descriptor) -> validate(descriptor, transaction)
+          None -> False
+        },
       }
-    }
     AtLeast(scripts, m) -> {
       let total = list.length(scripts)
       if total < m {
