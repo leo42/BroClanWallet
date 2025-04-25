@@ -5,8 +5,10 @@ use aiken/interval.{
 }
 use aiken/primitive/bytearray
 use cardano/address.{from_script, from_verification_key}
-use cardano/assets.{Value, from_asset, from_lovelace, zero}
-use cardano/transaction.{Input, NoDatum, Output, OutputReference, Transaction}
+use cardano/assets.{from_asset, from_lovelace, zero}
+use cardano/transaction.{
+  InlineDatum, Input, NoDatum, Output, OutputReference, Transaction,
+}
 use smartmulitisg.{After, AtLeast, Before, KeyHash, NftHolder, validate}
 
 const nft_holder_policy =
@@ -158,6 +160,68 @@ const before_invalid_transaction_edge =
     [],
   )
 
+const nft_holder_delegation_transaction =
+  Transaction {
+    inputs: [
+      Input {
+        output_reference: OutputReference {
+          transaction_id: key_hash,
+          output_index: 0,
+        },
+        output: Output {
+          address: from_script(""),
+          value: from_lovelace(100000000),
+          datum: NoDatum,
+          reference_script: None,
+        },
+      },
+    ],
+    reference_inputs: [
+      Input {
+        output_reference: OutputReference {
+          transaction_id: key_hash,
+          output_index: 0,
+        },
+        output: Output {
+          address: from_verification_key(create_key_hash(0)),
+          value: from_asset(nft_holder_policy, nft_holder_name, 1),
+          datum: InlineDatum(KeyHash { keyHash: key_hash }),
+          reference_script: None,
+        },
+      },
+    ],
+    outputs: [
+      Output {
+        address: from_script(""),
+        value: from_lovelace(100000000),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    ],
+    fee: 100000,
+    mint: zero,
+    certificates: [],
+    withdrawals: [],
+    validity_range: Interval {
+      lower_bound: IntervalBound {
+        bound_type: NegativeInfinity,
+        is_inclusive: False,
+      },
+      upper_bound: IntervalBound {
+        bound_type: PositiveInfinity,
+        is_inclusive: False,
+      },
+    },
+    extra_signatories: [key_hash],
+    redeemers: [],
+    datums: dict.from_pairs([]),
+    id: #"",
+    votes: [],
+    proposal_procedures: [],
+    current_treasury_amount: None,
+    treasury_donation: None,
+  }
+
 const nft_holder_transaction =
   Transaction {
     inputs: [
@@ -269,6 +333,12 @@ test nftHolder() {
   expect not(validate(descriptor, after_transaction))
   expect not(validate(descriptor, after_invalid_transaction_edge))
   expect not(validate(descriptor, before_invalid_transaction_edge))
+}
+
+test nftHolderDelegation() {
+  let descriptor =
+    NftHolder { policy: nft_holder_policy, name: nft_holder_name }
+  expect validate(descriptor, nft_holder_delegation_transaction)
 }
 
 test atLeast() {
