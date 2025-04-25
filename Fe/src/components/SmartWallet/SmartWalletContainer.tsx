@@ -1,6 +1,8 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import MintingModule from './mintingModule';  // Changed to match the actual file name
+import MintingModule from './mintingModule';  
+import ImportModule from './importModule';
+import NewWalletModal from './NewWalletModal';
 import UpdateWalletModal from './UpdateWalletModal';
 import SmartWallet from '../../core/smartWallet';
 import MWalletMain from './WalletMain'; 
@@ -465,9 +467,9 @@ closeModal(){
             {this.WalletList()}
 
       { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.closeModal()} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
-      {this.state.modal === "newWallet" && < MintingModule root={this.props.root} moduleRoot={this} showModal={() => this.closeModal()} /> }
-
-
+      { this.state.modal === "newWallet" && < NewWalletModal  moduleRoot={this} showModal={() => this.closeModal()} /> }
+      { this.state.modal === "minting" && < MintingModule root={this.props.root} moduleRoot={this}  /> }
+      { this.state.modal === "importWallet" && < ImportModule root={this.props.root} moduleRoot={this}  /> }
        
       {  this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
          this.state.wallets.length === 0 ? this.walletsEmpty() : (

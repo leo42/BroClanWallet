@@ -1,0 +1,64 @@
+.ImportModule {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--clrModal);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 400px;
+  max-width: 90%;
+}
+
+.ImportModule-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.titleCloseBtn {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.titleCloseBtn button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+
+.importDescription {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.importDescription h1 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--clrNavText);
+}
+
+.importDescription p {
+  margin: 0;
+  color: var(--clrNavText);
+}
+
+.importDescription input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.importDescription input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+
