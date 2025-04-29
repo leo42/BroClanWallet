@@ -22,7 +22,6 @@ type TransactionMetadata = string | number | Uint8Array | ReadonlyArray<Transact
 interface MintingProps {
   root: App
   moduleRoot: SmartWalletContainer
-  showModal: (modalName: string) => void
 }
 type NetworkType = keyof typeof contracts;
 
@@ -309,7 +308,7 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
 }
 
     closeModule = () => {
-      this.props.showModal("smartWallets")
+      this.props.moduleRoot.showModal("newWallet")
     }
 
     importWallet = () => {
@@ -365,11 +364,7 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
                     
               {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Smart Wallets are only supported on the preprod testnet.</span>}
                     <button className="commonBtn" onClick={this.startMint}>Mint Now</button>
-                <div className="ImportFromId">
-                <h1>Import from ID</h1>
-                  <input type="text" placeholder="Enter your wallet ID" value={this.state.walletId} onChange={(e) => this.setState({walletId: e.target.value})}/>
-                      <button className="commonBtn" onClick={this.importWallet}>Import</button>
-                </div>
+              
                 </div>
             </div>
           </div>

@@ -89,25 +89,33 @@
 }
 
 @media (max-width: 768px) { 
+  .modalContainer{
+    margin-top: 100px;
+  }
+
+  .inputContainer{
+    flex-direction: column;
+  }
+  
   .createWalletButton{
-    height: 70px;
-    width: 70px;
+    height: 100px;
+    width: 100px;
   }
   .createWalletButton .icon{
-    height: 70px;
-    width: 70px;
+    height: 100px;
+    width: 100px;
     top: 0px;
     align-self: center;
   }
 
   .importWalletIcon{
-    height: 70px;
-    width: 70px;
+    height: 100px;
+    width: 100px;
   }
 
   .importWalletIcon .icon{
-    height: 70px;
-    width: 70px;
+    height: 100px;
+    width: 100px;
     top: 0px;
     left: 0px;
     align-self: center;
