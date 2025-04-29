@@ -10,10 +10,10 @@ pub const couponAdminPolicy: PolicyId =
 
 pub const couponAdminTokenName: AssetName = #"636f75706f6e41646d696e"
 
-pub const couponTokenPolicy: PolicyId =
-  #"3f0080175689d8d0742a550f7006d60eee6df9a508c5334dac55205f"
-
 pub const couponTokenName: AssetName = #"546f6b656e5661756c742056617563686572"
 
+pub const couponTokenPolicy: PolicyId =
+  #"6629a3545cbaad78483f95613292387d8ff3cce5ebd6adeeaef8ba43"
+
 pub const configPolicy: PolicyId =
-  #"2fa5254e691924d94f03864554ef4a7c85ed0c69ed787b5ee00415e8"
+  #"4c8e42ce9592b1b81225611d3f665a846a1768166729ff2e4042a358"
