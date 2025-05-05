@@ -274,18 +274,26 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
 
     try{
-    const details = getAddressDetails(keyHash)
-    if (details && details.paymentCredential) {
-        return storedSignerNames[details.paymentCredential.hash] || keyHash;
-    }
-      return keyHash;
+          const details = getAddressDetails(keyHash)
+      if (details && details.paymentCredential) {
+          return storedSignerNames[details.paymentCredential.hash] || keyHash;
+      }else {
+        return keyHash;
+      }
   }
   catch(error: any){
-    return storedSignerNames[keyHash] || keyHash;
+    if(keyHash === ""){
+      return "Empty" ;
+    }
+    return storedSignerNames[keyHash] || "Invalid address/keyhash" ;
   }
   }
 
   updateSignerName(hash: string, name: string) {
+    const isValidHex = /^[0-9a-fA-F]+$/.test(hash);
+    if (!isValidHex || hash.length !== 64 || hash === "") {
+      return;
+    }
     const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
     storedSignerNames[hash] = name;
     localStorage.setItem('signerNames', JSON.stringify(storedSignerNames));
