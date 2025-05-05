@@ -65,11 +65,7 @@ fn payment_made(transaction: Transaction) {
   let tokensMinted = transaction.mint
 
   let redemptionPayment =
-    assets.quantity_of(
-      tokensMinted,
-      env.redemptionTokenPolicy,
-      env.redemptionTokenName,
-    ) == -1
+    assets.quantity_of(tokensMinted, env.couponTokenPolicy, env.couponTokenName) == -1
   regularPayment || redemptionPayment
 }
 

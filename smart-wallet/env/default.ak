@@ -1,21 +1,19 @@
 use cardano/assets.{AssetName, PolicyId}
 
 pub const mintAdminPolicy: PolicyId =
-  #"592fb0f9d8ed15c06858118d134d5c4b7c77320507810fee9ac2ddf9"
+  #"fb6e83310a57e848679757e2d2839b5613960be13413629724502d3d"
 
-pub const mintAdminTokenName: AssetName = #"61647361666177"
+pub const mintAdminTokenName: AssetName = #"6d696e7441646d696e"
 
 pub const couponAdminPolicy: PolicyId =
-  #"29348067d7a4cb37d84061e6f40e6815b9361f2d68923a804b2683ae"
+  #"fb6e83310a57e848679757e2d2839b5613960be13413629724502d3d"
 
-pub const couponAdminTokenName: AssetName =
-  #"42726f436c616e4d696e74696e6741646d696e"
+pub const couponAdminTokenName: AssetName = #"636f75706f6e41646d696e"
 
-pub const redemptionTokenPolicy: PolicyId =
-  #"24fc896805f0b75ab51502b022834440ef8235f134475e0c14ea9353"
+pub const couponTokenName: AssetName = #"546f6b656e5661756c742056617563686572"
 
-pub const redemptionTokenName: AssetName =
-  #"546f6b656e5661756c742056617563686572"
+pub const couponTokenPolicy: PolicyId =
+  #"6629a3545cbaad78483f95613292387d8ff3cce5ebd6adeeaef8ba43"
 
 pub const configPolicy: PolicyId =
-  #"79dfc51ebff0b40e596e6ce59a0e3306038c7214afd40f9bf1f15cd1"
+  #"4c8e42ce9592b1b81225611d3f665a846a1768166729ff2e4042a358"
