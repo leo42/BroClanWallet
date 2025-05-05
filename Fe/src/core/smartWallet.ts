@@ -890,8 +890,7 @@ getUtxos(): UTxO[] {
 
   signersCompleted(index: number) : boolean {
    const txDetails = this.getPendingTxDetails(index)
-   console.log(txDetails,txDetails.signatures.length , txDetails.required_signers)
-    return txDetails.signatures.length === txDetails.required_signers.length
+    return txDetails.signatures.every((signature: any) => signature.haveSig === true);
   }
   
   addSignature(signature: string) : number {
