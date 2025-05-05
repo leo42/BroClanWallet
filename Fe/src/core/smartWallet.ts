@@ -521,6 +521,9 @@ async createUpdateTx(
 
   newConfig: SmartMultisigJson
 ) {
+  if(signers.length === 0){
+    throw new Error("No signers provided")
+  }
   const requrement = this.checkSigners(signers)
   if (requrement === false) {
     throw new Error("Invalid signers")
@@ -833,7 +836,7 @@ getUtxos(): UTxO[] {
             .map(script => verify(script, signers))
             .filter((req): req is extraRequirements => req !== false)
             .sort((a, b) => cost(a) - cost(b));
-          
+
           if (validSubRequirements.length < segment.m) {
             result = false;
           } else {

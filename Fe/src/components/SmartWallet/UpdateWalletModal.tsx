@@ -182,13 +182,19 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
   };
 
-  handleSubmit = () => {
+  handleSubmit = async () => {
+    try{
     if (this.state.json.type === "AtLeast" && this.checkAllAddresses(this.state.json.scripts)) {
       const signers = this.state.signers.filter(signer => signer.isDefault).map(signer => signer.hash);
-      this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(this.state.json));
+      await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(this.state.json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
     }
+  }
+  catch(error: any){
+    toast.error(error.message)
+    console.log("error", error)
+  }
   };
 
   handlePresetChange = (value: string) => {

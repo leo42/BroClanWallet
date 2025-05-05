@@ -144,6 +144,12 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   async createUpdateTx(signers: string[], newConfig: SmartMultisigJson) {
     const wallets = [...this.state.wallets]
     const wallet = wallets[this.state.selectedWallet]
+    if(signers.length === 0){
+      throw new Error("No signers provided")
+    }
+    if(wallet.checkSigners(signers) === false){
+      throw new Error("Invalid signers")
+    }
     console.log("newConfig", newConfig, signers)
     await wallet.createUpdateTx(signers, newConfig)
     this.setState({wallets: wallets})
