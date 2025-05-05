@@ -13,7 +13,7 @@ interface Recipient {
   amount: Assets;
 }
 
-type extraRequirements = { inputs?: UTxO[], refInputs?: UTxO[], before?: number, after?: number }
+type extraRequirements = { refInputs?: UTxO[], before?: number, after?: number }
 
 // Add type assertion to ensure network is a valid key
 type NetworkType = keyof typeof contracts;
@@ -489,7 +489,6 @@ async getScriptRequirements() : Promise<any>{
 
   const scriptRequirements  = {
     collateral: this.colateralUtxo,
-    inputs: requirements?.inputs,
     reference_inputs: requirements?.refInputs || [],
     validity_range: {
       from: requirements?.before,
@@ -521,6 +520,9 @@ async createUpdateTx(
 
   newConfig: SmartMultisigJson
 ) {
+  if(signers.length === 0){
+    throw new Error("No signers provided")
+  }
   const requrement = this.checkSigners(signers)
   if (requrement === false) {
     throw new Error("Invalid signers")
@@ -550,11 +552,6 @@ async createUpdateTx(
   if (requrement.refInputs !== undefined && requrement.refInputs.length > 0) {
     console.log("refInputs", requrement.refInputs)
     tx.readFrom(requrement.refInputs)
-  }
-  if(requrement.inputs !== undefined && requrement.inputs.length > 0) {
-    requrement.inputs.forEach(input => {
-      tx.collectFrom([input]).pay.ToAddress(input.address, input.assets)
-    })
   }
   if(requrement.before !== undefined) {
     tx.validTo(requrement.before  -1000 ) 
@@ -679,12 +676,6 @@ getUtxos(): UTxO[] {
     }
 
     
-    if(requrement.inputs !== undefined && requrement.inputs.length > 0) {
-      requrement.inputs.forEach(input => {
-        tx.collectFrom([input]).pay.ToAddress(input.address, input.assets)
-      })
-    }
-    
     if(requrement.before !== undefined) {
       tx.validTo(requrement.before  -1000 ) 
     }
@@ -804,7 +795,6 @@ getUtxos(): UTxO[] {
       const newBefore = (front.before !== undefined && back.before !== undefined) ? Math.min(front.before, back.before) : (front.before !== undefined ? front.before : back.before);
       const newAfter = (front.after !== undefined && back.after !== undefined) ? Math.max(front.after, back.after) : (front.after !== undefined ? front.after : back.after);
       return {
-        inputs: (front.inputs || []).concat(back.inputs || []),
         refInputs: (front.refInputs || []).concat(back.refInputs || []),
         before: newBefore,
         after: newAfter
@@ -812,10 +802,9 @@ getUtxos(): UTxO[] {
     }
 
     function cost(req: extraRequirements): number {
-      const inputs = req.inputs?.length || 0;
       const refInputs = req.refInputs?.length || 0;
       const beforeAfter = (req.before || 0) + (req.after || 0);
-      return inputs * 10 + refInputs * 5 + beforeAfter;
+      return refInputs * 5 + beforeAfter;
     }
 
     const verify = (segment: SmartMultisigJson, signers: string[]): extraRequirements | false => {
@@ -833,7 +822,7 @@ getUtxos(): UTxO[] {
             .map(script => verify(script, signers))
             .filter((req): req is extraRequirements => req !== false)
             .sort((a, b) => cost(a) - cost(b));
-          
+
           if (validSubRequirements.length < segment.m) {
             result = false;
           } else {
@@ -844,7 +833,7 @@ getUtxos(): UTxO[] {
           const nftUtxo = this.nftUtxos.find(utxo => utxo.assets[segment.policy + segment.name] > 0n);
           console.log(nftUtxo, this.nftUtxos)
           if(nftUtxo && signers.includes(getAddressDetails(nftUtxo?.address).paymentCredential?.hash || "")){
-            result = {inputs : [nftUtxo]};
+            result = {refInputs : [nftUtxo]};
           } else {
             result = false;
           }
@@ -901,8 +890,7 @@ getUtxos(): UTxO[] {
 
   signersCompleted(index: number) : boolean {
    const txDetails = this.getPendingTxDetails(index)
-   console.log(txDetails,txDetails.signatures.length , txDetails.required_signers)
-    return txDetails.signatures.length === txDetails.required_signers.length
+    return txDetails.signatures.every((signature: any) => signature.haveSig === true);
   }
   
   addSignature(signature: string) : number {

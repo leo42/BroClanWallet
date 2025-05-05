@@ -66,7 +66,7 @@ function WalletPendingTx(props: WalletPendingTxProps) {
     }, [])
 
 
-    const signaturesCompleted = props.wallet.checkSigners(txDetails.signatures.map( (signature : any) => signature.haveSig ? signature.keyHash : "  "))
+    const signaturesCompleted : boolean= txDetails.signatures.every((signature: any) => signature.haveSig === true);
 
 
 
