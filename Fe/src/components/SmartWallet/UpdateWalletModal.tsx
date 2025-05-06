@@ -108,11 +108,27 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return valid;
   };
 
+  findNftHolderCoordinates = (json: SmartMultisigDescriptor, path: number[] = []): number[][] => {
+    let result: number[][] = [];
+    if (json.type === "NftHolder") {
+      result.push([...path]);
+    } else if (json.type === "AtLeast" && Array.isArray(json.scripts)) {
+      json.scripts.forEach((script, idx) => {
+        result = result.concat(this.findNftHolderCoordinates(script, [...path, idx]));
+      });
+    }
+    return result;
+  };
+
   componentDidMount() {
     // get current config
-    const config = this.props.wallet.getConfig()
-    this.setState({ json: this.toSmartMultisigDescriptor(config) })
-
+    const config = this.props.wallet.getConfig();
+    const json = this.toSmartMultisigDescriptor(config);
+    this.setState({ json }, () => {
+      // After state is set, find all NftHolder nodes and trigger debouncedhandleNftHolderChange
+      const coordinatesList = this.findNftHolderCoordinates(this.state.json);
+      coordinatesList.forEach(coords => this.debouncedhandleNftHolderChange(coords));
+    });
   }
 
   setJson = (json: SmartMultisigDescriptor) => {
