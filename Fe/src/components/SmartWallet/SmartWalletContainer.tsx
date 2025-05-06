@@ -290,8 +290,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   updateSignerName(hash: string, name: string) {
+    console.log("updateSignerName", hash, name, hash.length)
     const isValidHex = /^[0-9a-fA-F]+$/.test(hash);
-    if (!isValidHex || hash.length !== 64 || hash === "") {
+    if (!isValidHex || hash.length !== 56 ) {
       return;
     }
     const storedSignerNames = JSON.parse(localStorage.getItem('signerNames') || '{}');
