@@ -541,12 +541,14 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
 
         <div className="nftInfo">
-          {json.tokenData ? <img src={json.tokenData.image} alt="NFT" /> : <p>No NFT found</p>}
+          {json.tokenData ? <div ><img src={json.tokenData.image} alt="NFT" /><label>{json.tokenData.name}</label></div> : <p>No NFT found</p>}
         </div>
 
       </div>
     );
   };
+
+
 
   scriptComponent = (json: SmartMultisigDescriptor, coordinates: number[]) => {
     if (json.type !== "Script") {

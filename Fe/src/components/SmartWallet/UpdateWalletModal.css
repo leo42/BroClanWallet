@@ -82,51 +82,130 @@
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   
   }
-.nftInfo{
-  width: 45%;
+
+.nftHolder {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 12px;
+  background: var(--clrModal);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 18px;
+  border: 1px solid var(--clrorange);
+}
+
+.nftHolderInput {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 14px;
+  flex: 2;
+  min-width: 220px;
+  max-width: 60%;
+}
+
+.nftInfo {
+  flex: 1;
+  min-width: 140px;
+  max-width: 220px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  align-content: center;
+  justify-content: center;
+  background: var(--clrWalletCreate2);
+  border-radius: 10px;
+  padding: 12px 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid var(--clrorange);
 }
 
-.nftHolderInput{
+.nftInfo img {
+  max-width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: var(--clrBackground);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.nftInfo label {
+  display: block;
+  margin-top: 4px;
+  color: var(--clrorange);
+  font-size: 1.1em;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-all;
+}
+
+.nftInfo p {
+  color: var(--clrorange);
+  font-style: italic;
+  text-align: center;
+  margin: 0;
+}
+
+.policy {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  align-content: center;
+  gap: 10px;
+  width: 100%;
 }
-
-  .policy {
-    flex-direction: row;
-    align-items: center;
-    align-content: center;
-  }
 
 .policy input[type="text"] {
-  border: solid green 1px;
-  width: 25vw;
+  border: none;
+  border-bottom: 2px solid var(--clrorange);
+  border-radius: 0;
+  background: var(--clrBackground);
+  color: var(--clrorange);
+  font-size: 1em;
+  margin-bottom: 8px;
+  width: 100%;
+  transition: border-color 0.2s;
+  box-shadow: none;
 }
 
-  .nftHolder {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    align-content: center;
-  }
+.policyValid input[type="text"] {
+  border-color: #4CAF50;
+}
 
-  .policyValid {
-    border: solid green 1px;
-  }
+.policyInvalid input[type="text"] {
+  border-color: #f44336;
+}
 
-  .policyInvalid {
-    border: solid red 1px;
-  }
+.nftHolder input[type="text"], .policy input[type="text"] {
+  border: none;
+  border-bottom: 2px solid var(--clrorange);
+  border-radius: 0;
+  background: var(--clrBackground);
+  color: var(--clrorange);
+  font-size: 1em;
+  margin-bottom: 8px;
+  width: 95%;
+  transition: border-color 0.2s;
+  box-shadow: none;
+}
 
-  .nftHolder input {
-    margin-bottom: 10px;
-    width: 100%;
-  }
+.nftHolder input[type="text"]:focus, .policy input[type="text"]:focus {
+  outline: none;
+  border-bottom: 2.5px solid var(--clrorange);
+  background: var(--clrBackground);
+}
+
+.nftHolder input[type="text"].valid, .policy input[type="text"].valid {
+  border-bottom: 2px solid #4CAF50;
+}
+
+.nftHolder input[type="text"].invalid, .policy input[type="text"].invalid {
+  border-bottom: 2px solid #f44336;
+}
+
 .cardSelect {
   margin-top: -34px;
    }
@@ -169,7 +248,7 @@ input[type="text"] {
   border: none;
   height: 22px;
   padding-left: 5px;
-  margin-top: 25px;
+  margin-top: 5px;
   font-size:17px;
 }
 
@@ -399,4 +478,21 @@ input[type="text"]:focus {
   
 
   
+}
+
+@media (max-width: 900px) {
+  .nftHolder {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 12px 4px;
+  }
+  .nftHolderInput, .nftInfo {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .nftInfo {
+    margin-top: 10px;
+    min-height: 120px;
+  }
 }
