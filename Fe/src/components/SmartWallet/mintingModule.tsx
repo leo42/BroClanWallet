@@ -97,7 +97,7 @@ class MintingModule extends React.Component<MintingProps> {
         if(this.inputCheck()){
           console.log("startMint")
           this.props.root.openWalletPicker(this.mintWithWallet)
-          this.closeModule()
+          this.props.moduleRoot.showModal("")
         }
     }
 
@@ -234,8 +234,8 @@ class MintingModule extends React.Component<MintingProps> {
       
       const txComlete = await completedTx.assemble([signature]).complete();
       const txHash = await lucid.config().provider!.submitTx(txComlete.toCBOR())
-      this.props.moduleRoot.addWallet(tokenNameSuffix, name)
       const awaitTx = lucid.config().provider!.awaitTx(txHash)
+      this.props.moduleRoot.addWallet(tokenNameSuffix, name, awaitTx)
 
       toast.promise(awaitTx, {
         pending: 'Waiting for confirmation',

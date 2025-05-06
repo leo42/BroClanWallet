@@ -310,20 +310,37 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
 
-  async addWallet(id: any, name?: string) {
+  async addWallet(id: any, name?: string, promice?: Promise<any>) {
+    try{
     const newWallet = new SmartWallet(id, this.props.settings)
-    await newWallet.initializeLucid()
-    if(name){
-      newWallet.setName(name)
-    }
-    newWallet.initilizeSigners()
-    this.setState({wallets: [...this.state.wallets, newWallet]})
-    this.storeWallets()
     if(this.state.wallets.length === 1){
       const dAppConnector = new Messaging(newWallet, this)
       this.setState({dAppConnector: dAppConnector})
     }
+    if(name){
+      newWallet.setName(name)
+    }
+    await newWallet.initializeLucid()
+    const wallets =[...this.state.wallets, newWallet]
+    this.setState({wallets: wallets})
+    this.storeWallets()
 
+    if(promice){
+      await promice
+      while(!await newWallet.loadConfig()){
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    newWallet.initilizeSigners()
+    this.setState({wallets: wallets})
+    this.storeWallets()
+    toast.info(`Wallet ${name} successfully created!`)
+    }catch(error: any){
+      toast.error("Error creating wallet: " + error.message)
+      console.log("error", error)
+    }
   }
 
 
