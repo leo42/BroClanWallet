@@ -120,6 +120,16 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return result;
   };
 
+  countSigners = (json: SmartMultisigDescriptor): number => {
+    console.log("count Signers", json)
+    if (json.type === "KeyHash"  || json.type === "NftHolder") {
+      return 1;
+    } else if (json.type === "AtLeast" && Array.isArray(json.scripts)) {
+      return json.scripts.reduce((acc, script) => acc + this.countSigners(script), 0);
+    }
+    return 0;
+  }
+
   componentDidMount() {
     // get current config
     const config = this.props.wallet.getConfig();
@@ -198,11 +208,33 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
   };
 
+  normalizeName = (name: string): string => {
+    return /^[0-9a-fA-F]+$/.test(name) ? name : name.split('').map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  }
+
   handleSubmit = async () => {
     try{
-    if (this.state.json.type === "AtLeast" && this.checkAllAddresses(this.state.json.scripts)) {
+      const json = this.state.json
+      const normalizeNamesInJson = (descriptor: SmartMultisigDescriptor) => {
+        if (descriptor.type === "NftHolder") {
+          descriptor.name = this.normalizeName(descriptor.name);
+        }
+        if (descriptor.type === "AtLeast" && Array.isArray(descriptor.scripts)) {
+          descriptor.scripts.forEach(script => normalizeNamesInJson(script));
+        }
+      };
+
+      normalizeNamesInJson(json);
+
+
+      if (this.checkAllAddresses([json])) {
       const signers = this.state.signers.filter(signer => signer.isDefault).map(signer => signer.hash);
-      await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(this.state.json));
+      if (this.countSigners(json) === 0) {
+        toast.error("At least one signer or NftHolder must exist.");
+        return;
+      }
+      console.log(signers, "signers")
+      await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
     }
@@ -641,7 +673,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (current.type !== "NftHolder") return;
     
     try {
-      const hexName = /^[0-9a-fA-F]+$/.test(current.name) ? current.name : current.name.split('').map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+      const hexName = this.normalizeName(current.name);
       const tokenInfo = await getTokenInfo(current.policy + hexName);
       current.tokenData = tokenInfo.image === "" ? null : tokenInfo;
     } catch (error) {
