@@ -285,7 +285,10 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     if(keyHash === ""){
       return "Empty" ;
     }
-    return storedSignerNames[keyHash] || "Invalid address/keyhash" ;
+    if (!/^[0-9a-fA-F]{56}$/.test(keyHash)) {
+      return "Invalid keyHash/address";
+    }
+    return storedSignerNames[keyHash] ;
   }
   }
 
