@@ -455,6 +455,16 @@ setDefaultSigners(signers: string[]) {
     this.loadCollateralUtxos()
    }
 }
+
+initilizeSigners(){
+   let minSigners = 1;
+  if (this.config.Type === SmartMultisigDescriptorType.AtLeast && typeof this.config.m === 'number') {
+    minSigners = this.config.m;
+  }
+  this.signerNames = this.signerNames.map((signer, idx) => {
+    return { ...signer, isDefault: idx < minSigners };
+  });
+}
 getCompletedTx(txId: string){
   return this.pendingTxs.find(tx => tx.tx.toHash() === txId)
 }

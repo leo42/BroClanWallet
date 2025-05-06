@@ -316,6 +316,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     if(name){
       newWallet.setName(name)
     }
+    newWallet.initilizeSigners()
     this.setState({wallets: [...this.state.wallets, newWallet]})
     this.storeWallets()
     if(this.state.wallets.length === 1){

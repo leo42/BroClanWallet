@@ -26,7 +26,7 @@ class ImportModule extends React.Component<ImportProps, ImportState> {
       return;
     }
     this.props.moduleRoot.addWallet(this.state.walletId, this.state.walletId);
-    this.closeModule();
+    this.props.moduleRoot.showModal("");
   };
 
   render() {
