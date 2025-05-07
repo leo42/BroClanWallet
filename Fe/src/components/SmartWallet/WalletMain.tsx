@@ -49,6 +49,10 @@ class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
     }
   }
 
+  setShowing(showing: string) {
+    this.setState({ showing });
+  }
+
   render() {
     const { wallet, root } = this.props;
     const pendingTxsCount = wallet.getPendingTxs().length;
@@ -59,17 +63,14 @@ class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
         <br />
         {(wallet.getBalance() / 1000000).toFixed(2)}{root.state.settings.network === "Mainnet" ? "₳" : "t₳"}
         <br />
-        {['overview', 'createTx', 'pendingTxs', 'delegation', 'transactions', 'receive'].map(tab => (
-          <button
-            key={tab}
-            className={`mainTab${this.state.showing === tab ? " mainTabSelected" : ""}${tab === "pendingTxs" && pendingTxsCount > 0 ? " mainTabPendingTx" : ""}`}
-            value={tab}
-            onClick={(event) => this.setState({ showing: (event.target as HTMLButtonElement).value })}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            {tab === "pendingTxs" && pendingTxsCount > 0 && <label className='pendingTxNumber'>{pendingTxsCount}</label>}
-          </button>
-        ))}
+        <button className={`mainTab` + ( this.state.showing === "overview" ? " mainTabSelected" : " " )} value="overview"  onClick={() => this.setShowing("overview")}>Overview</button>
+            <button className={`mainTab` + ( this.state.showing === "createTx" ? " mainTabSelected" : " " )}  value="createTx" onClick={() => this.setShowing("createTx")}>Create Tx</button>
+            <button className={`mainTab` + ( this.state.showing === "pendingTxs" ? " mainTabSelected" : " " ) + (this.props.wallet.getPendingTxs().length > 0 ? " mainTabPendingTx" : "")} onClick={(event) => this.setShowing("pendingTxs")}> Pending Txs {this.props.wallet.getPendingTxs().length> 0 && <label className='pendingTxNumber'> {this.props.wallet.getPendingTxs().length}</label>  }</button>         
+            <button className={`mainTab` + ( this.state.showing === "delegation" ? " mainTabSelected" : " " )}  value="delegation" onClick={() => this.setShowing("delegation")}>Staking Center</button>
+            <button className={`mainTab` + ( this.state.showing === "transactions" ? " mainTabSelected" : " " )}  value="transactions" onClick={() => this.setShowing("transactions")}>Tx History</button>
+            <button className={`mainTab` + ( this.state.showing === "receive" ? " mainTabSelected" : " " )}  value="receive" onClick={() => this.setShowing("receive")}>Receive</button>
+
+
         <br />
         {this.mainView()}
         <br />
