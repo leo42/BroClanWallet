@@ -11,6 +11,7 @@ type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;
 
+const MAX_DEPTH = 3
 type SmartMultisigDescriptor = 
   | { type: "KeyHash"; keyHash: VerificationKeyHash }
   | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
@@ -729,6 +730,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     let newElement: SmartMultisigDescriptor;
     switch (value) {
       case "AtLeast":
+        if (coordinates.length >= MAX_DEPTH) {
+          toast.error("Maximum depth reached");
+          return;
+        }
         newElement = { 
           type: "AtLeast",
           scripts: [
