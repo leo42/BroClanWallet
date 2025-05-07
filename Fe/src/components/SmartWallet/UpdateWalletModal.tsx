@@ -7,6 +7,8 @@ import SmartWallet from "../../core/smartWallet"; // Changed to default import
 import SmartWalletContainer from "./SmartWalletContainer";
 import { SmartMultisigJson, SmartMultisigDescriptorType } from "../../core/types";
 import { getAddressDetails } from "@lucid-evolution/lucid";
+import { ReactComponent as CorrectIcon } from '../../html/assets/correct.svg';
+import { ReactComponent as WrongIcon } from '../../html/assets/incorrect.svg';
 type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;
@@ -445,7 +447,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
     const validAddress = this.isAddressValid(json.keyHash);
     return (
-      <div className={validAddress ? " sigWrap valid" : "sigWrap invalid"} >
+      <div className="sigWrap">
         <div className="input_wrap" > 
           <input
             className="createWalletName"
@@ -467,7 +469,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             value={json.keyHash}
             onChange={(event) => this.handleKeyHashChange(event.target.value, coordinates)}
           />
-          
+          {this.isAddressValid(json.keyHash) ? 
+            <CorrectIcon className="noticeIcon" /> : 
+            <WrongIcon className={json.keyHash === "" ? "invisibleIcon" : "noticeIcon"} />
+          }
         </div>
       </div>
     );

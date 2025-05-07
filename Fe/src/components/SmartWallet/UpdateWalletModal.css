@@ -231,17 +231,16 @@ input[type="text"]:not(.createWalletAddress){
   border-bottom: solid black 1px;
 }
 
-.invisibleIcon{
-  width: 30px;
-  height: 17px;
-  visibility: hidden;
+.noticeIcon {
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 
-.noticeIcon{
-  width: 30px;
-  height: 17px;
+.invisibleIcon {
+  opacity: 0;
 }
-
 
 input[type="text"] {
   padding: 1px 3px;
