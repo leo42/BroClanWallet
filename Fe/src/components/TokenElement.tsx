@@ -68,7 +68,7 @@ function TokenElement(props: TokenElementProps): JSX.Element | null {
     // make name case insensitive
     if(props.search !== "" && props.search !== undefined) {
       if (tokenInfo && Object.keys(tokenInfo).length !== 0) 
-       if (!props.tokenId.toLowerCase().includes(props.search.toLowerCase()) && tokenInfo.name !== undefined && !tokenInfo.name.toLowerCase().includes(props.search.toLowerCase())  )
+       if (!props.tokenId.toLowerCase().startsWith(props.search.toLowerCase()) && tokenInfo.name !== undefined && !tokenInfo.name.toLowerCase().startsWith(props.search.toLowerCase())  )
           if( tokenInfo.fingerprint !== undefined){
             if ( !tokenInfo.fingerprint.toLowerCase().includes(props.search.toLowerCase()))
             return null
