@@ -47,14 +47,14 @@
 
 
 .TokenListTokenContainer .tokenElementName{
-    color: #000000;
+    color: var(--clrNavText);
     align-items: center;
     text-align: center;
     width: 40px;
 }
 
 .TokenListTokenContainer .TokenElementText{
-    color: #000000;
+    color: var(--clrNavText);
     align-items: center;
     text-align: center;
     width: 40%;
