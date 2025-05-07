@@ -89,6 +89,7 @@ function Receive(props: {wallet: WalletInterface}){
                   <option key={index} value={item} >{optionsNames[item]}</option>
          ))}
         </select>
+        <br/>
         { newStake ? <input type="text" onChange={handleNewAddressChange}></input> : ""}
         { props.wallet.getAddress(donationAddress) === address ? <div className="donationMessage">By using this address your Staking rewards will support the development of this software! </div> : ""}
         <div className="ReseiveAddress "  onClick={() => handleClick(address)}>
