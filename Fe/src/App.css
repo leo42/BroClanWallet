@@ -165,7 +165,7 @@ select{
   cursor: pointer;
   border: none;
   background-color: transparent;
-  color:rgb(92, 92, 92);
+  color: var(--clrNavText);
   z-index:1;
   }
 
