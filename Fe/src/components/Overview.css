@@ -333,6 +333,17 @@
     margin: 5px;
 } */
 
+.noTokensMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  color: #666;
+  font-size: 1.1rem;
+  text-align: center;
+  width: 100%;
+}
+
 
 
 

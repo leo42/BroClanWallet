@@ -86,7 +86,7 @@ class WalletSettings extends React.Component<WalletSettingsProps> {
       <div className="walletSettings">
         <h1>Wallet Settings</h1>
         <label>
-          <span>Wallet Name:</span>
+          <span>Wallet Name :</span>
             <input type="text" style={{width: "100px"}}  value={this.state.wallet.getName()} onChange={(event) => this.props.moduleRoot.changeWalletName(event.target.value)}></input>
         </label>
         {/* {this.props.r.state.module === "smartWallets" && <span className="smartWalletLabel">Id : {this.props.wallet.getId()}</span>} */}
@@ -104,7 +104,7 @@ class WalletSettings extends React.Component<WalletSettingsProps> {
          </div>
 
         </div>
-        <label>Collateral Donor:
+        <label>Collateral Donor :
           <select key={this.state.wallet.getCollateralDonor()} value={this.state.wallet.getCollateralDonor()} onChange={(event)=> this.props.moduleRoot.setCollateralDonor(event.target.value)} >
             <option value="" >None</option>
             {this.state.wallet.getSigners().filter((sighener: any) => sighener.isDefault).map( (item: any, index: number) => (

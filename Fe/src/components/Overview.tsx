@@ -65,9 +65,26 @@ function Overview(props: {wallet: WalletInterface  ,  moduleRoot: SmartWalletCon
           <TokenElement tokenId={asset} className='overviewTokenContainer' key={index+showingAddress} expanded={false}  amount={Number(wallet.getBalanceFull(showingAddress)[asset])} filter={showing} search={search} />
         ))}
 
-    </div>
-      }
-    </div>
+      {Object.keys(wallet.getBalanceFull(showingAddress)).length > 0 && 
+       !Object.keys(wallet.getBalanceFull(showingAddress)).some(asset => {
+         const amount = Number(wallet.getBalanceFull(showingAddress)[asset]);
+         if (showing === "FTs") {
+           return amount > 0 && !asset.includes("_");
+         } else if (showing === "NFTs") {
+           return amount > 0 && asset.includes("_");
+         }
+         return true;
+       }) && (
+          <div className='noTokensMessage'>
+            {showing === "FTs" ? "No fungible tokens found" : 
+             showing === "NFTs" ? "No NFTs found" : 
+             "No tokens found"}
+        </div>
+      )}
+        </div>
+
+    } </div>
+    
   );
 }
 export default Overview;

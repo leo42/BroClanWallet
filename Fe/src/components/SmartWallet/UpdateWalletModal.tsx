@@ -7,10 +7,13 @@ import SmartWallet from "../../core/smartWallet"; // Changed to default import
 import SmartWalletContainer from "./SmartWalletContainer";
 import { SmartMultisigJson, SmartMultisigDescriptorType } from "../../core/types";
 import { getAddressDetails } from "@lucid-evolution/lucid";
+import { ReactComponent as CorrectIcon } from '../../html/assets/correct.svg';
+import { ReactComponent as WrongIcon } from '../../html/assets/incorrect.svg';
 type VerificationKeyHash = string;
 type PolicyId = string;
 type AssetName = string;
 
+const MAX_DEPTH = 3
 type SmartMultisigDescriptor = 
   | { type: "KeyHash"; keyHash: VerificationKeyHash }
   | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
@@ -108,11 +111,37 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return valid;
   };
 
+  findNftHolderCoordinates = (json: SmartMultisigDescriptor, path: number[] = []): number[][] => {
+    let result: number[][] = [];
+    if (json.type === "NftHolder") {
+      result.push([...path]);
+    } else if (json.type === "AtLeast" && Array.isArray(json.scripts)) {
+      json.scripts.forEach((script, idx) => {
+        result = result.concat(this.findNftHolderCoordinates(script, [...path, idx]));
+      });
+    }
+    return result;
+  };
+
+  countSigners = (json: SmartMultisigDescriptor): number => {
+    console.log("count Signers", json)
+    if (json.type === "KeyHash"  || json.type === "NftHolder") {
+      return 1;
+    } else if (json.type === "AtLeast" && Array.isArray(json.scripts)) {
+      return json.scripts.reduce((acc, script) => acc + this.countSigners(script), 0);
+    }
+    return 0;
+  }
+
   componentDidMount() {
     // get current config
-    const config = this.props.wallet.getConfig()
-    this.setState({ json: this.toSmartMultisigDescriptor(config) })
-
+    const config = this.props.wallet.getConfig();
+    const json = this.toSmartMultisigDescriptor(config);
+    this.setState({ json }, () => {
+      // After state is set, find all NftHolder nodes and trigger debouncedhandleNftHolderChange
+      const coordinatesList = this.findNftHolderCoordinates(this.state.json);
+      coordinatesList.forEach(coords => this.debouncedhandleNftHolderChange(coords));
+    });
   }
 
   setJson = (json: SmartMultisigDescriptor) => {
@@ -182,11 +211,33 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
   };
 
+  normalizeName = (name: string): string => {
+    return /^[0-9a-fA-F]+$/.test(name) ? name : name.split('').map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  }
+
   handleSubmit = async () => {
     try{
-    if (this.state.json.type === "AtLeast" && this.checkAllAddresses(this.state.json.scripts)) {
+      const json = this.state.json
+      const normalizeNamesInJson = (descriptor: SmartMultisigDescriptor) => {
+        if (descriptor.type === "NftHolder") {
+          descriptor.name = this.normalizeName(descriptor.name);
+        }
+        if (descriptor.type === "AtLeast" && Array.isArray(descriptor.scripts)) {
+          descriptor.scripts.forEach(script => normalizeNamesInJson(script));
+        }
+      };
+
+      normalizeNamesInJson(json);
+
+
+      if (this.checkAllAddresses([json])) {
       const signers = this.state.signers.filter(signer => signer.isDefault).map(signer => signer.hash);
-      await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(this.state.json));
+      if (this.countSigners(json) === 0) {
+        toast.error("At least one signer or NftHolder must exist.");
+        return;
+      }
+      console.log(signers, "signers")
+      await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
     }
@@ -396,7 +447,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
     const validAddress = this.isAddressValid(json.keyHash);
     return (
-      <div className={validAddress ? " sigWrap valid" : "sigWrap invalid"} >
+      <div className="sigWrap">
         <div className="input_wrap" > 
           <input
             className="createWalletName"
@@ -418,7 +469,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             value={json.keyHash}
             onChange={(event) => this.handleKeyHashChange(event.target.value, coordinates)}
           />
-          
+          {this.isAddressValid(json.keyHash) ? 
+            <CorrectIcon className="noticeIcon" /> : 
+            <WrongIcon className={json.keyHash === "" ? "invisibleIcon" : "noticeIcon"} />
+          }
         </div>
       </div>
     );
@@ -525,12 +579,14 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
 
         <div className="nftInfo">
-          {json.tokenData ? <img src={json.tokenData.image} alt="NFT" /> : <p>No NFT found</p>}
+          {json.tokenData ? <div ><img src={json.tokenData.image} alt="NFT" /><label>{json.tokenData.name}</label></div> : <p>No NFT found</p>}
         </div>
 
       </div>
     );
   };
+
+
 
   scriptComponent = (json: SmartMultisigDescriptor, coordinates: number[]) => {
     if (json.type !== "Script") {
@@ -623,7 +679,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (current.type !== "NftHolder") return;
     
     try {
-      const hexName = /^[0-9a-fA-F]+$/.test(current.name) ? current.name : current.name.split('').map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+      const hexName = this.normalizeName(current.name);
       const tokenInfo = await getTokenInfo(current.policy + hexName);
       current.tokenData = tokenInfo.image === "" ? null : tokenInfo;
     } catch (error) {
@@ -679,6 +735,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     let newElement: SmartMultisigDescriptor;
     switch (value) {
       case "AtLeast":
+        if (coordinates.length >= MAX_DEPTH) {
+          toast.error("Maximum depth reached");
+          return;
+        }
         newElement = { 
           type: "AtLeast",
           scripts: [

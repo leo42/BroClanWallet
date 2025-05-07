@@ -101,7 +101,7 @@
   font-size: 8px;
   font-weight: bold;
   top: -12px ;
-  left: -7px;
+  align-self: center;
   position: relative;
   /* keep content in the same line */
     white-space: nowrap;
@@ -112,7 +112,8 @@
   font-size: 9px;
   font-weight: bold;
   top: -12px ;
-  left: -5px;
+  left: -6px;
+  align-self: center;
   position: relative;
   /* keep content in the same line */
     white-space: nowrap;

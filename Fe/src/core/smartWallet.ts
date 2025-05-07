@@ -208,11 +208,15 @@ class SmartWallet implements WalletInterface {
   }
 
   async getConfigUtxo(): Promise<UTxO> {
-    // Add type assertion to ensure network is a valid key
-    const network = this.settings.network as NetworkType;
-    const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
-    const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
-    return configUtxo
+    try{
+      const network = this.settings.network as NetworkType;
+      const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
+      const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
+      return configUtxo
+    }catch(e){
+      console.error("Error getting config utxo:", e);
+      return Promise.reject(e)
+    }
   }
 
   getConfig(): SmartMultisigJson {    
@@ -222,31 +226,40 @@ class SmartWallet implements WalletInterface {
   async loadConfig()  {
     try {
       const configUtxo = await this.getConfigUtxo();
-      if(this.configUtxo?.txHash !== configUtxo?.txHash || this.configUtxo?.outputIndex !== configUtxo?.outputIndex){
-        this.configUtxo = configUtxo
-        const config : SmartMultisigJson = decode(configUtxo?.datum as string)
-        this.config = config
-        const signers = await this.loadSigners(config)
-        this.signerNames = signers.signers
-        this.nftUtxos  =   signers.nftUtxos
+      if (!configUtxo) {
+        console.error("Failed to retrieve config UTXO");
+        return false;
       }
-      try{
+      if (this.configUtxo?.txHash !== configUtxo?.txHash || this.configUtxo?.outputIndex !== configUtxo?.outputIndex) {
+        this.configUtxo = configUtxo;
+        const config: SmartMultisigJson = decode(configUtxo?.datum as string);
+        this.config = config;
+        const signers = await this.loadSigners(config);
+        this.signerNames = signers.signers;
+        this.nftUtxos = signers.nftUtxos;
+      }
+      try {
         // Add type assertion to ensure network is a valid key
         const network = this.settings.network as NetworkType;
-        const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
+        const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script });
         const scriptUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "02" + this.id);
-        this.scriptUtxo = scriptUtxo
-        if(scriptUtxo.scriptRef){
-          this.script = scriptUtxo.scriptRef
+        if (!scriptUtxo) {
+          console.error("Failed to retrieve script UTXO");
+          return false;
         }
-      }
-      catch(e){
+        this.scriptUtxo = scriptUtxo;
+        if (scriptUtxo.scriptRef) {
+          this.script = scriptUtxo.scriptRef;
+        }
+        return true;
+      } catch (e) {
         console.error("Error getting script utxo:", e);
+        return false;
       }
 
     } catch (e) {
       console.error("Error getting config:", e);
-      return Promise.reject(e);
+      return false;
     }
   }
 
@@ -454,6 +467,16 @@ setDefaultSigners(signers: string[]) {
     this.collateralDonor = signers[0]
     this.loadCollateralUtxos()
    }
+}
+
+initilizeSigners(){
+   let minSigners = 1;
+  if (this.config.Type === SmartMultisigDescriptorType.AtLeast && typeof this.config.m === 'number') {
+    minSigners = this.config.m;
+  }
+  this.signerNames = this.signerNames.map((signer, idx) => {
+    return { ...signer, isDefault: idx < minSigners };
+  });
 }
 getCompletedTx(txId: string){
   return this.pendingTxs.find(tx => tx.tx.toHash() === txId)

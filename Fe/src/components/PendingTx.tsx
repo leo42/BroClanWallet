@@ -201,7 +201,7 @@ function WalletPendingTx(props: WalletPendingTxProps) {
 
             <div  onMouseEnter={() => setHovering("Details")} onMouseLeave={() => setHovering("") } onClick={() => setShowDetails(!showDetails)}  className='iconWraper txDetailsButton'>
                 <ExpandIcon className="icon"  />
-                { ( hovering === "Details" || isMobile)  &&  <label className='iconLabel'>{showDetails ? "Hide" : "Show" } Details</label> }
+                { ( hovering === "Details" || isMobile)  &&  <label className='iconLabel'>Details</label> }
             </div>  
 
                 </div>

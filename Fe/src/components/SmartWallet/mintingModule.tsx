@@ -29,6 +29,7 @@ type NetworkType = keyof typeof contracts;
 interface MintingState {
   termsAccepted: boolean[];
   price: number | null;
+  message: string ;
   walletId: string;
   name: string;
   }
@@ -45,6 +46,7 @@ class MintingModule extends React.Component<MintingProps> {
          termsAccepted: this.terms.map(() => false),
          price : null,
          walletId : "",
+         message : "Loading",
          name : ""
     }
     // Add type assertion to ensure network is a valid key
@@ -57,15 +59,22 @@ class MintingModule extends React.Component<MintingProps> {
         try{
           console.log("getting AdminData");
           const lucid = await getNewLucidInstance(this.props.root.state.settings)
-
-          const adminUtxo = await lucid.config().provider!.getUtxoByUnit(contracts[this.props.root.state.settings.network as NetworkType].minting.adminKey)
+          const adminKey = contracts[this.props.root.state.settings.network as NetworkType].minting.adminKey
+          if(!adminKey){
+            this.setState({message : "Minting Disabled on this network, Switch to Preprod to try this product"})
+            return
+          }
+          const adminUtxo = await lucid.config().provider!.getUtxoByUnit(adminKey)
           console.log(adminUtxo)
           const adminDatum  =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
           this.setState({price : Number(adminDatum.mintAmount)} )
           console.log(adminDatum)
+
+
           
         }catch(e){
             console.log(e)
+            this.setState({message : "Minting Disabled on this network, Switch to Preprod to try this product"})
         }
       }
       getAdminData()
@@ -97,7 +106,7 @@ class MintingModule extends React.Component<MintingProps> {
         if(this.inputCheck()){
           console.log("startMint")
           this.props.root.openWalletPicker(this.mintWithWallet)
-          this.closeModule()
+          this.props.moduleRoot.showModal("")
         }
     }
 
@@ -128,13 +137,7 @@ class MintingModule extends React.Component<MintingProps> {
         throw new Error("Wallet address not available");
       }
 
-      const adminUtxo = await lucid.config().provider!.getUtxoByUnit(
-        contracts[this.props.root.state.settings.network as NetworkType].minting.adminKey
-      );
-      if (!adminUtxo) {
-        throw new Error("Could not fetch admin UTxO - the service might be temporarily unavailable");
-      }
-      const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
+    
 
       const paymentCredential = getAddressDetails(address).paymentCredential;
       if (!paymentCredential) {
@@ -145,16 +148,22 @@ class MintingModule extends React.Component<MintingProps> {
       const couponUtxo =  utxos.find(utxo => utxo.assets[couponId] >= 1n)
       console.log("utxos", utxos, couponUtxo)
       const filteredUtxos = utxos.filter(utxo => utxo !== couponUtxo);
-      const consumingUtxos = couponUtxo 
-        ? [couponUtxo, ...coinSelect({lovelace: BigInt(15_000_000)}, filteredUtxos)] 
-        : coinSelect({lovelace: BigInt(adminDatum.mintAmount + 15_000_000n)}, utxos);
+      let consumingUtxos : UTxO[]   
 
-        console.log("consumingUtxos", adminDatum)
       const consumingTx =  lucid.newTx()
       if(couponUtxo){
+        consumingUtxos = [couponUtxo, ...coinSelect({lovelace: BigInt(15_000_000)}, filteredUtxos)] 
         consumingTx.mintAssets({[couponId]: -1n}, Data.void())
         consumingTx.attach.Script({ type : "PlutusV3", script : contracts[this.props.root.state.settings.network as NetworkType].minting.couponmint})
       }else{
+        const adminUtxo = await lucid.config().provider!.getUtxoByUnit(
+          contracts[this.props.root.state.settings.network as NetworkType].minting.adminKey
+        );
+        if (!adminUtxo) {
+          throw new Error("Could not fetch admin UTxO - the service might be temporarily unavailable");
+        }
+        const adminDatum =  Data.from(adminUtxo?.datum as string, adminDatumSchema)
+        consumingUtxos = coinSelect({lovelace: BigInt(adminDatum.mintAmount + 15_000_000n)}, utxos)
         consumingTx.pay.ToAddress(contracts[this.props.root.state.settings.network as NetworkType].minting.paymentAddress, { lovelace: BigInt(adminDatum.mintAmount) });
         consumingTx.readFrom([adminUtxo])
       }
@@ -216,7 +225,7 @@ class MintingModule extends React.Component<MintingProps> {
     
     };
 
-      console.log(this.mintingRawScript, configAddress, deadAddress, metadata, assets, adminUtxo);
+      console.log(this.mintingRawScript, configAddress, deadAddress, metadata, assets);
 
       const redeemer = Data.void();
       console.log("redeemer", redeemer)
@@ -234,8 +243,8 @@ class MintingModule extends React.Component<MintingProps> {
       
       const txComlete = await completedTx.assemble([signature]).complete();
       const txHash = await lucid.config().provider!.submitTx(txComlete.toCBOR())
-      this.props.moduleRoot.addWallet(tokenNameSuffix, name)
       const awaitTx = lucid.config().provider!.awaitTx(txHash)
+      this.props.moduleRoot.addWallet(tokenNameSuffix, name, awaitTx)
 
       toast.promise(awaitTx, {
         pending: 'Waiting for confirmation',
@@ -351,7 +360,7 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
         </div>
       ))}
     </div>
-    {this.state.price !== null && <div className="mintingPrice">
+    {this.state.price === null ?  <label className="mintingMessage"><br/>{this.state.message}</label> : <div className="mintingPrice">
         <span data-label="Price:" data-value={`${this.state.price/1_000_000} ADA`}></span>
         <span data-label="Registration Cost:" data-value={`${contracts[this.props.root.state.settings.network as NetworkType].registrationCost/1_000_000} ADA`}></span>
         <span data-label="Tx Fee:" data-value={`${contracts[this.props.root.state.settings.network as NetworkType].txFee/1_000_000} ADA`}></span>
@@ -362,7 +371,6 @@ toggleTerm = (index: number) => {   console.log("toggleTerm", index);
     </div>}  
       </div>
                     
-              {this.props.root.state.settings.network !== "Preprod" && <span className="mintingDisclamer">Smart Wallets are only supported on the preprod testnet.</span>}
                     <button className="commonBtn" onClick={this.startMint}>Mint Now</button>
               
                 </div>
