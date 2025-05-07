@@ -10,13 +10,15 @@ function Receive(props: {wallet: WalletInterface}){
     const [newStake, setNewStake] = React.useState(false)
     const [options, setOptions] = React.useState<string[]>([])
     const [optionsNames, setOptionsNames] = React.useState<{[key: string]: string}>({})
-
+    const [isValidAddress, setIsValidAddress] = React.useState(true)
 
     const donationAddress = "addr1q9jae9tlky2gw97hxqkrdm5lu0qlasrzw5u5ju9acpazk3ev94h8gqswgsgfp59e4v0z2dapyamyctfeyzykr97pajdq0nanuq"
 
     function handleClick(value: string){
-        copyTextToClipboard(value)
-        toast.info("Address copied to clipboard!")
+        if(isValidAddress){
+            copyTextToClipboard(value)
+            toast.info("Address copied to clipboard!")
+        }
     }
     
     const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -26,7 +28,7 @@ function Receive(props: {wallet: WalletInterface}){
           canvasRef.current,
           // QR code doesn't work with an empty string
           // so we are using a blank space as a fallback
-          address || " ",
+          isValidAddress ? address : " ",
           (error: any) => error && console.error(error)
         );
       }, [address]);
@@ -36,9 +38,11 @@ function Receive(props: {wallet: WalletInterface}){
         
         if (event.target.value === "new" ){
             setNewStake(true)
+            setIsValidAddress(false)
             setAddress("Enter an address of the wallet that will receive the rewards")
         }else{
             setNewStake(false)
+            setIsValidAddress(true)
             setAddress(props.wallet.getAddress(event.target.value))
         } 
     }
@@ -46,12 +50,15 @@ function Receive(props: {wallet: WalletInterface}){
         try{
         if(event.target.value === ""){
             setAddress("Enter an address of the wallet that will receive the rewards")
+            setIsValidAddress(false)
             return
 
         }
           setAddress(props.wallet.getAddress(event.target.value))
+          setIsValidAddress(true)
         }catch{
             setAddress("Invalid Stake Address")
+            setIsValidAddress(false)
         }
     }
 
@@ -93,10 +100,10 @@ function Receive(props: {wallet: WalletInterface}){
         { newStake ? <input type="text" onChange={handleNewAddressChange}></input> : ""}
         { props.wallet.getAddress(donationAddress) === address ? <div className="donationMessage">By using this address your Staking rewards will support the development of this software! </div> : ""}
         <div className="ReseiveAddress "  onClick={() => handleClick(address)}>
-        <canvas ref={canvasRef} />
+        { <canvas ref={canvasRef} /> }
         <br/>
         {address} 
-        <svg className="copyIcon" id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg>
+        {isValidAddress && <svg className="copyIcon" id="meteor-icon-kit__solid-copy-s" fill="none"><path fillRule="evenodd" clipRule="evenodd" d="M7 5H14C15.1046 5 16 5.89543 16 7V14C16 15.1046 15.1046 16 14 16H7C5.89543 16 5 15.1046 5 14V7C5 5.89543 5.89543 5 7 5zM3 11H2C0.89543 11 0 10.1046 0 9V2C0 0.89543 0.89543 0 2 0H9C10.1046 0 11 0.89543 11 2V3H7C4.79086 3 3 4.79086 3 7V11z" fill="#758CA3"/></svg>}
         </div>
         </div>
 
