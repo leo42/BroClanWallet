@@ -1,5 +1,5 @@
 use aiken/collection/list
-use aiken/collection/pairs.{has_key}
+use aiken/collection/pairs.{find_all, has_key}
 use aiken/crypto.{VerificationKeyHash}
 use aiken/interval
 use aiken/primitive/bytearray
@@ -58,6 +58,29 @@ fn configOutputValid(myUtxo: OutputReference, self: Transaction) -> Bool {
   addressEqual
 }
 
+validator multisigWithdrawal {
+  withdraw(redeemer: SmartMultisigDescriptor, _account, self: Transaction) {
+    validate(redeemer, self)
+  }
+
+  publish(_redeemer, _cert, self: Transaction) {
+    list.any(
+      self.inputs,
+      fn(input) {
+        assets.quantity_of(
+          input.output.value,
+          env.mintAdminPolicy,
+          env.mintAdminTokenName,
+        ) == 1
+      },
+    )
+  }
+
+  else(_) {
+    fail
+  }
+}
+
 validator smartMultisig(walletId: ByteArray) {
   else(ctx: ScriptContext) {
     multisigAproved(walletId, ctx.transaction)
@@ -73,6 +96,7 @@ fn multisigAproved(walletId: ByteArray, transaction: Transaction) -> Bool {
       Some(descriptor) -> descriptor
       None -> fail
     }
+  find_all(transaction.withdrawals, Script(env.multisigWithdrawal))
   validate(descriptor, transaction)
 }
 

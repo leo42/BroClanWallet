@@ -1,3 +1,4 @@
+use aiken/crypto.{ScriptHash}
 use cardano/assets.{AssetName, PolicyId}
 
 pub const mintAdminPolicy: PolicyId =
@@ -16,4 +17,7 @@ pub const couponTokenPolicy: PolicyId =
   #"6629a3545cbaad78483f95613292387d8ff3cce5ebd6adeeaef8ba43"
 
 pub const configPolicy: PolicyId =
+  #"4c8e42ce9592b1b81225611d3f665a846a1768166729ff2e4042a358"
+
+pub const multisigWithdrawal: ScriptHash =
   #"4c8e42ce9592b1b81225611d3f665a846a1768166729ff2e4042a358"
