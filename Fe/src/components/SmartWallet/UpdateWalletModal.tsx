@@ -443,7 +443,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "KeyHash") {
       return null;
     }
-    const validAddress = this.isAddressValid(json.keyHash);
     return (
       <div className="sigWrap">
         <div className="input_wrap" > 
