@@ -277,7 +277,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
           const details = getAddressDetails(keyHash)
       if (details && details.paymentCredential) {
-          return storedSignerNames[details.paymentCredential.hash] || keyHash;
+          return storedSignerNames[details.paymentCredential.hash] === undefined ? keyHash : storedSignerNames[details.paymentCredential.hash];
       }else {
         return keyHash;
       }
