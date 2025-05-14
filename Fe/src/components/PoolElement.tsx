@@ -3,7 +3,7 @@ import getPoolInfo from '../helpers/PoolInfo'
 import "./PoolElement.css"
 import { App } from "../index.js";
 
-function PoolElement(props: {poolId: string, root: App}){
+function PoolElement(props: {poolId: string, root: App, onClick?: () => void}){
     const [ PoolInfo, setPoolInfo] =  React.useState(undefined)
     React.useEffect(() => {
         var poolInfoFetch =  getPoolInfo(props.poolId)
@@ -26,7 +26,11 @@ function handleClick(e: React.MouseEvent<HTMLImageElement>) {
     return (
       //on click, open pool page in new tab
       
-      <div className="PoolElementWrapper"   >  
+      <div 
+        className="PoolElementWrapper" 
+        onClick={props.onClick} 
+        style={{ cursor: props.onClick ? 'pointer' : 'default' }}
+      >  
           <span className="PoolElementName"> {PoolInfo["name"]} </span>
         <span className="PoolElementTicker"> {PoolInfo["ticker"]} </span>
     <div className="PoolElement"> 

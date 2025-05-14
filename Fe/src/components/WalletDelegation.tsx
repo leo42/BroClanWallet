@@ -151,8 +151,11 @@ You have to enter the dRep CIP-129 ID (e.g., drep13846y7q7tng3endxhet9qdcz5w0fjs
       </label>
       {searching ? searchingAnimation() : pools.map( (pool: string) => (
           <div key={pool}>
-            <PoolElement  key={pool} root={props.root} poolId={pool} />
-             {pools.length !== 1 && <button type="button" className='commonBtn' onClick={() => setPool(pool)}>Select</button>}
+            
+             {pools.length !== 1 ? 
+             <PoolElement  onClick={() => setPool(pool)}  key={pool} root={props.root} poolId={pool} /> 
+             : <PoolElement  key={pool} root={props.root} poolId={pool} />}
+
             <br/>
           </div>
         )
