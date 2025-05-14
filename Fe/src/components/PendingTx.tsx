@@ -123,7 +123,7 @@ function WalletPendingTx(props: WalletPendingTxProps) {
         const signature = await api.signTx(props.tx.tx.toCBOR() ,true)
         props.moduleRoot.addSignature(signature)
         }catch(error: any){
-            toast.error("Error signing with local wallet: " + error.info)
+            toast.warning("error.info");
         }
 
 

@@ -398,8 +398,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     toast.info("Delegation transaction created successfully!")
   }
   catch(error: any){
-    toast.error("Error creating delegation transaction: " + error.message)
-    console.log("error", error)
+    if(error.message.includes("EMPTY_UTXO: UTxO array is empty")){
+      toast.warning("Wallet is empty")
+    }
+    else{
+      toast.error("Error creating delegation transaction: " + error.message)
+      console.log("error", error)
+    }
   }
   }
 
