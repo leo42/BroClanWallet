@@ -22,7 +22,6 @@ async function getTokenInfo(tokenId: string){
         "decimals": 6,
         "image": "assets/ADA.png",
         "unit": "lovelace",
-
         "fetch_time": Date.now()
         }
 
