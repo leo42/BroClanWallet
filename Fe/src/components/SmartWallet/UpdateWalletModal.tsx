@@ -85,7 +85,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return details.paymentCredential?.hash || ''
   }
   catch(error: any){
-    console.log("error", error)
+
   }
     return addressOrKeyHash
   }
@@ -124,7 +124,6 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   };
 
   countSigners = (json: SmartMultisigDescriptor): number => {
-    console.log("count Signers", json)
     if (json.type === "KeyHash"  || json.type === "NftHolder") {
       return 1;
     } else if (json.type === "AtLeast" && Array.isArray(json.scripts)) {
@@ -236,7 +235,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         toast.error("At least one signer or NftHolder must exist.");
         return;
       }
-      console.log(signers, "signers")
       await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
@@ -244,7 +242,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
   }
   catch(error: any){
     toast.error(error.message)
-    console.log("error", error)
   }
   };
 
@@ -386,8 +383,9 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
   handleTimeChange = (value: number, coordinates: number[]) => {
     const json = { ...this.state.json };
+    let newTime = value;
     if (Number(value) < 1606785600000) {
-      return;
+      newTime = 1606785600000;
     }
     let current = json;
     for (const index of coordinates) {
@@ -400,7 +398,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       return;
     }
 
-    current.time = value ? value :  current.time;
+    current.time = newTime ? newTime :  current.time;
     this.setState({ json });
   };
 
@@ -483,8 +481,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       return null;
     }
     // Format date to local timezone
-    const localDate = new Date(json.time);
+    const UTCOffset = new Date().getTimezoneOffset() * 60000;
+    const localDate = new Date(json.time - UTCOffset);
     const dateString = localDate.toISOString().slice(0, 16);
+    
     
     return (
       <React.Fragment>
@@ -504,7 +504,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
               value={dateString}
               onChange={(event) => {
                 const selectedDate = new Date(event.target.value);
-                const selectedDateUTC = selectedDate.getTime() - localDate.getTimezoneOffset() * 60000
+                const selectedDateUTC = selectedDate.getTime() 
                 this.handleTimeChange(selectedDateUTC, coordinates);
               }}
             />
@@ -520,7 +520,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       return null;
     }
     // Format date to local timezone
-    const localDate = new Date(json.time);
+    const UTCOffset = new Date().getTimezoneOffset() * 60000;
+    const localDate = new Date(json.time - UTCOffset);
     const dateString = localDate.toISOString().slice(0, 16);
     
     return (
@@ -540,7 +541,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             value={dateString}
             onChange={(event) => {
               const selectedDate = new Date(event.target.value);
-              const selectedDateUTC = selectedDate.getTime() - localDate.getTimezoneOffset() * 60000
+              const selectedDateUTC = selectedDate.getTime()
               this.handleTimeChange(selectedDateUTC, coordinates);
             }}
           />
@@ -553,9 +554,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "NftHolder") {
       return null;
     }
-    console.log(json.policy, "policy", Array.from(this.policyMap.keys()))
     const foundKey = Array.from(this.policyMap.values()).find(value => value === json.policy);
-    console.log(foundKey, "foundKey")
     const policyType = foundKey ? foundKey : "Custom";
     const policyValid = /^[0-9a-fA-F]{56}$/.test(json.policy);
 
@@ -685,7 +684,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
   };
 
   handleNftHolderChange = async (coordinates: number[]) => {
-    console.log("handleNftHolderChange called with coordinates:", coordinates);
     const json = { ...this.state.json };
     let current = json;
     for (const index of coordinates) {
@@ -750,7 +748,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     // Create new element based on selected type
     let newElement: SmartMultisigDescriptor;
     const localDate = new Date();
-    const localDateUTC = localDate.getTime() - localDate.getTimezoneOffset() * 60000;
+    const localDateUTC = localDate.getTime();
     switch (value) {
       case "AtLeast":
         if (coordinates.length >= MAX_DEPTH) {
