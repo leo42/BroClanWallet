@@ -589,11 +589,11 @@ async createUpdateTx(
     tx.readFrom(requrement.refInputs)
   }
   if(requrement.before !== undefined) {
-    tx.validTo(requrement.before  <= 1746812561 ? 1746812562 : requrement.before - 1000 )
+    tx.validTo( requrement.before - 1000  )
   }
   
   if(requrement.after !== undefined) {
-    tx.validFrom( requrement.after <= 1746812561 ? 1746812562 : requrement.after + 1000 )
+    tx.validFrom( new Date().getTime() )
   }
 
   signers.forEach(signer => {
@@ -721,7 +721,7 @@ getUtxos(): UTxO[] {
     }
     
     if(requrement.after !== undefined) {
-      tx.validFrom( requrement.after + 1000 )
+      tx.validFrom( new Date().getTime() )
     }
     
     signers.forEach(signer => {
