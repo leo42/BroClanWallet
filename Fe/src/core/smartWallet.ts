@@ -560,7 +560,6 @@ async createUpdateTx(
   console.log("requirements", requrement)
 
   const configUtxo = await this.getConfigUtxo();
-  const enterpriseAddress = this.getEnterpriseAddress()
 
   const collateralUtxo = await this.getColateralUtxo(signers);
 
@@ -659,8 +658,13 @@ async getCollateral(): Promise<UTxO[]>{
 
 async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   if(this.colateralUtxo && signers?.includes(this.collateralDonor as string)) {
-    return this.colateralUtxo
-  }else if (signers) {
+    const utxos = await this.lucid.config().provider?.getUtxosByOutRef([{txHash : this.colateralUtxo.txHash, outputIndex : this.colateralUtxo.outputIndex}])
+    if(utxos && utxos.length > 0){
+      return this.colateralUtxo
+    }
+  }
+  
+  if (signers) {
     for (const signer of signers) {
         const collateralUtxo = await this.pullCollateralUtxo(signer);
         if (collateralUtxo) {
