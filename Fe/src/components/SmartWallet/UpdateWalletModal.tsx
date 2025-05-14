@@ -749,6 +749,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
     // Create new element based on selected type
     let newElement: SmartMultisigDescriptor;
+    const localDate = new Date();
+    const localDateUTC = localDate.getTime() - localDate.getTimezoneOffset() * 60000;
     switch (value) {
       case "AtLeast":
         if (coordinates.length >= MAX_DEPTH) {
@@ -765,15 +767,16 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         };
         break;
       case "Before":
+
         newElement = {
           type: "Before",
-          time: Math.floor(Date.now() ) // Current timestamp in seconds
+          time: Math.floor(localDateUTC) // Current timestamp in seconds
         };
         break;
-      case "After":
+        case "After":
         newElement = {  
           type: "After",
-          time: Math.floor(Date.now() ) // Current timestamp in seconds
+          time: Math.floor(localDateUTC) // Current timestamp in seconds
         };
         break;
       case "KeyHash":
