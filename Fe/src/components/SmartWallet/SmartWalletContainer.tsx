@@ -447,12 +447,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
       const wallets = [...this.state.wallets]
       const wallet = wallets[this.state.selectedWallet]
-      const txSub =wallet.submitTransaction(index)
+      const [txSub, txHash] = await wallet.submitTransaction(index)
       toast.promise(txSub, {
         pending: "Submitting transaction...",
         success: "Transaction submitted successfully!",
       })
       await txSub
+      wallet.removePendingTxByHash(txHash)
       this.setState({wallets: wallets})
       this.storeWallets()
     }

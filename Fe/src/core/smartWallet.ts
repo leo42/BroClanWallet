@@ -89,6 +89,10 @@ class SmartWallet implements WalletInterface {
     this.pendingTxs.splice(tx, 1);
   }
 
+  removePendingTxByHash(hash: string) {
+    this.pendingTxs = this.pendingTxs.filter(tx => tx.tx.toHash() !== hash);
+  }
+
   getPendingTxs(): { tx: TxSignBuilder; signatures: Record<string, string> }[] {
     return this.pendingTxs
   }
@@ -794,7 +798,7 @@ getUtxos(): UTxO[] {
   }
 
 
-  async submitTransaction(index: number): Promise<Boolean> {
+  async submitTransaction(index: number): Promise<[Promise<boolean>, string]> {
     try {
       const tx = this.pendingTxs[index];
       
@@ -808,7 +812,7 @@ getUtxos(): UTxO[] {
       const txHash = await signedTx.submit();
   
       // Wait for confirmation
-      return this.lucid.awaitTx(txHash, 2500);
+      return [this.lucid.awaitTx(txHash, 2500), txHash];
     } catch (e : any) {
       console.error(e);
       const errorMessage = e.message ? e.message : JSON.stringify(e);
