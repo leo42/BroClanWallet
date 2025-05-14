@@ -111,6 +111,37 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return valid;
   };
 
+  checkAllAtLeast = (json: SmartMultisigDescriptor[]): boolean => {
+    let hasInvalidAtLeast = false;
+    
+    const checkNode = (node: SmartMultisigDescriptor): boolean => {
+      if (node.type === "AtLeast") {
+        // Check if the required number (m) is greater than available scripts
+        if (node.m > node.scripts.length) {
+          return true; // Invalid: requires more members than available
+        }
+        
+        // Check all child nodes recursively
+        for (const script of node.scripts) {
+          if (checkNode(script)) {
+            return true; // If any child is invalid, this node is invalid
+          }
+        }
+      }
+      return false; // This node is valid
+    };
+    
+    // Check all nodes at this level
+    for (const script of json) {
+      if (checkNode(script)) {
+        hasInvalidAtLeast = true;
+        break;
+      }
+    }
+    
+    return hasInvalidAtLeast;
+  }
+
   findNftHolderCoordinates = (json: SmartMultisigDescriptor, path: number[] = []): number[][] => {
     let result: number[][] = [];
     if (json.type === "NftHolder") {
@@ -235,9 +266,14 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         toast.error("At least one signer or NftHolder must exist.");
         return;
       }
+     if(this.checkAllAtLeast([json])){
+      toast.error("Chosen At Least option is not valid More members required than available");
+      return;
+    }
       await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
+     
     }
   }
   catch(error: any){
