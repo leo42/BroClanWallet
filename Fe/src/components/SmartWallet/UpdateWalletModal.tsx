@@ -386,7 +386,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
   handleTimeChange = (value: number, coordinates: number[]) => {
     const json = { ...this.state.json };
-    if (Number(value) < 0) {
+    if (Number(value) < 1606785600000) {
       return;
     }
     let current = json;
@@ -482,6 +482,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "Before") {
       return null;
     }
+    // Format date to local timezone
+    const localDate = new Date(json.time);
+    const dateString = localDate.toISOString().slice(0, 16);
+    
     return (
       <React.Fragment>
         <div className="input_wrap beforeSlot">
@@ -497,8 +501,12 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             <input
               type="datetime-local"
               name="amount"
-              value={new Date(json.time ).toISOString().slice(0, 16)}
-              onChange={(event) => this.handleTimeChange(new Date(new Date(event.target.value)).getTime(), coordinates)}
+              value={dateString}
+              onChange={(event) => {
+                const selectedDate = new Date(event.target.value);
+                const selectedDateUTC = selectedDate.getTime() - localDate.getTimezoneOffset() * 60000
+                this.handleTimeChange(selectedDateUTC, coordinates);
+              }}
             />
           </div>
           <p> <span>Warning:</span> Using the "Before" type could result in a permanently locked wallet! You need to withdraw your money <span>before</span> the above date!</p>
@@ -511,6 +519,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "After") {
       return null;
     }
+    // Format date to local timezone
+    const localDate = new Date(json.time);
+    const dateString = localDate.toISOString().slice(0, 16);
+    
     return (
       <React.Fragment>
         <div className="input_wrap beforeAndAfterSlot">
@@ -525,8 +537,12 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
           <input
             type="datetime-local"
             name="amount"
-            value={new Date(json.time ).toISOString().slice(0, 16)}
-            onChange={(event) => this.handleTimeChange(new Date(new Date(event.target.value)).getTime(), coordinates)}
+            value={dateString}
+            onChange={(event) => {
+              const selectedDate = new Date(event.target.value);
+              const selectedDateUTC = selectedDate.getTime() - localDate.getTimezoneOffset() * 60000
+              this.handleTimeChange(selectedDateUTC, coordinates);
+            }}
           />
         </div>
       </React.Fragment>
@@ -751,13 +767,13 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       case "Before":
         newElement = {
           type: "Before",
-          time: Math.floor(Date.now() / 1000) // Current timestamp in seconds
+          time: Math.floor(Date.now() ) // Current timestamp in seconds
         };
         break;
       case "After":
         newElement = {  
           type: "After",
-          time: Math.floor(Date.now() / 1000) // Current timestamp in seconds
+          time: Math.floor(Date.now() ) // Current timestamp in seconds
         };
         break;
       case "KeyHash":
