@@ -89,6 +89,10 @@ class SmartWallet implements WalletInterface {
     this.pendingTxs.splice(tx, 1);
   }
 
+  removePendingTxByHash(hash: string) {
+    this.pendingTxs = this.pendingTxs.filter(tx => tx.tx.toHash() !== hash);
+  }
+
   getPendingTxs(): { tx: TxSignBuilder; signatures: Record<string, string> }[] {
     return this.pendingTxs
   }
@@ -585,11 +589,11 @@ async createUpdateTx(
     tx.readFrom(requrement.refInputs)
   }
   if(requrement.before !== undefined) {
-    tx.validTo(requrement.before  <= 1746812561 ? 1746812562 : requrement.before - 1000 )
+    tx.validTo( requrement.before - 1000  )
   }
   
   if(requrement.after !== undefined) {
-    tx.validFrom( requrement.after <= 1746812561 ? 1746812562 : requrement.after + 1000 )
+    tx.validFrom( new Date().getTime() )
   }
 
   signers.forEach(signer => {
@@ -717,7 +721,7 @@ getUtxos(): UTxO[] {
     }
     
     if(requrement.after !== undefined) {
-      tx.validFrom( requrement.after + 1000 )
+      tx.validFrom( new Date().getTime() )
     }
     
     signers.forEach(signer => {
@@ -794,7 +798,7 @@ getUtxos(): UTxO[] {
   }
 
 
-  async submitTransaction(index: number): Promise<Boolean> {
+  async submitTransaction(index: number): Promise<[Promise<boolean>, string]> {
     try {
       const tx = this.pendingTxs[index];
       
@@ -808,7 +812,7 @@ getUtxos(): UTxO[] {
       const txHash = await signedTx.submit();
   
       // Wait for confirmation
-      return this.lucid.awaitTx(txHash, 2500);
+      return [this.lucid.awaitTx(txHash, 2500), txHash];
     } catch (e : any) {
       console.error(e);
       const errorMessage = e.message ? e.message : JSON.stringify(e);
@@ -847,7 +851,7 @@ getUtxos(): UTxO[] {
       if (memo.has(segment)) return memo.get(segment)!;
 
       let result: extraRequirements | false;
-      const now = Date.now()  ;
+      const now = new Date().getTime() ;
 
       switch (segment.Type) {
         case SmartMultisigDescriptorType.KeyHash:
@@ -859,6 +863,7 @@ getUtxos(): UTxO[] {
             .filter((req): req is extraRequirements => req !== false)
             .sort((a, b) => cost(a) - cost(b));
 
+          console.log("validSubRequirements", validSubRequirements)
           if (validSubRequirements.length < segment.m) {
             result = false;
           } else {
@@ -867,7 +872,6 @@ getUtxos(): UTxO[] {
           break;
         case SmartMultisigDescriptorType.NftHolder:
           const nftUtxo = this.nftUtxos.find(utxo => utxo.assets[segment.policy + segment.name] > 0n);
-          console.log(nftUtxo, this.nftUtxos)
           if(nftUtxo && signers.includes(getAddressDetails(nftUtxo?.address).paymentCredential?.hash || "")){
             result = {refInputs : [nftUtxo]};
           } else {
@@ -880,6 +884,7 @@ getUtxos(): UTxO[] {
           break;
         case SmartMultisigDescriptorType.After:
          // result ={after :  segment.time }
+           console.log("segment.time", segment.time, now)
            result = segment.time < now ? {after :  segment.time }: false;
           break;
         default:
@@ -890,6 +895,7 @@ getUtxos(): UTxO[] {
       return result;
     }
     const res = verify(config, signers);
+    console.log("res", res)
     return res
   }
 

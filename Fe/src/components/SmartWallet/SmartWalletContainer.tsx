@@ -277,7 +277,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
           const details = getAddressDetails(keyHash)
       if (details && details.paymentCredential) {
-          return storedSignerNames[details.paymentCredential.hash] || keyHash;
+          return storedSignerNames[details.paymentCredential.hash] === undefined ? keyHash : storedSignerNames[details.paymentCredential.hash];
       }else {
         return keyHash;
       }
@@ -398,8 +398,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     toast.info("Delegation transaction created successfully!")
   }
   catch(error: any){
-    toast.error("Error creating delegation transaction: " + error.message)
-    console.log("error", error)
+    if(error.message.includes("EMPTY_UTXO: UTxO array is empty")){
+      toast.warning("Wallet is empty")
+    }
+    else{
+      toast.error("Error creating delegation transaction: " + error.message)
+      console.log("error", error)
+    }
   }
   }
 
@@ -447,12 +452,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
       const wallets = [...this.state.wallets]
       const wallet = wallets[this.state.selectedWallet]
-      const txSub =wallet.submitTransaction(index)
+      const [txSub, txHash] = await wallet.submitTransaction(index)
       toast.promise(txSub, {
         pending: "Submitting transaction...",
         success: "Transaction submitted successfully!",
       })
       await txSub
+      wallet.removePendingTxByHash(txHash)
       this.setState({wallets: wallets})
       this.storeWallets()
     }

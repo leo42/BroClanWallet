@@ -85,7 +85,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return details.paymentCredential?.hash || ''
   }
   catch(error: any){
-    console.log("error", error)
+
   }
     return addressOrKeyHash
   }
@@ -111,6 +111,37 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     return valid;
   };
 
+  checkAllAtLeast = (json: SmartMultisigDescriptor[]): boolean => {
+    let hasInvalidAtLeast = false;
+    
+    const checkNode = (node: SmartMultisigDescriptor): boolean => {
+      if (node.type === "AtLeast") {
+        // Check if the required number (m) is greater than available scripts
+        if (node.m > node.scripts.length) {
+          return true; // Invalid: requires more members than available
+        }
+        
+        // Check all child nodes recursively
+        for (const script of node.scripts) {
+          if (checkNode(script)) {
+            return true; // If any child is invalid, this node is invalid
+          }
+        }
+      }
+      return false; // This node is valid
+    };
+    
+    // Check all nodes at this level
+    for (const script of json) {
+      if (checkNode(script)) {
+        hasInvalidAtLeast = true;
+        break;
+      }
+    }
+    
+    return hasInvalidAtLeast;
+  }
+
   findNftHolderCoordinates = (json: SmartMultisigDescriptor, path: number[] = []): number[][] => {
     let result: number[][] = [];
     if (json.type === "NftHolder") {
@@ -124,7 +155,6 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
   };
 
   countSigners = (json: SmartMultisigDescriptor): number => {
-    console.log("count Signers", json)
     if (json.type === "KeyHash"  || json.type === "NftHolder") {
       return 1;
     } else if (json.type === "AtLeast" && Array.isArray(json.scripts)) {
@@ -236,15 +266,18 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         toast.error("At least one signer or NftHolder must exist.");
         return;
       }
-      console.log(signers, "signers")
+     if(this.checkAllAtLeast([json])){
+      toast.error("Chosen At Least option is not valid More members required than available");
+      return;
+    }
       await this.props.moduleRoot.createUpdateTx(signers, this.toSmartMultisigJson(json));
       this.props.setOpenModal(false);
       this.props.hostModal(false);
+     
     }
   }
   catch(error: any){
     toast.error(error.message)
-    console.log("error", error)
   }
   };
 
@@ -386,8 +419,9 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
   handleTimeChange = (value: number, coordinates: number[]) => {
     const json = { ...this.state.json };
+    let newTime = value;
     if (Number(value) < 1606785600000) {
-      return;
+      newTime = 1606785600000;
     }
     let current = json;
     for (const index of coordinates) {
@@ -400,7 +434,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       return;
     }
 
-    current.time = value ? value :  current.time;
+    current.time = newTime ? newTime :  current.time;
     this.setState({ json });
   };
 
@@ -445,7 +479,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "KeyHash") {
       return null;
     }
-    const validAddress = this.isAddressValid(json.keyHash);
     return (
       <div className="sigWrap">
         <div className="input_wrap" > 
@@ -483,8 +516,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       return null;
     }
     // Format date to local timezone
-    const localDate = new Date(json.time);
+    const UTCOffset = new Date().getTimezoneOffset() * 60000;
+    const localDate = new Date(json.time - UTCOffset);
     const dateString = localDate.toISOString().slice(0, 16);
+    
     
     return (
       <React.Fragment>
@@ -504,7 +539,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
               value={dateString}
               onChange={(event) => {
                 const selectedDate = new Date(event.target.value);
-                const selectedDateUTC = selectedDate.getTime() - localDate.getTimezoneOffset() * 60000
+                const selectedDateUTC = selectedDate.getTime() 
                 this.handleTimeChange(selectedDateUTC, coordinates);
               }}
             />
@@ -520,7 +555,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       return null;
     }
     // Format date to local timezone
-    const localDate = new Date(json.time);
+    const UTCOffset = new Date().getTimezoneOffset() * 60000;
+    const localDate = new Date(json.time - UTCOffset);
     const dateString = localDate.toISOString().slice(0, 16);
     
     return (
@@ -540,7 +576,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             value={dateString}
             onChange={(event) => {
               const selectedDate = new Date(event.target.value);
-              const selectedDateUTC = selectedDate.getTime() - localDate.getTimezoneOffset() * 60000
+              const selectedDateUTC = selectedDate.getTime()
               this.handleTimeChange(selectedDateUTC, coordinates);
             }}
           />
@@ -553,9 +589,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     if (json.type !== "NftHolder") {
       return null;
     }
-    console.log(json.policy, "policy", Array.from(this.policyMap.keys()))
     const foundKey = Array.from(this.policyMap.values()).find(value => value === json.policy);
-    console.log(foundKey, "foundKey")
     const policyType = foundKey ? foundKey : "Custom";
     const policyValid = /^[0-9a-fA-F]{56}$/.test(json.policy);
 
@@ -685,7 +719,6 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
   };
 
   handleNftHolderChange = async (coordinates: number[]) => {
-    console.log("handleNftHolderChange called with coordinates:", coordinates);
     const json = { ...this.state.json };
     let current = json;
     for (const index of coordinates) {
@@ -749,6 +782,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
 
     // Create new element based on selected type
     let newElement: SmartMultisigDescriptor;
+    const localDate = new Date();
+    const localDateUTC = localDate.getTime();
     switch (value) {
       case "AtLeast":
         if (coordinates.length >= MAX_DEPTH) {
@@ -765,15 +800,16 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         };
         break;
       case "Before":
+
         newElement = {
           type: "Before",
-          time: Math.floor(Date.now() ) // Current timestamp in seconds
+          time: Math.floor(localDateUTC) // Current timestamp in seconds
         };
         break;
-      case "After":
+        case "After":
         newElement = {  
           type: "After",
-          time: Math.floor(Date.now() ) // Current timestamp in seconds
+          time: Math.floor(localDateUTC) // Current timestamp in seconds
         };
         break;
       case "KeyHash":
