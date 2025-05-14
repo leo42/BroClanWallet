@@ -207,11 +207,13 @@ class SmartWallet implements WalletInterface {
     return result;
   }
 
+  configTokenId() : string{
+    return mintingPolicyToId({ type: "PlutusV3", script: contracts[this.settings.network as NetworkType].minting.script}) + "00" + this.id
+  }
+
   async getConfigUtxo(): Promise<UTxO> {
     try{
-      const network = this.settings.network as NetworkType;
-      const policyId = mintingPolicyToId({ type: "PlutusV3", script: contracts[network].minting.script})
-      const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(policyId + "00" + this.id);
+      const configUtxo = await this.lucid.config().provider!.getUtxoByUnit(this.configTokenId());
       return configUtxo
     }catch(e){
       console.error("Error getting config utxo:", e);
@@ -342,8 +344,13 @@ class SmartWallet implements WalletInterface {
   async checkTransactions() {
     
     const checkPromises = this.pendingTxs.map(async (pendingTx, index) => {
-      const isValid = await this.checkTransaction(pendingTx.tx.toCBOR({canonical: true}));
-      return { index, isValid };
+      try{
+        const isValid = await this.checkTransaction(pendingTx.tx.toCBOR({canonical: true}));
+        return { index, isValid };
+      }catch(e){
+        console.error("Error checking transaction:", e);
+        return { index, isValid: false };
+      }
     });
   
     const results = await Promise.all(checkPromises);
@@ -550,6 +557,8 @@ async createUpdateTx(
   if (requrement === false) {
     throw new Error("Invalid signers")
   }
+  console.log("requirements", requrement)
+
   const configUtxo = await this.getConfigUtxo();
   const enterpriseAddress = this.getEnterpriseAddress()
 
@@ -577,11 +586,11 @@ async createUpdateTx(
     tx.readFrom(requrement.refInputs)
   }
   if(requrement.before !== undefined) {
-    tx.validTo(requrement.before  -1000 ) 
+    tx.validTo(requrement.before  <= 1746812561 ? 1746812562 : requrement.before - 1000 )
   }
   
   if(requrement.after !== undefined) {
-    tx.validFrom( requrement.after + 1000 )
+    tx.validFrom( requrement.after <= 1746812561 ? 1746812562 : requrement.after + 1000 )
   }
 
   signers.forEach(signer => {
@@ -679,7 +688,7 @@ getUtxos(): UTxO[] {
     if (requrement === false) {
       throw new Error("Invalid signers")
     }
-    
+    console.log("requirements", requrement)
     const localLucid = await getNewLucidInstance(this.settings);
     const collateralUtxo = await this.getColateralUtxo(signers);
     const configUtxo = this.configUtxo ? this.configUtxo : await this.getConfigUtxo()
@@ -826,7 +835,7 @@ getUtxos(): UTxO[] {
 
     function cost(req: extraRequirements): number {
       const refInputs = req.refInputs?.length || 0;
-      const beforeAfter = (req.before || 0) + (req.after || 0);
+      const beforeAfter = (req.before ? 1 : 0) + (req.after ? 1 : 0);
       return refInputs * 5 + beforeAfter;
     }
 
@@ -946,7 +955,9 @@ getUtxos(): UTxO[] {
 
 
   decodeTransaction(tx: string) {
+    console.log("decoding tx", tx)
     const txBody = Transaction.from_cbor_hex(tx).body().to_js_value();
+    console.log("txBody", txBody)
     
     // Simplify the outputs
 

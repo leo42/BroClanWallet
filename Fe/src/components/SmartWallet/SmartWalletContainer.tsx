@@ -14,6 +14,7 @@ import {getAddressDetails} from "@lucid-evolution/lucid";
 import WalletSettings from './walletSettings';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
 import Messaging from '../../helpers/Messaging';
+import getTokenInfo from "../../helpers/tokenInfo"
 
 
 interface SmartWalletContainerProps {
@@ -320,9 +321,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       const dAppConnector = new Messaging(newWallet, this)
       this.setState({dAppConnector: dAppConnector})
     }
-    if(name){
-      newWallet.setName(name)
-    }
+  
     await newWallet.initializeLucid()
     const wallets =[...this.state.wallets, newWallet]
     this.setState({wallets: wallets})
@@ -335,7 +334,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       }
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-
+    if(name){
+      newWallet.setName(name)
+    }else{
+      // const ConfigName = await getTokenInfo(newWallet.configTokenId())
+      // console.log("ConfigName", ConfigName)
+      newWallet.setName(id) //todo Update after blockfrost api is fixed
+    }
+    
     newWallet.initilizeSigners()
     this.setState({wallets: wallets})
     this.storeWallets()

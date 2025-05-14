@@ -1,4 +1,5 @@
 function normalizeTxDetails(txBody: any){
+  try {
     if (txBody.outputs) {
         txBody.outputs = txBody.outputs.map((output: any) => {
           // Check if the output is an object with a single key (format type)
@@ -31,6 +32,10 @@ function normalizeTxDetails(txBody: any){
         }
       }
       return txBody
+  } catch (error) {
+    console.error('Error normalizing transaction details:', error);
+    return null;
+  }
 }
 
 export default normalizeTxDetails

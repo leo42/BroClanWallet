@@ -1,10 +1,11 @@
 import React from "react";
 import { toast } from "react-toastify";
 import "./ImportModule.css";
+import SmartWalletContainer from "./SmartWalletContainer";
 
 interface ImportProps {
   root: any;
-  moduleRoot: any;
+  moduleRoot: SmartWalletContainer;
 }
 
 interface ImportState {
@@ -25,7 +26,7 @@ class ImportModule extends React.Component<ImportProps, ImportState> {
       toast.error("Please enter a wallet ID");
       return;
     }
-    this.props.moduleRoot.addWallet(this.state.walletId, this.state.walletId);
+    this.props.moduleRoot.addWallet(this.state.walletId);
     this.props.moduleRoot.showModal("");
   };
 
