@@ -187,7 +187,7 @@ class MintingModule extends React.Component<MintingProps> {
       const smartWallet = new SmartWallet(tokenNameSuffix,settings)
       await smartWallet.initializeLucid()
 
-      const stakeCredential = { type : "Key" as any , hash : "2c2d6e74020e441090d0b9ab1e2537a127764c2d3920896197c1ec9a" }
+      const stakeCredential = { type : "Key" as any , hash : "5f331948d6f79cea6a0e2b8477f015d7e319747159811edfaaa93c90" }
 
 
       
