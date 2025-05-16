@@ -213,12 +213,14 @@ class MintingModule extends React.Component<MintingProps> {
           [policyId] : {
           ["00" + tokenNameSuffix] : {
             ["name"]: name + "-Config",
-            ["image"] : "ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U",
+            ["image"] : "ipfs://QmQ3GoST59pxLyczFwGLUUqcT5ugEq2RAQMikyPgdJqJhc",
+            ["mediaType"] : "image/png",
             ["description"]: "Config token for smart wallet"
           },
           ["02" + tokenNameSuffix] : {
             ["name"]: name + "-Reference",
-            ["image"] : "ipfs://QmRVeq15csUUMZ7kh2i2GC9ESh6DAYcTBygbcVeeeBx96U",
+            ["image"] : "ipfs://QmeTaCXumfNLHPEUSPehTTfqKuPX1utA9wyeAkGJXSL8xg",
+            ["mediaType"] : "image/png",
             ["description"]: "Reference token for smart wallet"
           }
       }
