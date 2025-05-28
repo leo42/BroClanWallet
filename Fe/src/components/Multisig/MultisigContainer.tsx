@@ -1,6 +1,6 @@
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
-import WalletConnector from './walletConnector';
+import WalletConnector from '../walletConnector';
 import connectSocket from  '../../helpers/SyncService';
 import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import React from 'react';
@@ -729,8 +729,8 @@ async setState(state: MultisigContainerState){
     <div className="MultisigContainer">
         <React.StrictMode>
         <ModalsContainer moduleRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
-        <div className="TokenVaultsContainerHeader" >
-        <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+        <div className="ContainerHeader" >
+          <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
 
           <WalletConnector  moduleRoot={this} openWalletPicker={(wallet) => this.props.root.openWalletPicker(wallet)}  key={this.state.connectedWallet.name}></WalletConnector>
          </div>

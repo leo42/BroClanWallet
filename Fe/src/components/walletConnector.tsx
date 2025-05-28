@@ -1,16 +1,17 @@
 import React, { useState, useEffect }   from "react";
 import "./walletConnector.css";
-import WalletPicker from "../WalletPicker";
-import { ReactComponent as ConnectIcon } from '../../html/assets/connect.svg';
-import { ReactComponent as DisconnectIcon } from '../../html/assets/disconnect.svg';
-import { ReactComponent as ChangeIcon } from '../../html/assets/change.svg';
-import { ReactComponent as LoadIcon } from '../../html/assets/load.svg';
-import { ReactComponent as WalletsFoundIcon } from '../../html/assets/walletsFound.svg';
-import MultisigContainer from "./MultisigContainer";
+import WalletPicker from "./WalletPicker";
+import { ReactComponent as ConnectIcon } from '../html/assets/connect.svg';
+import { ReactComponent as DisconnectIcon } from '../html/assets/disconnect.svg';
+import { ReactComponent as ChangeIcon } from '../html/assets/change.svg';
+import { ReactComponent as LoadIcon } from '../html/assets/load.svg';
+import { ReactComponent as WalletsFoundIcon } from '../html/assets/walletsFound.svg';
+import MultisigContainer from "./Multisig/MultisigContainer";
+import SmartWalletContainer from "./SmartWallet/SmartWalletContainer";
 
 
 
-function WalletConnector(props: {moduleRoot: MultisigContainer , openWalletPicker: (connectWallet: (walletName: string) => void) => void}){
+function WalletConnector(props: {moduleRoot: MultisigContainer | SmartWalletContainer , openWalletPicker: (connectWallet: (walletName: string) => void) => void}){
 
   const [configMenu, openConfigMenu] = React.useState(false);
     const [hovering, setHovering] = React.useState("");

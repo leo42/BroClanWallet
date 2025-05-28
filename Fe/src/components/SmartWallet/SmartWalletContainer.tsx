@@ -15,6 +15,8 @@ import WalletSettings from './walletSettings';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
 import Messaging from '../../helpers/Messaging';
 import getTokenInfo from "../../helpers/tokenInfo"
+import WalletConnector from '../walletConnector';
+import connectSocket from '../../helpers/SyncService';
 
 
 interface SmartWalletContainerProps {
@@ -94,13 +96,44 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({ modal: modalName });
   }
 
-  async connectWallet(wallet: string) {
-    // Implementation similar to MultisigContainer
+  async connectWallet(wallet: string){
+    try{
+
+        if (this.state.connectedWallet) {
+            const connectedWallet = this.state.connectedWallet
+  
+            if (connectedWallet.socket) {
+                connectedWallet.socket.close()
+            }
+        }
+
+      const socket =  await connectSocket(wallet, this, this.props.root.state.smartSyncService) 
+      let connectedWallet = {  name :wallet , socket: socket}
+      const state = this.state
+      state.connectedWallet = connectedWallet
+      this.setState(state)
+
+    }
+    catch(e: any){
+      console.log(e.message)
+      toast.error("Could not connect to sync service");
+    }
+
   }
 
-  disconnectWallet(error: string = "") {
-    // Implementation similar to MultisigContainer
+  disconnectWallet(error=""){
+    if (error !== ""){
+      toast.error(error);
+    }
+    if (this.state.connectedWallet.socket) {
+      this.state.connectedWallet.socket.close()
+    }
+    let connectedWallet = {name: "", socket: null}
+    const state = this.state
+    state.connectedWallet = connectedWallet
+    this.setState(state)
   }
+  
 
   stopExpectingWallets(){
     this.setState({expectingWallets: false})
@@ -560,8 +593,13 @@ closeModal(){
     return (
 
       <div className="SmartWalletContainer"> 
+
+      <div className="ContainerHeader" style={{ top: "-14px"}}>
+        {this.WalletList()}
+        <WalletConnector  moduleRoot={this} openWalletPicker={(wallet) => this.props.root.openWalletPicker(wallet)}  key={this.state.connectedWallet.name}></WalletConnector>
+      </div>
       {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
-            {this.WalletList()}
+            
 
       { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.closeModal()} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
       { this.state.modal === "newWallet" && < NewWalletModal  moduleRoot={this} showModal={() => this.closeModal()} /> }
