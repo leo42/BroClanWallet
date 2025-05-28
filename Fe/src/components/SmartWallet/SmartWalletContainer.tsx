@@ -30,7 +30,8 @@ interface SmartWalletContainerState {
   loading: boolean;
   dAppConnector: Messaging | null;
   walletSettingsOpen: boolean;
-  
+  expectingWallets: boolean;
+  pendingWallets: Record<string, any>;  
 }
 
 
@@ -45,6 +46,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     loading: true,
     dAppConnector: null,
     walletSettingsOpen: false,
+    expectingWallets: false,
+    pendingWallets: {},
   };
   
 
@@ -97,6 +100,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   disconnectWallet(error: string = "") {
     // Implementation similar to MultisigContainer
+  }
+
+  stopExpectingWallets(){
+    this.setState({expectingWallets: false})
+  }
+
+  setPendingWallets(pendingWallets: Record<string, any>){
+    this.setState({pendingWallets: pendingWallets})
   }
 
   async reloadBalance() {

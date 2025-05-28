@@ -569,6 +569,7 @@ async createUpdateTx(
 
   const collateralProvider = signers[0];
   const collateralUtxos = (await this.lucid.config().provider!.getUtxos({ type: "Key", hash: collateralProvider }))
+  console.log("collateralUtxos", collateralUtxos)
   const localLucid = await getNewLucidInstance(this.settings);
   localLucid.selectWallet.fromAddress(collateralUtxos[0].address,collateralUtxos);
   
