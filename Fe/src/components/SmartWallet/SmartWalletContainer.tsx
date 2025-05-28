@@ -110,6 +110,38 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({pendingWallets: pendingWallets})
   }
 
+  syncTransaction(transaction: any){
+    for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
+      if ( this.state.wallets[walletIndex].getId() === transaction.wallet){
+        this.loadTransaction(transaction, walletIndex)
+      }
+  }
+  }
+
+  async loadTransaction(transaction: any, walletIndex: number){
+    const wallets = this.state.wallets
+    const wallet = wallets[walletIndex]
+    const state = this.state
+    state.wallets = wallets
+
+    try{
+      await wallet.addPendingTx({tx: transaction.transaction, signatures: {}})
+    }catch(e){
+
+    }
+    Object.keys(transaction.signatures).map( (key) => {
+      try{
+        wallet.addSignature(transaction.signatures[key])
+        toast.info("Transaction update for wallet:" + wallet.getName());
+      }catch(e){
+      }
+        
+  })
+    this.setState(state)
+  }
+
+
+
   async reloadBalance() {
     if (this.state.wallets.length > 0){
       const wallets = [...this.state.wallets]
