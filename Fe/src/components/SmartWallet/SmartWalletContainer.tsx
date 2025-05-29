@@ -610,8 +610,10 @@ deleteImportedWallet(id: string){
 importPendingWallet(id: string){
   const pendingWallets = {...this.state.pendingWallets}
   const wallet = pendingWallets[id]
+  delete pendingWallets[id]
+  this.setState({pendingWallets: pendingWallets})
   if(wallet){
-    this.addWallet(wallet.id, wallet.name, wallet.promise)
+    this.addWallet(wallet.walletId, wallet.walletName)
   }
 }
 closeModal(){
