@@ -17,6 +17,7 @@ import Messaging from '../../helpers/Messaging';
 import getTokenInfo from "../../helpers/tokenInfo"
 import WalletConnector from '../walletConnector';
 import connectSocket from '../../helpers/SyncService';
+import WalletImportModal from '../WalletImportModal';
 
 
 interface SmartWalletContainerProps {
@@ -83,9 +84,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       
       // Check if the network has changed
       if (this.props.settings.network !== prevProps.settings.network) {
-        this.loadWallets();
+        this.importWallets();
       }
     }
+  }
+
+  setExpectingWallets(expecting: boolean){
+    this.setState({expectingWallets: expecting})
   }
 
   async newSettings(newSettings: any) {
@@ -107,7 +112,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
             }
         }
 
-      const socket =  await connectSocket(wallet, this, this.props.root.state.smartSyncService) 
+      const socket =  await connectSocket(wallet, this, this.props.root.state.smartSyncService, this.props.settings.network) 
       let connectedWallet = {  name :wallet , socket: socket}
       const state = this.state
       state.connectedWallet = connectedWallet
@@ -193,7 +198,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   
   async loadState() {
-    await this.loadWallets()
+    await this.importWallets()
     this.setState({loading: false})
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
     this.setState({dAppConnector: dAppConnector})
@@ -427,10 +432,19 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       console.log("error", error)
     }
   }
-
+  
+  loadWallets(){
+    if(this.state.connectedWallet.socket) {
+        this.state.connectedWallet.socket.emit('loadWallets')
+        this.setExpectingWallets(true)
+    }else{
+      toast.error("Not Connected to a SyncService")
+    }
+  }
+  
 
   async reloadWallets(){
-    await this.loadWallets()
+    await this.importWallets()
     this.setState({loading: false})
   }
 
@@ -442,7 +456,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
 
-  async loadWallets() {
+  async importWallets() {
+
     const wallets = JSON.parse(localStorage.getItem(this.props.settings.network + "smartWallets") || "[]");
     const loadedWallets = await Promise.all(wallets.map(async (wallet: any) => {
       const newWallet = new SmartWallet(wallet.id, this.props.settings);
@@ -582,6 +597,23 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     
 }
 
+deleteAllPendingWallets(){
+  this.setState({pendingWallets: {}})
+}
+
+deleteImportedWallet(id: string){
+  const pendingWallets = {...this.state.pendingWallets}
+  delete pendingWallets[id]
+  this.setState({pendingWallets: pendingWallets})
+}
+
+importPendingWallet(id: string){
+  const pendingWallets = {...this.state.pendingWallets}
+  const wallet = pendingWallets[id]
+  if(wallet){
+    this.addWallet(wallet.id, wallet.name, wallet.promise)
+  }
+}
 closeModal(){
   const state = this.state
   state.modal = ""
@@ -600,7 +632,7 @@ closeModal(){
       </div>
       {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
             
-
+      {this.state.modal === "pendingWallets" && <WalletImportModal setOpenModal={() => this.setState({modal: ""})}  moduleRoot={this} />}
       { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.closeModal()} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
       { this.state.modal === "newWallet" && < NewWalletModal  moduleRoot={this} showModal={() => this.closeModal()} /> }
       { this.state.modal === "minting" && < MintingModule root={this.props.root} moduleRoot={this}  /> }

@@ -6,7 +6,8 @@ import MultisigWallet from "../core/multisigWallet";
 import SmartWalletContainer from "../components/SmartWallet/SmartWalletContainer";
 import SmartWallet from "../core/smartWallet";
 
-async function  connectSocket(wallet: string, root: MultisigContainer | SmartWalletContainer, syncService: string){
+async function  connectSocket(wallet: string, root: MultisigContainer | SmartWalletContainer, syncService: string, network?: string){
+    console.log("attempting to connect to network", network)
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new();
         lucid.selectWallet(api);
@@ -61,7 +62,7 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
     
     const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
     
-    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet | SmartWallet) => wallet.getId() ) });
+    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet | SmartWallet) => wallet.getId() ) , network}  );
     
     async function  handleWalletsFound (data : any){
         const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
@@ -69,9 +70,14 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
         const res = await Promise.all(walletsHashes)
         var newWallets = false
         data.wallets.forEach((wallet: any) => {
-
+            console.log("wallet", wallet)
             if(!Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
                 pendingWallets[wallet.hash] = wallet
+                newWallets = true
+            } // TODO depricate Hash for _id
+
+            if(!Object.keys(pendingWallets).includes(wallet.walletId) && !res.includes(wallet.walletId)){
+                pendingWallets[wallet.walletId] = wallet
                 newWallets = true
             }
         })
@@ -80,12 +86,12 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
           }else{
             if(root.state.expectingWallets === true){
                 toast("No new pending wallets")
-                root.stopExpectingWallets()
             }
         }
 
         root.setPendingWallets(pendingWallets)
  
+        root.stopExpectingWallets()
 
     } 
     return socket
