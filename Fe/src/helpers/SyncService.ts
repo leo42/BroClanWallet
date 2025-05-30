@@ -55,12 +55,14 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
         })
         
     });
+    const tokenName = root instanceof SmartWalletContainer ? "token_smart" : "token_multisig"
 
     socket.on("authentication_success", (data) => {
-        localStorage.setItem("token_"+address, data.authenticationToken)
+        localStorage.setItem(tokenName+"_"+address, data.authenticationToken)
     });
-    
-    const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
+
+        
+    const token =  localStorage.getItem(tokenName+"_"+address) ? localStorage.getItem(tokenName+"_"+address) : null;
     
     socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet | SmartWallet) => wallet.getId() ) , network}  );
     
@@ -71,12 +73,11 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
         var newWallets = false
         data.wallets.forEach((wallet: any) => {
             console.log("wallet", wallet)
-            if(!Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
+            if(wallet.hash && !Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
                 pendingWallets[wallet.hash] = wallet
                 newWallets = true
             } // TODO depricate Hash for _id
-
-            if(!Object.keys(pendingWallets).includes(wallet.walletId) && !res.includes(wallet.walletId)){
+             else if(!Object.keys(pendingWallets).includes(wallet.walletId) && !res.includes(wallet.walletId)){
                 pendingWallets[wallet.walletId] = wallet
                 newWallets = true
             }

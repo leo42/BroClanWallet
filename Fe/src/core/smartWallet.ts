@@ -319,7 +319,6 @@ class SmartWallet implements WalletInterface {
 
   async loadUtxos(): Promise<boolean> {
     try {
-      console.log("loadUtxos")
       await this.loadConfig()
       const utxos = await this.lucid.utxosAt(this.getCredential());
       if (this.compareUtxos(utxos, this.utxos)) return false;
@@ -966,9 +965,7 @@ getUtxos(): UTxO[] {
 
 
   decodeTransaction(tx: string) {
-    console.log("decoding tx", tx)
     const txBody = Transaction.from_cbor_hex(tx).body().to_js_value();
-    console.log("txBody", txBody)
     
     // Simplify the outputs
 

@@ -116,6 +116,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       let connectedWallet = {  name :wallet , socket: socket}
       const state = this.state
       state.connectedWallet = connectedWallet
+      localStorage.setItem("smartConnectedWallet", wallet)
       this.setState(state)
 
     }
@@ -136,6 +137,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     let connectedWallet = {name: "", socket: null}
     const state = this.state
     state.connectedWallet = connectedWallet
+    localStorage.removeItem("smartConnectedWallet")
     this.setState(state)
   }
   
@@ -149,7 +151,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   syncTransaction(transaction: any){
+    console.log("syncTransaction", transaction)
     for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
+      console.log("walletIndex", walletIndex, this.state.wallets[walletIndex].getId(), transaction.wallet)
       if ( this.state.wallets[walletIndex].getId() === transaction.wallet){
         this.loadTransaction(transaction, walletIndex)
       }
@@ -157,6 +161,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
   }
 
   async loadTransaction(transaction: any, walletIndex: number){
+    console.log("loadTransaction", transaction)
     const wallets = this.state.wallets
     const wallet = wallets[walletIndex]
     const state = this.state
@@ -202,6 +207,10 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({loading: false})
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
     this.setState({dAppConnector: dAppConnector})
+    const connectedWallet = localStorage.getItem("smartConnectedWallet")
+    if(connectedWallet){
+      this.connectWallet(connectedWallet)
+    }
   }
   
 
@@ -287,17 +296,34 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({wallets: wallets})
     this.storeWallets()
   }
+
+  transmitTransaction(transaction: any, sigAdded: any) {
+    if(this.props.root.state.settings.disableSync) return
+    try{
+    fetch(this.props.root.state.smartSyncService+'/api/transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({tx: transaction.tx.toCBOR() ,sigAdded: sigAdded , network: this.props.settings.network,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getId()})
+      }).catch(e => toast.error("Could not transmit transaction: " + e.message));
+    }catch(e: any){
+      toast.error("Could not transmit transaction: " + e.message);
+    }
+  }
   
   addSignature(signature: string) {
     try{
         const wallets = [...this.state.wallets]
         const wallet = wallets[this.state.selectedWallet]
         const index = wallet.addSignature(signature)
+        this.transmitTransaction(wallet.getPendingTxs()[index], signature)
         this.setState({wallets: wallets})
         this.storeWallets()
         if(wallet.signersCompleted(index)){
           this.submit(index)
         }
+        
       }catch(error: any){
         toast.error("Error adding signature: " + error.message)
         console.log("error", error)
@@ -332,7 +358,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
     }})
     localStorage.setItem(this.props.settings.network + "smartWallets", JSON.stringify(wallets))
-    console.log("wallets", this.state.wallets)
     localStorage.setItem(this.props.settings.network + "selectedWallet", JSON.stringify(this.state.selectedWallet))
   }
 

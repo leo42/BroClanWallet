@@ -60,7 +60,7 @@ export class App extends React.Component<{}, AppState> {
                 },
     mode: "darkMode",
     syncService: "https://sync.broclan.io",
-    smartSyncService: "localhost:3001",
+    smartSyncService: "http://localhost:3001",
     walletPicker: (wallet: string) => { }
   }
   
