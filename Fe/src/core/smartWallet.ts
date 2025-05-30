@@ -139,7 +139,13 @@ class SmartWallet implements WalletInterface {
   }
 
   addPendingTx(tx: { tx: CBORHex, signatures:  Record<string, string>}): string {
+    
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
+    for(const pendingTx of this.pendingTxs){
+      if(pendingTx.tx.toHash() === txBuilder.toHash()){
+        return pendingTx.tx.toHash()
+      }
+    }
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
     return txBuilder.toHash()
   }
@@ -287,11 +293,11 @@ class SmartWallet implements WalletInterface {
         signers.push({ hash: config.keyHash, isDefault: defaultSigners.includes(config.keyHash)})
         break
       case SmartMultisigDescriptorType.NftHolder:
-        const utxo = await this.lucid.config().provider!.getUtxoByUnit(config.policy + config.name)
-        nftUtxos = [...nftUtxos, utxo]
-        const keyHash = getAddressDetails(utxo.address).paymentCredential?.hash as string
-        signers.push({ hash: keyHash, isDefault: defaultSigners.includes(keyHash)})
         try{
+          const utxo = await this.lucid.config().provider!.getUtxoByUnit(config.policy + config.name)
+          nftUtxos = [...nftUtxos, utxo]
+          const keyHash = getAddressDetails(utxo.address).paymentCredential?.hash as string
+          signers.push({ hash: keyHash, isDefault: defaultSigners.includes(keyHash)})
           const subConfig : SmartMultisigJson = decode(utxo?.datum as string)
           const subAddresses = await this.loadSigners(subConfig)
           signers = [...signers, ...subAddresses.signers] // Correctly spread the array of addresses
@@ -299,7 +305,7 @@ class SmartWallet implements WalletInterface {
         } catch (e) {
           console.log("Error loading signers:", e) // Use console.error for consistency
         }
-        
+               
         break
       case SmartMultisigDescriptorType.AtLeast:
         const subAddresses = await Promise.all(config.scripts.map(script => this.loadSigners(script)))
@@ -313,6 +319,8 @@ class SmartWallet implements WalletInterface {
       case SmartMultisigDescriptorType.After:
         break
     }
+    //make sure the signers are unique
+    signers = [...new Set(signers)]
     return {signers, nftUtxos}
 
   }
