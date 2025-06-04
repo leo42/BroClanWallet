@@ -58,7 +58,7 @@ export class App extends React.Component<{}, AppState> {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "mainnet"} 
                 },
     mode: "darkMode",
-    syncService: "https://sync.broclan.io",
+    syncService: "https://sync.keypact.io",
     walletPicker: (wallet: string) => { }
   }
   
