@@ -40,7 +40,7 @@ export type AppState = {
   mode: string;
   syncService: string;
   walletPicker: (wallet: string) => void | undefined;
-
+  smartSyncService: string;
 };
 
 export class App extends React.Component<{}, AppState> {
@@ -59,8 +59,10 @@ export class App extends React.Component<{}, AppState> {
                 },
     mode: "darkMode",
     syncService: "https://sync.keypact.io",
+    smartSyncService: "https://smartsync.keypact.io",
     walletPicker: (wallet: string) => { }
   }
+  
   
   setState(state: AppState){
     super.setState(state)
