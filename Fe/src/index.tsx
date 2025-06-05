@@ -59,6 +59,10 @@ export class App extends React.Component<{}, AppState> {
                 },
     mode: "darkMode",
     syncService: "https://sync.keypact.io",
+<<<<<<< Updated upstream
+=======
+    smartSyncService: "https://smartsync.keypact.io",
+>>>>>>> Stashed changes
     walletPicker: (wallet: string) => { }
   }
   
