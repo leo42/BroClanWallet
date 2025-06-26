@@ -664,7 +664,7 @@ closeModal(){
       { this.state.modal === "minting" && < MintingModule root={this.props.root} moduleRoot={this}  /> }
       { this.state.modal === "importWallet" && < ImportModule root={this.props.root} moduleRoot={this}  /> }
        
-      {  this.state.loading ? <LoadingIcon className="loadingIcon"> </LoadingIcon> :
+      {  this.state.loading ?<div className="loadingIconContainer"><LoadingIcon className="loadingIcon"> </LoadingIcon></div> :
          this.state.wallets.length === 0 ? this.walletsEmpty() : (
           <MWalletMain wallet={this.state.wallets[this.state.selectedWallet]} root={this.props.root} moduleRoot={this} />
         )}
