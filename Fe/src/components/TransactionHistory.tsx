@@ -4,18 +4,31 @@ import  getTransactionHistory  from "../helpers/TransactionHistory";
 import { toast } from "react-toastify";
 import TokenElement from "./TokenElement";
 import AddressSelect from "./AddressSelect";
+import { App } from "..";
+import MultisigContainer from "./Multisig/MultisigContainer";
+import SmartWalletContainer from "./SmartWallet/SmartWalletContainer";
+import WalletInterface from "../core/WalletInterface";
 
-function TransactionHistory (props : any) {
+type TransactionHistoryProps = {
+    wallet : WalletInterface
+    root : App
+    moduleRoot : MultisigContainer | SmartWalletContainer
+}
+
+function TransactionHistory (props : TransactionHistoryProps) {
     const [transactions, setTransactions] = useState([]);
-    const [address, setAddress] = useState(props.wallet.getDefaultAddress() === ""? props.wallet.getFundedAddress()[0] :props.wallet.getDefaultAddress() )
+    const [address, setAddress] = useState(props.wallet.getDefaultAddress() === ""? props.wallet.getAddress() : props.wallet.getDefaultAddress() )
     const [page, setPage] = useState(0);
     const [loadMore , setLoadMore] = useState(true);
-
+    const [hasHistory, setHasHistory] = useState(true);
     useEffect(() => {
     
         let TxH = getTransactionHistory(address, props.root.state.settings)
           TxH.then((transactionHistory : any) => {
             setTransactions(transactionHistory)
+            if (transactionHistory.length === 0) {
+                setHasHistory(false)
+            }
             if (transactionHistory.length < 10) {
                 setLoadMore(false)
             }else{
@@ -99,7 +112,7 @@ function TransactionHistory (props : any) {
 
     return (
        <div className="TransactionHistory"> 
-        {props.wallet.getFundedAddress().length === 0 && <h1>No funds in this wallet</h1>}
+        {!hasHistory && <h1>No funds in this wallet</h1>}
         {props.wallet.getFundedAddress().length > 1 && <div className="TransactionHistorySelectAddress">
       <AddressSelect
           wallet={props.wallet}
