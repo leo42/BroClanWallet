@@ -579,7 +579,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       this.storeWallets()
     }
     catch(error: any){
-      if(error.message.includes("UtxoFailure (ValueNotConservedUTxO (MaryValue (Coin 0) (MultiAsset (fromList [])))")){
+      if(error.message.includes("MaryValue (Coin 0)") || error.toString().includes("(MaryValue (Coin 0)")){
         toast.warning("Transaction already submitted")
         console.log("error", error)
       }
