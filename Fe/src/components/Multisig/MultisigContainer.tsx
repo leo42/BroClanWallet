@@ -1,8 +1,7 @@
 import MWalletList from "./WalletList";
 import MWalletMain from './WalletMain'; 
-import WalletConnector from './walletConnector';
+import WalletConnector from '../walletConnector';
 import connectSocket from  '../../helpers/SyncService';
-import sha256 from 'crypto-js/sha256';
 import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -501,12 +500,12 @@ async setState(state: MultisigContainerState){
       const pendingWallets = this.state.pendingWallets
       const wallets = this.state.wallets
       const pendingWallet = pendingWallets[key]
-      const walletHash = await this.walletHash(pendingWallet.json)
-      const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
+      const myWallet = new MultisigWallet(pendingWallet.json,"");
+      const walletHash = await myWallet.getId()
+      const walletsHashes = wallets.map(wallet =>  wallet.getId())
       // resole promices in walletHashes
       const res = await Promise.all(walletsHashes)
       if (! res.includes(walletHash)) {
-        const myWallet = new MultisigWallet(pendingWallet.json,"");
         await myWallet.initialize(this.props.root.state.settings);
         myWallet.resetDefaultSigners()
         wallets.push(myWallet)
@@ -536,12 +535,12 @@ async setState(state: MultisigContainerState){
 
   async addWallet(script: Native,name: string){
     const wallets = this.state.wallets
-    const walletsHashes = wallets.map(wallet =>  this.walletHash(wallet.getJson()))
+    const walletsHashes = wallets.map(wallet =>  wallet.getId())
     const res = await Promise.all(walletsHashes)
     const myWallet = new MultisigWallet(script,name);
     await myWallet.initialize(this.props.root.state.settings);
     myWallet.resetDefaultSigners()
-    const walletHash = await this.walletHash(myWallet.getJson())
+    const walletHash = await myWallet.getId()
 
     if (! res.includes(walletHash)) {
       
@@ -579,6 +578,12 @@ async setState(state: MultisigContainerState){
     this.setState(state)
   }
 
+  setPendingWallets(pendingWallets: Record<string, any>){
+    const state = this.state
+    state.pendingWallets = pendingWallets
+    this.setState(state)
+  }
+
   setExpectingWallets(expecting: boolean){
     const state = this.state
     state.expectingWallets = expecting
@@ -610,7 +615,15 @@ async setState(state: MultisigContainerState){
   }
 
 
-
+  syncTransaction(transaction: any){
+    for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
+    this.state.wallets[walletIndex].getId().then(walletHash => {
+      if ( walletHash === transaction.wallet){
+        this.loadTransaction(transaction, walletIndex)
+      }
+    })
+  }
+  }
   transmitWallet(script: Native) {
     try{  
     if(this.props.root.state.settings.disableSync) return
@@ -658,40 +671,6 @@ async setState(state: MultisigContainerState){
 
   }
 
-  walletHash(wallet: any) {
-    //remove the name field from the wallet object recursively
-    function removeName(obj: any) {
-      if (typeof obj === 'object') {
-
-        if (Array.isArray(obj)) {
-          obj.forEach((item) => {
-            removeName(item);
-          });
-        } else {
-          delete obj.name;
-          Object.keys(obj).forEach((key) => {
-            removeName(obj[key]);
-          });
-        }
-      }
-    }
-    ;
-  
-    const cleanWallet = JSON.parse(JSON.stringify(wallet));
-    removeName(cleanWallet)
-    
-  //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
-    return getSHA256Hash(cleanWallet)
-
-    async function getSHA256Hash(jsonObj : any) {
-      const jsonString = JSON.stringify(jsonObj);
-      const hashHex = sha256(jsonString).toString();
-      return hashHex;
-    }
-
-    
-    
-  }
 
 
   async submit(index : number){
@@ -750,8 +729,8 @@ async setState(state: MultisigContainerState){
     <div className="MultisigContainer">
         <React.StrictMode>
         <ModalsContainer moduleRoot={this} root={this.props.root} modal={this.state.modal} ></ModalsContainer>
-        <div className="TokenVaultsContainerHeader" >
-        <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
+        <div className="ContainerHeader" >
+          <MWalletList root={this.props.root} moduleRoot={this}  ></MWalletList>
 
           <WalletConnector  moduleRoot={this} openWalletPicker={(wallet) => this.props.root.openWalletPicker(wallet)}  key={this.state.connectedWallet.name}></WalletConnector>
          </div>

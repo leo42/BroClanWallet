@@ -3,8 +3,11 @@ import io from 'socket.io-client'
 import { toast } from 'react-toastify';
 import MultisigContainer from "../components/Multisig/MultisigContainer";
 import MultisigWallet from "../core/multisigWallet";
+import SmartWalletContainer from "../components/SmartWallet/SmartWalletContainer";
+import SmartWallet from "../core/smartWallet";
 
-async function  connectSocket(wallet: string, root: MultisigContainer, syncService: string){
+async function  connectSocket(wallet: string, root: MultisigContainer | SmartWalletContainer, syncService: string, network?: string){
+    console.log("attempting to connect to network", network)
     const api = await window.cardano[wallet].enable()
     const lucid = await Lucid.new();
         lucid.selectWallet(api);
@@ -36,52 +39,46 @@ async function  connectSocket(wallet: string, root: MultisigContainer, syncServi
 
         socket.on('transaction', (data) => {
             data.transactions.map((transaction: any) => {
-                for(let i = 0; i < root.state.wallets.length; i++){
-                    root.walletHash(root.state.wallets[i].getJson()).then(walletHash => {
-                        if ( walletHash === transaction.wallet){
-
-                        root.loadTransaction(transaction, i)
-                    }}
-                )}
+                    root.syncTransaction(transaction)
             })
-
         });
-
-
-            
-              
-  
-        
+       
         //a function to decode CBOR address to base 68
         
     socket.on("authentication_challenge", (data) => {
         
         const signed = lucid.wallet.signMessage( address,data.challenge );
         signed.then((signature) => {
-            socket.emit("authentication_response", {address : address  ,signature: signature , wallets:  root.state.wallets.map((wallet) => wallet.getJson() )})   
+            socket.emit("authentication_response", {address : address  ,signature: signature , wallets:  root.state.wallets.map((wallet) => wallet.getId() )})   
         }).catch((error) => {
             socket.close()
         })
         
     });
+    const tokenName = root instanceof SmartWalletContainer ? "token_smart" : "token_multisig"
 
     socket.on("authentication_success", (data) => {
-        localStorage.setItem("token_"+address, data.authenticationToken)
+        localStorage.setItem(tokenName+"_"+address, data.authenticationToken)
     });
+
+        
+    const token =  localStorage.getItem(tokenName+"_"+address) ? localStorage.getItem(tokenName+"_"+address) : null;
     
-    const token = localStorage.getItem("token_"+address) ? localStorage.getItem("token_"+address) : null;
-    
-    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet) => wallet.getJson() ) });
+    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet | SmartWallet) => wallet.getId() ) , network}  );
     
     async function  handleWalletsFound (data : any){
         const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}
-        const walletsHashes = root.state.wallets.map((wallet) => root.walletHash(wallet.getJson()))
+        const walletsHashes = root.state.wallets.map((wallet) => wallet.getId())
         const res = await Promise.all(walletsHashes)
         var newWallets = false
         data.wallets.forEach((wallet: any) => {
-
-            if(!Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
+            console.log("wallet", wallet)
+            if(wallet.hash && !Object.keys(pendingWallets).includes(wallet.hash) && !res.includes(wallet.hash)){
                 pendingWallets[wallet.hash] = wallet
+                newWallets = true
+            } // TODO depricate Hash for _id
+             else if(!Object.keys(pendingWallets).includes(wallet.walletId) && !res.includes(wallet.walletId)){
+                pendingWallets[wallet.walletId] = wallet
                 newWallets = true
             }
         })
@@ -90,13 +87,12 @@ async function  connectSocket(wallet: string, root: MultisigContainer, syncServi
           }else{
             if(root.state.expectingWallets === true){
                 toast("No new pending wallets")
-                root.stopExpectingWallets()
             }
         }
 
-        const state = root.state
-        state.pendingWallets = pendingWallets
-        root.setState(state)
+        root.setPendingWallets(pendingWallets)
+ 
+        root.stopExpectingWallets()
 
     } 
     return socket

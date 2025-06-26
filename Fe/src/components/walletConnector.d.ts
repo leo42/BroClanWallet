@@ -1,5 +1,5 @@
 import "./walletConnector.css";
-import MultisigContainer from "./MultisigContainer";
+import MultisigContainer from "./Multisig/MultisigContainer";
 declare function WalletConnector(props: {
     moduleRoot: MultisigContainer;
     openWalletPicker: (connectWallet: (walletName: string) => void) => void;

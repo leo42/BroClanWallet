@@ -7,6 +7,7 @@ import { decodeCIP129 } from "../helpers/decodeCIP129";
 import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
 import WalletInterface from "../core/WalletInterface";
 import { coinSelect } from "./coinSelect";
+import sha256 from 'crypto-js/sha256';
 
 
 class MultisigWallet implements WalletInterface{
@@ -723,6 +724,38 @@ setPendingTxs(pendingTxs: any){
       return this.getCollateral(value)
     }
 
+
+    getId() {
+      //remove the name field from the wallet object recursively
+      function removeName(obj: any) {
+        if (typeof obj === 'object') {
+  
+          if (Array.isArray(obj)) {
+            obj.forEach((item) => {
+              removeName(item);
+            });
+          } else {
+            delete obj.name;
+            Object.keys(obj).forEach((key) => {
+              removeName(obj[key]);
+            });
+          }
+        }
+      };
+    
+      const cleanWallet = JSON.parse(JSON.stringify(this.getJson()));
+      removeName(cleanWallet)
+      
+    //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
+      return getSHA256Hash(cleanWallet)
+  
+      async function getSHA256Hash(jsonObj : any) {
+        const jsonString = JSON.stringify(jsonObj);
+        const hashHex = sha256(jsonString).toString();
+        return hashHex;
+      }
+}
+  
 
     async loadTransaction(transaction: any){
         

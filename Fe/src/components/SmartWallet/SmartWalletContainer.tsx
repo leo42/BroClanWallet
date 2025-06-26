@@ -15,6 +15,9 @@ import WalletSettings from './walletSettings';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
 import Messaging from '../../helpers/Messaging';
 import getTokenInfo from "../../helpers/tokenInfo"
+import WalletConnector from '../walletConnector';
+import connectSocket from '../../helpers/SyncService';
+import WalletImportModal from '../WalletImportModal';
 
 
 interface SmartWalletContainerProps {
@@ -30,7 +33,8 @@ interface SmartWalletContainerState {
   loading: boolean;
   dAppConnector: Messaging | null;
   walletSettingsOpen: boolean;
-  
+  expectingWallets: boolean;
+  pendingWallets: Record<string, any>;  
 }
 
 
@@ -45,6 +49,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     loading: true,
     dAppConnector: null,
     walletSettingsOpen: false,
+    expectingWallets: false,
+    pendingWallets: {},
   };
   
 
@@ -78,9 +84,13 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       
       // Check if the network has changed
       if (this.props.settings.network !== prevProps.settings.network) {
-        this.loadWallets();
+        this.importWallets();
       }
     }
+  }
+
+  setExpectingWallets(expecting: boolean){
+    this.setState({expectingWallets: expecting})
   }
 
   async newSettings(newSettings: any) {
@@ -91,13 +101,89 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({ modal: modalName });
   }
 
-  async connectWallet(wallet: string) {
-    // Implementation similar to MultisigContainer
+  async connectWallet(wallet: string){
+    try{
+
+        if (this.state.connectedWallet) {
+            const connectedWallet = this.state.connectedWallet
+  
+            if (connectedWallet.socket) {
+                connectedWallet.socket.close()
+            }
+        }
+
+      const socket =  await connectSocket(wallet, this, this.props.root.state.smartSyncService, this.props.settings.network) 
+      let connectedWallet = {  name :wallet , socket: socket}
+      const state = this.state
+      state.connectedWallet = connectedWallet
+      localStorage.setItem("smartConnectedWallet", wallet)
+      this.setState(state)
+
+    }
+    catch(e: any){
+      console.log(e.message)
+      toast.error("Could not connect to sync service");
+    }
+
   }
 
-  disconnectWallet(error: string = "") {
-    // Implementation similar to MultisigContainer
+  disconnectWallet(error=""){
+    if (error !== ""){
+      toast.error(error);
+    }
+    if (this.state.connectedWallet.socket) {
+      this.state.connectedWallet.socket.close()
+    }
+    let connectedWallet = {name: "", socket: null}
+    const state = this.state
+    state.connectedWallet = connectedWallet
+    localStorage.removeItem("smartConnectedWallet")
+    this.setState(state)
   }
+  
+
+  stopExpectingWallets(){
+    this.setState({expectingWallets: false})
+  }
+
+  setPendingWallets(pendingWallets: Record<string, any>){
+    this.setState({pendingWallets: pendingWallets})
+  }
+
+  syncTransaction(transaction: any){
+    console.log("syncTransaction", transaction)
+    for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
+      console.log("walletIndex", walletIndex, this.state.wallets[walletIndex].getId(), transaction.wallet)
+      if ( this.state.wallets[walletIndex].getId() === transaction.wallet){
+        this.loadTransaction(transaction, walletIndex)
+      }
+  }
+  }
+
+  async loadTransaction(transaction: any, walletIndex: number){
+    console.log("loadTransaction", transaction)
+    const wallets = this.state.wallets
+    const wallet = wallets[walletIndex]
+    const state = this.state
+    state.wallets = wallets
+
+    try{
+      await wallet.addPendingTx({tx: transaction.transaction, signatures: {}})
+    }catch(e){
+
+    }
+    Object.keys(transaction.signatures).map( (key) => {
+      try{
+        wallet.addSignature(transaction.signatures[key])
+        toast.info("Transaction update for wallet:" + wallet.getName());
+      }catch(e){
+      }
+        
+  })
+    this.setState(state)
+  }
+
+
 
   async reloadBalance() {
     if (this.state.wallets.length > 0){
@@ -117,10 +203,14 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
   
   async loadState() {
-    await this.loadWallets()
+    await this.importWallets()
     this.setState({loading: false})
     const dAppConnector = new Messaging(this.state.wallets[this.state.selectedWallet], this)
     this.setState({dAppConnector: dAppConnector})
+    const connectedWallet = localStorage.getItem("smartConnectedWallet")
+    if(connectedWallet){
+      this.connectWallet(connectedWallet)
+    }
   }
   
 
@@ -206,17 +296,34 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.setState({wallets: wallets})
     this.storeWallets()
   }
+
+  transmitTransaction(transaction: any, sigAdded: any) {
+    if(this.props.root.state.settings.disableSync) return
+    try{
+    fetch(this.props.root.state.smartSyncService+'/api/transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({tx: transaction.tx.toCBOR() ,sigAdded: sigAdded , network: this.props.settings.network,  signatures: transaction.signatures , wallet:  this.state.wallets[this.state.selectedWallet].getId()})
+      }).catch(e => toast.error("Could not transmit transaction: " + e.message));
+    }catch(e: any){
+      toast.error("Could not transmit transaction: " + e.message);
+    }
+  }
   
   addSignature(signature: string) {
     try{
         const wallets = [...this.state.wallets]
         const wallet = wallets[this.state.selectedWallet]
         const index = wallet.addSignature(signature)
+        this.transmitTransaction(wallet.getPendingTxs()[index], signature)
         this.setState({wallets: wallets})
         this.storeWallets()
         if(wallet.signersCompleted(index)){
           this.submit(index)
         }
+        
       }catch(error: any){
         toast.error("Error adding signature: " + error.message)
         console.log("error", error)
@@ -251,7 +358,6 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
 
     }})
     localStorage.setItem(this.props.settings.network + "smartWallets", JSON.stringify(wallets))
-    console.log("wallets", this.state.wallets)
     localStorage.setItem(this.props.settings.network + "selectedWallet", JSON.stringify(this.state.selectedWallet))
   }
 
@@ -351,10 +457,19 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       console.log("error", error)
     }
   }
-
+  
+  loadWallets(){
+    if(this.state.connectedWallet.socket) {
+        this.state.connectedWallet.socket.emit('loadWallets')
+        this.setExpectingWallets(true)
+    }else{
+      toast.error("Not Connected to a SyncService")
+    }
+  }
+  
 
   async reloadWallets(){
-    await this.loadWallets()
+    await this.importWallets()
     this.setState({loading: false})
   }
 
@@ -366,7 +481,8 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     this.storeWallets()
   }
 
-  async loadWallets() {
+  async importWallets() {
+
     const wallets = JSON.parse(localStorage.getItem(this.props.settings.network + "smartWallets") || "[]");
     const loadedWallets = await Promise.all(wallets.map(async (wallet: any) => {
       const newWallet = new SmartWallet(wallet.id, this.props.settings);
@@ -496,16 +612,34 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
         ))}
 
     </select>
-    <button className={"addNewWalletButton" }>
+    {this.state.wallets.length > 0 && <button className={"addNewWalletButton" }>
              <ExpandIcon className="walletSettingsIcon" onClick={() => this.setState({walletSettingsOpen: !this.state.walletSettingsOpen})}/> 
-         </button>
-
+         </button>}
 
     </div>
     );
     
 }
 
+deleteAllPendingWallets(){
+  this.setState({pendingWallets: {}})
+}
+
+deleteImportedWallet(id: string){
+  const pendingWallets = {...this.state.pendingWallets}
+  delete pendingWallets[id]
+  this.setState({pendingWallets: pendingWallets})
+}
+
+importPendingWallet(id: string){
+  const pendingWallets = {...this.state.pendingWallets}
+  const wallet = pendingWallets[id]
+  delete pendingWallets[id]
+  this.setState({pendingWallets: pendingWallets})
+  if(wallet){
+    this.addWallet(wallet.walletId, wallet.walletName)
+  }
+}
 closeModal(){
   const state = this.state
   state.modal = ""
@@ -517,9 +651,14 @@ closeModal(){
     return (
 
       <div className="SmartWalletContainer"> 
-      {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
-            {this.WalletList()}
 
+      <div className="ContainerHeader" style={{ top: "-14px"}}>
+        {this.WalletList()}
+        <WalletConnector  moduleRoot={this} openWalletPicker={(wallet) => this.props.root.openWalletPicker(wallet)}  key={this.state.connectedWallet.name}></WalletConnector>
+      </div>
+      {this.state.walletSettingsOpen && this.state.wallets.length > 0 && <WalletSettings moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} closeSettings={() => this.setState({walletSettingsOpen: false})} />}
+            
+      {this.state.modal === "pendingWallets" && <WalletImportModal setOpenModal={() => this.setState({modal: ""})}  moduleRoot={this} />}
       { this.state.modal === "updateWallet" && this.state.wallets[this.state.selectedWallet] &&<UpdateWalletModal root={this.props.root} moduleRoot={this} wallet={this.state.wallets[this.state.selectedWallet]} setOpenModal={() => this.closeModal()} hostModal={() => this.setState({walletSettingsOpen: false})} /> }
       { this.state.modal === "newWallet" && < NewWalletModal  moduleRoot={this} showModal={() => this.closeModal()} /> }
       { this.state.modal === "minting" && < MintingModule root={this.props.root} moduleRoot={this}  /> }

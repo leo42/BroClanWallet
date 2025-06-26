@@ -4,9 +4,9 @@ import { ReactComponent as DeleteIcon } from '../html/assets/delete.svg';
 import { ReactComponent as ImportIcon } from '../html/assets/import.svg';
 import { ReactComponent as DetailsIcon } from '../html/assets/details.svg';
 import MultisigContainer from "./Multisig/MultisigContainer";
-
+import SmartWalletContainer from "./SmartWallet/SmartWalletContainer";
 type WalletImportModalProps = {
-  moduleRoot: MultisigContainer;
+  moduleRoot: MultisigContainer | SmartWalletContainer;
   setOpenModal: (open: boolean) => void;
 };
 
@@ -41,24 +41,33 @@ function WalletImportModal(props: WalletImportModalProps) {
   const [hovering, setHovering] = React.useState("");
 
   const walletJson = (json: any) => {
-    const formattedData = JSON.stringify(json, null, 2);
-
-
-    return (
-      <div className="ImportWalletJsonInner" style={{ whiteSpace: 'pre-wrap' }}>
-        {formattedData}
-      </div>
-    );
-
+    try {
+      // If the input is already an object, stringify it
+      const jsonString = typeof json === 'string' ? json : JSON.stringify(json);
+      // Parse the string to handle escaped characters
+      const parsedJson = JSON.parse(jsonString);
+      // Pretty print with indentation
+      const formattedData = JSON.stringify(parsedJson, null, 2);
+      
+      return (
+        <div className="ImportWalletJsonInner" style={{ whiteSpace: 'pre-wrap' }}>
+          {formattedData}
+        </div>
+      );
+    } catch (error) {
+      console.error('Error formatting JSON:', error);
+      return (
+        <div className="ImportWalletJsonInner" style={{ whiteSpace: 'pre-wrap' }}>
+          {json}
+        </div>
+      );
+    }
   };
   const deleteAllWallets = () => {
     props.moduleRoot.deleteAllPendingWallets();
     props.setOpenModal(false);
   };
 
-  const importWallet = (key: string) => {
-    props.moduleRoot.importPendingWallet(key);
-  };
 
   return (
     <div className="modalBackground" >
@@ -83,6 +92,7 @@ function WalletImportModal(props: WalletImportModalProps) {
 
                   return (
                     <div key={key} className="walletDetailsContainer">
+                      {props.moduleRoot.state.pendingWallets[key].walletName && <div className="">{props.moduleRoot.state.pendingWallets[key].walletName}</div>}
                       <div className="">{key}</div>
                     
                        <span className="DateCreated"> Created:  { new Date(props.moduleRoot.state.pendingWallets[key].creationTime).toLocaleString()}</span>
@@ -93,7 +103,7 @@ function WalletImportModal(props: WalletImportModalProps) {
                             {/* show the json object as a pretty Json */}
 
 
-                            <span className="ImportWalletJson">{walletJson(props.moduleRoot.state.pendingWallets[key].json)}</span>
+                            <span className="ImportWalletJson">{walletJson(props.moduleRoot.state.pendingWallets[key].json ? props.moduleRoot.state.pendingWallets[key].json : props.moduleRoot.state.pendingWallets[key].walletJson)}</span>
                           </div>
                         </div>
                       )} 
@@ -156,7 +166,7 @@ function WalletImportModal(props: WalletImportModalProps) {
         </div>
       </div>
       </div>
-  );
-}
+    );
+  }
 
 export default WalletImportModal;
