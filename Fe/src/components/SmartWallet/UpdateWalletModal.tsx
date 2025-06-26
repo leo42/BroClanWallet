@@ -483,7 +483,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       <div className="sigWrap">
         <div className="input_wrap" > 
           <input
-            className="createWalletName"
+            className= {this.isAddressValid(json.keyHash) ? "createWalletName" : "createWalletName createWalletNameInvalid"}
             required
             type="text"
             placeholder="Nickname"
