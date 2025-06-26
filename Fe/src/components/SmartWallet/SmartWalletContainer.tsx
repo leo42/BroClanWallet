@@ -612,10 +612,9 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
         ))}
 
     </select>
-    <button className={"addNewWalletButton" }>
+    {this.state.wallets.length > 0 && <button className={"addNewWalletButton" }>
              <ExpandIcon className="walletSettingsIcon" onClick={() => this.setState({walletSettingsOpen: !this.state.walletSettingsOpen})}/> 
-         </button>
-
+         </button>}
 
     </div>
     );

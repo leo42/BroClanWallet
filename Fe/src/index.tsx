@@ -39,9 +39,8 @@ export type AppState = {
   settings: Settings;
   mode: string;
   syncService: string;
-  smartSyncService: string;
   walletPicker: (wallet: string) => void | undefined;
-
+  smartSyncService: string;
 };
 
 export class App extends React.Component<{}, AppState> {
@@ -59,10 +58,11 @@ export class App extends React.Component<{}, AppState> {
                 api :  {"url": "https://passthrough.broclan.io" , "projectId": "mainnet"} 
                 },
     mode: "darkMode",
-    syncService: "https://sync.broclan.io",
-    smartSyncService: "http://localhost:3001",
+    syncService: "https://sync.keypact.io",
+    smartSyncService: "https://smartsync.keypact.io",
     walletPicker: (wallet: string) => { }
   }
+  
   
   setState(state: AppState){
     super.setState(state)

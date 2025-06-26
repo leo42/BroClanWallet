@@ -37,7 +37,7 @@
     background-color: rgba(255, 255, 255, 0.7);
     box-shadow: var(--clrorange) 0px 0px 5px 0px;
     font-size: 12px;
-    height: inherit;
+    height: 20px;
     width: 25px !important;
     min-width: 25px;
     max-width: 25px;
@@ -53,7 +53,7 @@
 
 .addWalletButtonHighlight{
     width: 30px;
-    height: inherit;
+    height: 30px;
     background-color: white;
     border: 3px solid transparent;
     border-image: conic-gradient(

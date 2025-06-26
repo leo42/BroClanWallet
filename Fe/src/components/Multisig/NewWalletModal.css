@@ -1,6 +1,6 @@
 .addWalletButton{
     
-    height: inherit;
+    height: 20px;
 
      border: var(--clrorange) solid 1px;
     background-color: rgba(255, 255, 255, 0.7);
