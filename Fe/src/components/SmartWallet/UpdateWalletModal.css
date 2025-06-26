@@ -302,8 +302,26 @@ input[type="text"]:focus {
 }
 
 .createWalletName{
-  width: 12vw;
+  width: fit-content;
+  min-width: 12vw;
+  max-width: 70vw;
+
   margin-right: 5px;
+}
+
+.createWalletNameInvalid{
+  opacity: 0.6;
+  background-color: #f5f5f5 !important;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-bottom: 2px solid #ccc !important;
+  color: #999 !important;
+}
+
+.createWalletNameInvalid:focus {
+  outline: none;
+  border-bottom: 2px solid #ccc !important;
+  background-color: #f5f5f5 !important;
 }
 
 .sigWrap div{

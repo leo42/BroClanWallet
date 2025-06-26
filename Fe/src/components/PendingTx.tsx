@@ -215,7 +215,7 @@ function WalletPendingTx(props: WalletPendingTxProps) {
             {importSig ? 
             <div>
                 <input type="text" defaultValue={importedTx} onChange={(event)=> setImportedTx(event.target.value)} placeholder="Signature Data"></input>
-                  <button onClick={importSigniture}>Import</button> 
+                  <button className="commonBtn" onClick={importSigniture}>Import</button> 
             </div> : ""      }
         </div>
     )
