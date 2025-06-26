@@ -17,7 +17,7 @@ const MAX_DEPTH = 3
 type SmartMultisigDescriptor = 
   | { type: "KeyHash"; keyHash: VerificationKeyHash }
   | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
-  | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number }
+  | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number; subType: "All" | "Any" | "atLeast" }
   | { type: "Before"; time: number }
   | { type: "After"; time: number }
   | { type: "Script"; scriptHash: string }
@@ -44,7 +44,8 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
         { type: "NftHolder", policy: "", name: "" , tokenData: null},
         { type: "KeyHash", keyHash: "" },
       ],
-      m: 1
+      m: 1,
+      subType: "atLeast"
     },
     WName: "",
     signers: this.props.moduleRoot.getSigners(),
@@ -60,6 +61,8 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
     { name: "KeyHash", value: "KeyHash" },
     { name: "NftHolder", value: "NftHolder" },
     { name: "AtLeast", value: "AtLeast" },
+    { name: "All", value: "All" },
+    { name: "Any", value: "Any" },
     { name: "Before", value: "Before" },
     { name: "After", value: "After" },
     { name: "Script", value: "Script" },
@@ -190,7 +193,7 @@ toSmartMultisigDescriptor = (json: SmartMultisigJson): SmartMultisigDescriptor =
     case SmartMultisigDescriptorType.NftHolder:
       return { type: "NftHolder", policy: json.policy, name: json.name, tokenData: null };
     case SmartMultisigDescriptorType.AtLeast:
-      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m };
+      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m, subType: "atLeast" };
     case SmartMultisigDescriptorType.Before:
       return { type: "Before", time: json.time };
     case SmartMultisigDescriptorType.After:
@@ -216,9 +219,10 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         policy: json.policy
       };
     case "AtLeast":
+      const m = json.subType === "All" ? json.scripts.length : json.subType === "Any" ? 1 : json.m;
       return {
         Type: SmartMultisigDescriptorType.AtLeast,
-          m: json.m,
+          m: m,
           scripts: json.scripts.map(script => this.toSmartMultisigJson(script))
       };
     case "Before":
@@ -296,10 +300,12 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
                 { type: "KeyHash", keyHash: "" },
                 { type: "KeyHash", keyHash: "" }
               ],
-              m: 3
+              m: 3,
+              subType: "atLeast"
             }
           ],
-          m: 1
+          m: 1,
+          subType: "atLeast"
         };
         break;
       case "2 of 3":
@@ -310,7 +316,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" },
             { type: "KeyHash", keyHash: "" }
           ],
-          m: 2
+          m: 2,
+          subType: "atLeast"
         };
         break;
       case "Shared Bank Account":
@@ -320,7 +327,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" },
             { type: "KeyHash", keyHash: "" }
           ],
-          m: 1
+          m: 1,
+          subType: "atLeast"
         };
         break;
       case "Paranoid Vault":
@@ -335,7 +343,8 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" },
             { type: "KeyHash", keyHash: "" }
           ],
-          m: 5
+          m: 5,
+          subType: "atLeast"
         };
         break;
       default:
@@ -352,14 +361,15 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
     return (
       <div className="atLeast">
-        <input
+       {json.subType === "atLeast" && <span> <input
           required
           type="number" 
           name="amount"
           value={json.m}
           onChange={(event) => this.handleRequiredChange(event.target.value, coordinates)}
-        /> of {json.scripts.length}
-        {json.scripts.map((item, index) => (this.rootComponenent(item, [...coordinates, index])))}
+        /> of {json.scripts.length}</span>
+       }
+        { json.scripts.map((item, index) => (this.rootComponenent(item, [...coordinates, index])))}
         <button className="btn" onClick={() => this.handleAddScript(coordinates)}>Add</button>
       </div>
     );
@@ -779,7 +789,9 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
       parent = current;
       current = current.scripts[index];
     }
-
+ 
+    
+    
     // Create new element based on selected type
     let newElement: SmartMultisigDescriptor;
     const localDate = new Date();
@@ -792,11 +804,34 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         }
         newElement = { 
           type: "AtLeast",
-          scripts: [
+          scripts: current.type === "AtLeast" ? current.scripts : [
             { type: "KeyHash", keyHash: "" },
             { type: "KeyHash", keyHash: "" }
           ],
-          m: 1
+          m: 1,
+          subType: "atLeast"
+        };
+        break;
+      case "All":
+        newElement = {
+          type: "AtLeast",
+          scripts: current.type === "AtLeast" ? current.scripts : [
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" }
+          ],
+          m: 2,
+          subType: "All"
+        };
+        break;
+      case "Any":
+        newElement = {
+          type: "AtLeast",
+          scripts: current.type === "AtLeast" ? current.scripts : [
+            { type: "KeyHash", keyHash: "" },
+            { type: "KeyHash", keyHash: "" }
+          ],
+          m: 1,
+          subType: "Any"
         };
         break;
       case "Before":
@@ -872,7 +907,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
         content = this.scriptComponent(json, coordinates);
         break;
     }
-
+    const subType = json.type === "AtLeast" ? json.subType : json.type
     return (
       <div key={coordinates.join(',')} className={`rootElement ${extraClasses}`}>
         {coordinates.length === 0 ? "" : (
@@ -881,7 +916,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
           </div>
         )}
         <div className="cardSelect">
-          <select value={json.type} onChange={(event) => this.handleTypeChange(event.target.value, coordinates)}>
+          <select value={subType} onChange={(event) => this.handleTypeChange(event.target.value, coordinates)}>
             {this.options.map(option => (
               <option key={option.name} value={option.value}>
                 {option.name}
