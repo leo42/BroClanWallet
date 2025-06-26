@@ -17,7 +17,7 @@ const MAX_DEPTH = 3
 type SmartMultisigDescriptor = 
   | { type: "KeyHash"; keyHash: VerificationKeyHash }
   | { type: "NftHolder"; policy: PolicyId; name: AssetName , tokenData: TokenInfo | null }      
-  | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number; subType: "All" | "Any" | "atLeast" }
+  | { type: "AtLeast"; scripts: SmartMultisigDescriptor[]; m: number; subType: "All" | "Any" | "AtLeast" }
   | { type: "Before"; time: number }
   | { type: "After"; time: number }
   | { type: "Script"; scriptHash: string }
@@ -45,7 +45,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
         { type: "KeyHash", keyHash: "" },
       ],
       m: 1,
-      subType: "atLeast"
+      subType: "AtLeast"
     },
     WName: "",
     signers: this.props.moduleRoot.getSigners(),
@@ -193,7 +193,7 @@ toSmartMultisigDescriptor = (json: SmartMultisigJson): SmartMultisigDescriptor =
     case SmartMultisigDescriptorType.NftHolder:
       return { type: "NftHolder", policy: json.policy, name: json.name, tokenData: null };
     case SmartMultisigDescriptorType.AtLeast:
-      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m, subType: "atLeast" };
+      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m, subType: "AtLeast" };
     case SmartMultisigDescriptorType.Before:
       return { type: "Before", time: json.time };
     case SmartMultisigDescriptorType.After:
@@ -301,11 +301,11 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
                 { type: "KeyHash", keyHash: "" }
               ],
               m: 3,
-              subType: "atLeast"
+              subType: "AtLeast"
             }
           ],
           m: 1,
-          subType: "atLeast"
+          subType: "AtLeast"
         };
         break;
       case "2 of 3":
@@ -317,7 +317,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" }
           ],
           m: 2,
-          subType: "atLeast"
+          subType: "AtLeast"
         };
         break;
       case "Shared Bank Account":
@@ -328,7 +328,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" }
           ],
           m: 1,
-          subType: "atLeast"
+          subType: "AtLeast"
         };
         break;
       case "Paranoid Vault":
@@ -344,7 +344,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" }
           ],
           m: 5,
-          subType: "atLeast"
+          subType: "AtLeast"
         };
         break;
       default:
@@ -361,7 +361,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
     }
     return (
       <div className="atLeast">
-       {json.subType === "atLeast" && <span> <input
+       {json.subType === "AtLeast" && <span> <input
           required
           type="number" 
           name="amount"
@@ -809,7 +809,7 @@ toSmartMultisigJson = (json: SmartMultisigDescriptor): SmartMultisigJson => {
             { type: "KeyHash", keyHash: "" }
           ],
           m: 1,
-          subType: "atLeast"
+          subType: "AtLeast"
         };
         break;
       case "All":
