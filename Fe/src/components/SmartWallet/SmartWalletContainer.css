@@ -5,7 +5,17 @@
     width: 100vw;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
-    z-index: -1;
+    height: 0vh;
 }
 
+.loadingIconContainer{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
