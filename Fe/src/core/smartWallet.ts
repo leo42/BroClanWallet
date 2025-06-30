@@ -694,8 +694,13 @@ getUtxos(): UTxO[] {
 
 
    async pullCollateralUtxo(collateralProvider: string) : Promise<UTxO> {
-    return ( await this.lucid.config().provider!.getUtxos({ type: "Key", hash: collateralProvider }))
-      .filter(utxo => Object.keys(utxo.assets).length === 1 && utxo.assets.lovelace > 5000000n)[0];
+    const utxos = await this.lucid.config().provider!.getUtxos({ type: "Key", hash: collateralProvider })
+    console.log("utxos", utxos)
+    const filteredUtxos = utxos.filter(utxo =>  utxo.assets.lovelace > 5000000n)
+    if(filteredUtxos.length === 0){
+      throw new Error("No collateral utxo found")
+    }
+    return filteredUtxos[0];
    }
 
   async createTemplateTx(signers: string[], returnAddress?: string): Promise<TxBuilder> {
