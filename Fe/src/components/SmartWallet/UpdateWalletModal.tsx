@@ -193,7 +193,7 @@ toSmartMultisigDescriptor = (json: SmartMultisigJson): SmartMultisigDescriptor =
     case SmartMultisigDescriptorType.NftHolder:
       return { type: "NftHolder", policy: json.policy, name: json.name, tokenData: null };
     case SmartMultisigDescriptorType.AtLeast:
-      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m, subType: "AtLeast" };
+      return { type: "AtLeast", scripts: json.scripts.map(script => this.toSmartMultisigDescriptor(script)), m: json.m, subType: json.m === json.scripts.length ? "All" : json.m === 1 ? "Any" : "AtLeast" };
     case SmartMultisigDescriptorType.Before:
       return { type: "Before", time: json.time };
     case SmartMultisigDescriptorType.After:
