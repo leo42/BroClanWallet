@@ -905,7 +905,7 @@ setPendingTxs(pendingTxs: any){
               valid = true
               if (!(signatureInfo.signer && signatureInfo.signer in this.pendingTxs[index].signatures)) {
                    this.pendingTxs[index].signatures[signatureInfo.signer as string] = signatureInfo.signature
-                   return  this.pendingTxs[index]
+                   return  index
                 }else{
                    throw new Error('Signature already registered');
                   }
@@ -918,6 +918,15 @@ setPendingTxs(pendingTxs: any){
 
     }
 
+    getPendingTx(index: number){
+      return this.pendingTxs[index]
+    }
+
+    signersCompleted(index: number) : boolean {
+      const txDetails = this.getPendingTxDetails(index)
+       return txDetails.signatures.every((signature: any) => signature.haveSig === true);
+     }
+     
     getSignature(index: number,keyHash: string){
       return this.pendingTxs[index].signatures[keyHash]
     }

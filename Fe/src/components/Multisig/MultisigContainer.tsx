@@ -401,12 +401,15 @@ async setState(state: MultisigContainerState){
   addSignature(signature: string){ 
     try {
     const wallets = this.state.wallets
-    const transaction = wallets[this.state.selectedWallet].addSignature(signature)
-
+    const index = wallets[this.state.selectedWallet].addSignature(signature)
+    const transaction = wallets[this.state.selectedWallet].getPendingTx(index!)
     this.transmitTransaction(transaction, signature)
     const state = this.state
     state.wallets = wallets
     this.setState(state)
+    if(wallets[this.state.selectedWallet].signersCompleted(index!)){
+      this.submit(index!)
+    }
     toast.info('Signature Added');
     }
     catch(e: any) {
