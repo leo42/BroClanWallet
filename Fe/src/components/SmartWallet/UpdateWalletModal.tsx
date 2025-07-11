@@ -58,7 +58,7 @@ class UpdateWalletModal extends React.Component<AddWalletModalProps, AddWalletMo
 
   
   options = [
-    { name: "KeyHash", value: "KeyHash" },
+    { name: "Signer", value: "KeyHash" },
     { name: "NftHolder", value: "NftHolder" },
     { name: "AtLeast", value: "AtLeast" },
     { name: "All", value: "All" },
