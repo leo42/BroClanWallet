@@ -1,4 +1,4 @@
-import {  Lucid } from "lucid-cardano";
+import {  Lucid } from "@lucid-evolution/lucid";
 import io from 'socket.io-client'
 import { toast } from 'react-toastify';
 import MultisigContainer from "../components/Multisig/MultisigContainer";
@@ -9,9 +9,9 @@ import SmartWallet from "../core/smartWallet";
 async function  connectSocket(wallet: string, root: MultisigContainer | SmartWalletContainer, syncService: string, network?: string){
     console.log("attempting to connect to network", network)
     const api = await window.cardano[wallet].enable()
-    const lucid = await Lucid.new();
-        lucid.selectWallet(api);
-        const address = await lucid.wallet.address();
+    const lucid = await Lucid();
+        lucid.selectWallet.fromAPI(api);
+        const address = await lucid.wallet().address();
         const socket = io(syncService);
         
         
@@ -45,9 +45,10 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
        
         //a function to decode CBOR address to base 68
         
-    socket.on("authentication_challenge", (data) => {
+    socket.on("authentication_challenge", async (data) => {
         
-        const signed = lucid.wallet.signMessage( address,data.challenge );
+        const signed =  lucid.wallet().signMessage( address,data.challenge );
+        console.log("signed", signed)
         signed.then((signature) => {
             socket.emit("authentication_response", {address : address  ,signature: signature , wallets:  root.state.wallets.map((wallet) => wallet.getId() )})   
         }).catch((error) => {

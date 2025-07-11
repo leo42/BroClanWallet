@@ -695,9 +695,10 @@ async setState(state: MultisigContainerState){
         (e) => {
           if(e.message.includes("Insuficient Funds")){
             toast.error("Insuficient Funds")
-          }else if(e.message.includes("(UtxoFailure (ValueNotConservedUTxO (MaryValue (Coin 0) (MultiAsset (fromList []))) ")){
+          }else if(e.message.includes("(ValueNotConservedUTxO (Mismatch {mismatchSupplied = MaryValue (Coin 0)")){
             toast.error("Tx Already Submitted")
           }else{
+            console.log(e.message)
             toast.error("Transaction Failed:" + JSON.stringify(e.message))
           }
         }
