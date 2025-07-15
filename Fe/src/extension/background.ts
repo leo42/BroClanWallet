@@ -1,6 +1,6 @@
 chrome.storage.local.get('appURL', function(result) {
     if (result.appURL === undefined) {
-        chrome.storage.local.set({appURL: 'https://app.broclan.io/'});
+        chrome.storage.local.set({appURL: 'https://app.keypact.io/'});
     }
 });
 
@@ -16,14 +16,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     if(request && request.action){
         if(request.action === "openApp"){
-           connectBroClan().then(() => {
-            sendResponse({ response: "Connected to BroClan" });
+           connectKeyPact().then(() => {
+            sendResponse({ response: "Connected to KeyPact" });
            });
            return true;
         }
                     
         if(BroPort === null){
-            sendResponse({error: "BroClan not connected"});
+            sendResponse({error: "KeyPact not connected"});
             return true;
         }
 
@@ -88,7 +88,7 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
 
     if (approvedUrls.includes(sender.origin!)) {
         if(BroPort === null){
-           await connectBroClan();  
+           await connectKeyPact();  
         }
 
         if(request && request.action && request.action === "submitUnsignedTx"){
@@ -142,7 +142,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
 
 
     if (senderUrl.hostname === appUrl.hostname && senderUrl.port === appUrl.port) {
-        console.log("Connected to BroClan");
+        console.log("Connected to KeyPact");
         
         port.onDisconnect.addListener(function() {
             console.log('Port disconnected');
@@ -152,7 +152,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
         // check if BroPort is alive 
         
         if(BroPort !== null){
-            console.log("BroClan already connected");
+            console.log("KeyPact already connected");
             BroPort.disconnect();
             return
         }
@@ -273,7 +273,7 @@ function getUserApproval(data: any) {
   
 
 
-function connectBroClan() {
+function connectKeyPact() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get('appURL', function(result) {
             let appDomain = new URL(result.appURL);

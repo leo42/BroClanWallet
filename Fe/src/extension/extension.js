@@ -30,7 +30,7 @@ function App() {
             }
         });
         chrome.storage.local.get(['appURL'], function(result) {
-            setAppURL(result.appURL || 'https://app.broclan.io/');
+            setAppURL(result.appURL || 'https://app.keypact.io/');
         });
     }, []);
 
@@ -72,7 +72,7 @@ function App() {
     
     <div className='walletOverview'>
         <h1>Empty</h1>
-        <h3 className='emptyText'> It seems like you have not created any multisig wallets in BroClan!
+        <h3 className='emptyText'> It seems like you have not created any wallets in KeyPact!
         <br/><br/> Please navigate to the App and create one to start using this connector</h3>
     </div>
     
@@ -100,8 +100,8 @@ function App() {
     }
 
     const resetAppURL = () => {
-        chrome.storage.local.set({ appURL: 'https://app.broclan.io/' }, function() {
-            setAppURL('https://app.broclan.io/');
+        chrome.storage.local.set({ appURL: 'https://app.keypact.io/' }, function() {
+            setAppURL('https://app.keypact.io/');
           });
     }
 
@@ -141,7 +141,7 @@ function App() {
         return (
         <div className="extensionWindow">
          <div className='extensionHeader'>
-            <h1 >BroClan dApp Connector  </h1>
+            <h1 >KeyPact dApp Connector  </h1>
           </div>
           <SettingsIcon className="SettingsIcon" onClick={() => setSettingsOpen(!settingsOpen)}/>
           

@@ -34,8 +34,8 @@ class Messaging {
 
        // this.port = chrome.runtime.connect("jfjmokidpopgdhcilhkoanmjcimijgng"); // Selfbuild ID
     try{
-        this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
-       // this.port = chrome.runtime.connect("emfmflhcajhodbjgkmemdncoangplkdn");   //playstore ID
+       // this.port = chrome.runtime.connect("mdnadibcilebgfdkadlhegdpgpglljmn");   //playstore ID
+        this.port = chrome.runtime.connect("emfmflhcajhodbjgkmemdncoangplkdn");   //playstore ID
     }catch(e){
         console.log(e)
         return
