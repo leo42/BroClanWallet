@@ -52,15 +52,28 @@ function TransactionOutput(output: { amount: { [key: string]: string }; address:
 
 function mintToAssets(mint: any) : Assets{
     const assets = {} as Assets
-    Object.keys(mint).forEach((policy: string) => {
-        Object.keys(mint[policy]).forEach((asset: string) => {
-            (assets as {[key: string]: bigint})[policy + asset] = BigInt(mint[policy][asset])
-
-
+    console.log("mint", mint)
+    
+    // Handle Map objects
+    if (mint instanceof Map) {
+        mint.forEach((assetsMap: Map<string, any>, policy: string) => {
+            if (assetsMap instanceof Map) {
+                assetsMap.forEach((amount: any, asset: string) => {
+                    (assets as {[key: string]: bigint})[policy + asset] = BigInt(amount)
+                })
+            }
         })
-    })
-    return assets
+    } else {
+        // Handle plain objects (fallback for compatibility)
+        Object.keys(mint).forEach((policy: string) => {
+            Object.keys(mint[policy]).forEach((asset: string) => {
+                (assets as {[key: string]: bigint})[policy + asset] = BigInt(mint[policy][asset])
+            })
+        })
     }
+    
+    return assets
+}
 
 
  function TransactionDetails( utxos : {inputUtxos : UTxO[], collateralUtxos : UTxO[], referenceInputsUtxos : UTxO[]}, isAddressMine : (address: string) => boolean, transaction: { mint: any; outputs: any[]; fee: number; ttl: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; network_id: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; certs: any[]; withdrawals: Map<string, number>; update: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; auxiliary_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; validity_interval_start: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; script_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; collateral_return: any; total_collateral: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_before: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; invalid_hereafter: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; required_scripts: any[]; reference_inputs: any; required_signers: any[]; }){
