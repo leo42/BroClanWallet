@@ -12,6 +12,7 @@ type MultisigContainerProps = {
 };
 type MultisigContainerState = {
     modal: string;
+    expectingWallets: boolean;
     wallets: MultisigWallet[];
     pendingWallets: Record<string, any>;
     selectedWallet: number;
@@ -64,12 +65,15 @@ declare class MultisigContainer extends React.Component<MultisigContainerProps, 
     importPendingWallet(key: string): Promise<void>;
     addWallet(script: Native, name: string): Promise<void>;
     loadWallets(): void;
+    stopExpectingWallets(): void;
+    setPendingWallets(pendingWallets: Record<string, any>): void;
+    setExpectingWallets(expecting: boolean): void;
     setDefaultSigners(signers: any): void;
     transmitTransaction(transaction: any, sigAdded: any): void;
+    syncTransaction(transaction: any): void;
     transmitWallet(script: Native): void;
     loadTransaction(transaction: any, walletIndex: number): Promise<void>;
     selectWallet(key: number): void;
-    walletHash(wallet: any): Promise<string>;
     submit(index: number): Promise<void>;
     openNewWalletModal(): void;
     walletsEmpty: () => import("react/jsx-runtime").JSX.Element;

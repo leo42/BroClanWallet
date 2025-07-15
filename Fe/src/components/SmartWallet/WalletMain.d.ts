@@ -15,6 +15,7 @@ interface WalletMainState {
 declare class WalletMain extends React.Component<WalletMainProps, WalletMainState> {
     state: WalletMainState;
     mainView(): import("react/jsx-runtime").JSX.Element | undefined;
+    setShowing(showing: string): void;
     render(): import("react/jsx-runtime").JSX.Element;
 }
 export default WalletMain;

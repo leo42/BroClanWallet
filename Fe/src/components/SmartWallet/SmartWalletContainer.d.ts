@@ -19,6 +19,8 @@ interface SmartWalletContainerState {
     loading: boolean;
     dAppConnector: Messaging | null;
     walletSettingsOpen: boolean;
+    expectingWallets: boolean;
+    pendingWallets: Record<string, any>;
 }
 declare class SmartWalletContainer extends React.Component<SmartWalletContainerProps, SmartWalletContainerState> {
     private interval;
@@ -26,10 +28,15 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     componentDidMount(): void;
     componentWillUnmount(): void;
     componentDidUpdate(prevProps: SmartWalletContainerProps): void;
+    setExpectingWallets(expecting: boolean): void;
     newSettings(newSettings: any): Promise<void>;
     showModal(modalName: string): Promise<void>;
     connectWallet(wallet: string): Promise<void>;
     disconnectWallet(error?: string): void;
+    stopExpectingWallets(): void;
+    setPendingWallets(pendingWallets: Record<string, any>): void;
+    syncTransaction(transaction: any): void;
+    loadTransaction(transaction: any, walletIndex: number): Promise<void>;
     reloadBalance(): Promise<void>;
     storeState(): void;
     loadState(): Promise<void>;
@@ -42,6 +49,7 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     }>;
     deleteWallet(index: number): Promise<void>;
     changeWalletName(name: string): void;
+    transmitTransaction(transaction: any, sigAdded: any): void;
     addSignature(signature: string): void;
     setDefaultSigners(signers: string[]): void;
     setDefaultAddress(address: string): void;
@@ -54,10 +62,11 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     getSignerName(keyHash: string): string;
     updateSignerName(hash: string, name: string): void;
     removePendingTx(tx: number): void;
-    addWallet(id: any, name?: string): Promise<void>;
+    addWallet(id: any, name?: string, promice?: Promise<any>): Promise<void>;
+    loadWallets(): void;
     reloadWallets(): Promise<void>;
     setCollateralDonor(address: string): void;
-    loadWallets(): Promise<void>;
+    importWallets(): Promise<void>;
     createDelegationTx(pool: string, dRepId: string, signers: string[]): Promise<void>;
     changeAddressName(address: string, name: string): void;
     createStakeUnregistrationTx(signers: string[]): Promise<void>;
@@ -65,6 +74,9 @@ declare class SmartWalletContainer extends React.Component<SmartWalletContainerP
     submit(index: number): Promise<void>;
     walletsEmpty(): import("react/jsx-runtime").JSX.Element;
     WalletList(): import("react/jsx-runtime").JSX.Element;
+    deleteAllPendingWallets(): void;
+    deleteImportedWallet(id: string): void;
+    importPendingWallet(id: string): void;
     closeModal(): void;
     render(): import("react/jsx-runtime").JSX.Element;
 }
