@@ -1,3 +1,5 @@
+let reloading = false;
+
 chrome.storage.local.get('appURL', function(result) {
     if (result.appURL === undefined) {
         chrome.storage.local.set({appURL: 'https://app.keypact.io/'});
@@ -290,8 +292,12 @@ function connectKeyPact() {
 
                 if (tabIds.length === 0) {
                     tabIds.push(chrome.tabs.create({ url:  result.appURL, active: false }));
-                } else if(BroPort === null){
+                } else if(BroPort === null && !reloading){
+                    reloading = true;
                     chrome.tabs.reload(tabIds[0]!);
+                    setTimeout(() => {
+                        reloading = false;
+                    }, 15000);
                 }
 
 
