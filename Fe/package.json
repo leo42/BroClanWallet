@@ -18,7 +18,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
     "@effect/schema": "^0.72.3",
-    "@lucid-evolution/lucid": "0.4.23",
+    "@evolution-sdk/lucid": "^2.0.0",
     "axios": "^1.2.2",
     "babel-loader": "^8.0.6",
     "bech32": "^2.0.0",
@@ -52,6 +52,9 @@
     "webpack": "^5.75.0",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.11.1",
-    "webpack-subresource-integrity": "^5.2.0-rc.1"
+    "webpack-subresource-integrity": "^5.2.0-rc.1",
+    "@swc/core": "^1.7.26",
+    "swc-loader": "^0.2.6",
+    "file-loader": "^6.2.0"
   }
 }

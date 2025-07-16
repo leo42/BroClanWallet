@@ -6,7 +6,7 @@ import { TokenInfo } from "../../helpers/tokenInfo";
 import SmartWallet from "../../core/smartWallet"; // Changed to default import
 import SmartWalletContainer from "./SmartWalletContainer";
 import { SmartMultisigJson, SmartMultisigDescriptorType } from "../../core/types";
-import { getAddressDetails } from "@lucid-evolution/lucid";
+import { getAddressDetails } from "@evolution-sdk/lucid";
 import { ReactComponent as CorrectIcon } from '../../html/assets/correct.svg';
 import { ReactComponent as WrongIcon } from '../../html/assets/incorrect.svg';
 type VerificationKeyHash = string;

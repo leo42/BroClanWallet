@@ -1,4 +1,4 @@
-import { Assets, UTxO, TxSignBuilder, Delegation, OutRef, Credential } from "@lucid-evolution/lucid";
+import { Assets, UTxO, TxSignBuilder, Delegation, OutRef, Credential } from "@evolution-sdk/lucid";
 interface WalletInterface {
     getName(): string;
     setName(name: string): void;

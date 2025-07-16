@@ -1,10 +1,10 @@
-import * as LucidEvolution from "@lucid-evolution/lucid";
+import * as LucidEvolution from "@evolution-sdk/lucid";
 
 import {  toast } from 'react-toastify';
 import {getNewLucidInstance , changeProvider} from "../helpers/newLucidEvolution"
-import { DRep , Credential } from "@lucid-evolution/lucid";
+import { DRep , Credential } from "@evolution-sdk/lucid";
 import { decodeCIP129 } from "../helpers/decodeCIP129";
-import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@lucid-evolution/core-types";
+import { AlwaysAbstain, AlwaysNoConfidence, Delegation } from "@evolution-sdk/core-types";
 import WalletInterface from "../core/WalletInterface";
 import { coinSelect } from "./coinSelect";
 import sha256 from 'crypto-js/sha256';

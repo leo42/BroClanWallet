@@ -1,4 +1,4 @@
-import { Data, Constr } from "@lucid-evolution/lucid";
+import { Data, Constr } from "@evolution-sdk/lucid";
 import { SmartMultisigJson, SmartMultisigDescriptorType } from './types'
 
 export function encode(json: SmartMultisigJson): string {

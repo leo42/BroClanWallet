@@ -1,4 +1,4 @@
-import {  Lucid } from "@lucid-evolution/lucid";
+import {  Lucid } from "@evolution-sdk/lucid";
 import io from 'socket.io-client'
 import { toast } from 'react-toastify';
 import MultisigContainer from "../components/Multisig/MultisigContainer";

@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef, credentialToAddress} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef, credentialToAddress} from "@evolution-sdk/lucid";
 import { getNewLucidInstance, changeProvider } from "../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../index"; 

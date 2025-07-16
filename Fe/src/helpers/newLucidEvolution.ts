@@ -1,4 +1,4 @@
-import { Lucid, Blockfrost  ,Kupmios, Maestro, LucidEvolution, Network ,Provider, MaestroSupportedNetworks} from "@lucid-evolution/lucid";
+import { Lucid, Blockfrost  ,Kupmios, Maestro, LucidEvolution, Network ,Provider, MaestroSupportedNetworks} from "@evolution-sdk/lucid";
 import {Settings} from "../index"
 
 async function getNewLucidInstance(settings : Settings) : Promise<LucidEvolution>{

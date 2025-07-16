@@ -2,6 +2,7 @@ const path = require('path');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack');
 const argv = require('yargs').argv;
 const isProduction = argv.mode === 'production';
 
@@ -9,7 +10,8 @@ var webAppConfig = {
 	resolve: {
 		fallback: { 
 			crypto: false,
-			 "stream": require.resolve("stream-browserify") 
+			 "stream": require.resolve("stream-browserify"),
+			 "buffer": require.resolve("buffer/")
 		 },
 		extensions: ['.js', '.jsx', '.ts', '.tsx'],  // Add .tsx here
 	},
@@ -55,6 +57,9 @@ var webAppConfig = {
                 { from: 'src/html', to: '' },
             ],
         }),
+		new webpack.ProvidePlugin({
+		  Buffer: ['buffer', 'Buffer'],
+		}),
 		
     ],
 	devtool : 'source-map',
@@ -82,8 +87,8 @@ var extensionConfig = {
 	  mode: 'development',
 	  devtool: 'source-map',
 	  experiments: {
-		asyncWebAssembly: false,
-		topLevelAwait: false,
+		asyncWebAssembly: true,
+		topLevelAwait: true,
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
 		},
 	  module: {
@@ -130,10 +135,9 @@ var workerConfig = {
 	  mode: 'development',
 	  devtool: 'source-map',
 	  experiments: {
-		asyncWebAssembly: false,
+		asyncWebAssembly: true,
 		topLevelAwait: false,
 		layers: true // optional, with some bundlers/frameworks it doesn't work without
-
 		},
 		module: {
 			rules: [
@@ -162,7 +166,7 @@ var workerConfig = {
 		  mode: 'development',
 		  devtool: 'source-map',
 		  experiments: {
-			asyncWebAssembly: false,
+			asyncWebAssembly: true,
 			topLevelAwait: false,
 			layers: true // optional, with some bundlers/frameworks it doesn't work without
 			},
@@ -172,7 +176,8 @@ var workerConfig = {
 					loader: 'babel-loader',
 					test: /\.js$/,
 					exclude: /node_modules/
-				}]
+				}
+				]
 			},
 		};
 	
@@ -191,16 +196,12 @@ var workerConfig = {
 		  },
 		  devtool: 'source-map',
 		  experiments: {
-			asyncWebAssembly: false,
+			asyncWebAssembly: true,
 			topLevelAwait: false,
 			layers: true // optional, with some bundlers/frameworks it doesn't work without
 			},
 			module: {
 				rules: [
-					{
-					test: /\.svg$/,
-					use: ['@svgr/webpack', 'svg-url-loader'],
-				  	},
 					{
 					loader: 'babel-loader',
 					test: /\.js$/,
@@ -215,7 +216,7 @@ var workerConfig = {
 					use: 'ts-loader',
 					exclude: /node_modules/,
 				},
-			]
+				]
 			},
 			experiments: {
 				asyncWebAssembly: true,

@@ -1,7 +1,7 @@
 
 import {Buffer} from 'buffer';
  
-import { utxoToCore , CML , assetsToValue} from "@lucid-evolution/lucid";
+import { utxoToCore , CML , assetsToValue} from "@evolution-sdk/lucid";
 import { App } from '..';
 import MultisigWallet from '../core/multisigWallet';
 import MultisigContainer from '../components/Multisig/MultisigContainer';

@@ -10,7 +10,7 @@ import  { ReactComponent as LoadingIcon } from '../../html/assets/loading.svg';
 import './SmartWalletContainer.css';
 import { Settings , } from '../../index';
 import { SmartMultisigJson } from "./types";
-import {getAddressDetails} from "@lucid-evolution/lucid";
+import {getAddressDetails} from "@evolution-sdk/lucid";
 import WalletSettings from './walletSettings';
 import { ReactComponent as ExpandIcon } from '../../html/assets/settings.svg';
 import Messaging from '../../helpers/Messaging';

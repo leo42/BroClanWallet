@@ -1,5 +1,5 @@
 import React, { useEffect , useState} from 'react';
-import { Lucid , Data , C } from 'lucid-cardano';
+import { Lucid , Data , C } from '@evolution-sdk/lucid';
 import {  toast } from 'react-toastify';
 import getTokenInfo from "../../helpers/tokenInfo.js"
 import TokenDropdownMenu from '../TokenDropdownList.js';

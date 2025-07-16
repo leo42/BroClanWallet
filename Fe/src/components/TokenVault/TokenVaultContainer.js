@@ -5,7 +5,7 @@ import Wallet from "../../../../shared/wallets/TokenWallet.js"
 import "./TokenVaultContainer.css"
 import MWalletList from './WalletList';
 import WalletMain from './WalletMain';
-import { Lucid } from 'lucid-cardano';
+import { Lucid } from '@evolution-sdk/lucid';
 import { toast } from 'react-toastify';
 
 class TokenVaultsContainer extends React.Component {

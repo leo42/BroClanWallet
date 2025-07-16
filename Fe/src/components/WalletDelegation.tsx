@@ -7,7 +7,7 @@ import WalletInterface from '../core/WalletInterface';
 import SmartWalletContainer from './SmartWallet/SmartWalletContainer';
 import MultisigContainer from './Multisig/MultisigContainer';
 import { App } from '..';
-import {Delegation } from '@lucid-evolution/core-types'
+import {Delegation } from '@evolution-sdk/core-types'
 
 function WalletDelegation(props: {wallet: WalletInterface, moduleRoot: SmartWalletContainer | MultisigContainer,  root: App} ) {
   const wallet = props.wallet

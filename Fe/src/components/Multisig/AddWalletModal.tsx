@@ -1,6 +1,6 @@
 import React from "react";
 import "./AddWalletModal.css";
-import { getAddressDetails , CML, Lucid, LucidEvolution, slotToUnixTime, Network, unixTimeToSlot} from "@lucid-evolution/lucid";
+import { getAddressDetails , CML, Lucid, LucidEvolution, slotToUnixTime, Network, unixTimeToSlot} from "@evolution-sdk/lucid";
 import { toast } from "react-toastify";
 import { ReactComponent as CorrectIcon } from '../../html/assets/correct.svg';
 import { ReactComponent as WrongIcon } from '../../html/assets/incorrect.svg';

@@ -1,4 +1,4 @@
-import { UTxO } from "@lucid-evolution/lucid/dist";
+import { UTxO } from "@evolution-sdk/lucid";
 import React from "react";
 declare function transformAmount(amount: any): {
     [key: string]: bigint;

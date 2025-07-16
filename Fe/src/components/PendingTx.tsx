@@ -1,6 +1,6 @@
 import React, { useEffect }     from "react";
 import TokenElement from "./TokenElement";
-import { TxOutput , UTxO , TxSignBuilder, Assets } from "@lucid-evolution/lucid";
+import { TxOutput , UTxO , TxSignBuilder, Assets } from "@evolution-sdk/lucid";
 import {  toast } from 'react-toastify';
 import { ReactComponent as SignIcon } from "./../html/assets/sign.svg";
 import { ReactComponent as ImportSigIcon } from "./../html/assets/importSig.svg";

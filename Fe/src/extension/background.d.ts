@@ -1,3 +1,5 @@
+declare let BroPort: chrome.runtime.Port | null;
+declare let pingInterval: NodeJS.Timeout | null;
 declare function startPing(): void;
 declare function stopPing(): void;
 declare function loadApprovedUrls(): Promise<string[]>;

@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import "./affiliateModal.css";
 import { useState} from 'react';    
-import { Lucid } from "lucid-cardano";
+import { Lucid } from "@evolution-sdk/lucid";
 import copyTextToClipboard from "../../helpers/copyTextToClipboard";
 import { toast } from "react-toastify";
 

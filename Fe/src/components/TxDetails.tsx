@@ -1,4 +1,4 @@
-import { Assets, UTxO } from "@lucid-evolution/lucid/dist";
+import { Assets, UTxO } from "@evolution-sdk/lucid";
 import React, { useEffect } from "react";
 import TokenElement from "./TokenElement";
 

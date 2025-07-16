@@ -1,4 +1,4 @@
-import { TxSignBuilder, CBORHex, Credential, Validator, Assets, UTxO, Delegation, TxBuilder } from "@lucid-evolution/lucid";
+import { TxSignBuilder, CBORHex, Credential, Validator, Assets, UTxO, Delegation, TxBuilder } from "@evolution-sdk/lucid";
 import { Settings } from "../../index";
 import { SmartMultisigJson } from "./types";
 import { TransactionWitnessSet } from '@anastasia-labs/cardano-multiplatform-lib-browser';

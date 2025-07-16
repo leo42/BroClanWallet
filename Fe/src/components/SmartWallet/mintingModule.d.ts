@@ -1,5 +1,5 @@
 import React from "react";
-import { UTxO } from "@lucid-evolution/lucid";
+import { UTxO } from "@evolution-sdk/lucid";
 import "./MintingModule.css";
 import { App } from "../../index";
 import SmartWalletContainer from "./SmartWalletContainer";

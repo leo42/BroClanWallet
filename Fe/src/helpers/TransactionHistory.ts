@@ -1,4 +1,4 @@
-import { getAddressDetails, slotToUnixTime } from "@lucid-evolution/lucid";
+import { getAddressDetails, slotToUnixTime } from "@evolution-sdk/lucid";
 
 async function getTransactionHistory(address : string, settings : any, page=0 , limit = 10){
     if( settings.metadataProvider === "None" ){

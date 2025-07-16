@@ -1,7 +1,7 @@
 import React, { version } from "react";
-import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , credentialToAddress} from "@lucid-evolution/lucid";
+import { Data, MintingPolicy, Assets, LucidEvolution , getAddressDetails, UTxO , credentialToAddress} from "@evolution-sdk/lucid";
 import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
-import {mintingPolicyToId} from "@lucid-evolution/utils"
+import {mintingPolicyToId} from "@evolution-sdk/utils"
 import { toast } from "react-toastify";
 import { adminDatumSchema, SmartMultisigDescriptorType} from "../../core/types";
 import "./MintingModule.css"
@@ -11,7 +11,7 @@ import SmartWallet from "../../core/smartWallet";
 import contracts from "../../core/contracts.json";
 
 import { App  } from "../../index";
-import { validatorToAddress } from "@lucid-evolution/utils";
+import { validatorToAddress } from "@evolution-sdk/utils";
 import SmartWalletContainer from "./SmartWalletContainer";
 import { coinSelect } from "../../core/coinSelect";
 

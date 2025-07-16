@@ -1,7 +1,7 @@
-import { Data, TSchema } from "@lucid-evolution/lucid";
-export declare const adminDatumSchema: import("@lucid-evolution/lucid").TObject<{
-    mintAmount: import("@lucid-evolution/lucid").TUnsafe<bigint>;
-    paymentAddressCredential: import("@lucid-evolution/lucid").TUnsafe<string>;
+import { Data, TSchema } from "@evolution-sdk/lucid";
+export declare const adminDatumSchema: import("@evolution-sdk/lucid").TObject<{
+    mintAmount: import("@evolution-sdk/lucid").TUnsafe<bigint>;
+    paymentAddressCredential: import("@evolution-sdk/lucid").TUnsafe<string>;
 }>;
 export type AdminDatum = Data.Static<typeof adminDatumSchema>;
 export type VerificationKeyHash = string;
@@ -17,8 +17,8 @@ export declare enum SmartMultisigDescriptorType {
     After = "After",
     ScriptRef = "ScriptRef"
 }
-export declare const SmartMultisigDescriptorKeyHashSchema: import("@lucid-evolution/lucid").TObject<{
-    keyHash: import("@lucid-evolution/lucid").TUnsafe<string>;
+export declare const SmartMultisigDescriptorKeyHashSchema: import("@evolution-sdk/lucid").TObject<{
+    keyHash: import("@evolution-sdk/lucid").TUnsafe<string>;
 }>;
 export type SmartMultisigDescriptorKeyHash = Data.Static<typeof SmartMultisigDescriptorKeyHashSchema>;
 export type SmartMultisigDescriptorNftHolder = {

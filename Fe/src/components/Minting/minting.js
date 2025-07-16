@@ -1,7 +1,7 @@
 import React from "react";
 import "./minting.css"
-import { Data, Constr } from "lucid-cardano";
-import { getNewLucidInstance } from "../../helpers/newLucid";
+import { Data, Constr } from "@evolution-sdk/lucid";
+import { getNewLucidInstance } from "../../helpers/newLucidEvolution";
 
 import {  toast } from 'react-toastify';class Minting extends React.Component {
   

@@ -1,4 +1,4 @@
-import { LucidEvolution } from "@lucid-evolution/lucid";
+import { LucidEvolution } from "@evolution-sdk/lucid";
 import { Settings } from "../index";
 declare function getNewLucidInstance(settings: Settings): Promise<LucidEvolution>;
 declare function changeProvider(lucid: LucidEvolution, settings: Settings): Promise<unknown>;

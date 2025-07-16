@@ -1,4 +1,4 @@
-import { TxSignBuilder } from "@lucid-evolution/lucid";
+import { TxSignBuilder } from "@evolution-sdk/lucid";
 import "./PendingTx.css";
 import WalletInterface from "../core/WalletInterface";
 import SmartWalletContainer from "./SmartWallet/SmartWalletContainer";

@@ -1,4 +1,4 @@
-import {  Data, TSchema } from "@lucid-evolution/lucid";
+import {  Data, TSchema } from "@evolution-sdk/lucid";
 
 
 export const adminDatumSchema = Data.Object({

@@ -1,4 +1,4 @@
-import { UTxO, Assets } from "@lucid-evolution/lucid";
+import { UTxO, Assets } from "@evolution-sdk/lucid";
 
 const UPPERBOUND : number = 10
 const MAX_EXTRA : number = 5
