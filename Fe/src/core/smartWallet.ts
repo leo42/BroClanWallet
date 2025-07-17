@@ -143,7 +143,7 @@ class SmartWallet implements WalletInterface {
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     for(const pendingTx of this.pendingTxs){
       if(pendingTx.tx.toHash() === txBuilder.toHash()){
-        return pendingTx.tx.toHash()
+        throw new Error("Transaction already exists")
       }
     }
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
@@ -450,6 +450,11 @@ class SmartWallet implements WalletInterface {
      });
      const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
+     for(const pendingTx of this.pendingTxs){
+      if(pendingTx.tx.toHash() === txBuilder.toHash()){
+        throw new Error("Transaction already exists")
+      }
+     }
      this.pendingTxs.push({ tx: txBuilder , signatures: {} });
      return completedTx;
 }

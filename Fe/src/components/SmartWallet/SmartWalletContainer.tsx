@@ -488,7 +488,11 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
       const newWallet = new SmartWallet(wallet.id, this.props.settings);
       await newWallet.initializeLucid();
       wallet.txs.forEach((tx: any) => {
-        newWallet.addPendingTx(tx);
+        try{
+          newWallet.addPendingTx(tx);
+        }catch(e: any){
+          console.log("error", e)
+        }
       });
       newWallet.setDefaultAddress(wallet.defaultAddress)
       newWallet.setAddressNames(wallet.addressNames)
