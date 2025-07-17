@@ -131,7 +131,7 @@ async setState(state: MultisigContainerState){
             }
         }
 
-      const socket =  await connectSocket(wallet, this, this.props.root.state.syncService) 
+      const socket =  await connectSocket(wallet, this, this.props.root.state.syncService, this.props.settings) 
       let connectedWallet = {  name :wallet , socket: socket}
       const state = this.state
       state.connectedWallet = connectedWallet

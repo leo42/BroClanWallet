@@ -5,11 +5,12 @@ import MultisigContainer from "../components/Multisig/MultisigContainer";
 import MultisigWallet from "../core/multisigWallet";
 import SmartWalletContainer from "../components/SmartWallet/SmartWalletContainer";
 import SmartWallet from "../core/smartWallet";
+import {getNewLucidInstance} from "./newLucidEvolution"
+import { Settings } from "../index";
 
-async function  connectSocket(wallet: string, root: MultisigContainer | SmartWalletContainer, syncService: string, network?: string){
-    console.log("attempting to connect to network", network)
+async function  connectSocket(wallet: string, root: MultisigContainer | SmartWalletContainer, syncService: string, settings: Settings){
     const api = await window.cardano[wallet].enable()
-    const lucid = await Lucid();
+    const lucid = await getNewLucidInstance(settings)
         lucid.selectWallet.fromAPI(api);
         const address = await lucid.wallet().address();
         const socket = io(syncService);
@@ -65,7 +66,7 @@ async function  connectSocket(wallet: string, root: MultisigContainer | SmartWal
         
     const token =  localStorage.getItem(tokenName+"_"+address) ? localStorage.getItem(tokenName+"_"+address) : null;
     
-    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet | SmartWallet) => wallet.getId() ) , network}  );
+    socket.emit("authentication_start", {token: token , wallets:  root.state.wallets.map((wallet : MultisigWallet | SmartWallet) => wallet.getId() ) , network: settings.network}  );
     
     async function  handleWalletsFound (data : any){
         const pendingWallets = root.state.pendingWallets ? root.state.pendingWallets : {}

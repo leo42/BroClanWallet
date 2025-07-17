@@ -112,7 +112,7 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
             }
         }
 
-      const socket =  await connectSocket(wallet, this, this.props.root.state.smartSyncService, this.props.settings.network) 
+      const socket =  await connectSocket(wallet, this, this.props.root.state.smartSyncService, this.props.settings) 
       let connectedWallet = {  name :wallet , socket: socket}
       const state = this.state
       state.connectedWallet = connectedWallet
