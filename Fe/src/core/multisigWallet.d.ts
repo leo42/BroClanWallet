@@ -7,7 +7,7 @@ declare class MultisigWallet implements WalletInterface {
     wallet_script: any;
     wallet_address: string;
     name: string;
-    delegation: any;
+    delegation: Delegation;
     defaultAddress: string;
     txDetails: any;
     pendingTxs: {
@@ -83,6 +83,7 @@ declare class MultisigWallet implements WalletInterface {
     getCollateralUtxos(value: number | undefined): Promise<any>;
     getCollateralAddress(): any;
     getCollateralUtxo(value: number | undefined): Promise<any>;
+    getId(): Promise<string>;
     loadTransaction(transaction: any): Promise<void>;
     createStakeUnregistrationTx(signers: string[]): Promise<string>;
     getSignerName(keyHash: any): any;
@@ -96,12 +97,15 @@ declare class MultisigWallet implements WalletInterface {
         witness: LucidEvolution.CML.TransactionWitnessSet;
     };
     hexToBytes(hex: string): Uint8Array;
-    addSignature(signature: string): {
+    getPendingTxId(index: number): string;
+    addSignature(signature: string): number | undefined;
+    getPendingTx(index: number): {
         tx: LucidEvolution.TxSignBuilder;
         signatures: {
             [key: string]: string;
         };
-    } | undefined;
+    };
+    signersCompleted(index: number): boolean;
     getSignature(index: number, keyHash: string): string;
     submitTx(tx: any): Promise<any>;
     submitTransaction(index: number): Promise<boolean>;

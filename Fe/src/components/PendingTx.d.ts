@@ -1,8 +1,10 @@
 import { TxSignBuilder } from "@lucid-evolution/lucid";
 import "./PendingTx.css";
 import WalletInterface from "../core/WalletInterface";
+import SmartWalletContainer from "./SmartWallet/SmartWalletContainer";
+import MultiWalletContainer from "./Multisig/MultisigContainer";
 interface WalletPendingTxProps {
-    moduleRoot: any;
+    moduleRoot: MultiWalletContainer | SmartWalletContainer;
     wallet: WalletInterface;
     tx: {
         tx: TxSignBuilder;

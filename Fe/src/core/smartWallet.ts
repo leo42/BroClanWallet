@@ -1,4 +1,4 @@
-import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef, credentialToAddress} from "@lucid-evolution/lucid";
+import { TxSignBuilder, Data, DRep, CBORHex , Credential, makeTxSignBuilder ,applyParamsToScript, validatorToScriptHash, applyDoubleCborEncoding, Validator, Assets, UTxO, Datum, Redeemer , Delegation, LucidEvolution , validatorToAddress, validatorToRewardAddress, getAddressDetails, mintingPolicyToId, Constr, credentialToRewardAddress, TxBuilder, unixTimeToSlot, AlwaysAbstain, AlwaysNoConfidence, TypeGuard, OutRef, credentialToAddress, Lucid} from "@lucid-evolution/lucid";
 import { getNewLucidInstance, changeProvider } from "../helpers/newLucidEvolution";
 import contracts from "./contracts.json";
 import { Settings } from "../index"; 
@@ -143,7 +143,7 @@ class SmartWallet implements WalletInterface {
     const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(tx.tx))
     for(const pendingTx of this.pendingTxs){
       if(pendingTx.tx.toHash() === txBuilder.toHash()){
-        return pendingTx.tx.toHash()
+        throw new Error("Transaction already exists")
       }
     }
     this.pendingTxs.push({tx: txBuilder, signatures: tx.signatures});
@@ -450,6 +450,11 @@ class SmartWallet implements WalletInterface {
      });
      const txBuilder = makeTxSignBuilder(this.lucid.config().wallet, Transaction.from_cbor_hex(completedTx.toCBOR({canonical: true})))
 
+     for(const pendingTx of this.pendingTxs){
+      if(pendingTx.tx.toHash() === txBuilder.toHash()){
+        throw new Error("Transaction already exists")
+      }
+     }
      this.pendingTxs.push({ tx: txBuilder , signatures: {} });
      return completedTx;
 }
@@ -668,11 +673,53 @@ async getCollateral(): Promise<UTxO[]>{
 
 }
 
+async checkCollateralUtxo(utxo: UTxO) : Promise<boolean> {
+  try {
+    // Get all current UTXOs for the address that owns this UTXO
+    const addressDetails = getAddressDetails(utxo.address);
+    const paymentCredential = addressDetails.paymentCredential;
+    
+    if (!paymentCredential) {
+      return false;
+    }
+    
+    const currentUtxos = await this.lucid.config().provider?.getUtxos(paymentCredential);
+    
+    if (currentUtxos && currentUtxos.length > 0) {
+      // Check if our specific UTXO is still in the current unspent UTXO set
+      const isStillUnspent = currentUtxos.some(currentUtxo => 
+        currentUtxo.txHash === utxo.txHash && currentUtxo.outputIndex === utxo.outputIndex
+      );
+      
+      if (isStillUnspent) {
+        // Additional check: verify it's not being used in pending transactions
+        const isUsedInPendingTx = this.pendingTxs.some(pendingTx => {
+          try {
+            const txDetails = this.decodeTransaction(pendingTx.tx.toCBOR({canonical: true}));
+            return txDetails.inputs?.some((input: any) => 
+              input.transaction_id === utxo.txHash && input.index === utxo.outputIndex
+            );
+          } catch (e) {
+            return false;
+          }
+        });
+        
+        return !isUsedInPendingTx;
+      }
+    }
+  } catch (e) {
+    console.log("Error checking collateral UTXO:", e);
+  }
+  return false;
+}
+
 async getColateralUtxo(signers? : string[]) : Promise<UTxO> {
   if(this.colateralUtxo && signers?.includes(this.collateralDonor as string)) {
-    const utxos = await this.lucid.config().provider?.getUtxosByOutRef([{txHash : this.colateralUtxo.txHash, outputIndex : this.colateralUtxo.outputIndex}])
-    if(utxos && utxos.length > 0){
+    const isValid = await this.checkCollateralUtxo(this.colateralUtxo)
+    if(isValid){
       return this.colateralUtxo
+    }else{
+      await this.loadCollateralUtxos()
     }
   }
   

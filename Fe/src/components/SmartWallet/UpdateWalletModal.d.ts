@@ -19,6 +19,7 @@ type SmartMultisigDescriptor = {
     type: "AtLeast";
     scripts: SmartMultisigDescriptor[];
     m: number;
+    subType: "All" | "Any" | "AtLeast";
 } | {
     type: "Before";
     time: number;
@@ -61,12 +62,16 @@ declare class UpdateWalletModal extends React.Component<AddWalletModalProps, Add
     keyHashOff(addressOrKeyHash: string): string;
     ifValidKeyHash(keyHash: string): boolean;
     checkAllAddresses: (scripts: SmartMultisigDescriptor[]) => boolean;
+    checkAllAtLeast: (json: SmartMultisigDescriptor[]) => boolean;
+    findNftHolderCoordinates: (json: SmartMultisigDescriptor, path?: number[]) => number[][];
+    countSigners: (json: SmartMultisigDescriptor) => number;
     componentDidMount(): void;
     setJson: (json: SmartMultisigDescriptor) => void;
     setWName: (WName: string) => void;
     toSmartMultisigDescriptor: (json: SmartMultisigJson) => SmartMultisigDescriptor;
     toSmartMultisigJson: (json: SmartMultisigDescriptor) => SmartMultisigJson;
-    handleSubmit: () => void;
+    normalizeName: (name: string) => string;
+    handleSubmit: () => Promise<void>;
     handlePresetChange: (value: string) => void;
     atLeastComponent: (json: SmartMultisigDescriptor, coordinates: number[]) => import("react/jsx-runtime").JSX.Element | null;
     handleAddScript: (coordinates: number[]) => void;

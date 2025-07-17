@@ -76,6 +76,7 @@ var extensionConfig = {
 		// Specify the folder name for the extension output
 	  },
 	  resolve: {
+		
 		extensions: ['.js', '.jsx', '.ts', '.tsx']
 	  },
 	  mode: 'development',

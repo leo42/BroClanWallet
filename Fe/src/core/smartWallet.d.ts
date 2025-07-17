@@ -8,7 +8,6 @@ interface Recipient {
     amount: Assets;
 }
 type extraRequirements = {
-    inputs?: UTxO[];
     refInputs?: UTxO[];
     before?: number;
     after?: number;
@@ -37,6 +36,7 @@ declare class SmartWallet implements WalletInterface {
     getName(): string;
     setName(name: string): void;
     removePendingTx(tx: number): void;
+    removePendingTxByHash(hash: string): void;
     getPendingTxs(): {
         tx: TxSignBuilder;
         signatures: Record<string, string>;
@@ -47,6 +47,7 @@ declare class SmartWallet implements WalletInterface {
         tx: CBORHex;
         signatures: Record<string, string>;
     }): string;
+    getPendingTxId(index: number): string;
     getAddress(stakingAddress?: string): string;
     getEnterpriseAddress(): string;
     getDelegation(): Promise<Delegation>;
@@ -54,9 +55,10 @@ declare class SmartWallet implements WalletInterface {
     getBalance(address?: string): number;
     getContract(): Validator;
     getBalanceFull(address?: string): Assets;
+    configTokenId(): string;
     getConfigUtxo(): Promise<UTxO>;
     getConfig(): SmartMultisigJson;
-    loadConfig(): Promise<undefined>;
+    loadConfig(): Promise<boolean>;
     getCollateralDonor(): string;
     defaultSignersValid(): boolean;
     loadSigners(config: SmartMultisigJson): Promise<{
@@ -76,6 +78,7 @@ declare class SmartWallet implements WalletInterface {
     setCollateralDonor(paymentKeyHash: string): Promise<void>;
     loadCollateralUtxos(): Promise<void>;
     setDefaultSigners(signers: string[]): void;
+    initilizeSigners(): void;
     getCompletedTx(txId: string): {
         tx: TxSignBuilder;
         signatures: Record<string, string>;
@@ -95,7 +98,7 @@ declare class SmartWallet implements WalletInterface {
     isAddressMine(address: string): boolean;
     isAddressValid(address: string): boolean;
     isAddressScript(address: string): boolean;
-    submitTransaction(index: number): Promise<Boolean>;
+    submitTransaction(index: number): Promise<[Promise<boolean>, string]>;
     getId(): string;
     checkSigners(signers: string[]): extraRequirements | false;
     getSigners(): {

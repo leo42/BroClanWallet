@@ -1,14 +1,15 @@
 import React from 'react';
 import './walletSetting.css';
-import Wallet from '../../core/multisigWallet';
+import MultisigWallet from '../../core/multisigWallet';
+import MultisigContainer from './MultisigContainer';
 interface WalletSettingsProps {
-    wallet: Wallet;
-    moduleRoot: any;
+    wallet: MultisigWallet;
+    moduleRoot: MultisigContainer;
     closeSettings: () => void;
 }
 interface WalletSettingsState {
     closeSettings: () => void;
-    wallet: Wallet;
+    wallet: MultisigWallet;
     hovering: string;
     moduleRoot: any;
     showingDetails: string;

@@ -131,7 +131,7 @@ async setState(state: MultisigContainerState){
             }
         }
 
-      const socket =  await connectSocket(wallet, this, this.props.root.state.syncService) 
+      const socket =  await connectSocket(wallet, this, this.props.root.state.syncService, this.props.settings) 
       let connectedWallet = {  name :wallet , socket: socket}
       const state = this.state
       state.connectedWallet = connectedWallet
@@ -401,12 +401,15 @@ async setState(state: MultisigContainerState){
   addSignature(signature: string){ 
     try {
     const wallets = this.state.wallets
-    const transaction = wallets[this.state.selectedWallet].addSignature(signature)
-
+    const index = wallets[this.state.selectedWallet].addSignature(signature)
+    const transaction = wallets[this.state.selectedWallet].getPendingTx(index!)
     this.transmitTransaction(transaction, signature)
     const state = this.state
     state.wallets = wallets
     this.setState(state)
+    if(wallets[this.state.selectedWallet].signersCompleted(index!)){
+      this.submit(index!)
+    }
     toast.info('Signature Added');
     }
     catch(e: any) {
@@ -695,9 +698,10 @@ async setState(state: MultisigContainerState){
         (e) => {
           if(e.message.includes("Insuficient Funds")){
             toast.error("Insuficient Funds")
-          }else if(e.message.includes("(UtxoFailure (ValueNotConservedUTxO (MaryValue (Coin 0) (MultiAsset (fromList []))) ")){
+          }else if(e.message.includes("(ValueNotConservedUTxO (Mismatch {mismatchSupplied = MaryValue (Coin 0)")){
             toast.error("Tx Already Submitted")
           }else{
+            console.log(e.message)
             toast.error("Transaction Failed:" + JSON.stringify(e.message))
           }
         }

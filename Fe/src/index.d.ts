@@ -24,6 +24,7 @@ export type AppState = {
     mode: string;
     syncService: string;
     walletPicker: (wallet: string) => void | undefined;
+    smartSyncService: string;
 };
 export declare class App extends React.Component<{}, AppState> {
     state: AppState;

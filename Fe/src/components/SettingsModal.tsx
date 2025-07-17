@@ -200,7 +200,7 @@ function SettingsModal(props: {root : App, setOpenModal: (modal: string) => void
         <span> Provider</span>   
         <select onChange={(event) => changeProvider(event.target.value)} value={provider} defaultValue={provider}>
           <option value="Blockfrost">Blockfrost</option>
-          <option value="MWallet">BroClan</option>
+          <option value="MWallet">KeyPact</option>
           <option value="Kupmios">Kupmios</option>
           <option value="Maestro">Maestro</option>
         </select>

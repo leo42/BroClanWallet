@@ -14,7 +14,7 @@ declare function TransactionDetails(utxos: {
     ttl: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined;
     network_id: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined;
     certs: any[];
-    withdrawals: any;
+    withdrawals: Map<string, number>;
     update: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined;
     auxiliary_data_hash: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined;
     validity_interval_start: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined;
