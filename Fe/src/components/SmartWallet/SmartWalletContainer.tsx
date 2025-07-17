@@ -170,16 +170,26 @@ class SmartWalletContainer extends React.Component<SmartWalletContainerProps, Sm
     try{
       await wallet.addPendingTx({tx: transaction.transaction, signatures: {}})
     }catch(e){
-
+      // Transaction already exists, that's fine
     }
-    Object.keys(transaction.signatures).map( (key) => {
-      try{
-        wallet.addSignature(transaction.signatures[key])
-        toast.info("Transaction update for wallet:" + wallet.getName());
-      }catch(e){
-      }
-        
-  })
+    
+    // Process signatures only if they exist
+    if(transaction.signatures && Object.keys(transaction.signatures).length > 0) {
+      Object.keys(transaction.signatures).forEach( (key) => {
+        try{
+          wallet.addSignature(transaction.signatures[key])
+          toast.info("Transaction update for wallet:" + wallet.getName());
+      }catch(e: any){
+          // If signature already exists, that's fine - just log it
+          if(e.message && e.message.includes("already")){
+            console.log("Signature already exists for:", key)
+          } else {
+            console.error("Error adding signature:", e)
+          }
+        }
+      })
+    }
+    
     this.setState(state)
   }
 
