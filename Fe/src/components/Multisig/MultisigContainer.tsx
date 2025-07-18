@@ -622,9 +622,8 @@ async setState(state: MultisigContainerState){
     for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
         this.loadTransaction(transaction, walletIndex)
       }
-    })
   }
-  }
+
   transmitWallet(script: Native) {
     try{  
     if(this.props.root.state.settings.disableSync) return
