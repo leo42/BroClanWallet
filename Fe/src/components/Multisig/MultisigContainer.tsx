@@ -618,10 +618,8 @@ async setState(state: MultisigContainerState){
   }
 
 
-  syncTransaction(transaction: any){
+  async syncTransaction(transaction: any){
     for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
-    this.state.wallets[walletIndex].getId().then(walletHash => {
-      if ( walletHash === transaction.wallet){
         this.loadTransaction(transaction, walletIndex)
       }
     })
