@@ -618,15 +618,16 @@ async setState(state: MultisigContainerState){
   }
 
 
-  syncTransaction(transaction: any){
+  async syncTransaction(transaction: any){
     for(let walletIndex = 0; walletIndex < this.state.wallets.length; walletIndex++){
-    this.state.wallets[walletIndex].getId().then(walletHash => {
-      if ( walletHash === transaction.wallet){
+      const wallet = this.state.wallets[walletIndex]
+      const walletId = await wallet.calulateId()
+      if (walletId === transaction.wallet){
         this.loadTransaction(transaction, walletIndex)
       }
-    })
+      }
   }
-  }
+
   transmitWallet(script: Native) {
     try{  
     if(this.props.root.state.settings.disableSync) return

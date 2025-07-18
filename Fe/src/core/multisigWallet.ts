@@ -22,6 +22,7 @@ class MultisigWallet implements WalletInterface{
     addressNames: any
     utxos: LucidEvolution.UTxO[]
     lucid: LucidEvolution.LucidEvolution | undefined 
+    Id: string
   lucidNativeScript: LucidEvolution.CML.NativeScript | undefined;
   collateralDonor: any;
   collateralUtxo: any;
@@ -39,6 +40,7 @@ class MultisigWallet implements WalletInterface{
       this.pendingTxs = [];
       this.addressNames = {}
       this.utxos = []
+      this.Id = ""
       
     }
 
@@ -89,6 +91,7 @@ class MultisigWallet implements WalletInterface{
       this.extractSignerNames(this.wallet_script)
       this.lucidNativeScript = LucidEvolution.toCMLNativeScript(this.wallet_script )
       this.lucid.selectWallet.fromAddress(  this.getAddress(), [] )
+      this.Id = await this.calulateId()
       await this.loadUtxos()
     } 
 
@@ -727,34 +730,38 @@ setPendingTxs(pendingTxs: any){
 
     getId() {
       //remove the name field from the wallet object recursively
-      function removeName(obj: any) {
-        if (typeof obj === 'object') {
-  
-          if (Array.isArray(obj)) {
-            obj.forEach((item) => {
-              removeName(item);
-            });
-          } else {
-            delete obj.name;
-            Object.keys(obj).forEach((key) => {
-              removeName(obj[key]);
-            });
-          }
-        }
-      };
-    
-      const cleanWallet = JSON.parse(JSON.stringify(this.getJson()));
-      removeName(cleanWallet)
-      
-    //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
-      return getSHA256Hash(cleanWallet)
-  
-      async function getSHA256Hash(jsonObj : any) {
-        const jsonString = JSON.stringify(jsonObj);
-        const hashHex = sha256(jsonString).toString();
-        return hashHex;
-      }
+    return this.getJson()
 }
+
+  async calulateId(){
+    function removeName(obj: any) {
+      if (typeof obj === 'object') {
+
+        if (Array.isArray(obj)) {
+          obj.forEach((item) => {
+            removeName(item);
+          });
+        } else {
+          delete obj.name;
+          Object.keys(obj).forEach((key) => {
+            removeName(obj[key]);
+          });
+        }
+      }
+    };
+  
+    const cleanWallet = JSON.parse(JSON.stringify(this.getJson()));
+    removeName(cleanWallet)
+    
+  //crypto.createHash('sha256').update(JSON.stringify(cleanWallet)).digest('hex'); for react
+    return getSHA256Hash(cleanWallet)
+
+    async function getSHA256Hash(jsonObj : any) {
+      const jsonString = JSON.stringify(jsonObj);
+      const hashHex = sha256(jsonString).toString();
+      return hashHex;
+    }
+  }
   
 
     async loadTransaction(transaction: any){
