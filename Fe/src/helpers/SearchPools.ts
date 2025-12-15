@@ -1,46 +1,82 @@
+/**
+ * Pool search utilities using Koios API via passthrough
+ * Ported from Clan framework helpers
+ */
 
-async function SearchPools(string: string){
-    const settings = JSON.parse(localStorage.getItem("settings") || "{}")
+type Settings = {
+  network?: string;
+  koiosApiKey?: string;
+  koiosUrl?: string;
+};
 
+// Use passthrough service - network is passed via header
+const KOIOS_PASSTHROUGH_URL = 'http://localhost:3003';
 
-  //  if (settings.metadataProvider !== "Koios"){
-   //     return []
-   // }
+function getKoiosBase(settings: Settings): string {
+  // Allow override via settings
+  if (settings.koiosUrl) return settings.koiosUrl;
+  return KOIOS_PASSTHROUGH_URL;
+}
 
-    const api = settings.network === "Mainnet" ? "https://api.koios.rest/api/v1/pool_list" : `https://${settings.network}.koios.rest/api/v1/pool_list`
-    try{
-    const responseTicker = await fetch(
-        `${api}?ticker=like.${string}*`,
-        {
-            method: "GET",
-            headers: {
-                "accept": "application/json",
-                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdXkwNTA1NWRqMDczMHM4dXF0YzI2aDJ6N2hrcWswa2hsanhwd2p2ZWtxNzdjMnN1a3dhMnoiLCJleHAiOjE3Njc0NDQ5NjMsInRpZXIiOjEsInByb2pJRCI6IjZpVWJkMmJlVmx0WTVqdk0ifQ.LIwo8YGnK4sMst2PH_jfqZPq017LCKhz-Ah8B057MNQ",
-            }
-        })
+function getNetworkHeader(settings: Settings): string {
+  const net = (settings.network || 'Mainnet').toLowerCase();
+  return net;
+}
 
-    const responseId = await fetch(
-        `${api}?pool_id_bech32=like.${string}*`,
-        {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "authorization" : " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZGRyIjoic3Rha2UxdXkwNTA1NWRqMDczMHM4dXF0YzI2aDJ6N2hrcWswa2hsanhwd2p2ZWtxNzdjMnN1a3dhMnoiLCJleHAiOjE3Njc0NDQ5NjMsInRpZXIiOjEsInByb2pJRCI6IjZpVWJkMmJlVmx0WTVqdk0ifQ.LIwo8YGnK4sMst2PH_jfqZPq017LCKhz-Ah8B057MNQ",
-            }
-        })
+/**
+ * Search for staking pools by ticker or pool ID using Koios via passthrough
+ */
+async function SearchPools(query: string): Promise<string[]> {
+  const settings: Settings = JSON.parse(localStorage.getItem('settings') || '{}');
+  const base = getKoiosBase(settings);
+  const network = getNetworkHeader(settings);
+  const headers: HeadersInit = { 
+    accept: 'application/json',
+    network: network,
+  };
+  if (settings.koiosApiKey) {
+    (headers as Record<string, string>).Authorization = `Bearer ${settings.koiosApiKey}`;
+  }
 
-    const data = await responseTicker.json()
+  if (!query || query.trim().length < 2) {
+    return [];
+  }
+
+  const requests: Promise<Response>[] = [
+    // Search by ticker (case-insensitive with ilike)
+    fetch(`${base}/pool_list?ticker=ilike.*${query}*&limit=15`, { headers }),
+  ];
+
+  // If query looks like a pool ID (starts with "pool1"), also search by ID
+  if (query.startsWith('pool1') || query.length > 10) {
+    requests.push(
+      fetch(`${base}/pool_list?pool_id_bech32=ilike.*${query}*&limit=15`, { headers })
+    );
+  }
+
+  try {
+    const responses = await Promise.all(requests);
+    const pools: any[] = [];
     
-    const data2 = await responseId.json()
-    //return sublist of data that matches string size 10
-        
-    return (data.length !== 0 ? data : data2).slice(0,10).map( (pool: any) => pool.pool_id_bech32)
-    } catch(e){
-        console.log(e)
-        return [string]   
+    for (const res of responses) {
+      if (res && res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          pools.push(...data);
+        }
+      }
     }
 
-    }
+    // Return unique pool IDs
+    return [...new Set(
+      pools
+        .filter((p: any) => p && p.pool_id_bech32)
+        .map((p: any) => p.pool_id_bech32)
+    )].slice(0, 20);
+  } catch (e) {
+    console.warn('SearchPools failed:', e);
+    return [];
+  }
+}
 
-
-export default SearchPools
+export default SearchPools;
