@@ -10,7 +10,7 @@
   height: fit-content;
   display: flex;
   width: 100%;
-  justify-content: space-evenly;
+  justify-content: space-between;
   flex-direction: row;
   gap: 24px;
   z-index: 0;
@@ -38,12 +38,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 40%;
+  width: 45%;
   min-width: 300px;
 }
 
 .DelegationCenter .DelegationUpdate {
-  width: 55%;
+  width: 45%;
   border: var(--clrorange, #F48037) 1px solid;
   border-radius: 15px;
   padding: 20px;
@@ -52,11 +52,6 @@
   align-items: stretch;
 }
 
-.DelegationCenter .DelegationUpdate h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
-}
 
 /* Delegation sections */
 .delegationSection {
@@ -196,6 +191,121 @@
   font-size: 12px;
 }
 
+.summarySection {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.summarySection:last-child {
+  margin-bottom: 0;
+}
+
+.summarySectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.summaryBadge {
+  background: rgba(244, 128, 55, 0.2);
+  color: var(--clrorange, #F48037);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: sans-serif;
+}
+
+.summaryLoading {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.summaryMetadata {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summaryMetadataRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.summaryMetadataName {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summaryMetadataTicker {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-family: monospace;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.summaryMetadataDescription {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.summaryMetadataGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.summaryMetadataItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryMetadataLabel {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summaryMetadataValue {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: monospace;
+}
+
+.summaryMetadataStatus {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-family: sans-serif;
+}
+
+.summaryMetadataStatus.active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.summaryMetadataStatus.inactive {
+  background: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+}
+
 /* Action buttons */
 .delegationActions {
   display: flex;
@@ -249,7 +359,6 @@
 .currentDelegation .PoolElementWrapper {
   margin-top: 10px;
   margin-bottom: 10px;
-  width: 100%;
 }
 
 .currentDelegation .DRepElementWrapper {

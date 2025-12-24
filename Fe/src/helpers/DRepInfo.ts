@@ -11,7 +11,7 @@ type Settings = {
 };
 
 // Use passthrough service - network is passed via header
-const KOIOS_PASSTHROUGH_URL = 'http://localhost:3003';
+const KOIOS_PASSTHROUGH_URL = 'https://koios.keypact.io';
 
 function getKoiosBase(settings: Settings): string {
   // Allow override via settings

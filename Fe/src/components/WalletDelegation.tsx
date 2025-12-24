@@ -3,6 +3,7 @@ import PoolElement from './PoolElement';
 import DRepElement from './DRepElement';
 import SearchPools from '../helpers/SearchPools';
 import { searchDReps, getDRepInfo, getDelegatedDRep, DRepInfo, SPECIAL_DREPS, getSpecialDRepInfo } from '../helpers/DRepInfo';
+import getPoolInfo, { PoolInfo } from '../helpers/PoolInfo';
 import "./WalletDelegation.css"
 import { ReactComponent as LoadingIcon } from '../html/assets/loading.svg';
 import WalletInterface from '../core/WalletInterface';
@@ -50,6 +51,8 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
   const [pools, setPools] = useState<string[]>([]);
   const [selectedPool, setSelectedPool] = useState<string | null>(null);
   const [searchingPools, setSearchingPools] = useState(false);
+  const [selectedPoolInfo, setSelectedPoolInfo] = useState<PoolInfo | null>(null);
+  const [loadingPoolInfo, setLoadingPoolInfo] = useState(false);
 
   // dRep state
   const [drepSearch, setDrepSearch] = useState('');
@@ -59,6 +62,8 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
   const [currentDRepId, setCurrentDRepId] = useState<string | null>(null);
   const [currentDRepInfo, setCurrentDRepInfo] = useState<DRepInfo | null>(null);
   const [loadingCurrentDRep, setLoadingCurrentDRep] = useState(false);
+  const [selectedDRepInfo, setSelectedDRepInfo] = useState<DRepInfo | null>(null);
+  const [loadingDRepInfo, setLoadingDRepInfo] = useState(false);
 
   // General state
   const [signers, setCheckedState] = useState(initialState);
@@ -100,10 +105,13 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
           if (drepDelegation.drep_id.startsWith('drep1')) {
             const info = await getDRepInfo(drepDelegation.drep_id, true);
             setCurrentDRepInfo(info);
+            setSelectedDRep(drepDelegation.drep_id);
           } else if (drepDelegation.drep_id === 'drep_always_abstain') {
             setCurrentDRepInfo(getSpecialDRepInfo(SPECIAL_DREPS.ALWAYS_ABSTAIN));
+            setSelectedDRep(SPECIAL_DREPS.ALWAYS_ABSTAIN);
           } else if (drepDelegation.drep_id === 'drep_always_no_confidence') {
             setCurrentDRepInfo(getSpecialDRepInfo(SPECIAL_DREPS.ALWAYS_NO_CONFIDENCE));
+            setSelectedDRep(SPECIAL_DREPS.ALWAYS_NO_CONFIDENCE);
           }
         }
       } catch (error) {
@@ -177,6 +185,59 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
     return () => clearTimeout(timer);
   }, [drepSearch])
 
+  // Fetch pool info when selectedPool changes
+  useEffect(() => {
+    if (!selectedPool) {
+      setSelectedPoolInfo(null);
+      return;
+    }
+
+    setLoadingPoolInfo(true);
+    getPoolInfo(selectedPool)
+      .then((info) => {
+        setSelectedPoolInfo(info || null);
+      })
+      .catch((error) => {
+        console.warn('Failed to fetch pool info:', error);
+        setSelectedPoolInfo(null);
+      })
+      .finally(() => {
+        setLoadingPoolInfo(false);
+      });
+  }, [selectedPool])
+
+  // Fetch dRep info when selectedDRep changes
+  useEffect(() => {
+    if (!selectedDRep) {
+      setSelectedDRepInfo(null);
+      return;
+    }
+
+    // Handle special dReps
+    if (selectedDRep === 'Abstain' || selectedDRep === SPECIAL_DREPS.ALWAYS_ABSTAIN) {
+      setSelectedDRepInfo(getSpecialDRepInfo(SPECIAL_DREPS.ALWAYS_ABSTAIN));
+      return;
+    }
+    if (selectedDRep === 'NoConfidence' || selectedDRep === SPECIAL_DREPS.ALWAYS_NO_CONFIDENCE) {
+      setSelectedDRepInfo(getSpecialDRepInfo(SPECIAL_DREPS.ALWAYS_NO_CONFIDENCE));
+      return;
+    }
+
+    // Fetch info for custom dRep
+    setLoadingDRepInfo(true);
+    getDRepInfo(selectedDRep, true)
+      .then((info) => {
+        setSelectedDRepInfo(info || null);
+      })
+      .catch((error) => {
+        console.warn('Failed to fetch dRep info:', error);
+        setSelectedDRepInfo(null);
+      })
+      .finally(() => {
+        setLoadingDRepInfo(false);
+      });
+  }, [selectedDRep])
+
   const handleOnChangeSigners = (position: number) => {
     const updatedCheckedState = [...signers]
     updatedCheckedState[position] = !updatedCheckedState[position]
@@ -228,8 +289,8 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
 
     return (
       <div className='currentDelegation'>
-        {/* Pool Delegation Section */}
-        <div className='currentDelegationSection'>
+            <h1>Current Delegation</h1>
+            <div className='currentDelegationSection'>
           <h3>🏊 Pool Delegation</h3>
           {hasPoolDelegation ? (
             <>
@@ -408,19 +469,136 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
               <div className='delegationSummary'>
                 <h3>Delegation Summary</h3>
                 <div className='summaryContent'>
-                  <div className='summaryItem'>
-                    <span className='summaryLabel'>Pool:</span>
-                    <span className='summaryValue'>
-                      {selectedPool ? selectedPool.slice(0, 20) + '...' : 'None selected'}
-                    </span>
+                  {/* Pool Section */}
+                  <div className='summarySection'>
+                    <div className='summarySectionHeader'>
+                      <span className='summaryLabel'>🏊 Pool:</span>
+                      {selectedPool === delegation.poolId && (
+                        <span className='summaryBadge'>Current</span>
+                      )}
+                    </div>
+                    {loadingPoolInfo ? (
+                      <div className='summaryLoading'>Loading pool info...</div>
+                    ) : selectedPoolInfo ? (
+                      <div className='summaryMetadata'>
+                        <div className='summaryMetadataRow'>
+                          <span className='summaryMetadataName'>
+                            {selectedPoolInfo.meta_json?.name || (selectedPool ? selectedPool.slice(0, 20) + '...' : 'Unknown')}
+                          </span>
+                          {selectedPoolInfo.meta_json?.ticker && (
+                            <span className='summaryMetadataTicker'>[{selectedPoolInfo.meta_json.ticker}]</span>
+                          )}
+                        </div>
+                        <div className='summaryMetadataGrid'>
+                          {selectedPoolInfo.pledge && (
+                            <div className='summaryMetadataItem'>
+                              <span className='summaryMetadataLabel'>Pledge:</span>
+                              <span className='summaryMetadataValue'>
+                                {(Number(selectedPoolInfo.pledge) / 1_000_000).toLocaleString()} ₳
+                              </span>
+                            </div>
+                          )}
+                          {selectedPoolInfo.margin !== undefined && (
+                            <div className='summaryMetadataItem'>
+                              <span className='summaryMetadataLabel'>Margin:</span>
+                              <span className='summaryMetadataValue'>
+                                {(selectedPoolInfo.margin * 100).toFixed(2)}%
+                              </span>
+                            </div>
+                          )}
+                          {(selectedPoolInfo.pool_roa !== undefined || selectedPoolInfo.roa !== undefined) && (
+                            <div className='summaryMetadataItem'>
+                              <span className='summaryMetadataLabel'>ROI:</span>
+                              <span className='summaryMetadataValue'>
+                                {typeof (selectedPoolInfo.pool_roa ?? selectedPoolInfo.roa) === 'number' 
+                                  ? (selectedPoolInfo.pool_roa ?? selectedPoolInfo.roa)!.toFixed(2) + '%'
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                          )}
+                          {selectedPoolInfo.live_saturation !== undefined && (
+                            <div className='summaryMetadataItem'>
+                              <span className='summaryMetadataLabel'>Saturation:</span>
+                              <span className='summaryMetadataValue'>
+                                {(selectedPoolInfo.live_saturation * 100).toFixed(1)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : selectedPool ? (
+                      <div className='summaryMetadata'>
+                        <span className='summaryValue'>{selectedPool.slice(0, 20) + '...'}</span>
+                      </div>
+                    ) : (
+                      <div className='summaryMetadata'>
+                        <span className='summaryValue'>None selected</span>
+                      </div>
+                    )}
                   </div>
-                  <div className='summaryItem'>
-                    <span className='summaryLabel'>dRep:</span>
-                    <span className='summaryValue'>
-                      {selectedDRep === 'Abstain' ? 'Always Abstain' :
-                        selectedDRep === 'NoConfidence' ? 'No Confidence' :
-                          selectedDRep.slice(0, 20) + '...'}
-                    </span>
+
+                  {/* dRep Section */}
+                  <div className='summarySection'>
+                    <div className='summarySectionHeader'>
+                      <span className='summaryLabel'>🏛️ dRep:</span>
+                      {selectedDRep === currentDRepId && (
+                        <span className='summaryBadge'>Current</span>
+                      )}
+                    </div>
+                    {loadingDRepInfo ? (
+                      <div className='summaryLoading'>Loading dRep info...</div>
+                    ) : selectedDRepInfo ? (
+                      <div className='summaryMetadata'>
+                        <div className='summaryMetadataRow'>
+                          <span className='summaryMetadataName'>
+                            {selectedDRepInfo.metadata?.name || 
+                             (selectedDRep === 'Abstain' || selectedDRep === SPECIAL_DREPS.ALWAYS_ABSTAIN ? 'Always Abstain' :
+                              selectedDRep === 'NoConfidence' || selectedDRep === SPECIAL_DREPS.ALWAYS_NO_CONFIDENCE ? 'No Confidence' :
+                              selectedDRep.slice(0, 20) + '...')}
+                          </span>
+                          {selectedDRepInfo.active !== undefined && (
+                            <span className={`summaryMetadataStatus ${selectedDRepInfo.active ? 'active' : 'inactive'}`}>
+                              {selectedDRepInfo.active ? '✓ Active' : '✗ Inactive'}
+                            </span>
+                          )}
+                        </div>
+                        {selectedDRepInfo.metadata?.bio && (
+                          <div className='summaryMetadataDescription'>
+                            {selectedDRepInfo.metadata.bio}
+                          </div>
+                        )}
+                        <div className='summaryMetadataGrid'>
+                          {selectedDRepInfo.amount && (
+                            <div className='summaryMetadataItem'>
+                              <span className='summaryMetadataLabel'>Voting Power:</span>
+                              <span className='summaryMetadataValue'>
+                                {(parseInt(selectedDRepInfo.amount) / 1_000_000).toLocaleString()} ₳
+                              </span>
+                            </div>
+                          )}
+                          {selectedDRepInfo.registered !== undefined && (
+                            <div className='summaryMetadataItem'>
+                              <span className='summaryMetadataLabel'>Status:</span>
+                              <span className='summaryMetadataValue'>
+                                {selectedDRepInfo.registered ? 'Registered' : 'Not Registered'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : selectedDRep ? (
+                      <div className='summaryMetadata'>
+                        <span className='summaryValue'>
+                          {selectedDRep === 'Abstain' ? 'Always Abstain' :
+                            selectedDRep === 'NoConfidence' ? 'No Confidence' :
+                              selectedDRep.slice(0, 20) + '...'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className='summaryMetadata'>
+                        <span className='summaryValue'>None selected</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -438,11 +616,6 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
 
             {/* Action Buttons */}
             <div className='delegationActions'>
-              {canDelegate && (
-                <button className='commonBtn' type="submit">
-                  Delegate
-                </button>
-              )}
               {signersValid && delegation.poolId !== null && (
                 <input
                   className='commonBtn undelegateBtn'
@@ -450,6 +623,11 @@ function WalletDelegation(props: { wallet: WalletInterface, moduleRoot: SmartWal
                   value="Undelegate"
                   onClick={Undelegate}
                 />
+              )}
+              {canDelegate && (
+                <button className='commonBtn' type="submit">
+                  Delegate
+                </button>
               )}
             </div>
           </form>
