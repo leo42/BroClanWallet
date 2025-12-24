@@ -70,7 +70,7 @@ declare class MultisigContainer extends React.Component<MultisigContainerProps, 
     setExpectingWallets(expecting: boolean): void;
     setDefaultSigners(signers: any): void;
     transmitTransaction(transaction: any, sigAdded: any): void;
-    syncTransaction(transaction: any): void;
+    syncTransaction(transaction: any): Promise<void>;
     transmitWallet(script: Native): void;
     loadTransaction(transaction: any, walletIndex: number): Promise<void>;
     selectWallet(key: number): void;

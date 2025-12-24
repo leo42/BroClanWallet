@@ -89,6 +89,7 @@ declare class SmartWallet implements WalletInterface {
     private cleanConfig;
     private isValidKeyHash;
     getCollateral(): Promise<UTxO[]>;
+    checkCollateralUtxo(utxo: UTxO): Promise<boolean>;
     getColateralUtxo(signers?: string[]): Promise<UTxO>;
     getUtxos(): UTxO[];
     pullCollateralUtxo(collateralProvider: string): Promise<UTxO>;

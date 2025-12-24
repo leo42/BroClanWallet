@@ -19,6 +19,7 @@ declare class MultisigWallet implements WalletInterface {
     addressNames: any;
     utxos: LucidEvolution.UTxO[];
     lucid: LucidEvolution.LucidEvolution | undefined;
+    Id: string;
     lucidNativeScript: LucidEvolution.CML.NativeScript | undefined;
     collateralDonor: any;
     collateralUtxo: any;
@@ -83,7 +84,8 @@ declare class MultisigWallet implements WalletInterface {
     getCollateralUtxos(value: number | undefined): Promise<any>;
     getCollateralAddress(): any;
     getCollateralUtxo(value: number | undefined): Promise<any>;
-    getId(): Promise<string>;
+    getId(): any;
+    calulateId(): Promise<string>;
     loadTransaction(transaction: any): Promise<void>;
     createStakeUnregistrationTx(signers: string[]): Promise<string>;
     getSignerName(keyHash: any): any;
